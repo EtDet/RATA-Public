@@ -1,0 +1,33 @@
+{
+    "name": "Preface 2: The Legend",
+    "terrain": [[0, 4, 4, 0, 0, 4],
+                [0, 0, 4, 0, 0, 4],
+                [0, 0, 0, 0, 4, 0],
+                [4, 4, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 4, 4, 0, 0],
+                [0, 0, 0, 4, 4, 0],
+                [4, 4, 4, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [18, 12],
+    "enemyStart": [21, 17],
+    "enemyData":
+    [  {"name": "Anna", 
+       "level": 2, 
+       "rarity": 1, 
+       "alt_stats": [16, 2, 7, 3, 2],
+       "weapon": "Iron Axe", 
+       "startMove": 1,
+       "wallBreak": false
+       },
+        {"name": "Virion", 
+       "level": 1, 
+       "rarity": 1, 
+       "alt_stats": [15, 3, 7, 1, 1],
+       "weapon": "Iron Bow", 
+       "startMove": 1,
+       "wallBreak": false
+      }
+    ]
+  }
+  
