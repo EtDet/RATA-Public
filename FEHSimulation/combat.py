@@ -45,8 +45,6 @@ class HeroModifiers:
         self.disable_foe_fastcharge = False
         self.disable_foe_guard = False
 
-        self.tempo_react = False
-
         self.double_def_sp_charge = False
 
         self.first_sp_charge = 0
@@ -1196,7 +1194,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
         atkr.prevent_self_FU_denial = True
         atkr.DR_first_strikes_NSP.append(40)
-        atkr.tempo_react = True
+        if Status.SpecialCharge in attacker.statusPos:
+            atkr.disable_foe_guard = True
 
     # Reginn - Lyngheiðr - Base
     if "reginn :)" in atkSkills:
@@ -2008,10 +2007,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.spGainOnAtk = 0
         defr.spGainWhenAtkd = 0
 
-    if atkr.spGainOnAtk and atkr.spGainWhenAtkd and atkr.tempo_react:
-        atkr.spLossOnAtk = 0
-        atkr.spLossWhenAtkd = 0
-
     if defr.disable_foe_guard:
         defr.spLossOnAtk = 0
         defr.spLossWhenAtkd = 0
@@ -2019,10 +2014,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if defr.disable_foe_fastcharge:
         atkr.spGainOnAtk = 0
         atkr.spGainWhenAtkd = 0
-
-    if defr.spGainOnAtk and defr.spGainWhenAtkd and defr.tempo_react:
-        defr.spLossOnAtk = 0
-        defr.spLossWhenAtkd = 0
 
     atkr.spGainOnAtk = min(atkr.spGainOnAtk, 1) + max(atkr.spLossOnAtk, -1)
     atkr.spGainWhenAtkd = min(atkr.spGainWhenAtkd, 1) + max(atkr.spLossWhenAtkd, -1)

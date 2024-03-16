@@ -39,8 +39,6 @@ class Move():
 # Create blank to be played upon
 map0 = Map(0)
 
-#TEST
-
 # Read JSON data associated with loaded map
 with open(__location__ + "\\Maps\\story0-0-0.json") as read_file: data = json.load(read_file)
 
@@ -54,7 +52,7 @@ bolt = Weapon("Dosing Fang", "Dosing Fang", "idk", 14, 1, "RBeast", {"slaying": 
 robin = Hero("Níðhöggr", "Níðhöggr", 0, "RBeast", 3, [48, 47, 17, 47, 42], [60, 70, 30, 90, 75], 5, 20)
 robin.set_skill(bolt, 0)
 
-robin.set_IVs(ATK,DEF,HP)
+robin.set_IVs(DEF,SPD,DEF)
 robin.set_level(40)
 
 
@@ -77,15 +75,18 @@ while i < len(data["enemyData"]):
     curEnemy.set_rarity(data["enemyData"][i]["rarity"])
     curEnemy.set_level(data["enemyData"][i]["level"])
 
-
-
-
     if "weapon" in data["enemyData"][i]:
         curWpn = makeWeapon("Iron Sword")
         curEnemy.set_skill(curWpn, 0)
 
     if "alt_stats" in data["enemyData"][i]:
         curEnemy.visible_stats = data["enemyData"][i]["alt_stats"]
+        j = 0
+        while j < 5:
+            curEnemy.visible_stats[j] += curEnemy.skill_stat_mods[j]
+            curEnemy.visible_stats[j] = max(min(curEnemy.visible_stats[j], 99), 0)
+            j += 1
+
 
     curEnemy.tile = map0.enemy_start_spaces[i]
     enemy_units_all.append(curEnemy)
@@ -189,7 +190,7 @@ def move_sprite_to_tile(my_canvas, item_ID, num):
 
     my_canvas.coords(item_ID, x_move-40, y_move-40)
 
-def animate_sprite_atk(my_canvas, item_ID, move_hori, move_vert):
+def animate_sprite_atk(my_canvas, item_ID, move_hori, move_vert, damage, text_tile):
     # Get the current coordinates of the item
     x, y = my_canvas.coords(item_ID)
     global animation
@@ -215,6 +216,7 @@ def animate_sprite_atk(my_canvas, item_ID, move_hori, move_vert):
             my_canvas.after(2, move_to)
         else:
             move_fro()
+            animate_damage_popup(my_canvas, damage, text_tile)
 
 
     def move_fro():
@@ -233,6 +235,21 @@ def animate_sprite_atk(my_canvas, item_ID, move_hori, move_vert):
 
 
     move_to()
+
+def animate_damage_popup(canvas, number, text_tile):
+    x_comp = text_tile % 6
+    y_comp = text_tile // 6
+    x_pivot = x_comp * 90 + 45
+    y_pivot = (7 - y_comp) * 90 + 90 + 45
+
+    displayed_text2 = canvas.create_text((x_pivot+1, y_pivot+1), text=str(number), fill='#7a643c', font=("Helvetica", 25, 'bold'), anchor='center')
+    displayed_text = canvas.create_text((x_pivot, y_pivot), text=str(number), fill='#de1d1d', font=("Helvetica", 25, 'bold'), anchor='center')
+
+    canvas.after(350, forget_text, canvas, displayed_text)
+    canvas.after(350, forget_text, canvas, displayed_text2)
+
+def forget_text(canvas, text):
+    canvas.delete(text)
 
 def get_attack_tiles(tile_num, range):
     if range != 1 and range != 2: return []
@@ -271,8 +288,6 @@ def get_arrow_offsets(arrow_num):
     return (0,0)
 
 
-
-
 def start_sim(player_units, enemy_units, chosen_map):
     if not chosen_map.player_start_spaces or not chosen_map.enemy_start_spaces:
         print("Error 100: No starting tiles")
@@ -289,7 +304,6 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         if hasattr(set_banner, "rect_array") and set_banner.rect_array:
             for x in set_banner.rect_array:
-
                 canvas.delete(x)
 
         if hasattr(set_banner, "label_array") and set_banner.label_array:
@@ -491,8 +505,8 @@ def start_sim(player_units, enemy_units, chosen_map):
         enemy_name = defender.name
         enemy_move_type = moves[defender.move]
         enemy_weapon_type = weapons[defender.wpnType]
-        enemy_HPcur = defender.HPcur
-        enemy_HPresult = result[1]
+        enemy_HPcur = int(defender.HPcur)
+        enemy_HPresult = int(result[1])
         enemy_spCount = defender.specialCount
         enemy_combat_buffs = result[3]
 
@@ -506,10 +520,6 @@ def start_sim(player_units, enemy_units, chosen_map):
         atk_hits_R = result[9]
         def_feh_math_R = result[10]
         def_hits_R = result[11]
-
-
-        if atk_hits_R == 1: atk_hits_R = ""
-        if def_hits_R == 1: def_hits_R = ""
 
         atk_multihit_symbol = " × " + str(atk_hits_R)
         if atk_hits_R == 1:
@@ -1047,7 +1057,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                     global animation
                     animation = False
 
-                print(player_sprite, enemy_sprite)
+                #print(player_sprite, enemy_sprite)
 
                 combat_result = simulate_combat(player, enemy, True, turn_count, 0, [])
 
@@ -1056,36 +1066,32 @@ def start_sim(player_units, enemy_units, chosen_map):
                 i = 0
                 while i < len(attacks):
                     if attacks[i].attackOwner == 0:
-
-                        #animate_sprite_atk(canvas, player_sprite, player_atk_dir_hori, player_atk_dir_vert)
-                        canvas.after(i * 500, animate_sprite_atk, canvas, player_sprite, player_atk_dir_hori, player_atk_dir_vert)
-
+                        canvas.after(i * 500 + 200, animate_sprite_atk, canvas, player_sprite, player_atk_dir_hori, player_atk_dir_vert, attacks[i].damage, enemy_tile)
 
                         enemy.HPcur = max(0, enemy.HPcur - attacks[i].damage)
                         if enemy.HPcur == 0: break
 
                     if attacks[i].attackOwner == 1:
-                        canvas.after(i * 500, animate_sprite_atk, canvas, enemy_sprite, player_atk_dir_hori * -1, player_atk_dir_vert * -1)
+                        canvas.after(i * 500 + 200, animate_sprite_atk, canvas, enemy_sprite, player_atk_dir_hori * -1, player_atk_dir_vert * -1, attacks[i].damage, player_tile)
 
                         player.HPcur = max(0, player.HPcur - attacks[i].damage)
                         if player.HPcur == 0: break
 
                     i += 1
 
-                print(i)
+                finish_time = 500 * (i + 1) + 200
 
                 if player.HPcur == 0:
-
                     canvas.itemconfig(player_sprite, state='hidden')
                     chosen_map.tiles[new_tile].hero_on = None
                 else:
-                    set_banner(chosen_map.tiles[new_tile].hero_on)
+                    canvas.after(finish_time, set_banner, chosen_map.tiles[new_tile].hero_on)
 
                 if enemy.HPcur == 0:
-                    canvas.after(500 * (i + 1), hide_enemy)
+                    canvas.after(finish_time, hide_enemy)
                     chosen_map.tiles[mouse_new_tile].hero_on = None
 
-                canvas.after(500 * (i+1), animation_done)
+                canvas.after(finish_time, animation_done)
 
             canvas.drag_data = None
 

@@ -124,8 +124,8 @@ class Hero:
         self.wpnType = wpnType
         self.color = self.getColor()
 
-        self.move = move
-        self.moveTiles = -(abs(self.move - 1)) + 3
+        self.move = int(move)
+        self.moveTiles = -(abs(int(move) - 1)) + 3
 
         self.specialCount = -1
         self.specialMax = -1
