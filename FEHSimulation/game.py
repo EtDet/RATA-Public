@@ -39,6 +39,8 @@ class Move():
 # Create blank to be played upon
 map0 = Map(0)
 
+#TEST
+
 # Read JSON data associated with loaded map
 with open(__location__ + "\\Maps\\story0-0-0.json") as read_file: data = json.load(read_file)
 
