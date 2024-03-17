@@ -1461,8 +1461,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.damage_reduction_reduction *= (1 - 0.5)
         atkr.true_all_hits += trunc(defStats[HP] * 0.3)
         # reduce damage by Y
-        # Y = damage dealt by unit
-        # if foe uses offensive special, reduce damage by 2Y
+        # Y = damage dealt to foe, max 20
+        # if hit by offensive special, reduce damage by 2Y
 
     if "Mario":
         "only Bros!"
@@ -2469,10 +2469,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if Status.Dodge in defSkills and defPhantomStats[2] > atkPhantomStats[2]:
         defr.DR_all_hits_NSP.append(min(4 * (defPhantomStats[2] - atkPhantomStats[2], 40)))
 
-    if "reduFU" in atkSkills and turn % 2 == 1 or not defHPEqual100Percent:
+    if "reduFU" in atkSkills and (turn % 2 == 1 or not defHPEqual100Percent):
         atkr.DR_first_hit_NSP.append(30 * (1 + int(followupD)))
 
-    if "reduFU" in defSkills and turn % 2 == 1 or not atkHPEqual100Percent:
+    if "reduFU" in defSkills and (turn % 2 == 1 or not atkHPEqual100Percent):
         defr.DR_first_hit_NSP.append(30 * (1 + int(followupA)))
 
     # post combat charge
@@ -3148,9 +3148,9 @@ enemy.set_skill(defStance, ASKILL)
 
 player.chargeSpecial(1)
 
-final_result = simulate_combat(player, enemy, 0, 1, 2, [])
+#final_result = simulate_combat(player, enemy, 0, 1, 2, [])
 
-print((final_result[0], final_result[1]))
+#print((final_result[0], final_result[1]))
 
 # alpha.inflict(Status.Panic)
 # alpha.inflictStat(ATK,+7)

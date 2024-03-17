@@ -47,13 +47,13 @@ map0.define_map(data)
 
 # hero definitions, used just for now
 #bolt = Weapon("Tactical Bolt", "Tactical Bolt", "idk", 14, 2, "Sword", {"colorlessAdv": 0}, ["Robin"])
-bolt = Weapon("Dosing Fang", "Dosing Fang", "idk", 14, 1, "RBeast", {"slaying": 1, "the_dose": 20}, ["Níðhöggr"])
+bolt = Weapon("Dosing Fang", "Dosing Fang", "idk", 1, 1, "RBeast", {"slaying": 1, "the_dose": 20}, ["Níðhöggr"])
 #robin = Hero("Robin", "M!Robin", 0, "BTome", 0, [40,29,29,29,22], [50, 50, 50, 50, 40], 30, 67)
 robin = Hero("Níðhöggr", "Níðhöggr", 0, "RBeast", 3, [48, 47, 17, 47, 42], [60, 70, 30, 90, 75], 5, 20)
 robin.set_skill(bolt, 0)
 
 robin.set_IVs(DEF,SPD,DEF)
-robin.set_level(40)
+robin.set_level(1)
 
 
 
@@ -425,7 +425,7 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         unit_stat_label.insert(tk.END, str(stats[2]), "spd")
 
-        unit_stat_label.insert(tk.END, "\n      " + str((hero.HPcur//stats[0]) * 100) + "%", "hp")
+        unit_stat_label.insert(tk.END, "\n      " + str(int(hero.HPcur/stats[0] * 100)) + "%", "hp")
 
         if (DEF == hero.asset and not is_neutral_iv) or \
                 (DEF == hero.asc_asset and is_neutral_iv and is_asc) or \
@@ -521,6 +521,8 @@ def start_sim(player_units, enemy_units, chosen_map):
         def_feh_math_R = result[10]
         def_hits_R = result[11]
 
+        # FEH Math Hits
+
         atk_multihit_symbol = " × " + str(atk_hits_R)
         if atk_hits_R == 1:
             atk_multihit_symbol = ""
@@ -535,6 +537,8 @@ def start_sim(player_units, enemy_units, chosen_map):
         if def_hits_R == 0: def_feh_math = "—"
         if atk_hits_R == 0: atk_feh_math = "—"
 
+        # Background
+
         player_color = "#18284f" if attacker.side == 0 else "#541616"
         enemy_color = "#18284f" if defender.side == 0 else "#541616"
 
@@ -544,6 +548,8 @@ def start_sim(player_units, enemy_units, chosen_map):
         set_banner.rect_array.append(canvas.create_rectangle(0, 0, 539 / 2, 90, fill=player_color, outline=RARITY_COLORS[attacker.rarity - 1]))
         set_banner.rect_array.append(canvas.create_rectangle(539 / 2 + 1, 0, 539, 90, fill=enemy_color, outline=RARITY_COLORS[defender.rarity - 1]))
 
+        # Names
+
         player_name_label = tk.Label(canvas, text=player_name, bg='black', font="nintendoP_Skip-D_003 10", relief="raised", width=13)
         player_name_label.place(x=10, y=5)
 
@@ -552,6 +558,8 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         set_banner.label_array.append(player_name_label)
         set_banner.label_array.append(enemy_name_label)
+
+        # Icons
 
         player_move_icon = canvas.create_image(135, 6, anchor=tk.NW, image=move_icons[attacker.move])
         player_weapon_icon = canvas.create_image(160, 4, anchor=tk.NW, image=weapon_icons[weapons[attacker.wpnType][0]])
@@ -563,11 +571,15 @@ def start_sim(player_units, enemy_units, chosen_map):
         set_banner.rect_array.append(enemy_move_icon)
         set_banner.rect_array.append(enemy_weapon_icon)
 
+        # HP Calculation
+
         player_hp_calc = canvas.create_text((215, 16), text=str(player_HPcur) + " → " + str(player_HPresult), fill='yellow',font=("Helvetica", 11), anchor='center')
         enemy_hp_calc = canvas.create_text((324, 16), text=str(enemy_HPcur) + " → " + str(enemy_HPresult), fill="yellow", font=("Helvetica", 11), anchor='center')
 
         set_banner.rect_array.append(player_hp_calc)
         set_banner.rect_array.append(enemy_hp_calc)
+
+        # Weapon Triangle Advantage
 
         if wpn_adv == 0:
             adv_arrow = canvas.create_text((255, 16), text=" ⇑ ", fill='green',font=("Helvetica", 20, 'bold'), anchor='center')
@@ -582,6 +594,8 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         set_banner.rect_array.append(canvas.create_rectangle(270-40, 27, 270+40, 42, fill='#5a5c6b', outline='#dae6e2'))
 
+        # FEH Math
+
         feh_math_text = canvas.create_text((270, 35), text="FEH Math", fill='#dae6e2', font=("Helvetica", 11, 'bold'), anchor='center')
         set_banner.rect_array.append(feh_math_text)
 
@@ -590,6 +604,8 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         def_feh_math_text = canvas.create_text((270+85, 35), text=def_feh_math, fill='#e8c35d', font=("nintendoP_Skip-D_003", 8), anchor='center')
         set_banner.rect_array.append(def_feh_math_text)
+
+        # Special Count
 
         if player_spCount != -1:
             atk_sp_charge = canvas.create_text((270 - 135, 35), text=player_spCount, fill='#ff33ff', font=("Helvetica", 8), anchor='center')
@@ -608,6 +624,7 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         set_banner.rect_array.append(canvas.create_text((cur_box_pos - 65, 65), text="Attack Order", fill='black', font=("Helvetica", 10, "bold"), anchor='center'))
 
+        # Attacks
 
         for x in attacks:
             box_color = "#18284f" if x.attackOwner == 0 else "#541616"

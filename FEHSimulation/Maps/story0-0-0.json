@@ -16,7 +16,7 @@
       "name": "Marth",
       "level": 1,
       "rarity": 2,
-      "alt_stats": [15, 2, 5, 2, 0],
+      "alt_stats": [15, 14, 5, 14, 0],
       "weapon": "Iron Sword",
       "startMove": 1,
       "structBreak": false
