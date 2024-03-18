@@ -52,7 +52,7 @@ class Hero:
 
         self.side = 0 # 0 - player, 1 - enemy
 
-        # FE Game of Origin - used by harmonic skills, Askr's Opened Domain, and Alear's Libération/Dragon's Fist
+        # FE Game of Origin - used by harmonic skills, Askr's Opened Domain, and Alear's Weapons
         # 0 - Heroes
         # 1/3/11/12 - Shadow Dragon/(New) Mystery
         # 2/15 - Gaiden/Echoes
@@ -69,8 +69,9 @@ class Hero:
         # 17 - Engage
         # 69 - Tokyo Mirage Sessions ♯FE
         # 99 - Other
-        # 313 - Naga & H!Naga (Listed to have FE3 & FE13 as games of origin)
-        # 776 - A!Ced & L!Lief (same as Naga w/ FE4 & FE5)
+        # 117 - E!Marth (FE1 & 17)
+        # 313 - Naga & H!Naga (FE3 & FE13)
+        # 776 - A!Ced & L!Lief (FE4 & FE5)
         self.game = game
 
         self.rarity = 5

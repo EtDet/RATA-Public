@@ -1265,7 +1265,6 @@ def start_sim(player_units, enemy_units, chosen_map):
     canvas.bind("<B1-Motion>", on_drag)
     canvas.bind("<ButtonRelease-1>", on_release)
 
-
     window.mainloop()
     return 0
 
