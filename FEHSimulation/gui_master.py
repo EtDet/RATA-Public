@@ -10,7 +10,6 @@ __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file
 megaSpread = pd.read_csv(__location__ + '\\FEHstats.csv')
 
 def makeHero(name):
-    # print(type(megaSpread))
     row = megaSpread.loc[megaSpread['IntName'] == name]
     n = row.index.values[0]
 
@@ -37,7 +36,21 @@ def makeHero(name):
 
 def singlePlayerButton():
     output_string.set("Singe Player Selected")
-    for x in buttons: x.pack_forget()
+    search_frame.pack()
+    input_frame.pack_forget()
+
+    sp_path = __location__ + '\\Maps'
+
+    folders = [folder for folder in os.listdir(sp_path) if os.path.isdir(os.path.join(sp_path, folder))]
+
+    for folder in folders:
+        folder_button = tk.Button(sp_canvas, text=folder, width=30, height=4, command=lambda f=folder: print(f))
+        folder_button.pack()
+
+
+    sp_canvas.pack(side='left', fill='both', expand=False)
+    sp_scrollbar.pack(side='right', fill='y')
+
 
 
 def arenaButton():
@@ -59,7 +72,6 @@ def myUnitsButton():
     output_string.set("'My Units' Selected")
 
     search_frame.pack()
-
     input_frame.pack_forget()
 
     for widget in button_frame.winfo_children(): widget.destroy()
@@ -132,10 +144,20 @@ def searchUnits():
 
             i += 1
 
+def sp_backToMain():
+    sp_canvas.pack_forget()
+    sp_scrollbar.pack_forget()
+
+    input_frame.pack(side='left', anchor='nw', padx=10, pady=10)
+
 def myUnits_backToMain():
-    button_frame.pack_forget()
     unit_canvas.pack_forget()
     unit_scrollbar.pack_forget()
+
+    sp_canvas.pack_forget()
+    sp_scrollbar.pack_forget()
+
+    button_frame.pack_forget()
 
     search_frame.pack_forget()
 
@@ -154,17 +176,17 @@ window.iconbitmap(__location__ + "\\Sprites\\Marth.ico")
 
 
 #top label
-title_label = ttk.Label(master=window, text='Fire Emblem Heroes Simulator', font='nintendoP_Skip-D_003 24')
+title_label = ttk.Label(master=window, text='RATA', font='nintendoP_Skip-D_003 24')
 title_label.pack(side='top', anchor='nw')
 
-subtitle_label = ttk.Label(master=window, text='By CloudX (2023)', font='nintendoP_Skip-D_003 12')
+subtitle_label = ttk.Label(master=window, text='By CloudX (2024)', font='nintendoP_Skip-D_003 12')
 subtitle_label.pack(side='top', anchor='nw')
+
+version_level = ttk.Label(master=window, text='Ver 1.0.0', font='nintendoP_Skip-D_003 10')
+version_level.pack(side='top', anchor='nw')
 
 # main menu buttons
 input_frame = ttk.Frame(master=window)
-entry_int = tk.IntVar()
-
-# entry = ttk.Entry(master=input_frame, textvariable = entry_int)
 
 btWidth = 30
 btHeight = 3
@@ -174,28 +196,33 @@ button_arena = tk.Button(master=input_frame, text='Arena', command=arenaButton, 
 button_aether_raids = tk.Button(master=input_frame, text='Aether Raids', command=aetherRaidsButton, width=btWidth, height=btHeight)
 button_sandbox = tk.Button(master=input_frame, text='Sandbox', command=sandboxButton, width=btWidth, height=btHeight)
 button_my_units = tk.Button(master=input_frame, text='My Units', command=myUnitsButton, width=btWidth, height=btHeight)
+
 buttons = [button_singe_player, button_arena, button_aether_raids, button_sandbox, button_my_units]
 
 for b in buttons: b.pack(side='top', pady=5)
 
 input_frame.pack(side='top', anchor='nw', padx=10, pady=10)
 
+
+# single-player buttons
+
+sp_canvas = tk.Canvas(window)
+sp_scrollbar = ttk.Scrollbar(window, orient='vertical', command=sp_canvas.yview)
+
+sp_canvas.configure(yscrollcommand=sp_scrollbar.set)
+sp_canvas.bind("<Configure>", lambda e: sp_canvas.configure(scrollregion=sp_canvas.bbox("all")))
+sp_canvas.bind_all("<MouseWheel>", on_canvas_mousewheel)
+
 # unit buttons
-
 unit_canvas = tk.Canvas(window)
-# unit_canvas.pack(side='left', fill='both', expand=True)
-
 unit_scrollbar = ttk.Scrollbar(window, orient='vertical', command=unit_canvas.yview)
-# unit_scrollbar.pack(side='right',fill='y')
 
 unit_canvas.configure(yscrollcommand=unit_scrollbar.set)
 unit_canvas.bind("<Configure>", lambda e: unit_canvas.configure(scrollregion=unit_canvas.bbox("all")))
 unit_canvas.bind_all("<MouseWheel>", on_canvas_mousewheel)
 
 unit_subframe = tk.Frame(unit_canvas, bg='red', width=300, height=300)
-
 unit_canvas.create_window((0, 0), window=unit_subframe, anchor='nw')
-
 button_frame = tk.Frame(unit_subframe)
 
 unit_read = pd.read_csv(__location__ + '\\feh_user_units.csv')

@@ -40,7 +40,7 @@ class Move():
 map0 = Map(0)
 
 # Read JSON data associated with loaded map
-with open(__location__ + "\\Maps\\story0-0-0.json") as read_file: data = json.load(read_file)
+with open(__location__ + "\\Maps\\Story Maps\\Book 1\\Preface\\story0-0-0.json") as read_file: data = json.load(read_file)
 
 # Fill in terrain, starting tiles, enemy units, etc. into map
 map0.define_map(data)
@@ -1129,7 +1129,7 @@ def start_sim(player_units, enemy_units, chosen_map):
     canvas.pack()
 
     # map
-    map_image = Image.open(__location__ + "\\Maps\\" + "story0_0_0" + ".png")
+    map_image = Image.open(__location__ + "\\Maps\\Story Maps\\Book 1\\Preface\\" + "story0_0_0" + ".png")
     map_photo = ImageTk.PhotoImage(map_image)
     canvas.create_image(0, 90, anchor=tk.NW, image=map_photo)
 
