@@ -810,7 +810,8 @@ def start_sim(player_units, enemy_units, chosen_map):
             # figure out the current path
 
             if cur_tile != new_tile and chosen_map.tiles[new_tile].hero_on is not None and new_tile in canvas.drag_data['attack_range'] and \
-                chosen_map.tiles[new_tile].hero_on != cur_hero and canvas.drag_data['target'] != chosen_map.tiles[new_tile].hero_on:
+                chosen_map.tiles[new_tile].hero_on != cur_hero and canvas.drag_data['target'] != chosen_map.tiles[new_tile].hero_on\
+                    and event.y >= 0:
 
 
                 target_tile = canvas.drag_data['targets_and_tiles'][chosen_map.tiles[new_tile].hero_on][0]
@@ -906,7 +907,7 @@ def start_sim(player_units, enemy_units, chosen_map):
 
             # draw the arrow path
             if new_tile in canvas.drag_data['moves'] or canvas.drag_data['target_path'] != "NONE":
-                if len(traced_path) == 0:
+                if len(traced_path) == 0 or event.x > 539 or event.x < 0:
                     star = canvas.create_image(x_arrow_pivot, y_arrow_pivot, anchor=tk.NW, image=arrow_photos[MOVE_STAR])
                     canvas.drag_data['arrow_path'].append(star)
                     canvas.tag_lower(star, canvas.drag_data['item'])

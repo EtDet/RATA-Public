@@ -15,8 +15,10 @@ class HeroModifiers:
     def __init__(self):
         # attack order
         self.brave = False
+
         self.vantage = False
-        self.desperation = False
+        self.self_desperation = False
+        self.other_desperation = False
         self.hardy_bearing = False
 
         self.potent_FU = False
@@ -41,11 +43,12 @@ class HeroModifiers:
 
         self.sp_charge_first = 0
         self.sp_charge_FU = 0
+        self.sp_charge_foe_first = 0
 
         self.disable_foe_fastcharge = False
         self.disable_foe_guard = False
 
-        self.double_def_sp_charge = False
+        self.double_def_sp_charge = False # negating fang ii
 
         self.first_sp_charge = 0
 
@@ -61,15 +64,18 @@ class HeroModifiers:
 
         self.DR_all_hits_SP = []
         self.DR_sp_trigger_next_only_SP = []
-
         self.DR_sp_trigger_next_all_SP = []
         self.DR_sp_trigger_next_all_SP_CACHE = []
+
+        self.DR_great_aether_SP = False
 
         self.damage_reduction_reduction = 1
 
         self.sp_pierce_DR = False
         self.pierce_DR_FU = False
         self.always_pierce_DR = False
+        self.sp_pierce_after_def_sp = False # laguz friend 4
+        self.sp_pierce_after_def_sp_CACHE = False
 
         # true damage / true reduction
         self.true_all_hits = 0
@@ -85,6 +91,9 @@ class HeroModifiers:
         self.TDR_first_strikes = 0
         self.TDR_second_strikes = 0
         self.TDR_on_def_sp = 0
+
+        self.TDR_dmg_taken_cap = 0
+        self.TDR_dmg_taken_extra_stacks = 0
 
         self.reduce_self_sp_damage = 0  # emblem marth
 
@@ -301,6 +310,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     # prevent counterattacks from defender (sweep, flash)
     cannotCounter = False
+
+    disableCannotcounter = False
 
     # cancel affinity, differs between ally and foe for
     # levels 2/3 because my life can't be easy
@@ -781,10 +792,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.follow_up_denials -= 1
 
     if "swagDesp" in atkSkills and atkHPGreaterEqual50Percent:
-        atkr.desperation = True
+        atkr.self_desperation = True
 
     if "swagDespPlus" in atkSkills and atkHPGreaterEqual25Percent:
-        atkr.desperation = True
+        atkr.self_desperation = True
         atkCombatBuffs[1] += 5
         atkCombatBuffs[2] += 5
         if defStats[SPD] + defPhantomStats[SPD] > defStats[DEF] + defPhantomStats[DEF]:
@@ -1001,14 +1012,27 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             if defAllyWithin4Spaces >= 3:
                 defr.prevent_foe_FU, defr.prevent_self_FU_denial = True
 
+    if "BIGIKEFAN" in atkSkills and atkHPGreaterEqual25Percent:
+        X = min(max(trunc(defStats[ATK] * 0.2) - 2, 6), 16)
+        atkCombatBuffs[ATK] += X
+        defCombatBuffs[ATK] -= X
+        atkPenaltiesNeutralized = [True] * 5
+        disableCannotCounter = True
+        atkr.disable_foe_guard = True
+
+    if "AETHER_GREAT" in atkSkills:
+        atkr.vantage = True
+        atkr.other_desperation = True
+        atkr.DR_great_aether_SP = True
+
     if "pointySword" in atkSkills: map(lambda x: x + 5, atkCombatBuffs)
     if "pointySword" in defSkills and defAllyWithin2Spaces: map(lambda x: x + 5, atkCombatBuffs)
 
     if "TWO?" in atkSkills and defHPGreaterEqual75Percent:
         atkCombatBuffs[1] += 5
         atkCombatBuffs[4] += 5
-        atkr.spGainWhenAtkd += 1
         atkr.spGainOnAtk += 1
+        atkr.spGainWhenAtkd += 1
 
         defBonusesNeutralized[ATK] = True
         defBonusesNeutralized[DEF] = True
@@ -1208,7 +1232,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "thundabrand" in atkSkills and defHPGreaterEqual50Percent:
         atkCombatBuffs[1] += 5
         atkCombatBuffs[2] += 5
-        atkr.desperation = True
+        atkr.self_desperation = True
         atkDoSkillFU = True
 
     if "thundabrand" in defSkills and atkHPGreaterEqual50Percent:
@@ -1460,6 +1484,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[DEF] -= X
         atkr.damage_reduction_reduction *= (1 - 0.5)
         atkr.true_all_hits += trunc(defStats[HP] * 0.3)
+        atkr.TDR_dmg_taken_cap = 20
+        if defender.getSpecialType() == "Offense":
+            atkr.TDR_dmg_taken_extra_stacks += 1
+
         # reduce damage by Y
         # Y = damage dealt to foe, max 20
         # if hit by offensive special, reduce damage by 2Y
@@ -1544,6 +1572,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if key == "closeShield": atkSpEffects.update({"closeShield": atkSkills[key]})
         if key == "distantShield": atkSpEffects.update({"distantShield": atkSkills[key]})
         if key == "miracleSP": atkSpEffects.update({"distantShield": atkSkills[key]})
+        if key == "numFoeAtkBoostSp": atkSpEffects.update({"NumAtkBoost": atkSkills[key]})
 
     if "atkStance" in defSkills: defCombatBuffs[1] += defSkills["atkStance"] * 2
     if "spdStance" in defSkills: defCombatBuffs[2] += defSkills["spdStance"] * 2
@@ -1701,7 +1730,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "QRS" in defSkills and defHPCur / defStats[0] >= 1.0 - (defSkills["QRS"] * 0.1): defr.follow_ups_skill += 1
 
     if "desperation" in defSkills and defHPCur / defStats[0] <= 0.25 * defSkills["desperation"]:
-        atkr.desperation = True
+        atkr.self_desperation = True
 
     if "swordBreak" in defSkills and attacker.wpnType == "Sword": defr.follow_ups_skill += 1; atkr.follow_up_denials -= 1
     if "lanceBreak" in defSkills and attacker.wpnType == "Lance": defr.follow_ups_skill += 1; atkr.follow_up_denials -= 1
@@ -1726,6 +1755,16 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if "pseudoMiracle" in defSkills and defHPGreaterEqual50Percent:
         defr.pseudo_miracle = True
+
+    # PART 1
+    if "laguz_friend" in atkSkills:
+        skill_lvl = atkSkills["laguz_friend"]
+        if skill_lvl == 4: defStats[ATK] -= 5
+
+        if attacker.getMaxSpecialCooldown() >= 3 and attacker.getSpecialType() == "Offense" or attacker.getSpecialType() == "Defense":
+            atkr.damage_reduction_reduction *= 0.5
+            atkr.sp_charge_foe_first += 2
+
 
     defSpEffects = {}
     for key in defSkills:
@@ -2138,7 +2177,19 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "daydream_egg" in defSkills and atkHPGreaterEqual75Percent:
         defr.TDR_all_hits += trunc(0.2 * defStats[RES])
 
-    # PERCENTAGE REDUCTION THEN TRUE REDUCTION
+    # PART 2
+    if "laguz_friend" in atkSkills:
+        skill_lvl = atkSkills["laguz_friend"]
+
+        if attacker.getMaxSpecialCooldown() >= 3 and attacker.getSpecialType() == "Offense" or attacker.getSpecialType() == "Defense":
+            atkr.TDR_all_hits += trunc(0.05 * skill_lvl * max(atkStats[DEF], atkStats[RES]))
+
+        if attacker.getMaxSpecialCooldown() >= 3 and attacker.getSpecialType() == "Offense":
+            atkr.true_sp += trunc(0.05 * skill_lvl * max(atkStats[DEF], atkStats[RES]))
+            if skill_lvl == 4: atkr.sp_pierce_DR = True
+        if attacker.getSpecialType() == "Defense":
+            atkr.true_sp_next += trunc(0.05 * skill_lvl * max(atkStats[DEF], atkStats[RES]))
+            if skill_lvl == 4: atkr.sp_pierce_after_DSP = True
 
     # EFFECTIVENESS CHECK
 
@@ -2288,7 +2339,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     defAlive = True
 
     # wow this needs a rework
-    def getSpecialDamage(effs, initStats, initHP, otherStats, defOrRes, base_damage):
+    def getSpecialDamage(effs, initStats, initHP, otherStats, defOrRes, base_damage, num_foe_atks):
         total = 0
 
         if "atkBoost" in effs:
@@ -2327,11 +2378,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if "spTimerra" in effs:
             total += math.trunc(initStats[SPD] * .10 * effs["spTimerra"])
 
+        if "NumAtkBoost" in effs:
+            total += math.trunc((effs["NumAtkBoost"] + num_foe_atks) * 0.10 * initStats[ATK])
+
         return total
 
     # COMPUTE TURN ORDER
 
-    cannotCounterFinal = cannotCounter or not (attacker.getRange() == defender.getRange() or ignoreRng)
+    cannotCounterFinal = (cannotCounter and not disableCannotCounter) or not (attacker.getRange() == defender.getRange() or ignoreRng)
     # Will never counter if defender has no weapon
     if defender.getWeapon() == NIL_WEAPON: cannotCounterFinal = True
 
@@ -2341,11 +2395,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     # hardy bearing
     if atkr.hardy_bearing:
-        atkr.desperation = False
+        atkr.self_desperation = False
+        atkr.other_desperation = False
         atkr.vantage = False
 
     if defr.hardy_bearing:
-        defr.desperation = False
+        defr.self_desperation = False
+        defr.other_desperation = False
         defr.vantage = False
 
     if atkr.vantage or defr.vantage:
@@ -2362,11 +2418,11 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             startString += "D"
 
     if startString[0] == 'A':
-        firstCheck = atkr.desperation
-        secondCheck = defr.desperation
+        firstCheck = atkr.self_desperation or defr.other_desperation
+        secondCheck = defr.self_desperation or atkr.other_desperation
     else:
-        firstCheck = defr.desperation
-        secondCheck = atkr.desperation
+        firstCheck = defr.self_desperation or atkr.other_desperation
+        secondCheck = atkr.self_desperation or defr.other_desperation
 
     if firstCheck:
         startString = move_letters(startString, startString[0])
@@ -2490,8 +2546,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     # method to attack
     def attack(striker, strikee, stkSpEffects, steSpEffects, stkStats, steStats, defOrRes, curReduction,
-               curSpecialReduction,
-               stkHPCur, steHPCur, stkSpCount, steSpCount, I_stkr, I_ster, curAttack):
+               curSpecialReduction, stkHPCur, steHPCur, stkSpCount, steSpCount, I_stkr, I_ster, curAttack):
 
         dmgBoost = 0
 
@@ -2506,7 +2561,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         if stkSpCount == 0 and striker.getSpecialType() == "Offense" and not I_stkr.special_disabled:
             if not is_in_sim: print(striker.getName() + " procs " + striker.getSpName() + ".")
-            dmgBoost = getSpecialDamage(stkSpEffects, stkStats, stkHPCur, steStats, defOrRes, attack)
+            num_foe_atks = curAttack.attackNumAll - curAttack.attackNumSelf
+            dmgBoost = getSpecialDamage(stkSpEffects, stkStats, stkHPCur, steStats, defOrRes, attack, num_foe_atks)
 
             if I_stkr.brave:  # emblem marth effect
                 dmgBoost = max(dmgBoost - I_stkr.reduce_self_sp_damage, 0)
@@ -2552,10 +2608,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         # damage reduction
         total_reduction = 1
 
-        if not (I_stkr.always_pierce_DR or (stkr_sp_triggered and I_stkr.sp_pierce_DR) or (
-                curAttack.isFollowUp and I_stkr.pierce_DR_FU)):
+        if not (I_stkr.always_pierce_DR or
+                (stkr_sp_triggered and I_stkr.sp_pierce_DR) or
+                (curAttack.isFollowUp and I_stkr.pierce_DR_FU) or
+                (I_stkr.sp_pierce_after_def_sp_CACHE)):
             for x in curReduction:
                 total_reduction *= 1 - (x / 100 * I_stkr.damage_reduction_reduction)  # change by redu factor
+
+        I_stkr.sp_pierce_after_def_sp_CACHE = False
 
         for x in curSpecialReduction:
             total_reduction *= 1 - (x / 100)
@@ -2666,6 +2726,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
             I_ster.true_sp_next_CACHE = I_ster.true_sp_next
 
+            if I_ster.sp_pierce_after_def_sp:
+                I_ster.sp_pierce_after_def_sp_CACHE = True
+
         # healing
 
         totalHealedAmount = 0
@@ -2753,10 +2816,16 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         damage_reductions = []
         special_damage_reductions = []
 
-
-
         if curAtk.attackOwner == 0:
             damage_reductions += defr.DR_all_hits_NSP
+            special_damage_reductions += defr.DR_all_hits_SP
+
+            if defr.DR_great_aether_SP:
+                if curAtk.isConsecutive:
+                    special_damage_reductions.append(70 - (defSpCountCur * 10))
+                else:
+                    special_damage_reductions.append(40 - (defSpCountCur * 10))
+
             if curAtk.attackNumSelf == 1:
                 damage_reductions += defr.DR_first_hit_NSP
                 damage_reductions += defr.DR_first_strikes_NSP
@@ -2785,6 +2854,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if curAtk.attackOwner == 1:
             damage_reductions += atkr.DR_all_hits_NSP
             special_damage_reductions += atkr.DR_all_hits_SP
+
+            if atkr.DR_great_aether_SP:
+                if curAtk.isConsecutive:
+                    special_damage_reductions.append(70 - (atkSpCountCur * 10))
+                else:
+                    special_damage_reductions.append(40 - (atkSpCountCur * 10))
 
             if curAtk.attackNumSelf == 1:
                 damage_reductions += atkr.DR_first_hit_NSP
@@ -2833,8 +2908,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkHPCur = strikeResult[spongebob]
         defHPCur = strikeResult[patrick]
 
-        atkSpCountCur = strikeResult[2]
-        defSpCountCur = strikeResult[3]
+        atkSpCountCur = strikeResult[spongebob + 2]
+        defSpCountCur = strikeResult[patrick + 2]
 
         damageDealt = strikeResult[4]
         healthHealed = strikeResult[5]
@@ -3133,22 +3208,26 @@ enemy = Hero("Lucina", "B!Lucina", 0, "Lance", 0, [41, 34, 36, 27, 19], [50, 60,
 player_weapon = Weapon("Hero-King Sword", "Hero-King Sword", "", 16, 1, "Sword", {"slaying": 1, "effDragon": 0}, {})
 enemy_weapon = Weapon("Iron Lance", "Iron Lance", "", 6, 1, "Lance", {"shez!": 0}, {})
 
+ragnell = Weapon("Emblem Ragnell", "Emblem Ragnell", "", 16, 1, "Sword", {"slaying": 1, "dCounter": 0, "BIGIKEFAN": 1018}, {})
+GREAT_AETHER = Special("Great Aether", "", {"numFoeAtkBoostSp": 4, "AETHER_GREAT": 1018}, 4, SpecialType.Offense)
+
 lodestar_rush = Special("Lodestar Rush", "", {"spdBoostSp": 4, "tempo": 0, "potentFix": 100}, 2, SpecialType.Offense)
 
-player.set_skill(player_weapon, WEAPON)
+player.set_skill(ragnell, WEAPON)
 enemy.set_skill(enemy_weapon, WEAPON)
 
-player.set_skill(lodestar_rush, SPECIAL)
+player.set_skill(GREAT_AETHER, SPECIAL)
 
 potent1 = Skill("Potent 1", "", {"potentStrike": 4})
+laguz_friend4 = Skill("Laguz Friend 4", "", {"laguz_friend": 4})
 defStance = Skill("Thing", "", {"defStance": 3})
 
-player.set_skill(potent1, BSKILL)
+player.set_skill(laguz_friend4, BSKILL)
 enemy.set_skill(defStance, ASKILL)
 
 player.chargeSpecial(1)
 
-#final_result = simulate_combat(player, enemy, 0, 1, 2, [])
+final_result = simulate_combat(player, enemy, 0, 1, 2, [])
 
 #print((final_result[0], final_result[1]))
 
