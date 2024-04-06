@@ -3193,11 +3193,6 @@ guard4 = Skill("Guard 4",
                "At start of combat, if unit's HP ≥ 25%, inflicts Atk-4 and Special cooldown charge -1 on foe per attack during combat (only highest value applied; does not stack) and reduces damage from foe's first attack during combat by 30%.",
                {"guardHP": 0.25, "lullAtk": 4, "reduceFirst": 30})
 
-# C SKILLS
-
-spurRes3 = Skill("Spur Res 3", "Grants Res+4 to adjacent allies during combat.", {"spurRes": 4})
-wardCavalry = Skill("Ward Cavalry", "Grants Def/Res+4 to cavalry allies within 2 spaces during combat.", {"ward": 1})
-goadArmor = Skill("Goad Armor", "Grants Atk/Spd+4 to armored allies within 2 spaces during combat.", {"goad": 3})
 
 # noah = Hero("Noah", 40, 42, 45, 35, 25, "Sword", 0, marthFalchion, luna, None, None, None)
 # mio = Hero("Mio", 38, 39, 47, 27, 29, "BDagger", 0, tacticalBolt, moonbow, None, None, None)
@@ -3227,7 +3222,7 @@ enemy.set_skill(defStance, ASKILL)
 
 player.chargeSpecial(1)
 
-final_result = simulate_combat(player, enemy, 0, 1, 2, [])
+#final_result = simulate_combat(player, enemy, 0, 1, 2, [])
 
 #print((final_result[0], final_result[1]))
 
