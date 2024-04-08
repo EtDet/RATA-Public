@@ -1169,6 +1169,8 @@ def start_sim(player_units, enemy_units, chosen_map):
         global animation
 
         if canvas.drag_data is not None:
+            print(units_to_move)
+
             successful_move = False
 
             x_comp = event.x // 90
