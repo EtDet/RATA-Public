@@ -571,10 +571,22 @@ class Weapon:
 
     def __str__(self): print(self.name + " \nMt: " + str(self.mt) + " Rng: " + str(self.range) + "\n" + self.desc)
 
-#def growthToStat(percentage):
+NIL_WEAPON = Weapon("Nil", "Nil Weapon", "", 0, 1, "Sword", {}, [])
 
-NIL_WEAPON = Weapon("Nil", "Nil Weapon", "", 0, 0, "Sword", {}, [])
+class AssistType(Enum):
+    Rally = 0
+    Move = 1
+    Staff = 2
+    Refresh = 3
+    Other = 4
 
+class Assist():
+    def __init__(self, name, desc, effects, range, type):
+        self.name = name
+        self.desc = desc
+        self.effects = effects
+        self.range = range
+        self.type = type
 
 class SpecialType(Enum):
     Offense = 0

@@ -1,23 +1,24 @@
-import tkinter as tk
-from tkinter import ttk
+unit_tile = 20
+ally_tile = 21
 
-root = tk.Tk()
-container = ttk.Frame(root)
-canvas = tk.Canvas(container)
-scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
-scrollable_frame = ttk.Frame(canvas)
 
-scrollable_frame.bind("<Configure>",lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+def final_reposition_tile(u_tile, a_tile):
+    bottom_row = range(0, 5)
+    if u_tile in bottom_row and a_tile == u_tile + 6: return -1
 
-canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    top_row = range(42, 47)
+    if u_tile in top_row and a_tile == u_tile - 6: return -1
 
-canvas.configure(yscrollcommand=scrollbar.set)
+    left_column = (0, 6, 12, 18, 24, 30, 36, 42)
+    if u_tile in left_column and a_tile == u_tile + 1: return -1
 
-for i in range(50):
-    ttk.Button(scrollable_frame, text="Sample scrolling label").grid()
+    right_column = (5, 11, 17, 23, 29, 35, 41, 47)
+    if u_tile in right_column and a_tile == u_tile - 1: return -1
 
-container.pack()
-canvas.pack(side="left", fill="both", expand=True)
-scrollbar.pack(side="right", fill="y")
+    if u_tile > a_tile:
+        final_tile = a_tile + 2 * (u_tile - a_tile)
 
-root.mainloop()
+    if u_tile < a_tile:
+        final_tile = a_tile - 2 * (a_tile - u_tile)
+
+    return final_tile
