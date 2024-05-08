@@ -679,6 +679,7 @@ class Status(Enum):
     DisableMiracle = 55 # 🔴 Disables skills which allow unit to survive with 1HP (besides special Miracle)
     TimesGrip = 60 # 🔴 Inflicts Atk/Spd/Def/Res-4 during next combat, neutralizes skills during allies' combats
     CancelAction = 61  # 🟢 After start of turn skills trigger, unit's action ends immediately (cancels active units in Summoner Duels)
+    HushSpectrum = 62
 
     # positive
 

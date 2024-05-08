@@ -2916,8 +2916,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         curAtk.impl_atk(damageDealt, healthHealed, (atkHPCur, defHPCur), (atkSpCountCur, defSpCountCur))
 
-        # print(strikeResult)
-
         # I am dead
         if atkHPCur <= 0:
             atkHPCur = 0
