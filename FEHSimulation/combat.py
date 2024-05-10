@@ -10,7 +10,7 @@ SPD = 2
 DEF = 3
 RES = 4
 
-
+# A set of modifiers that change how combat and attacks work
 class HeroModifiers:
     def __init__(self):
         # attack order
@@ -138,11 +138,12 @@ def move_letters(s, letter):
 
     return new_string
 
-
+# Perform a combat between two heroes
 def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, combat_effects):
     # Invalid Combat if one unit is dead
     # or if attacker does not have weapon
-    if attacker.HPcur <= 0 or defender.HPcur <= 0 or attacker.weapon is None: return (-1, -1)
+    if attacker.HPcur <= 0 or defender.HPcur <= 0 or attacker.weapon is None:
+        raise Exception("Invalid Combat: One hero is either already dead, or the attacker has no weapon.")
 
     # OK I gotta do some research on all cases of this
     # actually wait shouldn't this only get incremented upon the ACTUAL combat?

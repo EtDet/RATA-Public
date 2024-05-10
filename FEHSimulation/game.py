@@ -1429,15 +1429,23 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                 player_sprite = canvas.drag_data['item']
 
-                if canvas.drag_data['side'] == 0: enemy_sprite = enemy_sprite_IDs[enemy_units.index(enemy)]
-                if canvas.drag_data['side'] == 1: enemy_sprite = player_sprite_IDs[player_units.index(enemy)]
+                enemy_index = -1
+
+                if canvas.drag_data['side'] == 0:
+                    enemy_index = enemy_units.index(enemy)
+                    enemy_sprite = enemy_sprite_IDs[enemy_index]
+                    enemy_weapon_icon = enemy_weapon_icons[enemy_index]
+                if canvas.drag_data['side'] == 1:
+                    enemy_index = player_units.index(enemy)
+                    enemy_sprite = player_sprite_IDs[enemy_index]
+                    enemy_weapon_icon = player_weapon_icons[enemy_index]
 
                 def hide_enemy(is_alive):
                     canvas.itemconfig(enemy_sprite, state='hidden')
                     canvas.itemconfig(grayscale_sprite, state='normal')
 
-
                     if not is_alive:
+                        canvas.itemconfig(enemy_weapon_icon, state='hidden')
                         move_to_tile(canvas, enemy_sprite, 100)
 
                 def hide_player(is_alive):
@@ -1529,9 +1537,14 @@ def start_sim(player_units, enemy_units, chosen_map):
                     ally.tile = chosen_map.tiles[final_pos]
                     chosen_map.tiles[final_pos].hero_on = ally
 
-                    ally_sprite = player_sprite_IDs[player_units_all.index(ally)]
+                    ally_index = player_units_all.index(ally)
+
+                    ally_sprite = player_sprite_IDs[ally_index]
+                    ally_weapon_icon = player_weapon_icons[ally_index]
 
                     move_to_tile(canvas, ally_sprite, final_pos)
+                    move_to_tile(canvas, ally_weapon_icon, final_pos)
+
 
                 elif "draw" in cur_hero.assist.effects:
                     print("DRAW")
