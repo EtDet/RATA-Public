@@ -13,6 +13,8 @@ RES = 4
 # A set of modifiers that change how combat and attacks work
 class HeroModifiers:
     def __init__(self):
+        self.preTriangleAtk = 0
+
         # attack order
         self.brave = False
 
@@ -1021,10 +1023,21 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         disableCannotCounter = True
         atkr.disable_foe_guard = True
 
+    if "BIGIKEFAN" in defSkills and defHPGreaterEqual25Percent:
+        X = min(max(trunc(atkStats[ATK] * 0.2) - 2, 6), 16)
+        defCombatBuffs[ATK] += X
+        atkCombatBuffs[ATK] -= X
+        defPenaltiesNeutralized = [True] * 5
+        defr.disable_foe_guard = True
+
     if "AETHER_GREAT" in atkSkills:
         atkr.vantage = True
         atkr.other_desperation = True
         atkr.DR_great_aether_SP = True
+
+    if "AETHER_GREAT" in defSkills:
+        defr.other_desperation = True
+        defr.DR_great_aether_SP = True
 
     if "pointySword" in atkSkills: map(lambda x: x + 5, atkCombatBuffs)
     if "pointySword" in defSkills and defAllyWithin2Spaces: map(lambda x: x + 5, atkCombatBuffs)
@@ -1776,6 +1789,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if key == "closeShield": defSpEffects.update({"closeShield": defSkills[key]})
         if key == "distantShield": defSpEffects.update({"distantShield": defSkills[key]})
         if key == "miracleSP": defSpEffects.update({"miracleSP": defSkills[key]})
+        if key == "numFoeAtkBoostSp": defSpEffects.update({"NumAtkBoost": defSkills[key]})
 
     # LITERALLY EVERYTHING THAT USES EXACT BONUS AND PENALTY VALUES GOES HERE
     # YEAH I GOTTA GET RID!!!!
@@ -2251,6 +2265,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     # COLOR ADVANTAGE
 
+    atkr.preTriangleAtk = atkStats[1]
+    defr.preTriangleAtk = defStats[1]
+
     if (attacker.getColor() == "Red" and defender.getColor() == "Green") or (
             attacker.getColor() == "Green" and defender.getColor() == "Blue") or \
             (attacker.getColor() == "Blue" and defender.getColor() == "Red") or (
@@ -2339,12 +2356,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     atkAlive = True
     defAlive = True
 
-    # wow this needs a rework
-    def getSpecialDamage(effs, initStats, initHP, otherStats, defOrRes, base_damage, num_foe_atks):
+    def getSpecialDamage(effs, initStats, initHP, otherStats, defOrRes, base_damage, num_foe_atks, selfPreTriAtk, otherPreTriAtk):
         total = 0
-
         if "atkBoost" in effs:
-            total += math.trunc(initStats[ATK] * .10 * effs["atkBoost"])
+            total += math.trunc(selfPreTriAtk * .10 * effs["atkBoost"])
 
         if "spdBoost" in effs:
             total += math.trunc(initStats[SPD] * .10 * effs["spdBoost"])
@@ -2356,10 +2371,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             total += math.trunc(initStats[RES] * .10 * effs["resBoost"])
 
         if "rupturedSky" in effs:
-            total += math.trunc(otherStats[1] * .10 * effs["rupturedSky"])
+            total += math.trunc(otherPreTriAtk * .10 * effs["rupturedSky"])
 
         if "staffRes" in effs:
-            total += math.trunc(otherStats[4] * .10 * effs["staffRes"])
+            total += math.trunc(otherStats[RES] * .10 * effs["staffRes"])
 
         if "retaliatoryBoost" in effs:
             total += math.trunc((initHP / initStats[HP]) * 0.10 * effs["retaliatoryBoost"])
@@ -2380,7 +2395,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             total += math.trunc(initStats[SPD] * .10 * effs["spTimerra"])
 
         if "NumAtkBoost" in effs:
-            total += math.trunc((effs["NumAtkBoost"] + num_foe_atks) * 0.10 * initStats[ATK])
+            total += math.trunc((effs["NumAtkBoost"] + num_foe_atks) * 0.10 * selfPreTriAtk)
 
         return total
 
@@ -2563,7 +2578,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if stkSpCount == 0 and striker.getSpecialType() == "Offense" and not I_stkr.special_disabled:
             if not is_in_sim: print(striker.getName() + " procs " + striker.getSpName() + ".")
             num_foe_atks = curAttack.attackNumAll - curAttack.attackNumSelf
-            dmgBoost = getSpecialDamage(stkSpEffects, stkStats, stkHPCur, steStats, defOrRes, attack, num_foe_atks)
+            dmgBoost = getSpecialDamage(stkSpEffects, stkStats, stkHPCur, steStats, defOrRes, attack, num_foe_atks, atkr.preTriangleAtk, defr.preTriangleAtk)
 
             if I_stkr.brave:  # emblem marth effect
                 dmgBoost = max(dmgBoost - I_stkr.reduce_self_sp_damage, 0)
@@ -2915,7 +2930,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         damageDealt = strikeResult[4]
         healthHealed = strikeResult[5]
 
-        curAtk.impl_atk(damageDealt, healthHealed, (atkHPCur, defHPCur), (atkSpCountCur, defSpCountCur))
+        curAtk.impl_atk(damageDealt, healthHealed, (atkSpCountCur, defSpCountCur), (atkHPCur, defHPCur))
 
         # I am dead
         if atkHPCur <= 0:

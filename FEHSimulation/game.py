@@ -251,6 +251,23 @@ def move_to_tile(my_canvas, item_ID, num):
 
     my_canvas.coords(item_ID, x_move-40, y_move-40)
 
+def move_to_tile_wp(my_canvas, item_ID, num):
+    x_move = 45 + 90 * (num % 6)
+    y_move = 135 + 90 * (7 - (num // 6))
+    my_canvas.coords(item_ID, x_move - 45, y_move - 45)
+
+def move_to_tile_sp(my_canvas, label_ID, num):
+    x_move = 45 + 90 * (num % 6)
+    y_move = 135 + 90 * (7 - (num // 6))
+
+    my_canvas.coords(label_ID, x_move - 33, y_move - 7)
+
+def move_to_tile_hp(my_canvas, label_ID, num):
+    x_move = 45 + 90 * (num % 6)
+    y_move = 135 + 90 * (7 - (num // 6))
+
+    my_canvas.coords(label_ID, x_move - 33, y_move + 36)
+
 def animate_sprite_atk(my_canvas, item_ID, move_hori, move_vert, damage, text_tile):
     # Get the current coordinates of the item
     x, y = my_canvas.coords(item_ID)
@@ -784,88 +801,81 @@ def start_sim(player_units, enemy_units, chosen_map):
         # Get the current mouse coordinates
         x, y = event.x, event.y
 
+        # Out of bounds case
         if x < 0 or x > 540 or y < 90 or y > 720: return
 
+        # Get the tile currently hovered over
         x_comp = event.x // 90
         y_comp = ((720 - event.y) // 90) + 1
-        selected_tile = x_comp + 6 * y_comp
+        tile = x_comp + 6 * y_comp
 
-        cur_hero = chosen_map.tiles[selected_tile].hero_on
-        item_index = -1
-        item_id = -1
+        cur_hero = chosen_map.tiles[tile].hero_on
 
         if cur_hero is not None:
-            if cur_hero.side == 0:
-                item_index = player_units_all.index(cur_hero)
-                item_id = player_sprite_IDs[item_index]
-            elif cur_hero.side == 1:
-                item_index = enemy_units_all.index(cur_hero)
-                item_id = enemy_sprite_IDs[item_index]
+            # Get current sprite and index
+            S = cur_hero.side
+            item_index = units_all[S].index(cur_hero)
+            item_id = sprite_IDs[S][item_index]
 
-        if cur_hero is not None:
+            # Start positioning of the sprite
             start_x, start_y = canvas.coords(item_id)
 
-            if cur_hero.tile.tileNum != selected_tile: return
-
-            canvas.drag_data = {'x': x, 'y': y, 'item': item_id, 'start_x': start_x, 'start_y': start_y,
-                                'index': item_index, 'target': None, 'side': cur_hero.side, 'item_index': item_index}
-
-            # calculate tile num and top left corner of start tile
-            x_comp = event.x // 90
-            y_comp = ((720 - event.y) // 90) + 1
-            new_tile = x_comp + 6 * y_comp
+            # Calculate tile num and top left corner of start tile
             x_pivot = x_comp * 90
             y_pivot = (7-y_comp) * 90 + 90
-
             pivot_cache = (x_pivot, y_pivot)
 
+            # Banner set to current hero
             set_banner(cur_hero)
 
-            # enemy phase, no movement
-            if cur_hero.side == 0 and turn_info[1] == ENEMY:
-                canvas.drag_data = None
+            # Not this side's phase, no movement allowed
+            if cur_hero.side != turn_info[1]:
                 return
 
-            if cur_hero.side == 1 and turn_info[1] == PLAYER:
-                canvas.drag_data = None
-                return
-
+            # Hero already moved, cannot be moved again
             if cur_hero not in units_to_move:
-                canvas.drag_data = None
                 return
 
-            # get possible tiles to move to and a shortest path to get to that tile
+            # Drag data to be kept during a drag
+            canvas.drag_data = {'cur_x': x,
+                                'cur_y': y,
+                                'item': item_id,
+                                'start_x': start_x,
+                                'start_y': start_y,
+                                'index': item_index,
+                                'target': None,
+                                'side': S
+                                }
+
+            # Get possible tiles to move to and a shortest path to get to that tile
             moves, paths = get_possible_move_tiles(cur_hero)
 
+            # More drag data fields to be defined
             canvas.drag_data['moves'] = []
             canvas.drag_data['paths'] = []
-            canvas.drag_data['cur_tile'] = new_tile
+            canvas.drag_data['cur_tile'] = tile
             canvas.drag_data['cost'] = 0
-
             canvas.drag_data['targets_and_tiles'] = {}
             canvas.drag_data['targets_most_recent_tile'] = {}
 
-            #canvas.drag_data['animation_go'] = False
-
             moves_obj_array = []
-            a = cur_hero.tile.tileNum
 
-            # save moves into drag data, create Move object for each possible movement
+            # Save moves into drag data, create Move object for each possible movement
             for i in range(0, len(moves)):
                 canvas.drag_data['moves'].append(moves[i].tileNum)
                 canvas.drag_data['paths'].append(paths[i])
-                b = moves[i].tileNum
-                dist = abs(b // 6 - a // 6) + abs(b % 6 - a % 6)
-                moves_obj_array.append(Move(b, 0, None, dist, False, paths[i]))
+                end = moves[i].tileNum
+                distance = abs(end // 6 - tile // 6) + abs(end % 6 - tile % 6)
+                moves_obj_array.append(Move(end, 0, None, distance, False, paths[i]))
 
-            canvas.drag_data['cur_path'] = paths[canvas.drag_data['moves'].index(new_tile)]
+            canvas.drag_data['cur_path'] = paths[canvas.drag_data['moves'].index(tile)]
             canvas.drag_data['target_path'] = "NONE"
             canvas.drag_data['target_dest'] = -1
 
             tile_arr = []
             canvas.drag_data['blue_tile_id_arr'] = tile_arr
 
-            # create blue tiles in move range
+            # Create blue tiles in move range
             for m in moves_obj_array:
                 x_comp = m.destination % 6
                 y_comp = m.destination // 6
@@ -882,7 +892,7 @@ def start_sim(player_units, enemy_units, chosen_map):
             attack_range = [] # all tiles that can be attacked
             assist_range = [] # all tiles that can be assisted
 
-            # create red tiles for attack range
+            # Create red tiles for attack range
             if cur_hero.weapon is not None:
                 # for all possible movement tiles
                 for m in moves_obj_array:
@@ -924,9 +934,6 @@ def start_sim(player_units, enemy_units, chosen_map):
                 tile_arr.append(curTile)
 
 
-
-
-
             # find all points to attack all enemies from, fill canvas.drag_data['targets_and_tiles']
             # TO DO: find all points to use assists on all allies, consider available space for each assist
             if cur_hero.weapon is not None:
@@ -943,12 +950,15 @@ def start_sim(player_units, enemy_units, chosen_map):
 
             possible_assist_tile_nums = []
 
+            confirmed_assists = []
+            unconfirmed_assists = []
+
             if cur_hero.assist is not None:
                 for m in moves_obj_array:
                     ast_arr = get_attack_tiles(m.destination, cur_hero.assist.range)
                     for n in ast_arr:
                         if (chosen_map.tiles[n].hero_on is not None and
-                                chosen_map.tiles[n].hero_on.side == cur_hero.side and n != new_tile):
+                                chosen_map.tiles[n].hero_on.side == cur_hero.side and n != tile):
 
                             valid_unit_cond = False
                             valid_ally_cond = False
@@ -963,7 +973,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                                     move_ally_to = final_reposition_tile(m.destination, n)
 
                                     # CONSIDER FOR WHEN HERO ON IS UNIT
-                                    someone_on = chosen_map.tiles[move_ally_to].hero_on is not None and not new_tile
+                                    someone_on = chosen_map.tiles[move_ally_to].hero_on is not None and not tile
 
                                     no_one_on = chosen_map.tiles[move_ally_to].hero_on is None or chosen_map.tiles[move_ally_to].hero_on == cur_hero
                                     someone_on = not no_one_on
@@ -996,28 +1006,36 @@ def start_sim(player_units, enemy_units, chosen_map):
                                 if m.destination not in canvas.drag_data['targets_and_tiles'][chosen_map.tiles[n].hero_on]:
                                         canvas.drag_data['targets_and_tiles'][chosen_map.tiles[n].hero_on].append(m.destination)
 
-                                if n not in possible_assist_tile_nums:
-                                    possible_assist_tile_nums.append(n)
-
-                                    x_comp = n % 6
-                                    y_comp = n // 6
-                                    x_pivot = x_comp * 90
-                                    y_pivot = (7 - y_comp) * 90 + 90
-
-                                    curTile = canvas.create_image(x_pivot, y_pivot, anchor=tk.NW, image=gt_photo)
-                                    tile_arr.append(curTile)
+                                possible_assist_tile_nums.append(n)
+                                confirmed_assists.append(n)
 
                             else:
                                 if n not in possible_assist_tile_nums:
                                     possible_assist_tile_nums.append(n)
+                                    unconfirmed_assists.append(n)
 
-                                    x_comp = n % 6
-                                    y_comp = n // 6
-                                    x_pivot = x_comp * 90
-                                    y_pivot = (7 - y_comp) * 90 + 90
+            confirmed_assists = list(set(confirmed_assists))
+            unconfirmed_assists = list(set(unconfirmed_assists))
 
-                                    curTile = canvas.create_image(x_pivot, y_pivot, anchor=tk.NW, image=prt_photo)
-                                    tile_arr.append(curTile)
+            for n in confirmed_assists:
+                x_comp = n % 6
+                y_comp = n // 6
+                x_pivot = x_comp * 90
+                y_pivot = (7 - y_comp) * 90 + 90
+
+                curTile = canvas.create_image(x_pivot, y_pivot, anchor=tk.NW, image=gt_photo)
+                tile_arr.append(curTile)
+
+            for n in unconfirmed_assists:
+                if n not in confirmed_assists:
+                    x_comp = n % 6
+                    y_comp = n // 6
+                    x_pivot = x_comp * 90
+                    y_pivot = (7 - y_comp) * 90 + 90
+
+                    curTile = canvas.create_image(x_pivot, y_pivot, anchor=tk.NW, image=prt_photo)
+                    tile_arr.append(curTile)
+
 
             i = 0
             while i < len(enemy_units_all):
@@ -1057,22 +1075,21 @@ def start_sim(player_units, enemy_units, chosen_map):
         # Check if there is any drag data
         if canvas.drag_data:
             # Calculate the distance moved
-            delta_x = event.x - canvas.drag_data['x']
-            delta_y = event.y - canvas.drag_data['y']
+            delta_x = event.x - canvas.drag_data['cur_x']
+            delta_y = event.y - canvas.drag_data['cur_y']
 
             cur_hero = -1
-            item_index = canvas.drag_data['item_index']
+            item_index = canvas.drag_data['index']
             grayscale_item_index = -1
-
             tag = -1
 
 
             if canvas.drag_data['side'] == 0:
-                cur_hero = player_units_all[canvas.drag_data['index']]
+                cur_hero = player_units_all[item_index]
                 grayscale_item_index = grayscale_player_sprite_IDs[item_index]
                 tag = player_tags[item_index]
             if canvas.drag_data['side'] == 1:
-                cur_hero = enemy_units_all[canvas.drag_data['index']]
+                cur_hero = enemy_units_all[item_index]
                 grayscale_item_index = grayscale_enemy_sprite_IDs[item_index]
                 tag = enemy_tags[item_index]
 
@@ -1081,8 +1098,8 @@ def start_sim(player_units, enemy_units, chosen_map):
             canvas.move(tag, delta_x, delta_y)
 
             # Update the starting position for the next drag event
-            canvas.drag_data['x'] = event.x
-            canvas.drag_data['y'] = event.y
+            canvas.drag_data['cur_x'] = event.x
+            canvas.drag_data['cur_y'] = event.y
 
             cur_tile = canvas.drag_data['cur_tile']
             cur_path = canvas.drag_data['cur_path']
@@ -1090,8 +1107,6 @@ def start_sim(player_units, enemy_units, chosen_map):
             x_comp = event.x // 90
             y_comp = ((720 - event.y) // 90) + 1
             new_tile = x_comp + y_comp * 6
-
-
 
             # different tile and within moves
             # figure out the current path
@@ -1340,7 +1355,6 @@ def start_sim(player_units, enemy_units, chosen_map):
 
             x_comp = event.x // 90
             y_comp = ((720 - event.y) // 90) + 1
-
             new_tile = x_comp + y_comp * 6
 
             mouse_new_tile = new_tile
@@ -1352,16 +1366,11 @@ def start_sim(player_units, enemy_units, chosen_map):
             y_start_comp = ((720 - canvas.drag_data['start_y']) // 90) + 1
             recalc_tile = int(x_start_comp + 6 * y_start_comp)
 
-            grayscale_sprite = -1
-            weapon_icon_sprite = -1
-            item_index = canvas.drag_data['item_index']
 
-            if canvas.drag_data['side'] == 0:
-                grayscale_sprite = grayscale_player_sprite_IDs[canvas.drag_data['item_index']]
-                weapon_icon_sprite = player_weapon_icons[item_index]
-            if canvas.drag_data['side'] == 1:
-                grayscale_sprite = grayscale_enemy_sprite_IDs[canvas.drag_data['item_index']]
-                weapon_icon_sprite = enemy_weapon_icons[item_index]
+            item_index = canvas.drag_data['index']
+            S = canvas.drag_data['side']
+            grayscale_sprite = grayscale_IDs[S][item_index]
+            weapon_icon_sprite = weapon_IDs[S][item_index]
 
             # Set sprite to new position
             if event.x < 539 and event.x > 0 and event.y < 810 and event.y > 90 and new_tile in canvas.drag_data['moves']:
@@ -1369,14 +1378,9 @@ def start_sim(player_units, enemy_units, chosen_map):
                 move_to_tile(canvas, grayscale_sprite, new_tile)
                 move_to_tile(canvas, weapon_icon_sprite, new_tile)
 
-                if canvas.drag_data['side'] == 0:
-                    player_units_all[canvas.drag_data['index']].tile.hero_on = None
-                    player_units_all[canvas.drag_data['index']].tile = chosen_map.tiles[new_tile]
-                    chosen_map.tiles[new_tile].hero_on = player_units_all[canvas.drag_data['index']]
-                if canvas.drag_data['side'] == 1:
-                    enemy_units_all[canvas.drag_data['index']].tile.hero_on = None
-                    enemy_units_all[canvas.drag_data['index']].tile = chosen_map.tiles[new_tile]
-                    chosen_map.tiles[new_tile].hero_on = enemy_units_all[canvas.drag_data['index']]
+                units_all[S][item_index].tile.hero_on = None
+                units_all[S][item_index].tile = chosen_map.tiles[new_tile]
+                chosen_map.tiles[new_tile].hero_on = units_all[S][item_index]
 
                 # move initiated if moved to a new tile or attacking
                 if new_tile != recalc_tile or canvas.drag_data['target_path'] != "NONE":
@@ -1384,24 +1388,21 @@ def start_sim(player_units, enemy_units, chosen_map):
 
             # Restore the item to the starting position, case happens if moved to invalid start position
             else:
-                canvas.coords(canvas.drag_data['item'], canvas.drag_data['start_x'], canvas.drag_data['start_y'])
-                canvas.coords(grayscale_sprite, canvas.drag_data['start_x'], canvas.drag_data['start_y'])
-                canvas.coords(weapon_icon_sprite, canvas.drag_data['start_x'], canvas.drag_data['start_y'])
+                move_to_tile(canvas, canvas.drag_data['item'], recalc_tile)
+                move_to_tile(canvas, grayscale_sprite, recalc_tile)
+                move_to_tile(canvas, weapon_icon_sprite, recalc_tile)
 
             for blue_tile_id in canvas.drag_data['blue_tile_id_arr']:
                 canvas.delete(blue_tile_id)
-            canvas.drag_data['blue_tile_id_arr'] = []
 
             for arrow in canvas.drag_data['arrow_path']:
                 canvas.delete(arrow)
-            canvas.drag_data['arrow_path'] = []
 
             # If off-board move, nothing else to do
             if event.x < 0 or event.x > 540 or event.y < 90 or event.y > 720: return
 
             # Ok it might just be a failsafe for these lines
-            player = chosen_map.tiles[new_tile].hero_on
-            cur_hero = chosen_map.tiles[new_tile].hero_on
+            player_original = chosen_map.tiles[new_tile].hero_on
 
             # ATTAAAAAAAAAAAAAAAAAAAAAAACK!!!!!!!!!!!!!!!!!!
             if event.x < 539 and event.x > 0 and event.y < 810 and event.y > 90 and canvas.drag_data['target_path'] != "NONE" and \
@@ -1453,6 +1454,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                     canvas.itemconfig(grayscale_sprite, state='normal')
 
                     if not is_alive:
+                        canvas.itemconfig(weapon_icon_sprite, state='hidden')
                         move_to_tile(canvas, player_sprite, 100)
                         move_to_tile(canvas, grayscale_sprite, 100)
 
@@ -1460,26 +1462,23 @@ def start_sim(player_units, enemy_units, chosen_map):
                     global animation
                     animation = False
 
-                #print(player_sprite, enemy_sprite)
-
                 combat_result = simulate_combat(player, enemy, True, turn_info[0], 0, [])
-
                 attacks = combat_result[7]
 
                 i = 0
                 while i < len(attacks):
                     if attacks[i].attackOwner == 0:
                         canvas.after(i * 500 + 200, animate_sprite_atk, canvas, player_sprite, player_atk_dir_hori, player_atk_dir_vert, attacks[i].damage, enemy_tile)
-
                         enemy.HPcur = max(0, enemy.HPcur - attacks[i].damage)
-                        if enemy.HPcur == 0: break
 
                     if attacks[i].attackOwner == 1:
                         canvas.after(i * 500 + 200, animate_sprite_atk, canvas, enemy_sprite, player_atk_dir_hori * -1, player_atk_dir_vert * -1, attacks[i].damage, player_tile)
-
                         player.HPcur = max(0, player.HPcur - attacks[i].damage)
-                        if player.HPcur == 0: break
 
+                    if player.specialCount != -1: player.specialCount = attacks[i].spCharges[0]
+                    if enemy.specialCount != -1: enemy.specialCount = attacks[i].spCharges[1]
+
+                    if player.HPcur == 0 or enemy.HPcur == 0: break
                     i += 1
 
                 finish_time = 500 * (i + 1) + 200
@@ -1524,9 +1523,11 @@ def start_sim(player_units, enemy_units, chosen_map):
             # SUPPOOOOOOOOOOOOOOOOOOOORT!!!!!!!!!!!!!!!!!!!!
             elif event.x < 539 and event.x > 0 and event.y < 810 and event.y > 90 and canvas.drag_data['target_path'] != "NONE" and \
                     chosen_map.tiles[new_tile].hero_on.side == chosen_map.tiles[mouse_new_tile].hero_on.side:
-                if "repo" in cur_hero.assist.effects:
-                    player = chosen_map.tiles[new_tile].hero_on
-                    ally = chosen_map.tiles[mouse_new_tile].hero_on
+                player = chosen_map.tiles[new_tile].hero_on
+                ally = chosen_map.tiles[mouse_new_tile].hero_on
+
+                if "repo" in player.assist.effects:
+
 
                     unit_tile_num = player.tile.tileNum
                     ally_tile_num = ally.tile.tileNum
@@ -1546,24 +1547,26 @@ def start_sim(player_units, enemy_units, chosen_map):
                     move_to_tile(canvas, ally_weapon_icon, final_pos)
 
 
-                elif "draw" in cur_hero.assist.effects:
+                elif "draw" in player.assist.effects:
                     print("DRAW")
-                elif "swap" in cur_hero.assist.effects:
+                elif "swap" in player.assist.effects:
                     print("SWAP")
-                elif "pivot" in cur_hero.assist.effects:
+                elif "pivot" in player.assist.effects:
                     print("PIVOT")
-                elif "smite" in cur_hero.assist.effects:
+                elif "smite" in player.assist.effects:
                     print("SMITE")
-                elif "shove" in cur_hero.assist.effects:
+                elif "shove" in player.assist.effects:
                     print("SHOVE")
-
-                clear_banner()
+                set_banner(player)
 
             # remove player unit from units who can act
-            if successful_move and player in units_to_move:
-                units_to_move.remove(player)
 
-                item_index = canvas.drag_data['item_index']
+            cur_hero = player_original
+
+            if successful_move and cur_hero in units_to_move:
+                units_to_move.remove(cur_hero)
+
+                item_index = canvas.drag_data['index']
 
                 if cur_hero.side == 0 and not animation:
                     canvas.itemconfig(grayscale_player_sprite_IDs[item_index], state='normal')
@@ -1746,6 +1749,29 @@ def start_sim(player_units, enemy_units, chosen_map):
     player_weapon_icons = []
     enemy_weapon_icons = []
 
+    player_special_count_labels = []
+    enemy_special_count_labels = []
+
+    player_hp_count_labels = []
+    enemy_hp_count_labels = []
+
+    player_hp_bar_bg = []
+    enemy_hp_bar_bg = []
+    player_hp_bar_fg = []
+    enemy_hp_bar_fg = []
+
+    player_status_img = []
+    enemy_status_img = []
+
+    units_all = [player_units_all, enemy_units_all]
+    sprite_IDs = [player_sprite_IDs, enemy_sprite_IDs]
+    grayscale_IDs = [grayscale_player_sprite_IDs, grayscale_enemy_sprite_IDs]
+    weapon_IDs = [player_weapon_icons, enemy_weapon_icons]
+    special_labels = [player_special_count_labels, enemy_special_count_labels]
+    hp_labels = [player_hp_count_labels, enemy_hp_count_labels]
+    hp_bar_bgs = [player_hp_bar_bg, enemy_hp_bar_bg]
+    hp_bar_fgs = [player_hp_bar_fg, enemy_hp_bar_fg]
+
     for x in player_units_all:
         respString = "-R" if x.resp else ""
         curImage = Image.open(__location__ + "\\Sprites\\" + x.intName + respString + ".png")
@@ -1816,6 +1842,16 @@ def start_sim(player_units, enemy_units, chosen_map):
         weapon_icon = canvas.create_image(160, 50 * (i + 2), anchor=tk.NW, image=w_image, tags=player_tags[i])
         player_weapon_icons.append(weapon_icon)
 
+        count_string = player.specialCount
+        if player.specialCount == -1: count_string = ""
+        special_label = canvas.create_text(200, 100 * (2 + i), text=count_string, fill="#e300e3", font=("Helvetica", 19, 'bold'), anchor='center', tags=player_tags[i])
+        player_special_count_labels.append(special_label)
+
+        hp_string = player.HPcur
+        hp_label = canvas.create_text(200, 100 * (2 + i), text=hp_string, fill="blue", font=("Helvetica", 16, 'bold'), anchor='center', tags=player_tags[i])
+        player_hp_count_labels.append(hp_label)
+
+
     for i, enemy in enumerate(enemy_units_all):
         w_image = weapon_icons[weapons[enemy.wpnType][0]]
         weapon_icon = canvas.create_image(160, 50 * (i + 2), anchor=tk.NW, image=w_image, tags=enemy_tags[i])
@@ -1830,7 +1866,10 @@ def start_sim(player_units, enemy_units, chosen_map):
         player_units[i].tile.hero_on = player_units[i]
         player_units[i].side = PLAYER
 
-        move_to_tile(canvas, player_weapon_icons[i], chosen_map.player_start_spaces[i])
+        move_to_tile_wp(canvas, player_weapon_icons[i], chosen_map.player_start_spaces[i])
+        move_to_tile_sp(canvas, player_special_count_labels[i], chosen_map.player_start_spaces[i])
+
+        move_to_tile_hp(canvas, player_hp_count_labels[i], chosen_map.player_start_spaces[i])
 
         canvas.itemconfig(grayscale_player_sprite_IDs[i], state='hidden')
 
