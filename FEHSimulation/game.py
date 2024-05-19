@@ -249,7 +249,7 @@ def move_to_tile(my_canvas, item_ID, num):
     x_move = 45 + 90 * (num % 6)
     y_move = 135 + 90 * (7 - (num//6))
 
-    my_canvas.coords(item_ID, x_move-40, y_move-40)
+    my_canvas.coords(item_ID, x_move, y_move)
 
 def move_to_tile_wp(my_canvas, item_ID, num):
     x_move = 45 + 90 * (num % 6)
@@ -320,7 +320,7 @@ def animate_damage_popup(canvas, number, text_tile):
     x_pivot = x_comp * 90 + 45
     y_pivot = (7 - y_comp) * 90 + 90 + 45
 
-    displayed_text2 = canvas.create_text((x_pivot+1, y_pivot+1), text=str(number), fill='#7a643c', font=("Helvetica", 25, 'bold'), anchor='center')
+    displayed_text2 = canvas.create_text((x_pivot+2, y_pivot+2), text=str(number), fill='#111111', font=("Helvetica", 25, 'bold'), anchor='center')
     displayed_text = canvas.create_text((x_pivot, y_pivot), text=str(number), fill='#de1d1d', font=("Helvetica", 25, 'bold'), anchor='center')
 
     canvas.after(350, forget_text, canvas, displayed_text)
@@ -1042,6 +1042,8 @@ def start_sim(player_units, enemy_units, chosen_map):
                 canvas.tag_raise(enemy_sprite_IDs[i])
                 canvas.tag_raise(grayscale_enemy_sprite_IDs[i])
                 canvas.tag_raise(enemy_weapon_icons[i])
+                canvas.tag_raise(enemy_hp_count_labels[i])
+                canvas.tag_raise(enemy_special_count_labels[i])
                 i += 1
 
             i = 0
@@ -1049,13 +1051,20 @@ def start_sim(player_units, enemy_units, chosen_map):
                 canvas.tag_raise(player_sprite_IDs[i])
                 canvas.tag_raise(grayscale_player_sprite_IDs[i])
                 canvas.tag_raise(player_weapon_icons[i])
+                canvas.tag_raise(player_hp_count_labels[i])
+                canvas.tag_raise(player_special_count_labels[i])
                 i += 1
 
             canvas.tag_raise(item_id)
+
             if cur_hero.side == 0:
                 canvas.tag_raise(player_weapon_icons[item_index])
+                canvas.tag_raise(player_hp_count_labels[item_index])
+                canvas.tag_raise(player_special_count_labels[item_index])
             if cur_hero.side == 1:
                 canvas.tag_raise(enemy_weapon_icons[item_index])
+                canvas.tag_raise(enemy_hp_count_labels[item_index])
+                canvas.tag_raise(enemy_special_count_labels[item_index])
 
             # make starting path
             first_path = canvas.create_image(pivot_cache[0], pivot_cache[1], anchor=tk.NW, image=arrow_photos[14])
@@ -1096,6 +1105,7 @@ def start_sim(player_units, enemy_units, chosen_map):
             # Move the item based on the distance moved
 
             canvas.move(tag, delta_x, delta_y)
+            #canvas.coords(tag, delta_x, delta_y)
 
             # Update the starting position for the next drag event
             canvas.drag_data['cur_x'] = event.x
@@ -1369,14 +1379,20 @@ def start_sim(player_units, enemy_units, chosen_map):
 
             item_index = canvas.drag_data['index']
             S = canvas.drag_data['side']
+
+            player_sprite = canvas.drag_data['item']
             grayscale_sprite = grayscale_IDs[S][item_index]
             weapon_icon_sprite = weapon_IDs[S][item_index]
+            hp_label = hp_labels[S][item_index]
+            sp_label = special_labels[S][item_index]
 
             # Set sprite to new position
             if event.x < 539 and event.x > 0 and event.y < 810 and event.y > 90 and new_tile in canvas.drag_data['moves']:
                 move_to_tile(canvas, canvas.drag_data['item'], new_tile)
                 move_to_tile(canvas, grayscale_sprite, new_tile)
-                move_to_tile(canvas, weapon_icon_sprite, new_tile)
+                move_to_tile_wp(canvas, weapon_icon_sprite, new_tile)
+                move_to_tile_hp(canvas, hp_label, new_tile)
+                move_to_tile_sp(canvas, sp_label, new_tile)
 
                 units_all[S][item_index].tile.hero_on = None
                 units_all[S][item_index].tile = chosen_map.tiles[new_tile]
@@ -1390,7 +1406,9 @@ def start_sim(player_units, enemy_units, chosen_map):
             else:
                 move_to_tile(canvas, canvas.drag_data['item'], recalc_tile)
                 move_to_tile(canvas, grayscale_sprite, recalc_tile)
-                move_to_tile(canvas, weapon_icon_sprite, recalc_tile)
+                move_to_tile_wp(canvas, weapon_icon_sprite, recalc_tile)
+                move_to_tile_hp(canvas, hp_label, recalc_tile)
+                move_to_tile_sp(canvas, sp_label, recalc_tile)
 
             for blue_tile_id in canvas.drag_data['blue_tile_id_arr']:
                 canvas.delete(blue_tile_id)
@@ -1428,18 +1446,22 @@ def start_sim(player_units, enemy_units, chosen_map):
                 elif player_tile // 6 > enemy_tile // 6:
                     player_atk_dir_vert = -1
 
-                player_sprite = canvas.drag_data['item']
 
                 enemy_index = -1
 
                 if canvas.drag_data['side'] == 0:
-                    enemy_index = enemy_units.index(enemy)
+                    enemy_index = enemy_units_all.index(enemy)
+
                     enemy_sprite = enemy_sprite_IDs[enemy_index]
                     enemy_weapon_icon = enemy_weapon_icons[enemy_index]
+                    enemy_hp_label = enemy_hp_count_labels[enemy_index]
+                    enemy_sp_label = enemy_special_count_labels[enemy_index]
                 if canvas.drag_data['side'] == 1:
-                    enemy_index = player_units.index(enemy)
+                    enemy_index = player_units_all.index(enemy)
                     enemy_sprite = player_sprite_IDs[enemy_index]
                     enemy_weapon_icon = player_weapon_icons[enemy_index]
+                    enemy_hp_label = player_hp_count_labels[enemy_index]
+                    enemy_sp_label = player_special_count_labels[enemy_index]
 
                 def hide_enemy(is_alive):
                     canvas.itemconfig(enemy_sprite, state='hidden')
@@ -1448,6 +1470,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                     if not is_alive:
                         canvas.itemconfig(enemy_weapon_icon, state='hidden')
                         move_to_tile(canvas, enemy_sprite, 100)
+                        canvas.itemconfig(enemy_hp_label, state='hidden')
 
                 def hide_player(is_alive):
                     canvas.itemconfig(player_sprite, state='hidden')
@@ -1457,26 +1480,40 @@ def start_sim(player_units, enemy_units, chosen_map):
                         canvas.itemconfig(weapon_icon_sprite, state='hidden')
                         move_to_tile(canvas, player_sprite, 100)
                         move_to_tile(canvas, grayscale_sprite, 100)
+                        canvas.itemconfig(hp_label, state='hidden')
 
                 def animation_done():
                     global animation
                     animation = False
 
+                def set_text_val(label, value):
+                    canvas.itemconfig(label, text=value)
+
                 combat_result = simulate_combat(player, enemy, True, turn_info[0], 0, [])
                 attacks = combat_result[7]
+
+                # Visualization of the blows trading
+
 
                 i = 0
                 while i < len(attacks):
                     if attacks[i].attackOwner == 0:
                         canvas.after(i * 500 + 200, animate_sprite_atk, canvas, player_sprite, player_atk_dir_hori, player_atk_dir_vert, attacks[i].damage, enemy_tile)
                         enemy.HPcur = max(0, enemy.HPcur - attacks[i].damage)
+                        canvas.after(i * 500 + 300, set_text_val, enemy_hp_label, enemy.HPcur)
 
                     if attacks[i].attackOwner == 1:
                         canvas.after(i * 500 + 200, animate_sprite_atk, canvas, enemy_sprite, player_atk_dir_hori * -1, player_atk_dir_vert * -1, attacks[i].damage, player_tile)
                         player.HPcur = max(0, player.HPcur - attacks[i].damage)
+                        canvas.after(i * 500 + 300, set_text_val, hp_label, player.HPcur)
 
-                    if player.specialCount != -1: player.specialCount = attacks[i].spCharges[0]
-                    if enemy.specialCount != -1: enemy.specialCount = attacks[i].spCharges[1]
+                    if player.specialCount != -1:
+                        player.specialCount = attacks[i].spCharges[0]
+                        canvas.after(i * 500 + 300, set_text_val, sp_label, player.specialCount)
+                    if enemy.specialCount != -1:
+                        enemy.specialCount = attacks[i].spCharges[1]
+                        canvas.after(i * 500 + 300, set_text_val, enemy_sp_label, enemy.specialCount)
+
 
                     if player.HPcur == 0 or enemy.HPcur == 0: break
                     i += 1
@@ -1490,15 +1527,15 @@ def start_sim(player_units, enemy_units, chosen_map):
                     if chosen_map.tiles[new_tile].hero_on.side == 0: player_units.remove(chosen_map.tiles[new_tile].hero_on)
                     if chosen_map.tiles[new_tile].hero_on.side == 1: enemy_units.remove(chosen_map.tiles[new_tile].hero_on)
 
-                    # end simulation if they were last unit alive
-                    if chosen_map.tiles[new_tile].hero_on.side == 0 and not player_units:
-                        canvas.after(finish_time + 500, window.destroy)
-
-                    if chosen_map.tiles[new_tile].hero_on.side == 1 and not enemy_units:
-                        canvas.after(finish_time + 500, window.destroy)
-
                     # take unit off map
-                    chosen_map.tiles[new_tile].hero_on = None
+                    player.tile.hero_on = None
+
+                    # end simulation if they were last unit alive
+                    if player.side == 0 and not player_units:
+                        canvas.after(finish_time + 700, window.destroy)
+
+                    if player.side == 1 and not enemy_units:
+                        canvas.after(finish_time + 700, window.destroy)
 
                     canvas.after(finish_time, clear_banner)
                 else:
@@ -1507,15 +1544,20 @@ def start_sim(player_units, enemy_units, chosen_map):
                 if enemy.HPcur == 0:
                     canvas.after(finish_time, hide_enemy, False)
 
-                    if chosen_map.tiles[new_tile].hero_on.side == 0: enemy_units.remove(chosen_map.tiles[mouse_new_tile].hero_on)
-                    if chosen_map.tiles[new_tile].hero_on.side == 1: player_units.remove(chosen_map.tiles[mouse_new_tile].hero_on)
-                    chosen_map.tiles[mouse_new_tile].hero_on = None
+                    # remove from list of units
+                    if enemy.side == 0: player_units.remove(enemy)
+                    if enemy.side == 1: enemy_units.remove(enemy)
 
-                    if chosen_map.tiles[new_tile].hero_on.side == 0 and not enemy_units:
-                        canvas.after(finish_time + 500, window.destroy)
+                    # take unit off map
+                    enemy.tile.hero_on = None
 
-                    if chosen_map.tiles[new_tile].hero_on.side == 1 and not player_units:
-                        canvas.after(finish_time + 500, window.destroy)
+                    # end simulation if all enemy units are defeated
+                    if enemy.side == 0 and not player_units:
+                        canvas.after(finish_time + 700, window.destroy)
+
+                    if enemy.side == 1 and not enemy_units:
+                        canvas.after(finish_time + 700, window.destroy)
+
 
                 canvas.after(finish_time, animation_done)
                 canvas.after(finish_time, hide_player, True)
@@ -1527,7 +1569,6 @@ def start_sim(player_units, enemy_units, chosen_map):
                 ally = chosen_map.tiles[mouse_new_tile].hero_on
 
                 if "repo" in player.assist.effects:
-
 
                     unit_tile_num = player.tile.tileNum
                     ally_tile_num = ally.tile.tileNum
@@ -1542,9 +1583,14 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                     ally_sprite = player_sprite_IDs[ally_index]
                     ally_weapon_icon = player_weapon_icons[ally_index]
+                    ally_hp_label = player_hp_count_labels[ally_index]
+                    ally_sp_label = player_special_count_labels[ally_index]
 
                     move_to_tile(canvas, ally_sprite, final_pos)
-                    move_to_tile(canvas, ally_weapon_icon, final_pos)
+                    move_to_tile_wp(canvas, ally_weapon_icon, final_pos)
+                    move_to_tile_hp(canvas, ally_hp_label, final_pos)
+                    move_to_tile_sp(canvas, ally_sp_label, final_pos)
+
 
 
                 elif "draw" in player.assist.effects:
@@ -1789,6 +1835,11 @@ def start_sim(player_units, enemy_units, chosen_map):
         grayscale_photo = ImageTk.PhotoImage(transparent_image)
         grayscale_player_sprites.append(grayscale_photo)
 
+        name = x.intName
+        side = 'P'
+        tag = f"tag_{name.replace('!', '_')}_{i}_{side}"
+        player_tags.append(tag)
+
     for x in enemy_units_all:
         respString = "-R" if x.resp else ""
         curImage = Image.open(__location__ + "\\Sprites\\" + x.intName + respString + ".png")
@@ -1807,34 +1858,28 @@ def start_sim(player_units, enemy_units, chosen_map):
         grayscale_photo = ImageTk.PhotoImage(transparent_image)
         grayscale_enemy_sprites.append(grayscale_photo)
 
-    for i,player in enumerate(player_units_all):
-        name = player_units_all[i].intName
-        side = 'P'
-        tag = f"tag_{name.replace('!', '_')}_{i}_{side}"
-        player_tags.append(tag)
-
-    for i,enemy in enumerate(enemy_units_all):
-        name = enemy_units_all[i].intName
-        side = 'P'
+        name = x.intName
+        side = 'E'
         tag = f"tag_{name.replace('!', '_')}_{i}_{side}"
         enemy_tags.append(tag)
 
-    # PLACE IMAGES ONTO CANVAS
+
+    # CREATE IMAGES ON CANVAS
 
     for i, player_sprite in enumerate(player_sprites):
-        item_id = canvas.create_image(100 * i, 200, anchor=tk.NW, image=player_sprite, tags=(player_tags[i]))
+        item_id = canvas.create_image(100 * i, 200, anchor='center', image=player_sprite, tags=(player_tags[i]))
         player_sprite_IDs.append(item_id)
 
     for i, grayscale_player_sprite in enumerate(grayscale_player_sprites):
-        item_id = canvas.create_image(100 * i, 200, anchor=tk.NW, image=grayscale_player_sprite, tags=player_tags[i])
+        item_id = canvas.create_image(100 * i, 200, anchor='center', image=grayscale_player_sprite, tags=player_tags[i])
         grayscale_player_sprite_IDs.append(item_id)
 
     for i, enemy_sprite in enumerate(enemy_sprites):
-        item_id = canvas.create_image(100 * i, 200, anchor=tk.NW, image=enemy_sprite, tags=enemy_tags[i])
+        item_id = canvas.create_image(100 * i, 200, anchor='center', image=enemy_sprite, tags=enemy_tags[i])
         enemy_sprite_IDs.append(item_id)
 
     for i, grayscale_enemy_sprite in enumerate(grayscale_enemy_sprites):
-        item_id = canvas.create_image(100 * i + 200, 200, anchor=tk.NW, image=grayscale_enemy_sprite, tags=enemy_tags[i])
+        item_id = canvas.create_image(100 * i + 200, 200, anchor='center', image=grayscale_enemy_sprite, tags=enemy_tags[i])
         grayscale_enemy_sprite_IDs.append(item_id)
 
     for i, player in enumerate(player_units_all):
@@ -1857,7 +1902,16 @@ def start_sim(player_units, enemy_units, chosen_map):
         weapon_icon = canvas.create_image(160, 50 * (i + 2), anchor=tk.NW, image=w_image, tags=enemy_tags[i])
         enemy_weapon_icons.append(weapon_icon)
 
-    # MOVE UNITS TO TILE
+        count_string = enemy.specialCount
+        if enemy.specialCount == -1: count_string = ""
+        special_label = canvas.create_text(200, 100 * (2 + i), text=count_string, fill="#e300e3", font=("Helvetica", 19, 'bold'), anchor='center', tags=enemy_tags[i])
+        enemy_special_count_labels.append(special_label)
+
+        hp_string = enemy.HPcur
+        hp_label = canvas.create_text(200, 100 * (2 + i), text=hp_string, fill="blue", font=("Helvetica", 16, 'bold'), anchor='center', tags=enemy_tags[i])
+        enemy_hp_count_labels.append(hp_label)
+
+    # MOVE SPRITES TO START LOCATIONS
 
     i = 0
     while i < len(player_units):
@@ -1868,7 +1922,6 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         move_to_tile_wp(canvas, player_weapon_icons[i], chosen_map.player_start_spaces[i])
         move_to_tile_sp(canvas, player_special_count_labels[i], chosen_map.player_start_spaces[i])
-
         move_to_tile_hp(canvas, player_hp_count_labels[i], chosen_map.player_start_spaces[i])
 
         canvas.itemconfig(grayscale_player_sprite_IDs[i], state='hidden')
@@ -1882,7 +1935,9 @@ def start_sim(player_units, enemy_units, chosen_map):
         enemy_units[i].tile.hero_on = enemy_units[i]
         enemy_units[i].side = ENEMY
 
-        move_to_tile(canvas, enemy_weapon_icons[i], chosen_map.enemy_start_spaces[i])
+        move_to_tile_wp(canvas, enemy_weapon_icons[i], chosen_map.enemy_start_spaces[i])
+        move_to_tile_sp(canvas, enemy_special_count_labels[i], chosen_map.enemy_start_spaces[i])
+        move_to_tile_hp(canvas, enemy_hp_count_labels[i], chosen_map.enemy_start_spaces[i])
 
         canvas.itemconfig(grayscale_enemy_sprite_IDs[i], state='hidden')
 
