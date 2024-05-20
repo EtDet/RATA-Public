@@ -35,7 +35,7 @@ def makeHero(name):
 
 
 def singlePlayerButton():
-    output_string.set("Singe Player Selected")
+    output_string.set("Single Player Selected")
     search_frame.pack()
     input_frame.pack_forget()
 

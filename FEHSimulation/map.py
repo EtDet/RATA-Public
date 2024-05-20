@@ -44,6 +44,7 @@ class Tile:
         # 5 - wood
         self.terrain_texture = texture
 
+    # all tiles within n spaces
     def tilesWithinNSpaces(self, n):
         fringe = Queue()  # tiles to visit
         tilesWithin = []  # tiles visited
@@ -78,24 +79,85 @@ class Tile:
 
         return tilesWithin
 
-# get allies/foes within n spaces
-    def unitsWithinNSpaces(self, n, lookForSameSide):
-        if self.hero_on is None: return -1
-
-        side = self.hero_on.side
+    # all units within n spaces
+    def unitsWithinNSpaces(self, n):
         within_n_tiles = self.tilesWithinNSpaces(n)
         arr = []
         for x in within_n_tiles:
-            if (x.hero_on is not None and (x.hero_on.side == side and lookForSameSide or x.hero_on.side != side and not lookForSameSide)):
+            if x.hero_on is not None:
                 arr.append(x.hero_on)
 
         return arr
 
-    # number of allies/foes within n spaces
-    def numWithinNSpaces(self, n, lookForSameSide):
-        if self.hero_on is None: return -1
+    # all tiles within n columns
+    def tilesWithinNCols(self, n):
+        horizontal = [self]
 
-        return len(self.unitsWithinNSpaces(n, lookForSameSide))
+        west_explorer = self
+        east_explorer = self
+
+        i = 1
+        while i < n:
+            if west_explorer.west is not None:
+                west_explorer = west_explorer.west
+                horizontal.append(west_explorer)
+            if east_explorer.east is not None:
+                east_explorer = east_explorer.east
+                horizontal.append(east_explorer)
+
+            i += 2
+
+        tiles_within = horizontal[:]
+
+        for tile in horizontal:
+            cur_tile = tile
+            while cur_tile.north is not None:
+                cur_tile = cur_tile.north
+                tiles_within.append(cur_tile)
+            cur_tile = tile
+            while cur_tile.south is not None:
+                cur_tile = cur_tile.south
+                tiles_within.append(cur_tile)
+
+        return tiles_within
+
+    # all tiles within n columns
+    def tilesWithinNRows(self, n):
+        vertical = [self]
+
+        north_explorer = self
+        south_explorer = self
+
+        i = 1
+        while i < n:
+            if north_explorer.north is not None:
+                north_explorer = north_explorer.north
+                vertical.append(north_explorer)
+            if south_explorer.south is not None:
+                south_explorer = south_explorer.south
+                vertical.append(south_explorer)
+
+            i += 2
+
+        tiles_within = vertical[:]
+
+        for tile in vertical:
+            cur_tile = tile
+            while cur_tile.west is not None:
+                cur_tile = cur_tile.west
+                tiles_within.append(cur_tile)
+            cur_tile = tile
+            while cur_tile.east is not None:
+                cur_tile = cur_tile.east
+                tiles_within.append(cur_tile)
+
+        return tiles_within
+
+    def numWithinNRowsOrCols(self, n, lookForSameSide):
+        if self.hero_on is None: return -1
+        if n % 2 == 0: return 0
+
+        #return len()
 
 
 class Structure:

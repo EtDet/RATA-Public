@@ -1,0 +1,44 @@
+{
+    "name": "Test: And they were roommates",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 1],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 1],
+                [0, 0, 0, 0, 1, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [1, 2, 3, 4],
+    "enemyStart": [43, 44, 45, 46],
+    "enemyData":
+    [  {"name": "Rosado",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Axe of Adoration",
+       "startMove": 1,
+       "wallBreak": false
+       },
+        {"name": "WI!M!Byleth",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Holy Yule Blade",
+       "startMove": 1,
+       "wallBreak": false
+      },
+       {"name": "L!Lilina",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Studied Forblaze",
+       "startMove": 1,
+       "wallBreak": false
+      },
+       {"name": "Ephraim",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Siegmund",
+       "startMove": 1,
+       "wallBreak": false
+      }
+    ]
+  }

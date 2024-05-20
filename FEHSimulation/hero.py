@@ -167,6 +167,7 @@ class Hero:
         self.beast_trans_condition = False
 
         self.tile = None
+        self.attacking_tile = None # used for forecasts
 
         self.spLines = [""] * 4
 
@@ -529,7 +530,7 @@ class Hero:
         return self.special.getName()
 
     def getSpecialType(self):
-        if self.special is not None: return self.special.type.name
+        if self.special is not None: return self.special.type
         else: return ""
 
     def getMaxSpecialCooldown(self):
@@ -550,11 +551,14 @@ class Hero:
         return not self.assist is None
 
 class Skill:
-    def __init__(self, name, desc, effects):
+    def __init__(self, name, desc, letter, tier, effects, exc_users):
         self.name = name
         self.desc = desc
+        self.letter = letter
+        self.tier = tier
         self.effects = effects
-        self.level = 0
+        self.exc_users = exc_users
+
 
     def __str__(self): print(self.name + "\n" + self.desc)
 
@@ -594,9 +598,8 @@ class SpecialType(Enum):
     AreaOfEffect = 2
     Galeforce = 3
 
-class Special(Skill):
+class Special():
     def __init__(self, name, desc, effects, cooldown, type):
-        super().__init__(name, desc, effects)
         self.name = name
         self.desc = desc
         self.effects = effects
@@ -680,6 +683,7 @@ class Status(Enum):
     TimesGrip = 60 # 🔴 Inflicts Atk/Spd/Def/Res-4 during next combat, neutralizes skills during allies' combats
     CancelAction = 61  # 🟢 After start of turn skills trigger, unit's action ends immediately (cancels active units in Summoner Duels)
     HushSpectrum = 62
+    ShareSpoils = 64
 
     # positive
 
@@ -725,6 +729,7 @@ class Status(Enum):
     Incited = 157 # 🔴 If initiating combat, grants Atk/Spd/Def/Res = num spaces moved, max 3
     FirstReduce40 = 158 # 🔴 If initiating combat, reduce damage of first attack received by 40%
     HalfDamageReduction = 159 # 🔴 Cuts foe's damage reduction skill efficacy in half
+    EssenceDrain = 163
 
 veyle = Hero("Veyle", "Veyle", 17, "BTome", 0, [39, 46, 30, 21, 46], [50, 70, 50, 40, 90], 5, 54)
 #obscurité = Weapon("Obscurité", "idk", 14, 2, {"stuff":10})
@@ -752,6 +757,7 @@ __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file
 hero_sheet = pd.read_csv(__location__ + '\\FEHstats.csv')
 weapon_sheet = pd.read_csv(__location__ + '\\FEHWeapons.csv')
 special_sheet = pd.read_csv(__location__ + '\\FEHSpecials.csv')
+skills_sheet = pd.read_csv(__location__ + '\\FEHABCXSkills.csv')
 
 def makeHero(name):
     row = hero_sheet.loc[hero_sheet['IntName'] == name]
@@ -808,14 +814,13 @@ def makeWeapon(name):
     return Weapon(name, int_name, desc, might, rng, wpnType, effects, users)
 
 def makeSpecial(name):
-    row = weapon_sheet.loc[special_sheet['Name'] == name]
+    row = special_sheet.loc[special_sheet['Name'] == name]
     n = row.index.values[0]
 
     name = row.loc[n, 'Name']
     desc = row.loc[n, 'Description']
     cooldown = row.loc[n, 'Cooldown']
     spType = row.loc[n, 'Type']
-    rng = row.loc[n, 'Range']
     restrict_move = row.loc[n, 'RestrictedWeapons']
     restrict_weapon = row.loc[n, 'RestrictedMovement']
     effects = {}
@@ -832,3 +837,27 @@ def makeSpecial(name):
 
     return Special(name, desc, effects, cooldown, spType)
 
+def makeSkill(name):
+    row = skills_sheet.loc[skills_sheet['Name'] == name]
+    n = row.index.values[0]
+
+    name = row.loc[n, 'Name']
+    desc = row.loc[n, 'Description']
+    letter = row.loc[n, 'Letter']
+    tier = row.loc[n, 'Tier']
+    restrict_move = row.loc[n, 'RestrictedWeapons']
+    restrict_weapon = row.loc[n, 'RestrictedMovement']
+    effects = {}
+    users = []
+
+    if not pd.isna(row.loc[n, 'Effect1']) and not pd.isna(row.loc[n, 'Level1']): effects.update({row.loc[n, 'Effect1']: int(row.loc[n, 'Level1'])})
+    if not pd.isna(row.loc[n, 'Effect2']) and not pd.isna(row.loc[n, 'Level2']): effects.update({row.loc[n, 'Effect2']: int(row.loc[n, 'Level2'])})
+    if not pd.isna(row.loc[n, 'Effect3']) and not pd.isna(row.loc[n, 'Level3']): effects.update({row.loc[n, 'Effect3']: int(row.loc[n, 'Level3'])})
+    if not pd.isna(row.loc[n, 'Effect4']) and not pd.isna(row.loc[n, 'Level4']): effects.update({row.loc[n, 'Effect4']: int(row.loc[n, 'Level4'])})
+    if not pd.isna(row.loc[n, 'Effect5']) and not pd.isna(row.loc[n, 'Level5']): effects.update({row.loc[n, 'Effect5']: int(row.loc[n, 'Level5'])})
+
+    if not pd.isna(row.loc[n, 'ExclusiveUser1']): users.append(row.loc[n, 'ExclusiveUser1'])
+    if not pd.isna(row.loc[n, 'ExclusiveUser2']): users.append(row.loc[n, 'ExclusiveUser2'])
+    if not pd.isna(row.loc[n, 'ExclusiveUser3']): users.append(row.loc[n, 'ExclusiveUser3'])
+
+    return Skill(name, desc, letter, tier, effects, users)

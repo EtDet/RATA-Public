@@ -40,7 +40,8 @@ class Move():
 map0 = Map(0)
 
 # Read JSON data associated with loaded map
-with open(__location__ + "\\Maps\\Story Maps\\Book 1\\Preface\\story0-0-1.json") as read_file: data = json.load(read_file)
+#with open(__location__ + "\\Maps\\Story Maps\\Book 1\\Preface\\story0-0-1.json") as read_file: data = json.load(read_file)
+with open(__location__ + "\\Maps\\Test Maps\\test1.json") as read_file: data = json.load(read_file)
 
 # Fill in terrain, starting tiles, enemy units, etc. into map
 map0.define_map(data)
@@ -54,7 +55,7 @@ reposition = Assist("Reposition", "", {"repo":0}, 1, AssistType.Move)
 robin.set_skill(reposition, ASSIST)
 
 robin.set_IVs(ATK,SPD,ATK)
-robin.set_level(1)
+robin.set_level(40)
 
 ragnell = Weapon("Emblem Ragnell", "Emblem Ragnell", "", 16, 1, "Sword", {"slaying": 1, "dCounter": 0, "BIGIKEFAN": 1018}, {})
 GREAT_AETHER = Special("Great Aether", "", {"numFoeAtkBoostSp": 4, "AETHER_GREAT": 17}, 4, SpecialType.Offense)
@@ -65,17 +66,33 @@ ike.set_skill(ragnell, WEAPON)
 ike.set_skill(GREAT_AETHER, SPECIAL)
 
 ike.set_IVs(ATK,SPD,ATK)
-ike.set_level(1)
+ike.set_level(40)
 
+united_bouquet = Weapon("United Bouquet", "United Bouquet", "", 16, 1, "Lance", {"slaying": 1, "bridal_shenanigans": 2}, {})
+forever_yours = makeSkill("Forever Yours")
+no_quarter = makeSpecial("No Quarter")
+atkspd_excel = makeSkill("Atk/Spd Excel")
+potent4 = makeSkill("Potent 4")
+
+sharena = Hero("Sharena", "BR!Sharena", 0, "Lance", 1, [40, 44, 47, 32, 21], [50, 70, 90, 50, 35], 5, 24)
+
+sharena.set_skill(united_bouquet, WEAPON)
+sharena.set_skill(no_quarter, SPECIAL)
+sharena.set_skill(atkspd_excel, ASKILL)
+sharena.set_skill(potent4, BSKILL)
+sharena.set_skill(forever_yours, CSKILL)
+
+sharena.set_IVs(SPD,DEF,SPD)
+sharena.set_level(40)
 
 # PLACE UNITS ONTO MAP
 
 #robin.tile = map0.tiles[18]
 
-player_units_all = [robin, ike]
+player_units_all = [robin, ike, sharena]
 enemy_units_all = []
 
-player_units = [robin, ike]
+player_units = [robin, ike, sharena]
 enemy_units = []
 
 i = 0
@@ -268,6 +285,12 @@ def move_to_tile_hp(my_canvas, label_ID, num):
 
     my_canvas.coords(label_ID, x_move - 33, y_move + 36)
 
+def move_to_tile_fg_bar(my_canvas, rect_ID, num):
+    x_move = 45 + 90 * (num % 6)
+    y_move = 135 + 90 * (7 - (num // 6))
+
+    my_canvas.moveto(rect_ID, x_move - 18, y_move + 29)
+
 def animate_sprite_atk(my_canvas, item_ID, move_hori, move_vert, damage, text_tile):
     # Get the current coordinates of the item
     x, y = my_canvas.coords(item_ID)
@@ -322,6 +345,18 @@ def animate_damage_popup(canvas, number, text_tile):
 
     displayed_text2 = canvas.create_text((x_pivot+2, y_pivot+2), text=str(number), fill='#111111', font=("Helvetica", 25, 'bold'), anchor='center')
     displayed_text = canvas.create_text((x_pivot, y_pivot), text=str(number), fill='#de1d1d', font=("Helvetica", 25, 'bold'), anchor='center')
+
+    canvas.after(350, forget_text, canvas, displayed_text)
+    canvas.after(350, forget_text, canvas, displayed_text2)
+
+def animate_heal_popup(canvas, number, text_tile):
+    x_comp = text_tile % 6
+    y_comp = text_tile // 6
+    x_pivot = x_comp * 90 + 45
+    y_pivot = (7 - y_comp) * 90 + 90 + 45
+
+    displayed_text2 = canvas.create_text((x_pivot+2, y_pivot+2), text=str(number), fill='#111111', font=("Helvetica", 25, 'bold'), anchor='center')
+    displayed_text = canvas.create_text((x_pivot, y_pivot), text=str(number), fill='#14c454', font=("Helvetica", 25, 'bold'), anchor='center')
 
     canvas.after(350, forget_text, canvas, displayed_text)
     canvas.after(350, forget_text, canvas, displayed_text2)
@@ -392,7 +427,7 @@ def start_sim(player_units, enemy_units, chosen_map):
             for x in player_units:
                 units_to_move.append(x)
 
-            for i in range(0, len(player_units_all)):
+            for i in range(0, len(enemy_units_all)):
                 canvas.itemconfig(grayscale_enemy_sprite_IDs[i], state='hidden')
                 canvas.itemconfig(enemy_sprite_IDs[i], state='normal')
 
@@ -595,10 +630,11 @@ def start_sim(player_units, enemy_units, chosen_map):
         text_coords = ((430 + 530) / 2, (65 + 82) / 2)
         set_banner.rect_array.append(canvas.create_text(*text_coords, text=xskill, fill="white", font=("Helvetica", 9), anchor='center'))
 
-    def set_attack_forecast(attacker: Hero, defender: Hero):
+    def set_attack_forecast(attacker: Hero, defender: Hero, distance):
         clear_banner()
 
-        result = simulate_combat(attacker, defender, True, turn_info[0], 0, [])
+
+        result = simulate_combat(attacker, defender, True, turn_info[0], distance, [])
 
         player_name = attacker.name
         player_move_type = moves[attacker.move]
@@ -678,9 +714,23 @@ def start_sim(player_units, enemy_units, chosen_map):
         set_banner.rect_array.append(enemy_weapon_icon)
 
         # HP Calculation
+        i = 0
+        atkHP = attacker.HPcur
+        defHP = defender.HPcur
+        while i < len(attacks):
+            if attacks[i].attackOwner == 0:
+                defHP = max(0, defHP - attacks[i].damage)
+                atkHP = min(attacker.stats[HP], atkHP + attacks[i].healed)
 
-        player_hp_calc = canvas.create_text((215, 16), text=str(player_HPcur) + " → " + str(player_HPresult), fill='yellow',font=("Helvetica", 11), anchor='center')
-        enemy_hp_calc = canvas.create_text((324, 16), text=str(enemy_HPcur) + " → " + str(enemy_HPresult), fill="yellow", font=("Helvetica", 11), anchor='center')
+            if attacks[i].attackOwner == 1:
+                atkHP = max(0, atkHP - attacks[i].damage)
+                defHP = min(defender.stats[HP], defHP + attacks[i].healed)
+
+            if atkHP == 0 or defHP == 0: break
+            i += 1
+
+        player_hp_calc = canvas.create_text((215, 16), text=str(player_HPcur) + " → " + str(atkHP), fill='yellow',font=("Helvetica", 11), anchor='center')
+        enemy_hp_calc = canvas.create_text((324, 16), text=str(enemy_HPcur) + " → " + str(defHP), fill="yellow", font=("Helvetica", 11), anchor='center')
 
         set_banner.rect_array.append(player_hp_calc)
         set_banner.rect_array.append(enemy_hp_calc)
@@ -714,12 +764,30 @@ def start_sim(player_units, enemy_units, chosen_map):
         # Special Count
 
         if player_spCount != -1:
-            atk_sp_charge = canvas.create_text((270 - 135, 35), text=player_spCount, fill='#ff33ff', font=("Helvetica", 8), anchor='center')
+            atk_sp_charge = canvas.create_text((270 - 135, 35), text=player_spCount, fill='#ff33ff', font=("Helvetica", 12), anchor='center')
             set_banner.rect_array.append(atk_sp_charge)
 
         if enemy_spCount != -1:
-            def_sp_charge = canvas.create_text((270 + 135, 35), text=enemy_spCount, fill='#ff33ff', font=("Helvetica", 8), anchor='center')
+            def_sp_charge = canvas.create_text((270 + 135, 35), text=enemy_spCount, fill='#ff33ff', font=("Helvetica", 12), anchor='center')
             set_banner.rect_array.append(def_sp_charge)
+
+        player_atk_text = canvas.create_text((40, 35), text="Atk" + "+" * (player_combat_buffs[ATK] >= 0) + str(player_combat_buffs[ATK]), fill='#db3b25', font=("Helvetica", 10), anchor='center')
+        set_banner.rect_array.append(player_atk_text)
+        player_spd_text = canvas.create_text((90, 35), text="Spd" + "+" * (player_combat_buffs[SPD] >= 0) + str(player_combat_buffs[SPD]), fill='#17eb34', font=("Helvetica", 10), anchor='center')
+        set_banner.rect_array.append(player_spd_text)
+        player_def_text = canvas.create_text((60, 48), text="Def" + "+" * (player_combat_buffs[DEF] >= 0) + str(player_combat_buffs[DEF]), fill='#dbdb25', font=("Helvetica", 10), anchor='center')
+        set_banner.rect_array.append(player_def_text)
+        player_res_text = canvas.create_text((110, 48), text="Res" + "+" * (player_combat_buffs[RES] >= 0) + str(player_combat_buffs[RES]), fill='#25dbd2', font=("Helvetica", 10), anchor='center')
+        set_banner.rect_array.append(player_res_text)
+
+        player_atk_text = canvas.create_text((450, 35), text="Atk" + "+" * (enemy_combat_buffs[ATK] >= 0) + str(enemy_combat_buffs[ATK]), fill='#db3b25', font=("Helvetica", 10), anchor='center')
+        set_banner.rect_array.append(player_atk_text)
+        player_spd_text = canvas.create_text((500, 35), text="Spd" + "+" * (enemy_combat_buffs[SPD] >= 0) + str(enemy_combat_buffs[SPD]), fill='#17eb34', font=("Helvetica", 10), anchor='center')
+        set_banner.rect_array.append(player_spd_text)
+        player_def_text = canvas.create_text((430, 48), text="Def" + "+" * (enemy_combat_buffs[DEF] >= 0) + str(enemy_combat_buffs[DEF]), fill='#dbdb25', font=("Helvetica", 10), anchor='center')
+        set_banner.rect_array.append(player_def_text)
+        player_res_text = canvas.create_text((480, 48), text="Res" + "+" * (enemy_combat_buffs[RES] >= 0) + str(enemy_combat_buffs[RES]), fill='#25dbd2', font=("Helvetica", 10), anchor='center')
+        set_banner.rect_array.append(player_res_text)
 
         box_size = 30
         gap_size = 8
@@ -802,7 +870,9 @@ def start_sim(player_units, enemy_units, chosen_map):
         x, y = event.x, event.y
 
         # Out of bounds case
-        if x < 0 or x > 540 or y < 90 or y > 720: return
+        if x < 0 or x > 540 or y < 90 or y > 810:
+            print("homer simpson")
+            return
 
         # Get the tile currently hovered over
         x_comp = event.x // 90
@@ -1044,6 +1114,8 @@ def start_sim(player_units, enemy_units, chosen_map):
                 canvas.tag_raise(enemy_weapon_icons[i])
                 canvas.tag_raise(enemy_hp_count_labels[i])
                 canvas.tag_raise(enemy_special_count_labels[i])
+                canvas.tag_raise(enemy_hp_bar_bg[i])
+                canvas.tag_raise(enemy_hp_bar_fg[i])
                 i += 1
 
             i = 0
@@ -1053,6 +1125,8 @@ def start_sim(player_units, enemy_units, chosen_map):
                 canvas.tag_raise(player_weapon_icons[i])
                 canvas.tag_raise(player_hp_count_labels[i])
                 canvas.tag_raise(player_special_count_labels[i])
+                canvas.tag_raise(player_hp_bar_bg[i])
+                canvas.tag_raise(player_hp_bar_fg[i])
                 i += 1
 
             canvas.tag_raise(item_id)
@@ -1061,10 +1135,14 @@ def start_sim(player_units, enemy_units, chosen_map):
                 canvas.tag_raise(player_weapon_icons[item_index])
                 canvas.tag_raise(player_hp_count_labels[item_index])
                 canvas.tag_raise(player_special_count_labels[item_index])
+                canvas.tag_raise(player_hp_bar_bg[item_index])
+                canvas.tag_raise(player_hp_bar_fg[item_index])
             if cur_hero.side == 1:
                 canvas.tag_raise(enemy_weapon_icons[item_index])
                 canvas.tag_raise(enemy_hp_count_labels[item_index])
                 canvas.tag_raise(enemy_special_count_labels[item_index])
+                canvas.tag_raise(enemy_hp_bar_bg[item_index])
+                canvas.tag_raise(enemy_hp_bar_fg[item_index])
 
             # make starting path
             first_path = canvas.create_image(pivot_cache[0], pivot_cache[1], anchor=tk.NW, image=arrow_photos[14])
@@ -1343,7 +1421,12 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                 # if new tile in attacking range
                 if new_tile in canvas.drag_data['attack_range'] and cur_hero.side != chosen_map.tiles[new_tile].hero_on.side:
-                    set_attack_forecast(cur_hero, chosen_map.tiles[new_tile].hero_on)
+                    cur_hero.attacking_tile = chosen_map.tiles[target_tile]
+
+                    # when warping, clash skills use euclidean distance
+                    # when not warping, clash skills use manhattan distance
+                    distance = len(canvas.drag_data['target_path'])
+                    set_attack_forecast(cur_hero, chosen_map.tiles[new_tile].hero_on, distance)
 
                 elif new_tile in canvas.drag_data['assist_range'] and cur_hero.side == chosen_map.tiles[new_tile].hero_on.side\
                         and chosen_map.tiles[new_tile].hero_on in canvas.drag_data['targets_and_tiles']:
@@ -1351,6 +1434,7 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                 # new tile isn't in attacking range
                 else:
+                    cur_hero.attacking_tile = None
                     set_banner(chosen_map.tiles[new_tile].hero_on)
 
 
@@ -1385,6 +1469,8 @@ def start_sim(player_units, enemy_units, chosen_map):
             weapon_icon_sprite = weapon_IDs[S][item_index]
             hp_label = hp_labels[S][item_index]
             sp_label = special_labels[S][item_index]
+            hp_bar_fg = hp_bar_fgs[S][item_index]
+            hp_bar_bg = hp_bar_bgs[S][item_index]
 
             # Set sprite to new position
             if event.x < 539 and event.x > 0 and event.y < 810 and event.y > 90 and new_tile in canvas.drag_data['moves']:
@@ -1393,6 +1479,8 @@ def start_sim(player_units, enemy_units, chosen_map):
                 move_to_tile_wp(canvas, weapon_icon_sprite, new_tile)
                 move_to_tile_hp(canvas, hp_label, new_tile)
                 move_to_tile_sp(canvas, sp_label, new_tile)
+                move_to_tile_fg_bar(canvas, hp_bar_fg, new_tile)
+                move_to_tile_fg_bar(canvas, hp_bar_bg, new_tile)
 
                 units_all[S][item_index].tile.hero_on = None
                 units_all[S][item_index].tile = chosen_map.tiles[new_tile]
@@ -1409,6 +1497,8 @@ def start_sim(player_units, enemy_units, chosen_map):
                 move_to_tile_wp(canvas, weapon_icon_sprite, recalc_tile)
                 move_to_tile_hp(canvas, hp_label, recalc_tile)
                 move_to_tile_sp(canvas, sp_label, recalc_tile)
+                move_to_tile_fg_bar(canvas, hp_bar_fg, recalc_tile)
+                move_to_tile_fg_bar(canvas, hp_bar_bg, recalc_tile)
 
             for blue_tile_id in canvas.drag_data['blue_tile_id_arr']:
                 canvas.delete(blue_tile_id)
@@ -1417,7 +1507,8 @@ def start_sim(player_units, enemy_units, chosen_map):
                 canvas.delete(arrow)
 
             # If off-board move, nothing else to do
-            if event.x < 0 or event.x > 540 or event.y < 90 or event.y > 720: return
+            if event.x < 0 or event.x > 540 or event.y < 90 or event.y > 810:
+                return
 
             # Ok it might just be a failsafe for these lines
             player_original = chosen_map.tiles[new_tile].hero_on
@@ -1447,8 +1538,6 @@ def start_sim(player_units, enemy_units, chosen_map):
                     player_atk_dir_vert = -1
 
 
-                enemy_index = -1
-
                 if canvas.drag_data['side'] == 0:
                     enemy_index = enemy_units_all.index(enemy)
 
@@ -1456,12 +1545,20 @@ def start_sim(player_units, enemy_units, chosen_map):
                     enemy_weapon_icon = enemy_weapon_icons[enemy_index]
                     enemy_hp_label = enemy_hp_count_labels[enemy_index]
                     enemy_sp_label = enemy_special_count_labels[enemy_index]
+
+                    this_enemy_hp_bar_fg = enemy_hp_bar_fg[enemy_index]
+                    this_enemy_hp_bar_bg = enemy_hp_bar_bg[enemy_index]
+
                 if canvas.drag_data['side'] == 1:
                     enemy_index = player_units_all.index(enemy)
+
                     enemy_sprite = player_sprite_IDs[enemy_index]
                     enemy_weapon_icon = player_weapon_icons[enemy_index]
                     enemy_hp_label = player_hp_count_labels[enemy_index]
                     enemy_sp_label = player_special_count_labels[enemy_index]
+
+                    this_enemy_hp_bar_fg = player_hp_bar_fg[enemy_index]
+                    this_enemy_hp_bar_bg = player_hp_bar_bg[enemy_index]
 
                 def hide_enemy(is_alive):
                     canvas.itemconfig(enemy_sprite, state='hidden')
@@ -1470,7 +1567,12 @@ def start_sim(player_units, enemy_units, chosen_map):
                     if not is_alive:
                         canvas.itemconfig(enemy_weapon_icon, state='hidden')
                         move_to_tile(canvas, enemy_sprite, 100)
+
                         canvas.itemconfig(enemy_hp_label, state='hidden')
+                        canvas.itemconfig(enemy_sp_label, state='hidden')
+                        canvas.itemconfig(this_enemy_hp_bar_bg, state='hidden')
+                        canvas.itemconfig(this_enemy_hp_bar_fg, state='hidden')
+
 
                 def hide_player(is_alive):
                     canvas.itemconfig(player_sprite, state='hidden')
@@ -1480,7 +1582,11 @@ def start_sim(player_units, enemy_units, chosen_map):
                         canvas.itemconfig(weapon_icon_sprite, state='hidden')
                         move_to_tile(canvas, player_sprite, 100)
                         move_to_tile(canvas, grayscale_sprite, 100)
+
                         canvas.itemconfig(hp_label, state='hidden')
+                        canvas.itemconfig(sp_label, state='hidden')
+                        canvas.itemconfig(hp_bar_bg, state='hidden')
+                        canvas.itemconfig(hp_bar_fg, state='hidden')
 
                 def animation_done():
                     global animation
@@ -1489,23 +1595,56 @@ def start_sim(player_units, enemy_units, chosen_map):
                 def set_text_val(label, value):
                     canvas.itemconfig(label, text=value)
 
-                combat_result = simulate_combat(player, enemy, True, turn_info[0], 0, [])
+                def set_hp_bar_length(rect, percent):
+                    new_length = int(60 * percent)
+                    if new_length == 0:
+                        canvas.itemconfig(rect, state='hidden')
+                        return
+                    coords = canvas.coords(rect)
+
+                    coords[2] = coords[0] + new_length
+
+                    canvas.coords(rect, *coords)
+
+                distance = len(canvas.drag_data['target_path'])
+                combat_result = simulate_combat(player, enemy, True, turn_info[0], distance, [])
                 attacks = combat_result[7]
 
                 # Visualization of the blows trading
-
 
                 i = 0
                 while i < len(attacks):
                     if attacks[i].attackOwner == 0:
                         canvas.after(i * 500 + 200, animate_sprite_atk, canvas, player_sprite, player_atk_dir_hori, player_atk_dir_vert, attacks[i].damage, enemy_tile)
+
+                        if attacks[i].healed > 0:
+                            canvas.after(i * 500 + 300, animate_heal_popup, canvas, attacks[i].healed, player_tile)
+
                         enemy.HPcur = max(0, enemy.HPcur - attacks[i].damage)
                         canvas.after(i * 500 + 300, set_text_val, enemy_hp_label, enemy.HPcur)
+
+                        hp_percentage = enemy.HPcur/enemy.stats[HP]
+                        canvas.after(i * 500 + 300, set_hp_bar_length, this_enemy_hp_bar_fg, hp_percentage)
+
+                        player.HPcur = min(player.stats[HP], player.HPcur + attacks[i].healed)
+                        canvas.after(i * 500 + 300, set_text_val, hp_label, player.HPcur)
+
+                        hp_percentage = player.HPcur / player.stats[HP]
+                        canvas.after(i * 500 + 300, set_hp_bar_length, hp_bar_fg, hp_percentage)
 
                     if attacks[i].attackOwner == 1:
                         canvas.after(i * 500 + 200, animate_sprite_atk, canvas, enemy_sprite, player_atk_dir_hori * -1, player_atk_dir_vert * -1, attacks[i].damage, player_tile)
                         player.HPcur = max(0, player.HPcur - attacks[i].damage)
                         canvas.after(i * 500 + 300, set_text_val, hp_label, player.HPcur)
+
+                        hp_percentage = player.HPcur / player.stats[HP]
+                        canvas.after(i * 500 + 300, set_hp_bar_length, hp_bar_fg, hp_percentage)
+
+                        enemy.HPcur = min(enemy.stats[HP], enemy.HPcur + attacks[i].healed)
+                        canvas.after(i * 500 + 300, set_text_val, enemy_hp_label, enemy.HPcur)
+
+                        hp_percentage = enemy.HPcur / enemy.stats[HP]
+                        canvas.after(i * 500 + 300, set_hp_bar_length, this_enemy_hp_bar_fg, hp_percentage)
 
                     if player.specialCount != -1:
                         player.specialCount = attacks[i].spCharges[0]
@@ -1579,18 +1718,23 @@ def start_sim(player_units, enemy_units, chosen_map):
                     ally.tile = chosen_map.tiles[final_pos]
                     chosen_map.tiles[final_pos].hero_on = ally
 
+                    # UPDATE TO WORK WITH ANY SIDE
+
                     ally_index = player_units_all.index(ally)
 
                     ally_sprite = player_sprite_IDs[ally_index]
                     ally_weapon_icon = player_weapon_icons[ally_index]
                     ally_hp_label = player_hp_count_labels[ally_index]
                     ally_sp_label = player_special_count_labels[ally_index]
+                    ally_hp_bar_fg = player_hp_bar_fg[ally_index]
+                    ally_hp_bar_bg = player_hp_bar_bg[ally_index]
 
                     move_to_tile(canvas, ally_sprite, final_pos)
                     move_to_tile_wp(canvas, ally_weapon_icon, final_pos)
                     move_to_tile_hp(canvas, ally_hp_label, final_pos)
                     move_to_tile_sp(canvas, ally_sp_label, final_pos)
-
+                    move_to_tile_fg_bar(canvas, ally_hp_bar_fg, final_pos)
+                    move_to_tile_fg_bar(canvas, ally_hp_bar_bg, final_pos)
 
 
                 elif "draw" in player.assist.effects:
@@ -1608,6 +1752,7 @@ def start_sim(player_units, enemy_units, chosen_map):
             # remove player unit from units who can act
 
             cur_hero = player_original
+            units_all[S][item_index].attacking_tile = None
 
             if successful_move and cur_hero in units_to_move:
                 units_to_move.remove(cur_hero)
@@ -1631,10 +1776,11 @@ def start_sim(player_units, enemy_units, chosen_map):
 
             canvas.drag_data = None
 
+
     def on_double_click(event):
         x, y = event.x, event.y
 
-        if x < 0 or x > 540 or y < 90 or y > 720: return
+        if x < 0 or x > 540 or y < 90 or y > 810: return
 
         x_comp = event.x // 90
         y_comp = ((720 - event.y) // 90) + 1
@@ -1676,7 +1822,8 @@ def start_sim(player_units, enemy_units, chosen_map):
     # SPRITE LOADING
 
     # map
-    map_image = Image.open(__location__ + "\\Maps\\Story Maps\\Book 1\\Preface\\" + "story0_0_1" + ".png")
+    #map_image = Image.open(__location__ + "\\Maps\\Story Maps\\Book 1\\Preface\\" + "story0_0_1" + ".png")
+    map_image = Image.open(__location__ + "\\Maps\\Test Maps\\" + "test1" + ".png")
     map_photo = ImageTk.PhotoImage(map_image)
     canvas.create_image(0, 90, anchor=tk.NW, image=map_photo)
 
@@ -1893,8 +2040,17 @@ def start_sim(player_units, enemy_units, chosen_map):
         player_special_count_labels.append(special_label)
 
         hp_string = player.HPcur
-        hp_label = canvas.create_text(200, 100 * (2 + i), text=hp_string, fill="blue", font=("Helvetica", 16, 'bold'), anchor='center', tags=player_tags[i])
+        hp_label = canvas.create_text(200, 100 * (2 + i), text=hp_string, fill="#1e33eb", font=("Helvetica", 16, 'bold'), anchor='center', tags=player_tags[i])
         player_hp_count_labels.append(hp_label)
+
+        hp_bar_bg = canvas.create_rectangle((100, 200 + 15 * i, 160, 212 + 15 * i), fill='black', width=0, tags=player_tags[i])
+        player_hp_bar_bg.append(hp_bar_bg)
+
+        hp_bar_fg = canvas.create_rectangle((100, 200 + 15 * i, 160, 212 + 15 * i), fill='#1e33eb', width=0, tags=player_tags[i])
+        player_hp_bar_fg.append(hp_bar_fg)
+
+
+
 
 
     for i, enemy in enumerate(enemy_units_all):
@@ -1908,8 +2064,14 @@ def start_sim(player_units, enemy_units, chosen_map):
         enemy_special_count_labels.append(special_label)
 
         hp_string = enemy.HPcur
-        hp_label = canvas.create_text(200, 100 * (2 + i), text=hp_string, fill="blue", font=("Helvetica", 16, 'bold'), anchor='center', tags=enemy_tags[i])
+        hp_label = canvas.create_text(200, 100 * (2 + i), text=hp_string, fill="#941e03", font=("Helvetica", 16, 'bold'), anchor='center', tags=enemy_tags[i])
         enemy_hp_count_labels.append(hp_label)
+
+        hp_bar_bg = canvas.create_rectangle((100, 200 + 15 * i, 160, 212 + 15 * i), fill='black', width=0, tags=enemy_tags[i])
+        enemy_hp_bar_bg.append(hp_bar_bg)
+
+        hp_bar_fg = canvas.create_rectangle((100, 200 + 15 * i, 160, 212 + 15 * i), fill='#941e03', width=0, tags=enemy_tags[i])
+        enemy_hp_bar_fg.append(hp_bar_fg)
 
     # MOVE SPRITES TO START LOCATIONS
 
@@ -1924,20 +2086,28 @@ def start_sim(player_units, enemy_units, chosen_map):
         move_to_tile_sp(canvas, player_special_count_labels[i], chosen_map.player_start_spaces[i])
         move_to_tile_hp(canvas, player_hp_count_labels[i], chosen_map.player_start_spaces[i])
 
+        move_to_tile_fg_bar(canvas, player_hp_bar_bg[i], chosen_map.player_start_spaces[i])
+        move_to_tile_fg_bar(canvas, player_hp_bar_fg[i], chosen_map.player_start_spaces[i])
+
         canvas.itemconfig(grayscale_player_sprite_IDs[i], state='hidden')
 
         i += 1
 
     i = 0
     while i < len(enemy_units):
-        move_to_tile(canvas, enemy_tags[i], chosen_map.enemy_start_spaces[i])
-        enemy_units[i].tile = chosen_map.tiles[chosen_map.enemy_start_spaces[i]]
+        start_tile = chosen_map.enemy_start_spaces[i]
+
+        move_to_tile(canvas, enemy_tags[i], start_tile)
+        enemy_units[i].tile = chosen_map.tiles[start_tile]
         enemy_units[i].tile.hero_on = enemy_units[i]
         enemy_units[i].side = ENEMY
 
-        move_to_tile_wp(canvas, enemy_weapon_icons[i], chosen_map.enemy_start_spaces[i])
-        move_to_tile_sp(canvas, enemy_special_count_labels[i], chosen_map.enemy_start_spaces[i])
-        move_to_tile_hp(canvas, enemy_hp_count_labels[i], chosen_map.enemy_start_spaces[i])
+        move_to_tile_wp(canvas, enemy_weapon_icons[i], start_tile)
+        move_to_tile_sp(canvas, enemy_special_count_labels[i], start_tile)
+        move_to_tile_hp(canvas, enemy_hp_count_labels[i], start_tile)
+
+        move_to_tile_fg_bar(canvas, enemy_hp_bar_bg[i], start_tile)
+        move_to_tile_fg_bar(canvas, enemy_hp_bar_fg[i], start_tile)
 
         canvas.itemconfig(grayscale_enemy_sprite_IDs[i], state='hidden')
 
