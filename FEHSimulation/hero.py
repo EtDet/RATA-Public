@@ -427,7 +427,7 @@ class Hero:
 
         self.HPcur = self.visible_stats[0]
 
-    def inflict(self, status):
+    def inflictStatus(self, status):
         if status.value > 100 and status not in self.statusPos:
             self.statusPos.append(status)
             print(self.name + " receives " + status.name + " (+).")

@@ -1,4 +1,5 @@
 from combat import *
+from startofturn import start_of_turn
 from map import Map
 import tkinter as tk
 import ttkbootstrap as ttk
@@ -59,11 +60,13 @@ robin.set_level(40)
 
 ragnell = Weapon("Emblem Ragnell", "Emblem Ragnell", "", 16, 1, "Sword", {"slaying": 1, "dCounter": 0, "BIGIKEFAN": 1018}, {})
 GREAT_AETHER = Special("Great Aether", "", {"numFoeAtkBoostSp": 4, "AETHER_GREAT": 17}, 4, SpecialType.Offense)
+honeAtk1 = makeSkill("Hone Atk 1")
 
 ike = makeHero("E!Ike")
 
 ike.set_skill(ragnell, WEAPON)
 ike.set_skill(GREAT_AETHER, SPECIAL)
+ike.set_skill(honeAtk1, CSKILL)
 
 ike.set_IVs(ATK,SPD,ATK)
 ike.set_level(40)
@@ -82,8 +85,9 @@ sharena.set_skill(atkspd_excel, ASKILL)
 sharena.set_skill(potent4, BSKILL)
 sharena.set_skill(forever_yours, CSKILL)
 
-sharena.set_IVs(SPD,DEF,SPD)
+sharena.set_IVs(SPD,DEF,ATK)
 sharena.set_level(40)
+
 
 # PLACE UNITS ONTO MAP
 
@@ -426,10 +430,14 @@ def start_sim(player_units, enemy_units, chosen_map):
 
             for x in player_units:
                 units_to_move.append(x)
+                x.statusPos = []
+                x.buffs = [0] * 5
 
             for i in range(0, len(enemy_units_all)):
                 canvas.itemconfig(grayscale_enemy_sprite_IDs[i], state='hidden')
                 canvas.itemconfig(enemy_sprite_IDs[i], state='normal')
+
+            start_of_turn(player_units)
 
         if turn_info[1] == ENEMY:
             canvas.delete(next_phase.phase_txt)
@@ -437,10 +445,14 @@ def start_sim(player_units, enemy_units, chosen_map):
 
             for x in enemy_units:
                 units_to_move.append(x)
+                x.statusPos = []
+                x.buffs = [0] * 5
 
             for i in range(0, len(player_units_all)):
                 canvas.itemconfig(grayscale_player_sprite_IDs[i], state='hidden')
                 canvas.itemconfig(player_sprite_IDs[i], state='normal')
+
+            start_of_turn(enemy_units)
 
     def clear_banner():
         if hasattr(set_banner, "banner_rectangle") and set_banner.banner_rectangle:
@@ -523,79 +535,63 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         set_banner.label_array.append(unit_level_label)
 
-        unit_stat_label = tk.Text(canvas, wrap=tk.WORD, height=2, width=20, font="nintendoP_Skip-D_003 10", bd=0, highlightthickness=0)
-        set_banner.label_array.append(unit_stat_label)
+        # STAT LABEL
+        fills = ['white'] * 5
 
         is_neutral_iv = hero.asset == hero.flaw
         is_asc = hero.asset != hero.asc_asset
         is_merged = hero.merges > 0
 
-        if (HP == hero.asset and not is_neutral_iv) or \
-                (HP == hero.asc_asset and is_neutral_iv and is_asc) or\
-                (HP == hero.asc_asset and not is_neutral_iv and hero.flaw == hero.asc_asset and is_merged) or \
-                (not is_neutral_iv and HP == hero.asc_asset and HP != hero.asset and HP != hero.flaw):
-            unit_stat_label.insert(tk.END, "HP ", ("blue", "hp"))
-        elif HP == hero.flaw and hero.asc_asset != hero.flaw and not is_neutral_iv and not is_merged:
-            unit_stat_label.insert(tk.END, "HP ", ("red", "hp"))
-        else:
-            unit_stat_label.insert(tk.END, "HP ", "normal")
+        if not is_neutral_iv:
+            fills[hero.asset] = 'blue'
 
-        unit_stat_label.insert(tk.END, str(hero.HPcur) + "/" + str(stats[0]), "hp")
+        if not is_merged and hero.asset != hero.flaw and hero.flaw != hero.asc_asset:
+            fills[hero.flaw] = 'red'
 
-        if (ATK == hero.asset and not is_neutral_iv) or \
-                (ATK == hero.asc_asset and is_neutral_iv and is_asc) or\
-                (ATK == hero.asc_asset and not is_neutral_iv and hero.flaw == hero.asc_asset and is_merged) or \
-                (not is_neutral_iv and ATK == hero.asc_asset and ATK != hero.asset and ATK != hero.flaw):
-            unit_stat_label.insert(tk.END, " Atk ", ("blue", "atk"))
-        elif ATK == hero.flaw and hero.asc_asset != hero.flaw and not is_neutral_iv and not is_merged:
-            unit_stat_label.insert(tk.END, " Atk ", ("red", "atk"))
-        else:
-            unit_stat_label.insert(tk.END, " Atk ", "normal")
+        if is_neutral_iv and hero.asset != hero.asc_asset or \
+            hero.asset != hero.flaw and hero.flaw != hero.asc_asset and is_asc or \
+            not is_neutral_iv and hero.flaw == hero.asc_asset and is_merged:
 
-        unit_stat_label.insert(tk.END, str(stats[1]), "atk")
+            fills[hero.asc_asset] = 'blue'
 
-        if (SPD == hero.asset and not is_neutral_iv) or \
-                (SPD == hero.asc_asset and is_neutral_iv and is_asc) or\
-                (SPD == hero.asc_asset and not is_neutral_iv and hero.flaw == hero.asc_asset and is_merged) or \
-                (not is_neutral_iv and SPD == hero.asc_asset and SPD != hero.asset and SPD != hero.flaw):
-            unit_stat_label.insert(tk.END, " Spd ", ("blue", "spd"))
-        elif SPD == hero.flaw and hero.asc_asset != hero.flaw and not is_neutral_iv and not is_merged:
-            unit_stat_label.insert(tk.END, " Spd ", ("red", "spd"))
-        else:
-            unit_stat_label.insert(tk.END, " Spd ", "normal")
+        set_banner.rect_array.append(canvas.create_rectangle((131, 30, 291, 47), fill="#73666c", width=0))
 
-        unit_stat_label.insert(tk.END, str(stats[2]), "spd")
+        set_banner.rect_array.append(canvas.create_rectangle((131, 49, 209, 64), fill="#6e4046", width=0))
+        set_banner.rect_array.append(canvas.create_rectangle((211, 49, 291, 64), fill="#4d6e40", width=0))
+        set_banner.rect_array.append(canvas.create_rectangle((131, 66, 209, 81), fill="#87764c", width=0))
+        set_banner.rect_array.append(canvas.create_rectangle((211, 66, 291, 81), fill="#466569", width=0))
 
-        unit_stat_label.insert(tk.END, "\n      " + str(int(hero.HPcur/stats[0] * 100)) + "%", "hp")
+        set_banner.rect_array.append(canvas.create_text((155, 38), text="HP", fill=fills[HP], font=("Helvetica", 11)))
 
-        if (DEF == hero.asset and not is_neutral_iv) or \
-                (DEF == hero.asc_asset and is_neutral_iv and is_asc) or \
-                (DEF == hero.asc_asset and not is_neutral_iv and hero.flaw == hero.asc_asset and is_merged) or \
-                (not is_neutral_iv and DEF == hero.asc_asset and DEF != hero.asset and DEF != hero.flaw):
-            unit_stat_label.insert(tk.END, " Def ", ("blue", "def"))
-        elif DEF == hero.flaw and hero.asc_asset != hero.flaw and not is_neutral_iv and not is_merged:
-            unit_stat_label.insert(tk.END, " Def ", ("red", "res"))
-        else:
-            unit_stat_label.insert(tk.END, " Def ", "normal")
+        set_banner.rect_array.append(canvas.create_text((155, 56), text="Atk", fill=fills[ATK], font=("Helvetica", 11)))
+        set_banner.rect_array.append(canvas.create_text((235, 56), text="Spd", fill=fills[SPD], font=("Helvetica", 11)))
+        set_banner.rect_array.append(canvas.create_text((155, 73), text="Def", fill=fills[DEF], font=("Helvetica", 11)))
+        set_banner.rect_array.append(canvas.create_text((235, 73), text="Res", fill=fills[RES], font=("Helvetica", 11)))
 
-        unit_stat_label.insert(tk.END, str(stats[3]), "def")
+        fills = ['white'] * 5
 
-        if (RES == hero.asset and not is_neutral_iv) or \
-                (RES == hero.asc_asset and is_neutral_iv and is_asc) or \
-                (RES == hero.asc_asset and not is_neutral_iv and hero.flaw == hero.asc_asset and is_merged) or \
-                (not is_neutral_iv and RES == hero.asc_asset and RES != hero.asset and RES != hero.flaw):
-            unit_stat_label.insert(tk.END, " Res ", ("blue", "res"))
-        elif RES == hero.flaw and hero.asc_asset != hero.flaw and not is_neutral_iv and not is_merged:
-            unit_stat_label.insert(tk.END, " Res ", ("red", "res"))
-        else:
-            unit_stat_label.insert(tk.END, " Res ", "normal")
+        i = 0
+        while i < 5:
+            if hero.buffs[i] > hero.debuffs[i]:
+                fills[i] = 'blue'
+            if hero.debuffs[i] > hero.buffs[i]:
+                fills[i] = 'red'
 
-        unit_stat_label.insert(tk.END, str(stats[4]), "res")
+            if i == HP and hero.HPcur < 10:
+                fills[i] = 'red'
 
-        unit_stat_label.tag_configure("blue", foreground="#5493bf")
-        unit_stat_label.tag_configure("red", foreground="#d15047")
+            i += 1
 
-        unit_stat_label.place(x=100, y=34)
+        percentage = trunc(hero.HPcur/stats[HP] * 100)
+
+        set_banner.rect_array.append(canvas.create_text((185, 38), text=hero.HPcur, fill=fills[HP], font=("Helvetica", 12)))
+        set_banner.rect_array.append(canvas.create_text((205, 38), text="/" + str(stats[HP]), fill='white', font=("Helvetica", 12)))
+        set_banner.rect_array.append(canvas.create_text((245, 38), text=str(percentage) + "%", fill='white', font=("Helvetica", 12)))
+
+        set_banner.rect_array.append(canvas.create_text((185, 56), text=stats[ATK], fill=fills[ATK], font=("Helvetica", 11)))
+        set_banner.rect_array.append(canvas.create_text((265, 56), text=stats[SPD], fill=fills[SPD], font=("Helvetica", 11)))
+        set_banner.rect_array.append(canvas.create_text((185, 73), text=stats[DEF], fill=fills[DEF], font=("Helvetica", 11)))
+        set_banner.rect_array.append(canvas.create_text((265, 73), text=stats[RES], fill=fills[RES], font=("Helvetica", 11)))
 
         # SKILLS
         set_banner.rect_array.append(canvas.create_text((308, (5 + 22) / 2), text="⚔️", fill="red", font=("Helvetica", 9), anchor='e'))
@@ -1573,7 +1569,6 @@ def start_sim(player_units, enemy_units, chosen_map):
                         canvas.itemconfig(this_enemy_hp_bar_bg, state='hidden')
                         canvas.itemconfig(this_enemy_hp_bar_fg, state='hidden')
 
-
                 def hide_player(is_alive):
                     canvas.itemconfig(player_sprite, state='hidden')
                     canvas.itemconfig(grayscale_sprite, state='normal')
@@ -1767,6 +1762,9 @@ def start_sim(player_units, enemy_units, chosen_map):
                     canvas.itemconfig(grayscale_enemy_sprite_IDs[item_index], state='normal')
                     canvas.itemconfig(enemy_sprite_IDs[item_index], state='hidden')
 
+                cur_hero.statusNeg = []
+                cur_hero.debuffs = [0, 0, 0, 0, 0]
+
             # cause next phase to start either immediately or after combat
             if not units_to_move:
                 if not animation:
@@ -1792,6 +1790,10 @@ def start_sim(player_units, enemy_units, chosen_map):
                 item_index = player_units_all.index(cur_hero)
                 if cur_hero in units_to_move:
                     units_to_move.remove(cur_hero)
+
+                    cur_hero.statusNeg = []
+                    cur_hero.debuffs = [0, 0, 0, 0, 0]
+
                     canvas.itemconfig(grayscale_player_sprite_IDs[item_index], state='normal')
                     canvas.itemconfig(player_sprite_IDs[item_index], state='hidden')
                     if not units_to_move:
@@ -1801,6 +1803,10 @@ def start_sim(player_units, enemy_units, chosen_map):
                 item_index = enemy_units_all.index(cur_hero)
                 if cur_hero in units_to_move:
                     units_to_move.remove(cur_hero)
+
+                    cur_hero.statusNeg = []
+                    cur_hero.debuffs = [0, 0, 0, 0, 0]
+
                     canvas.itemconfig(grayscale_enemy_sprite_IDs[item_index], state='normal')
                     canvas.itemconfig(enemy_sprite_IDs[item_index], state='hidden')
                     if not units_to_move:
@@ -2112,6 +2118,8 @@ def start_sim(player_units, enemy_units, chosen_map):
         canvas.itemconfig(grayscale_enemy_sprite_IDs[i], state='hidden')
 
         i += 1
+
+    start_of_turn(player_units)
 
     # Function Assignment
     canvas.bind("<Button-1>", on_click)
