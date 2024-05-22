@@ -1,11 +1,12 @@
 from combat import *
-from startofturn import start_of_turn
+from field_helpers import start_of_turn, end_of_combat, create_combat_fields, get_warp_moves
 from map import Map
 import tkinter as tk
 import ttkbootstrap as ttk
 from PIL import Image, ImageTk
 import os
 import json
+from re import sub
 
 PLAYER = 0
 ENEMY = 1
@@ -48,15 +49,18 @@ with open(__location__ + "\\Maps\\Test Maps\\test1.json") as read_file: data = j
 map0.define_map(data)
 
 # hero definitions, used just for now
+'''
 bolt = Weapon("Tactical Bolt", "Tactical Bolt", "idk", 14, 2, "Sword", {"colorlessAdv": 0}, ["Robin"])
 robin = Hero("Robin", "M!Robin", 0, "BTome", 0, [40,29,29,29,22], [50, 50, 50, 50, 40], 30, 67)
 robin.set_skill(bolt, WEAPON)
 
-reposition = Assist("Reposition", "", {"repo":0}, 1, AssistType.Move)
+reposition = Assist("Reposition", "", {"repo":0}, 1, "Move", {})
 robin.set_skill(reposition, ASSIST)
 
 robin.set_IVs(ATK,SPD,ATK)
 robin.set_level(40)
+
+'''
 
 ragnell = Weapon("Emblem Ragnell", "Emblem Ragnell", "", 16, 1, "Sword", {"slaying": 1, "dCounter": 0, "BIGIKEFAN": 1018}, {})
 GREAT_AETHER = Special("Great Aether", "", {"numFoeAtkBoostSp": 4, "AETHER_GREAT": 17}, 4, SpecialType.Offense)
@@ -77,6 +81,15 @@ no_quarter = makeSpecial("No Quarter")
 atkspd_excel = makeSkill("Atk/Spd Excel")
 potent4 = makeSkill("Potent 4")
 
+
+
+xander = makeHero("DA!Xander")
+xander.set_skill(makeWeapon("Dusk Uchiwa+"), WEAPON)
+xander.set_skill(makeAssist("Dance"), ASSIST)
+xander.set_skill(makeSkill("Close Counter"), ASKILL)
+xander.set_skill(makeSkill("Quick Riposte 3"), BSKILL)
+xander.set_skill(makeSkill("Odd Def Wave 3"), CSKILL)
+
 sharena = Hero("Sharena", "BR!Sharena", 0, "Lance", 1, [40, 44, 47, 32, 21], [50, 70, 90, 50, 35], 5, 24)
 
 sharena.set_skill(united_bouquet, WEAPON)
@@ -93,10 +106,25 @@ sharena.set_level(40)
 
 #robin.tile = map0.tiles[18]
 
-player_units_all = [robin, ike, sharena]
+tested_unit = makeHero("F!Arthur")
+tested_weapon = makeWeapon("Emerald Axe+")
+tested_assist = makeAssist("Swap")
+#tested_special = makeSpecial("Astra")
+tested_askill = makeSkill("HP +5")
+tested_bskill = makeSkill("Lancebreaker 3")
+#tested_cskill = makeSkill("Spur Res 3")
+
+tested_unit.set_skill(tested_weapon, WEAPON)
+tested_unit.set_skill(tested_assist, ASSIST)
+#tested_unit.set_skill(tested_special, SPECIAL)
+tested_unit.set_skill(tested_askill, ASKILL)
+tested_unit.set_skill(tested_bskill, BSKILL)
+#tested_unit.set_skill(tested_cskill, CSKILL)
+
+player_units_all = [ike, sharena, xander, tested_unit]
 enemy_units_all = []
 
-player_units = [robin, ike, sharena]
+player_units = player_units_all[:]
 enemy_units = []
 
 i = 0
@@ -437,7 +465,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                 canvas.itemconfig(grayscale_enemy_sprite_IDs[i], state='hidden')
                 canvas.itemconfig(enemy_sprite_IDs[i], state='normal')
 
-            start_of_turn(player_units)
+            start_of_turn(player_units, turn_info[0])
 
         if turn_info[1] == ENEMY:
             canvas.delete(next_phase.phase_txt)
@@ -452,7 +480,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                 canvas.itemconfig(grayscale_player_sprite_IDs[i], state='hidden')
                 canvas.itemconfig(player_sprite_IDs[i], state='normal')
 
-            start_of_turn(enemy_units)
+            start_of_turn(enemy_units, turn_info[0])
 
     def clear_banner():
         if hasattr(set_banner, "banner_rectangle") and set_banner.banner_rectangle:
@@ -572,9 +600,9 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         i = 0
         while i < 5:
-            if hero.buffs[i] > hero.debuffs[i]:
+            if hero.buffs[i] > abs(hero.debuffs[i]):
                 fills[i] = 'blue'
-            if hero.debuffs[i] > hero.buffs[i]:
+            if abs(hero.debuffs[i]) > hero.buffs[i]:
                 fills[i] = 'red'
 
             if i == HP and hero.HPcur < 10:
@@ -588,10 +616,15 @@ def start_sim(player_units, enemy_units, chosen_map):
         set_banner.rect_array.append(canvas.create_text((205, 38), text="/" + str(stats[HP]), fill='white', font=("Helvetica", 12)))
         set_banner.rect_array.append(canvas.create_text((245, 38), text=str(percentage) + "%", fill='white', font=("Helvetica", 12)))
 
-        set_banner.rect_array.append(canvas.create_text((185, 56), text=stats[ATK], fill=fills[ATK], font=("Helvetica", 11)))
-        set_banner.rect_array.append(canvas.create_text((265, 56), text=stats[SPD], fill=fills[SPD], font=("Helvetica", 11)))
-        set_banner.rect_array.append(canvas.create_text((185, 73), text=stats[DEF], fill=fills[DEF], font=("Helvetica", 11)))
-        set_banner.rect_array.append(canvas.create_text((265, 73), text=stats[RES], fill=fills[RES], font=("Helvetica", 11)))
+        displayed_atk = min(max(stats[ATK] + hero.buffs[ATK] + hero.debuffs[ATK], 0), 99)
+        displayed_spd = min(max(stats[SPD] + hero.buffs[SPD] + hero.debuffs[SPD], 0), 99)
+        displayed_def = min(max(stats[DEF] + hero.buffs[DEF] + hero.debuffs[DEF], 0), 99)
+        displayed_res = min(max(stats[RES] + hero.buffs[RES] + hero.debuffs[RES], 0), 99)
+
+        set_banner.rect_array.append(canvas.create_text((185, 56), text=displayed_atk, fill=fills[ATK], font=("Helvetica", 11)))
+        set_banner.rect_array.append(canvas.create_text((265, 56), text=displayed_spd, fill=fills[SPD], font=("Helvetica", 11)))
+        set_banner.rect_array.append(canvas.create_text((185, 73), text=displayed_def, fill=fills[DEF], font=("Helvetica", 11)))
+        set_banner.rect_array.append(canvas.create_text((265, 73), text=displayed_res, fill=fills[RES], font=("Helvetica", 11)))
 
         # SKILLS
         set_banner.rect_array.append(canvas.create_text((308, (5 + 22) / 2), text="⚔️", fill="red", font=("Helvetica", 9), anchor='e'))
@@ -626,11 +659,154 @@ def start_sim(player_units, enemy_units, chosen_map):
         text_coords = ((430 + 530) / 2, (65 + 82) / 2)
         set_banner.rect_array.append(canvas.create_text(*text_coords, text=xskill, fill="white", font=("Helvetica", 9), anchor='center'))
 
+        # STATUS EFFECTS DISPLAY
+        status_rect = canvas.create_rectangle((75, 49, 127, 81), fill="#7388bd", width=0, tags='status')
+        set_banner.rect_array.append(status_rect)
+        text_coords = (101, 65)
+        set_banner.rect_array.append(canvas.create_text(*text_coords, text="Statuses", fill="white", font=("Helvetica", 9), anchor='center', tags='status'))
+
+        set_banner.base_rect = None
+
+        positive_statuses = hero.statusPos
+        negative_statuses = hero.statusNeg
+
+        set_banner.status_rects = []
+        set_banner.status_texts = []
+
+        def on_enter(event):
+            if set_banner.base_rect is None:
+                set_banner.base_rect = canvas.create_rectangle(0, 0, 50, 50, fill="#434959")
+
+                green_fill = '#5ebf5e'
+                red_fill = '#bf5149'
+
+                panic_factor = 1
+                if Status.Panic in hero.statusNeg: panic_factor = -1
+                if Status.NullPanic in hero.statusPos: panic_factor = 1
+
+                has_stat_bonuses = sum(hero.buffs) > 0
+                has_stat_penalties = sum(hero.debuffs) < 0
+
+                if has_stat_bonuses:
+                    fill = green_fill
+                    operator = "+"
+                    if panic_factor == -1:
+                        fill = red_fill
+                        operator = "-"
+
+                    status_rect = canvas.create_rectangle(0, 0, 130, 22, tags='one_status', fill=fill)
+                    set_banner.status_rects.append(status_rect)
+
+                    buffs_string = ""
+                    if hero.buffs[ATK] > 0:
+                        buffs_string += "A" + operator + str(hero.buffs[ATK]) + " "
+                    if hero.buffs[SPD] > 0:
+                        buffs_string += "S" + operator + str(hero.buffs[SPD]) + " "
+                    if hero.buffs[DEF] > 0:
+                        buffs_string += "D" + operator + str(hero.buffs[DEF]) + " "
+                    if hero.buffs[RES] > 0:
+                        buffs_string += "R" + operator + str(hero.buffs[RES])
+
+                    status_text = canvas.create_text(0, 0, text=buffs_string, tags='one_text', fill='white')
+                    set_banner.status_texts.append(status_text)
+
+                if has_stat_penalties:
+                    status_rect = canvas.create_rectangle(0, 0, 130, 22, tags='one_status', fill=red_fill)
+                    set_banner.status_rects.append(status_rect)
+
+                    debuffs_string = ""
+                    if hero.debuffs[ATK] < 0:
+                        debuffs_string += "A" + str(hero.debuffs[ATK]) + " "
+                    if hero.debuffs[SPD] < 0:
+                        debuffs_string += "S" + str(hero.debuffs[SPD]) + " "
+                    if hero.debuffs[DEF] < 0:
+                        debuffs_string += "D" + str(hero.debuffs[DEF]) + " "
+                    if hero.debuffs[RES] < 0:
+                        debuffs_string += "R" + str(hero.debuffs[RES])
+
+                    status_text = canvas.create_text(0, 0, text=debuffs_string, tags='one_text', fill='white')
+                    set_banner.status_texts.append(status_text)
+
+                i = 0
+                while i < len(positive_statuses):
+                    status_rect = canvas.create_rectangle(0, 0, 130, 22, tags='one_status', fill=green_fill)
+                    set_banner.status_rects.append(status_rect)
+
+                    status_name = positive_statuses[i].name
+                    spaced_name = sub(r'([A-Z])', r' \1', status_name)
+                    spaced_name = spaced_name.strip()
+
+                    status_text = canvas.create_text(0, 0, text=spaced_name, tags='one_text', fill='white')
+                    set_banner.status_texts.append(status_text)
+
+                    i += 1
+
+                while i < len(positive_statuses) + len(negative_statuses):
+                    status_rect = canvas.create_rectangle(0, 0, 130, 22, tags='one_status', fill=red_fill)
+                    set_banner.status_rects.append(status_rect)
+
+                    status_name = negative_statuses[i - len(positive_statuses)].name
+                    spaced_name = sub(r'([A-Z])', r' \1', status_name)
+                    spaced_name = spaced_name.strip()
+
+                    status_text = canvas.create_text(0, 0, text=spaced_name, tags='one_text', fill='white')
+                    set_banner.status_texts.append(status_text)
+
+                    i += 1
+
+                if len(set_banner.status_rects) == 0:
+                    status_text = canvas.create_text(0, 0, text="No Effects", tags='one_text', fill='white')
+                    set_banner.status_texts.append(status_text)
+
+                canvas.bind("<Motion>", on_motion)
+
+        def on_motion(event):
+            if set_banner.base_rect is not None:
+
+                has_stat_bonuses = sum(hero.buffs) > 0
+                has_stat_penalties = sum(hero.debuffs) > 0
+
+                num_bars = int(has_stat_bonuses) + int(has_stat_penalties) + len(positive_statuses) + len(negative_statuses)
+
+                base_length = max(25 * num_bars, 25)
+
+                canvas.coords(set_banner.base_rect, event.x + 12, event.y + 15, event.x + 150, event.y + base_length + 20)
+
+                # no statuses/bonus/penalties, only creates "No Statuses" text
+                if len(set_banner.status_rects) == 0 and len(set_banner.status_texts) == 1:
+                    canvas.moveto(set_banner.status_texts[0], event.x + 20, event.y + 4 + 20)
+
+                i = 0
+                while i < len(set_banner.status_rects):
+                    canvas.moveto(set_banner.status_rects[i], event.x + 15, event.y - 2 + (25 * i) + 20)
+                    canvas.moveto(set_banner.status_texts[i], event.x + 20, event.y + 4 + (25 * i) + 20)
+                    i += 1
+
+        def on_leave(event):
+            if set_banner.base_rect is not None:
+                canvas.delete(set_banner.base_rect)
+
+                for x in set_banner.status_rects:
+                    canvas.delete(x)
+
+                for x in set_banner.status_texts:
+                    canvas.delete(x)
+
+                set_banner.base_rect = None
+                set_banner.status_rects = []
+                set_banner.status_texts = []
+                canvas.unbind("<Motion>")
+
+        canvas.tag_bind("status", "<Enter>", on_enter)
+        canvas.tag_bind("status", "<Leave>", on_leave)
+
+
+
     def set_attack_forecast(attacker: Hero, defender: Hero, distance):
         clear_banner()
 
 
-        result = simulate_combat(attacker, defender, True, turn_info[0], distance, [])
+        result = simulate_combat(attacker, defender, True, turn_info[0], distance, combat_fields)
 
         player_name = attacker.name
         player_move_type = moves[attacker.move]
@@ -725,8 +901,8 @@ def start_sim(player_units, enemy_units, chosen_map):
             if atkHP == 0 or defHP == 0: break
             i += 1
 
-        player_hp_calc = canvas.create_text((215, 16), text=str(player_HPcur) + " → " + str(atkHP), fill='yellow',font=("Helvetica", 11), anchor='center')
-        enemy_hp_calc = canvas.create_text((324, 16), text=str(enemy_HPcur) + " → " + str(defHP), fill="yellow", font=("Helvetica", 11), anchor='center')
+        player_hp_calc = canvas.create_text((215, 16), text=str(player_HPcur) + " → " + str(atkHP), fill='yellow',font=("Helvetica", 13), anchor='center')
+        enemy_hp_calc = canvas.create_text((324, 16), text=str(enemy_HPcur) + " → " + str(defHP), fill="yellow", font=("Helvetica", 13), anchor='center')
 
         set_banner.rect_array.append(player_hp_calc)
         set_banner.rect_array.append(enemy_hp_calc)
@@ -734,13 +910,13 @@ def start_sim(player_units, enemy_units, chosen_map):
         # Weapon Triangle Advantage
 
         if wpn_adv == 0:
-            adv_arrow = canvas.create_text((255, 16), text=" ⇑ ", fill='green',font=("Helvetica", 20, 'bold'), anchor='center')
-            disadv_arrow = canvas.create_text((285, 16), text=" ⇓ ", fill='red',font=("Helvetica", 20, 'bold'), anchor='center')
+            adv_arrow = canvas.create_text((255, 13), text=" ⇑ ", fill='#42bf34',font=("Helvetica", 20, 'bold'), anchor='center')
+            disadv_arrow = canvas.create_text((285, 13), text=" ⇓ ", fill='red',font=("Helvetica", 20, 'bold'), anchor='center')
             set_banner.rect_array.append(adv_arrow)
             set_banner.rect_array.append(disadv_arrow)
         if wpn_adv == 1:
-            adv_arrow = canvas.create_text((255, 16), text=" ↓ ", fill='red', font=("Helvetica", 14), anchor='center')
-            disadv_arrow = canvas.create_text((285, 16), text=" ↑ ", fill='green', font=("Helvetica", 14, 'bold'), anchor='center')
+            adv_arrow = canvas.create_text((255, 13), text=" ↓ ", fill='red', font=("Helvetica", 14), anchor='center')
+            disadv_arrow = canvas.create_text((285, 13), text=" ↑ ", fill='#42bf34', font=("Helvetica", 14, 'bold'), anchor='center')
             set_banner.rect_array.append(adv_arrow)
             set_banner.rect_array.append(disadv_arrow)
 
@@ -797,11 +973,17 @@ def start_sim(player_units, enemy_units, chosen_map):
         # Attacks
 
         for x in attacks:
-            box_color = "#18284f" if x.attackOwner == 0 else "#541616"
+            box_color = "#18284f" if x.attackOwner == attacker.side else "#541616"
 
             set_banner.rect_array.append(canvas.create_rectangle(cur_box_pos - 15, 50, cur_box_pos + 15, 80, fill=box_color, outline='#dae6e2'))
 
-            set_banner.rect_array.append(canvas.create_text((cur_box_pos, 65), text=x.damage, fill='#e8c35d', font=("nintendoP_Skip-D_003", 10), anchor='center'))
+            dmg_fill = '#e8c35d'
+            if x.attackOwner == 0 and atk_eff:
+                dmg_fill = '#46eb34'
+            if x.attackOwner == 1 and def_eff:
+                dmg_fill = '#46eb34'
+
+            set_banner.rect_array.append(canvas.create_text((cur_box_pos, 65), text=x.damage, fill=dmg_fill, font=("nintendoP_Skip-D_003", 10), anchor='center'))
 
             cur_box_pos += int(box_size + gap_size)
 
@@ -833,8 +1015,9 @@ def start_sim(player_units, enemy_units, chosen_map):
         ally_hp_calc = canvas.create_text((324, 16), text=str(ally.HPcur) + " → " + str(ally.HPcur),
                                            fill="yellow", font=("Helvetica", 11), anchor='center')
 
-        assist_name = canvas.create_text((270, 30), text=attacker.assist.name,
-                                          fill="yellow", font=("Helvetica", 11), anchor='center')
+        set_banner.rect_array.append(canvas.create_rectangle(270 - 65, 27, 270 + 65, 42, fill='#5a5c6b', outline='#dae6e2'))
+
+        assist_name = canvas.create_text((270, 34), text=attacker.assist.name, fill="white", font=("Helvetica", 11), anchor='center')
 
         set_banner.rect_array.append(player_hp_calc)
         set_banner.rect_array.append(ally_hp_calc)
@@ -866,7 +1049,7 @@ def start_sim(player_units, enemy_units, chosen_map):
         x, y = event.x, event.y
 
         # Out of bounds case
-        if x < 0 or x > 540 or y < 90 or y > 810:
+        if x < 0 or x > 540 or y <= 90 or y > 810:
             print("homer simpson")
             return
 
@@ -938,6 +1121,22 @@ def start_sim(player_units, enemy_units, chosen_map):
             canvas.drag_data['target_path'] = "NONE"
             canvas.drag_data['target_dest'] = -1
 
+            cur_hero_team = units_all[S]
+            other_team = units_all[not S]
+            warp_moves = get_warp_moves(cur_hero, cur_hero_team, other_team)
+
+            for i in range(0, len(warp_moves)):
+                if warp_moves[i].tileNum not in canvas.drag_data['moves']:
+                    print(warp_moves[i].tileNum)
+
+                    canvas.drag_data['moves'].append(warp_moves[i].tileNum)
+                    canvas.drag_data['paths'].append("WARP")
+                    end = warp_moves[i].tileNum
+                    distance = abs(end // 6 - tile // 6) + abs(end % 6 - tile % 6)
+                    moves_obj_array.append(Move(end, 0, None, distance, True, "WARP"))
+
+
+
             tile_arr = []
             canvas.drag_data['blue_tile_id_arr'] = tile_arr
 
@@ -948,8 +1147,12 @@ def start_sim(player_units, enemy_units, chosen_map):
                 x_pivot = x_comp * 90
                 y_pivot = (7 - y_comp) * 90 + 90
 
+                tile_photo = bt_photo
+                if m.is_warp:
+                    tile_photo = lbt_photo
+
                 #creates new blue tile, layered under player
-                curTile = canvas.create_image(x_pivot, y_pivot, anchor=tk.NW, image=bt_photo)
+                curTile = canvas.create_image(x_pivot, y_pivot, anchor=tk.NW, image=tile_photo)
                 tile_arr.append(curTile)
                 canvas.tag_lower(curTile, item_id)
 
@@ -1020,6 +1223,7 @@ def start_sim(player_units, enemy_units, chosen_map):
             unconfirmed_assists = []
 
             if cur_hero.assist is not None:
+
                 for m in moves_obj_array:
                     ast_arr = get_attack_tiles(m.destination, cur_hero.assist.range)
                     for n in ast_arr:
@@ -1032,7 +1236,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                             move_unit_to = -1
                             move_ally_to = -1
 
-                            if cur_hero.assist.type == AssistType.Move:
+                            if cur_hero.assist.type == "Move":
                                 if "repo" in cur_hero.assist.effects:
                                     valid_unit_cond = True
                                     move_unit_to = m.destination
@@ -1057,6 +1261,13 @@ def start_sim(player_units, enemy_units, chosen_map):
                                     print("SMITE")
                                 elif "shove" in cur_hero.assist.effects:
                                     print("SHOVE")
+
+                            elif cur_hero.assist.type == "Refresh":
+                                valid_unit_cond = True
+
+                                ally = chosen_map.tiles[n].hero_on
+                                has_dance_cond = ally.assist is None or (ally.assist is not None and ally.assist.type != "Refresh")
+                                valid_ally_cond = ally.side == cur_hero.side and ally not in units_to_move and has_dance_cond
                             else:
                                 # big guy is a cheater
                                 print("wonderhoy")
@@ -1239,7 +1450,7 @@ def start_sim(player_units, enemy_units, chosen_map):
 
             # calculate path from drag, not targeting someone
 
-            if event.y > 91 and event.x < 539 and (chosen_map.tiles[new_tile].hero_on is None or chosen_map.tiles[new_tile].hero_on == cur_hero) and canvas.drag_data['target'] is not None:
+            if event.y > 91 and event.x > 0 and event.x < 539 and (chosen_map.tiles[new_tile].hero_on is None or chosen_map.tiles[new_tile].hero_on == cur_hero) and canvas.drag_data['target'] is not None:
 
                 canvas.drag_data['target'] = None
                 set_banner(cur_hero)
@@ -1289,7 +1500,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                         canvas.drag_data['cost'] -= new_tile_cost
                         canvas.drag_data['cost'] -= get_tile_cost(chosen_map.tiles[cur_tile], cur_hero)
 
-                else:
+                elif event.x > 0 and event.x < 539:
                     canvas.drag_data['cur_path'] = canvas.drag_data['paths'][canvas.drag_data['moves'].index(new_tile)]
 
                     x_start_comp = canvas.drag_data['start_x'] // 90
@@ -1328,6 +1539,21 @@ def start_sim(player_units, enemy_units, chosen_map):
             if new_tile in canvas.drag_data['moves'] or canvas.drag_data['target_path'] != "NONE":
                 if len(traced_path) == 0 or event.x > 539 or event.x < 0:
                     star = canvas.create_image(x_arrow_pivot, y_arrow_pivot, anchor=tk.NW, image=arrow_photos[MOVE_STAR])
+                    canvas.drag_data['arrow_path'].append(star)
+                    canvas.tag_lower(star, canvas.drag_data['item'])
+                elif traced_path == "WARP":
+                    star = canvas.create_image(x_arrow_pivot, y_arrow_pivot, anchor=tk.NW, image=arrow_photos[MOVE_STAR])
+                    canvas.drag_data['arrow_path'].append(star)
+                    canvas.tag_lower(star, canvas.drag_data['item'])
+
+                    final_tile_star_pos = new_tile
+
+                    if chosen_map.tiles[new_tile].hero_on in canvas.drag_data['targets_and_tiles']:
+                        final_tile_star_pos = canvas.drag_data['target_dest']
+
+                    star = canvas.create_image(x_arrow_pivot, y_arrow_pivot, anchor='center', image=arrow_photos[MOVE_STAR])
+                    move_to_tile(canvas, star, final_tile_star_pos)
+                    canvas.move(star, -9, 0)
                     canvas.drag_data['arrow_path'].append(star)
                     canvas.tag_lower(star, canvas.drag_data['item'])
                 else:
@@ -1460,6 +1686,8 @@ def start_sim(player_units, enemy_units, chosen_map):
             item_index = canvas.drag_data['index']
             S = canvas.drag_data['side']
 
+            player = units_all[S][item_index]
+
             player_sprite = canvas.drag_data['item']
             grayscale_sprite = grayscale_IDs[S][item_index]
             weapon_icon_sprite = weapon_IDs[S][item_index]
@@ -1509,10 +1737,13 @@ def start_sim(player_units, enemy_units, chosen_map):
             # Ok it might just be a failsafe for these lines
             player_original = chosen_map.tiles[new_tile].hero_on
 
+            action_performed = False
+
             # ATTAAAAAAAAAAAAAAAAAAAAAAACK!!!!!!!!!!!!!!!!!!
             if event.x < 539 and event.x > 0 and event.y < 810 and event.y > 90 and canvas.drag_data['target_path'] != "NONE" and \
                     chosen_map.tiles[new_tile].hero_on.side != chosen_map.tiles[mouse_new_tile].hero_on.side:
                 animation = True
+                action_performed = True
 
                 player = chosen_map.tiles[new_tile].hero_on
                 enemy = chosen_map.tiles[mouse_new_tile].hero_on
@@ -1605,9 +1836,12 @@ def start_sim(player_units, enemy_units, chosen_map):
                 combat_result = simulate_combat(player, enemy, True, turn_info[0], distance, [])
                 attacks = combat_result[7]
 
-                # Visualization of the blows trading
+                for x in attacks:
+                    print(x.spCharges)
 
+                # Visualization of the blows trading
                 i = 0
+
                 while i < len(attacks):
                     if attacks[i].attackOwner == 0:
                         canvas.after(i * 500 + 200, animate_sprite_atk, canvas, player_sprite, player_atk_dir_hori, player_atk_dir_vert, attacks[i].damage, enemy_tile)
@@ -1651,6 +1885,14 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                     if player.HPcur == 0 or enemy.HPcur == 0: break
                     i += 1
+
+                atk_effects = combat_result[12]
+                def_effects = combat_result[13]
+
+                player.statusNeg = []
+                player.debuffs = [0, 0, 0, 0, 0]
+
+                end_of_combat(atk_effects, def_effects, player, enemy)
 
                 finish_time = 500 * (i + 1) + 200
 
@@ -1699,6 +1941,8 @@ def start_sim(player_units, enemy_units, chosen_map):
             # SUPPOOOOOOOOOOOOOOOOOOOORT!!!!!!!!!!!!!!!!!!!!
             elif event.x < 539 and event.x > 0 and event.y < 810 and event.y > 90 and canvas.drag_data['target_path'] != "NONE" and \
                     chosen_map.tiles[new_tile].hero_on.side == chosen_map.tiles[mouse_new_tile].hero_on.side:
+                action_performed = True
+
                 player = chosen_map.tiles[new_tile].hero_on
                 ally = chosen_map.tiles[mouse_new_tile].hero_on
 
@@ -1715,14 +1959,14 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                     # UPDATE TO WORK WITH ANY SIDE
 
-                    ally_index = player_units_all.index(ally)
+                    ally_index = units_all[S].index(ally)
 
-                    ally_sprite = player_sprite_IDs[ally_index]
-                    ally_weapon_icon = player_weapon_icons[ally_index]
-                    ally_hp_label = player_hp_count_labels[ally_index]
-                    ally_sp_label = player_special_count_labels[ally_index]
-                    ally_hp_bar_fg = player_hp_bar_fg[ally_index]
-                    ally_hp_bar_bg = player_hp_bar_bg[ally_index]
+                    ally_sprite = sprite_IDs[S][ally_index]
+                    ally_weapon_icon = weapon_IDs[S][ally_index]
+                    ally_hp_label = hp_labels[S][ally_index]
+                    ally_sp_label = special_labels[S][ally_index]
+                    ally_hp_bar_fg = hp_bar_fgs[S][ally_index]
+                    ally_hp_bar_bg = hp_bar_bgs[S][ally_index]
 
                     move_to_tile(canvas, ally_sprite, final_pos)
                     move_to_tile_wp(canvas, ally_weapon_icon, final_pos)
@@ -1742,10 +1986,28 @@ def start_sim(player_units, enemy_units, chosen_map):
                     print("SMITE")
                 elif "shove" in player.assist.effects:
                     print("SHOVE")
+
+                if "refresh" in player.assist.effects:
+                    units_to_move.append(ally)
+
+                    ally_index = units_all[S].index(ally)
+                    ally_sprite = sprite_IDs[S][ally_index]
+                    ally_gs_sprite = grayscale_IDs[S][ally_index]
+
+                    canvas.itemconfig(ally_sprite, state='normal')
+                    canvas.itemconfig(ally_gs_sprite, state='hidden')
+
+                set_banner(player)
+
+                player.statusNeg = []
+                player.debuffs = [0, 0, 0, 0, 0]
+
+            if not action_performed:
+                player.statusNeg = []
+                player.debuffs = [0, 0, 0, 0, 0]
                 set_banner(player)
 
             # remove player unit from units who can act
-
             cur_hero = player_original
             units_all[S][item_index].attacking_tile = None
 
@@ -1762,8 +2024,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                     canvas.itemconfig(grayscale_enemy_sprite_IDs[item_index], state='normal')
                     canvas.itemconfig(enemy_sprite_IDs[item_index], state='hidden')
 
-                cur_hero.statusNeg = []
-                cur_hero.debuffs = [0, 0, 0, 0, 0]
+
 
             # cause next phase to start either immediately or after combat
             if not units_to_move:
@@ -1778,7 +2039,9 @@ def start_sim(player_units, enemy_units, chosen_map):
     def on_double_click(event):
         x, y = event.x, event.y
 
-        if x < 0 or x > 540 or y < 90 or y > 810: return
+        if x < 0 or x > 540 or y <= 90 or y > 810:
+            print("homer simpson")
+            return
 
         x_comp = event.x // 90
         y_comp = ((720 - event.y) // 90) + 1
@@ -1836,6 +2099,9 @@ def start_sim(player_units, enemy_units, chosen_map):
     # move tiles
     blue_tile = Image.open(__location__ + "\\CombatSprites\\" + "tileblue" + ".png")
     bt_photo = ImageTk.PhotoImage(blue_tile)
+
+    light_blue_tile = Image.open(__location__ + "\\CombatSprites\\" + "tilelightblue" + ".png")
+    lbt_photo = ImageTk.PhotoImage(light_blue_tile)
 
     red_tile = Image.open(__location__ + "\\CombatSprites\\" + "tilered" + ".png")
     rt_photo = ImageTk.PhotoImage(red_tile)
@@ -2119,7 +2385,10 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         i += 1
 
-    start_of_turn(player_units)
+    start_of_turn(player_units, 1)
+
+    combat_fields = []
+    combat_fields = create_combat_fields(player_units, enemy_units)
 
     # Function Assignment
     canvas.bind("<Button-1>", on_click)

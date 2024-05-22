@@ -181,6 +181,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     atkSpCountCur = attacker.specialCount
     defSpCountCur = defender.specialCount
 
+
+
     if "phantomSpd" in atkSkills: atkPhantomStats[SPD] += max(atkSkills["phantomSpd"] * 3 + 2, 10)
     if "phantomRes" in atkSkills: atkPhantomStats[RES] += max(atkSkills["phantomRes"] * 3 + 2, 10)
     if "phantomSpd" in defSkills: defPhantomStats[SPD] += max(defSkills["phantomSpd"] * 3 + 2, 10)
@@ -192,12 +194,55 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     # add effects of CombatFields
     if is_in_sim:
-        atkSkills.update(e.effect for e in combat_effects if
-                         e.affectedSide == 0 and e.range(attacker.attacking_tile) and e.condition(attacker) and (
-                                     e.affectSelf or not e.owner == attacker))
-        defSkills.update(e.effect for e in combat_effects if
-                         e.affectedSide == 1 and e.range(defender.tile) and e.condition(defender) and (
-                                     e.affectSelf or not e.owner == defender))
+
+        atkr_x = attacker.attacking_tile.x_coord
+        atkr_y = attacker.attacking_tile.y_coord
+        atkr_coords = (atkr_x, atkr_y)
+
+        defr_x = defender.tile.x_coord
+        defr_y = defender.tile.y_coord
+        defr_coords = (defr_x, defr_y)
+
+        for e in combat_effects:
+            print("monday")
+
+            owner_x = e.owner.tile.x_coord
+            owner_y = e.owner.tile.y_coord
+
+            if e.owner == attacker:
+                owner_x = atkr_x
+                owner_y = atkr_y
+
+            owner_coords = (owner_x, owner_y)
+
+            targeted_side = e.owner.side == e.affectedSide
+            print(targeted_side)
+
+            if targeted_side == attacker.side:
+                coords = atkr_coords
+                updated_skills = atkSkills
+                afflicted = attacker
+            if targeted_side == defender.side:
+                coords = defr_coords
+                updated_skills = defSkills
+                afflicted = defender
+
+            print(coords)
+            print(owner_coords)
+
+            # False False False - Sharena out of range, do not allow
+            # False True True   - Alfonse, do not allow
+            # False False True  - Sharena in range, allow
+
+            in_range = e.range(coords)(owner_coords)
+
+            print(e.affectSelf, e.owner == afflicted, in_range)
+            if in_range and ((e.owner == afflicted) == e.affectSelf):
+                updated_skills.update(e.effect)
+
+        #atkSkills.update(e.effect for e in combat_effects if e.affectedSide == 0 and e.range(attacker.attacking_tile) and e.condition(attacker) and (e.affectSelf or not e.owner == attacker))
+
+        #defSkills.update(e.effect for e in combat_effects if e.affectedSide == 1 and e.range(defender.tile) and e.condition(defender) and (e.affectSelf or not e.owner == defender))
 
     def allies_within_n(unit, tile, n):
         unit_list = tile.unitsWithinNSpaces(n)
@@ -342,12 +387,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     # prevent counterattacks from defender (sweep, flash)
     cannotCounter = False
 
-    disableCannotcounter = False
-
     # cancel affinity, differs between ally and foe for
     # levels 2/3 because my life can't be easy
     atkCA = 0
     defCA = 0
+
+    # OKAY CHAT TODAY WE ARE GONNA REDO THE SYSTEM THAT CONSIDERS THIS STUFF
 
     # damage done to self after combat
     atkSelfDmg = 0
@@ -383,6 +428,24 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     atkPostCombatStatusesApplied = [[], [], []]
     defPostCombatStatusesApplied = [[], [], []]
 
+    # ALL OF THESE!!!!!!!!!!!!!!!!!!
+
+    # NEW SYSTEM VVVVVVV
+    # index 0 - given regardless
+    # index 1 - given if attacked by foe
+    # index 2 - given if attacked foe
+    # ex: attacker has panic, defender is hit
+    # elements of 2 with be appended to 0
+    # at end of combat, all effects at index 0 will be given to defender
+
+    # each array within the array holds a set with 3 strings:
+    # index 0 - what effect is given out? (buffs/debuffs, damage/healing, end turn, extra action)
+    # index 1 - what is the level of this effect? (+7 buff, 10 damage, etc.)
+    # index 2 - who is it being given to? (self, allies, foes)
+    # index 3 - across what area? (2 spaces of self, 2 spaces of foe, 3 rows or 3 columns, all, etc.)
+    atkPostCombatEffs = [[], [], []]
+    defPostCombatEffs = [[], [], []]
+
     atkBonusesNeutralized = [False] * 5
     defBonusesNeutralized = [False] * 5
     atkPenaltiesNeutralized = [False] * 5
@@ -407,6 +470,16 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "spdBlow" in atkSkills: atkCombatBuffs[2] += atkSkills["spdBlow"] * 2
     if "defBlow" in atkSkills: atkCombatBuffs[3] += atkSkills["defBlow"] * 2
     if "resBlow" in atkSkills: atkCombatBuffs[4] += atkSkills["resBlow"] * 2
+
+    if "spurAtk_f" in atkSkills: atkCombatBuffs[ATK] += atkSkills["spurAtk_f"]
+    if "spurSpd_f" in atkSkills: atkCombatBuffs[SPD] += atkSkills["spurSpd_f"]
+    if "spurDef_f" in atkSkills: atkCombatBuffs[DEF] += atkSkills["spurDef_f"]
+    if "spurRes_f" in atkSkills: atkCombatBuffs[RES] += atkSkills["spurRes_f"]
+
+    if "spurAtk_f" in defSkills: defCombatBuffs[ATK] += defSkills["spurAtk_f"]
+    if "spurSpd_f" in defSkills: defCombatBuffs[SPD] += defSkills["spurSpd_f"]
+    if "spurDef_f" in defSkills: defCombatBuffs[DEF] += defSkills["spurDef_f"]
+    if "spurRes_f" in defSkills: defCombatBuffs[RES] += defSkills["spurRes_f"]
 
     if "fireBoost" in atkSkills and atkHPCur >= defHPCur + 3: atkCombatBuffs[1] += atkSkills["fireBoost"] * 2
     if "windBoost" in atkSkills and atkHPCur >= defHPCur + 3: atkCombatBuffs[2] += atkSkills["windBoost"] * 2
@@ -530,16 +603,18 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[2] += 4
 
     if "bibleBros" in atkSkills:
-        atkCombatBuffs[1] += max(atkAllyWithin2Spaces * 2, 6)
-        atkCombatBuffs[3] += max(atkAllyWithin2Spaces * 2, 6)
+        atkCombatBuffs[1] += min(len(atkAllyWithin2Spaces) * 2, 6)
+        atkCombatBuffs[3] += min(len(atkAllyWithin2Spaces) * 2, 6)
 
     atkPhysMeleeCavWithin2Spaces = 0
-    if "bibleBrosBrave" in atkSkills and atkPhysMeleeCavWithin2Spaces:
-        atkr.brave = True
+    if "bibleBrosBrave" in atkSkills:
+        for ally in atkAllyWithin2Spaces:
+            if ally.move == 1 and (ally.wpnType == "Sword" or ally.wpnType == "Lance" or ally.wpnType == "Axe"):
+                atkr.brave = True
 
     if "bibleBros" in defSkills:
-        defCombatBuffs[1] += max(defAllyWithin2Spaces * 2, 6)
-        defCombatBuffs[3] += max(defAllyWithin2Spaces * 2, 6)
+        defCombatBuffs[1] += min(len(defAllyWithin2Spaces) * 2, 6)
+        defCombatBuffs[3] += max(len(defAllyWithin2Spaces) * 2, 6)
 
     if "BEAST MODE BABY" in atkSkills and sum(defender.debuffs) == 0:
         atkCombatBuffs[1] += 6
@@ -610,6 +685,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "doubleLion" in atkSkills and atkHPEqual100Percent:  # refined eff alm
         atkr.brave = True
         atkSelfDmg += 5
+        atkPostCombatEffs[0].append(("damage", 5, "self", "one"))
 
     if "dracofalchion" in atkSkills and atkFoeWithin2Spaces >= atkAllyWithin2Spaces: map(lambda x: x + 5,
                                                                                          atkCombatBuffs)
@@ -1490,7 +1566,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.disable_foe_fastcharge = True
 
     if "and they were roommates" in defSkills and defAllyWithin3Spaces:
-        atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
+        defCombatBuffs = [x + 4 for x in defCombatBuffs]
         defr.DR_all_hits_NSP.append(40)
         defr.disable_foe_guard = True
         defr.disable_foe_fastcharge = True
@@ -1611,6 +1687,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if "selfDmg" in atkSkills:  # damage to self after combat always
         atkSelfDmg += atkSkills["selfDmg"]
+        atkPostCombatEffs[0].append(("damage", atkSkills["selfDmg"], "self", "one"))
 
     if "atkOnlySelfDmg" in atkSkills:  # damage to attacker after combat iff attacker had attacked
         atkRecoilDmg += atkSkills["atkOnlySelfDmg"]
@@ -1652,6 +1729,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if "firesweep" in atkSkills or "firesweep" in defSkills:
         cannotCounter = True
+
+    if "dagger" in atkSkills:
+        atkPostCombatEffs[2].append(("debuff_def", atkSkills["dagger"], "foe_and_foes_allies", "within_2_spaces_foe"))
+        atkPostCombatEffs[2].append(("debuff_res", atkSkills["dagger"], "foe_and_foes_allies", "within_2_spaces_foe"))
+
+    if "dagger" in defSkills:
+        defPostCombatEffs[2].append(("debuff_def", defSkills["dagger"], "foe_and_foes_allies", "within_2_spaces_foe"))
+        defPostCombatEffs[2].append(("debuff_res", defSkills["dagger"], "foe_and_foes_allies", "within_2_spaces_foe"))
 
     if "hardyBearing" in atkSkills:
         atkr.hardy_bearing = True
@@ -2856,7 +2941,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                 I_stkr.DR_sp_trigger_next_all_SP_CACHE.append(x)
 
         if ster_sp_triggered:
-            steSpCount = striker.specialMax
+            steSpCount = strikee.specialMax
             if I_ster.first_sp_charge != 0:
                 steSpCount -= I_ster.first_sp_charge
                 steSpCount = max(steSpCount, 0)
@@ -2913,15 +2998,18 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         curAtk = attackList[i]
 
         # recoil damage
-        if curAtk.attackOwner == 0 and curAtk.attackNumSelf == 1 and atkRecoilDmg > 0: atkSelfDmg += atkRecoilDmg
-        if curAtk.attackOwner == 0 and curAtk.attackNumSelf == 1 and NEWatkOtherDmg > 0: atkOtherDmg += NEWatkOtherDmg
-        if curAtk.attackOwner == 1 and curAtk.attackNumSelf == 1 and defRecoilDmg > 0: defSelfDmg += defRecoilDmg
-        if curAtk.attackOwner == 1 and curAtk.attackNumSelf == 1 and NEWdefOtherDmg > 0: defOtherDmg += NEWdefOtherDmg
+        if curAtk.attackOwner == 0 and curAtk.attackNumSelf == 1 and atkRecoilDmg > 0 and atkAlive: atkSelfDmg += atkRecoilDmg
+        if curAtk.attackOwner == 0 and curAtk.attackNumSelf == 1 and NEWatkOtherDmg > 0 and atkAlive: atkOtherDmg += NEWatkOtherDmg
+        if curAtk.attackOwner == 1 and curAtk.attackNumSelf == 1 and defRecoilDmg > 0 and defAlive: defSelfDmg += defRecoilDmg
+        if curAtk.attackOwner == 1 and curAtk.attackNumSelf == 1 and NEWdefOtherDmg > 0 and defAlive: defOtherDmg += NEWdefOtherDmg
 
         # post-combat status effects & mid-combat special charges
-        if curAtk.attackOwner == 0 and curAtk.attackNumSelf == 1:
+        if curAtk.attackOwner == 0 and curAtk.attackNumSelf == 1 and atkAlive:
             atkPostCombatStatusesApplied[0] = atkPostCombatStatusesApplied[0] + atkPostCombatStatusesApplied[1]
             defPostCombatStatusesApplied[0] = defPostCombatStatusesApplied[0] + defPostCombatStatusesApplied[2]
+
+            atkPostCombatEffs[0] += atkPostCombatEffs[2]
+            defPostCombatEffs[0] += defPostCombatEffs[1]
 
             atkSpCountCur = max(0, atkSpCountCur - atkr.sp_charge_first)
             atkSpCountCur = min(atkSpCountCur, attacker.specialMax)
@@ -2931,9 +3019,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             atkSpCountCur = max(0, atkSpCountCur - atkr.sp_charge_FU)
             atkSpCountCur = min(atkSpCountCur, attacker.specialMax)
 
-        if curAtk.attackOwner == 1 and curAtk.attackNumSelf == 1:
+        if curAtk.attackOwner == 1 and curAtk.attackNumSelf == 1 and defAlive:
             defPostCombatStatusesApplied[0] = defPostCombatStatusesApplied[0] + defPostCombatStatusesApplied[1]
             atkPostCombatStatusesApplied[0] = atkPostCombatStatusesApplied[0] + atkPostCombatStatusesApplied[2]
+
+            defPostCombatEffs[0] += defPostCombatEffs[2]
+            atkPostCombatEffs[0] += atkPostCombatEffs[1]
 
             defSpCountCur = max(0, defSpCountCur - defr.sp_charge_first)
             defSpCountCur = min(defSpCountCur, defender.specialMax)
@@ -3128,7 +3219,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     atkHitCount = startString2.count("A")
     defHitCount = startString2.count("D")
 
-    return atkHPCur, defHPCur, atkCombatBuffs, defCombatBuffs, wpnAdvHero, oneEffAtk, oneEffDef, attackList, atkFehMath, atkHitCount, defFehMath, defHitCount
+    return atkHPCur, defHPCur, atkCombatBuffs, defCombatBuffs, wpnAdvHero, oneEffAtk, oneEffDef, \
+        attackList, atkFehMath, atkHitCount, defFehMath, defHitCount, atkPostCombatEffs[0], defPostCombatEffs[0]
 
 
 # new combat function needs to return the following:
@@ -3182,17 +3274,17 @@ flowerofease_base = {"atkRein": 3, "defRein": 3, "resRein": 3}
 flowerofease_ref = {"atkRein": 4, "defRein": 4, "resRein": 4}
 
 
-class EffectField():
+class CombatField():
     def __init__(self, owner, range, condition, affectSelf, affectedSide, effect):
         self.owner = owner
-        self.range = range(owner.tile)
-        self.condition = condition(owner)
+        self.range = range
+        self.condition = condition
         self.affectSelf = affectSelf
         self.affectedSide = affectedSide  # 0 for same as owner, 1 otherwise
         self.effect = effect
 
 
-# flowerOfEaseField = EffectField(mirabilis, exRange1, exCondition, False, True, flowerofease_base)
+# flowerOfEaseField = CombatField(mirabilis, exRange1, exCondition, False, True, flowerofease_base)
 
 # SPECIALS
 daylight = Special("Daylight", "Restores HP = 30% of damage dealt.", {"healSelf": 3}, 3, SpecialType.Offense)

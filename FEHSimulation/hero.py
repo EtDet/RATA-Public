@@ -585,12 +585,13 @@ class AssistType(Enum):
     Other = 4
 
 class Assist():
-    def __init__(self, name, desc, effects, range, type):
+    def __init__(self, name, desc, effects, range, type, users):
         self.name = name
         self.desc = desc
         self.effects = effects
         self.range = range
         self.type = type
+        self.users = users
 
 class SpecialType(Enum):
     Offense = 0
@@ -688,7 +689,7 @@ class Status(Enum):
     # positive
 
     MobilityUp = 103  # 🔵 Movement increased by 1, cancelled by Gravity
-    AirOrders = 106  # 🔵 Unit can move to space adjacent to ally within 2 spaces
+    Orders = 106  # 🔵 Unit can move to space adjacent to ally within 2 spaces
     EffDragons = 107  # 🔴 Gain effectiveness against dragons
     BonusDoubler = 109  # 🔴 Gain atk/spd/def/res boost by current bonus on stat, canceled by Panic
     NullEffDragons = 110  # 🔴 Gain immunity to "eff against dragons"
@@ -756,6 +757,7 @@ veyle = Hero("Veyle", "Veyle", 17, "BTome", 0, [39, 46, 30, 21, 46], [50, 70, 50
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 hero_sheet = pd.read_csv(__location__ + '\\FEHstats.csv')
 weapon_sheet = pd.read_csv(__location__ + '\\FEHWeapons.csv')
+assist_sheet = pd.read_csv(__location__ + '\\FEHAssists.csv')
 special_sheet = pd.read_csv(__location__ + '\\FEHSpecials.csv')
 skills_sheet = pd.read_csv(__location__ + '\\FEHABCXSkills.csv')
 
@@ -812,6 +814,27 @@ def makeWeapon(name):
     if not pd.isna(row.loc[n, 'ExclusiveUser4']): users.append(row.loc[n, 'ExclusiveUser4'])
 
     return Weapon(name, int_name, desc, might, rng, wpnType, effects, users)
+
+def makeAssist(name):
+    row = assist_sheet.loc[assist_sheet['Name'] == name]
+    n = row.index.values[0]
+
+    name = row.loc[n, 'Name']
+    desc = row.loc[n, 'Description']
+    rng = row.loc[n, 'Range']
+    type = row.loc[n, 'Type']
+
+    effects = {}
+    users = []
+
+    if not pd.isna(row.loc[n, 'Effect1']) and not pd.isna(row.loc[n, 'Level1']): effects.update({row.loc[n, 'Effect1']: int(row.loc[n, 'Level1'])})
+    if not pd.isna(row.loc[n, 'Effect2']) and not pd.isna(row.loc[n, 'Level2']): effects.update({row.loc[n, 'Effect2']: int(row.loc[n, 'Level2'])})
+
+    if not pd.isna(row.loc[n, 'ExclusiveUser1']): users.append(row.loc[n, 'ExclusiveUser1'])
+    if not pd.isna(row.loc[n, 'ExclusiveUser2']): users.append(row.loc[n, 'ExclusiveUser2'])
+    if not pd.isna(row.loc[n, 'ExclusiveUser3']): users.append(row.loc[n, 'ExclusiveUser3'])
+
+    return Assist(name, desc, effects, rng, type, users)
 
 def makeSpecial(name):
     row = special_sheet.loc[special_sheet['Name'] == name]
