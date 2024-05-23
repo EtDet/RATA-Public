@@ -409,6 +409,9 @@ class Hero:
             if self.weapon is not None and "slaying" in self.weapon.effects:
                 self.specialCount = max(self.specialCount - self.weapon.effects["slaying"], 1)
                 self.specialMax = max(self.specialMax - self.weapon.effects["slaying"], 1)
+            if self.assist is not None and "slaying" in self.assist.effects:
+                self.specialCount = max(self.specialCount - self.assist.effects["slaying"], 1)
+                self.specialMax = max(self.specialMax - self.assist.effects["slaying"], 1)
             if self.emblem is not None and self.emblem == "Marth":
                 self.specialCount = max(self.specialCount - self.weapon.effects["slaying"], 1)
                 self.specialMax = max(self.specialMax - self.weapon.effects["slaying"], 1)

@@ -106,20 +106,20 @@ sharena.set_level(40)
 
 #robin.tile = map0.tiles[18]
 
-tested_unit = makeHero("F!Arthur")
-tested_weapon = makeWeapon("Emerald Axe+")
-tested_assist = makeAssist("Swap")
-#tested_special = makeSpecial("Astra")
-tested_askill = makeSkill("HP +5")
-tested_bskill = makeSkill("Lancebreaker 3")
-#tested_cskill = makeSkill("Spur Res 3")
+tested_unit = makeHero("Barst")
+tested_weapon = makeWeapon("Devil Axe")
+tested_assist = makeAssist("Reposition")
+#tested_special = makeSpecial("Solid-Earth Balm")
+#tested_askill = makeSkill("HP +5")
+tested_bskill = makeSkill("Knock Back")
+tested_cskill = makeSkill("Spur Atk 3")
 
 tested_unit.set_skill(tested_weapon, WEAPON)
 tested_unit.set_skill(tested_assist, ASSIST)
 #tested_unit.set_skill(tested_special, SPECIAL)
-tested_unit.set_skill(tested_askill, ASKILL)
+#tested_unit.set_skill(tested_askill, ASKILL)
 tested_unit.set_skill(tested_bskill, BSKILL)
-#tested_unit.set_skill(tested_cskill, CSKILL)
+tested_unit.set_skill(tested_cskill, CSKILL)
 
 player_units_all = [ike, sharena, xander, tested_unit]
 enemy_units_all = []
@@ -508,6 +508,7 @@ def start_sim(player_units, enemy_units, chosen_map):
         blessing = hero.blessing
 
         weapon = "-"
+        int_name_weapon = '-'
         assist = "-"
         special = "-"
         askill = "-"
@@ -516,7 +517,9 @@ def start_sim(player_units, enemy_units, chosen_map):
         sSeal = "-"
         xskill = "-"
 
-        if hero.weapon is not None: weapon = hero.weapon.name
+        if hero.weapon is not None:
+            weapon = hero.weapon.name
+            int_name_weapon = hero.weapon.intName
         if hero.assist is not None: assist = hero.assist.name
         if hero.special is not None: special = hero.special.name
         if hero.askill is not None: askill = hero.askill.name
@@ -629,7 +632,19 @@ def start_sim(player_units, enemy_units, chosen_map):
         # SKILLS
         set_banner.rect_array.append(canvas.create_text((308, (5 + 22) / 2), text="⚔️", fill="red", font=("Helvetica", 9), anchor='e'))
         text_coords = ((310 + 410) / 2, (5 + 22) / 2)
-        set_banner.rect_array.append(canvas.create_text(*text_coords, text=weapon, fill="white", font=("Helvetica", 9), anchor='center'))
+
+        refine_suffixes = ("Eff", "Atk", "Spd", "Def", "Res", "Wra", "Daz")
+
+        weapon_fill = "white"
+        if int_name_weapon.endswith(refine_suffixes):
+            weapon_fill = "#6beb34"
+
+        ref_str = ""
+        for suffix in refine_suffixes:
+            if int_name_weapon.endswith(suffix):
+                ref_str = " (" + suffix[0] + ")"
+
+        set_banner.rect_array.append(canvas.create_text(*text_coords, text=weapon + ref_str , fill=weapon_fill, font=("Helvetica", 9), anchor='center'))
 
         set_banner.rect_array.append(canvas.create_text((309, (25 + 38) / 2), text="◐", fill="green", font=("Helvetica", 23), anchor='e'))
         text_coords = ((310 + 410) / 2, (25 + 42) / 2)
@@ -1010,9 +1025,48 @@ def start_sim(player_units, enemy_units, chosen_map):
         set_banner.label_array.append(player_name_label)
         set_banner.label_array.append(ally_name_label)
 
-        player_hp_calc = canvas.create_text((215, 16), text=str(player.HPcur) + " → " + str(player.HPcur),
+        new_player_hp = player.HPcur
+        new_ally_hp = ally.HPcur
+
+        # Calculate HP after healing
+        if "heal" in player.assist.effects:
+            hp_healed_ally = player.assist.effects["heal"]
+            hp_healed_self = 0
+
+            panic_factor = 1
+            if Status.Panic in player.statusNeg: panic_factor = -1
+            if Status.NullPanic in player.statusPos: panic_factor = 1
+            self_atk_stat = player.visible_stats[ATK] + player.buffs[ATK] * panic_factor + player.debuffs[ATK]
+
+            # Reconcile
+            if "heal_self" in player.assist.effects:
+                hp_healed_self = player.assist.effects["heal_self"]
+
+            # Martyr
+            if player.assist.effects["heal"] == -3:
+                dmg_taken = player.visible_stats[HP] - player.HPcur
+                hp_healed_ally = dmg_taken + 7
+                hp_healed_self = dmg_taken//2
+
+            # Martyr+
+            if player.assist.effects["heal"] == -49:
+                dmg_taken = player.visible_stats[HP] - player.HPcur
+                hp_healed_ally = dmg_taken + self_atk_stat//2
+                hp_healed_self = dmg_taken//2
+
+            if player.specialCount == 0 and player.special.type == "Healing":
+                if "boost_heal" in player.special.effects:
+                    hp_healed_ally += player.special.effects["boost_heal"]
+
+                if "heal_allies" in player.special.effects:
+                    hp_healed_ally += player.special.effects["heal_allies"]
+
+            new_ally_hp = min(ally.visible_stats[HP], ally.HPcur + hp_healed_ally)
+            new_player_hp = min(player.visible_stats[HP], player.HPcur + hp_healed_self)
+
+        player_hp_calc = canvas.create_text((215, 16), text=str(player.HPcur) + " → " + str(new_player_hp),
                                             fill='yellow', font=("Helvetica", 11), anchor='center')
-        ally_hp_calc = canvas.create_text((324, 16), text=str(ally.HPcur) + " → " + str(ally.HPcur),
+        ally_hp_calc = canvas.create_text((324, 16), text=str(ally.HPcur) + " → " + str(new_ally_hp),
                                            fill="yellow", font=("Helvetica", 11), anchor='center')
 
         set_banner.rect_array.append(canvas.create_rectangle(270 - 65, 27, 270 + 65, 42, fill='#5a5c6b', outline='#dae6e2'))
@@ -1255,12 +1309,28 @@ def start_sim(player_units, enemy_units, chosen_map):
                                     print("DRAW")
                                 elif "swap" in cur_hero.assist.effects:
                                     print("SWAP")
+
+                                    move_unit_to = n
+                                    move_ally_to = m.destination
+
+                                    valid_unit_cond = can_be_on_terrain(chosen_map.tiles[move_unit_to].terrain, cur_hero.move)
+                                    valid_ally_cond = can_be_on_terrain(chosen_map.tiles[move_ally_to].terrain, chosen_map.tiles[move_unit_to].hero_on.move)
+
+
                                 elif "pivot" in cur_hero.assist.effects:
                                     print("PIVOT")
                                 elif "smite" in cur_hero.assist.effects:
                                     print("SMITE")
                                 elif "shove" in cur_hero.assist.effects:
                                     print("SHOVE")
+
+                            elif cur_hero.assist.type == "Staff":
+                                if "heal" in cur_hero.assist.effects:
+                                    valid_unit_cond = True
+
+                                    ally = chosen_map.tiles[n].hero_on
+
+                                    valid_ally_cond = ally.side == cur_hero.side and ally.HPcur != ally.visible_stats[HP]
 
                             elif cur_hero.assist.type == "Refresh":
                                 valid_unit_cond = True
@@ -1648,6 +1718,8 @@ def start_sim(player_units, enemy_units, chosen_map):
                     # when warping, clash skills use euclidean distance
                     # when not warping, clash skills use manhattan distance
                     distance = len(canvas.drag_data['target_path'])
+                    #if canvas.drag_data['target_path'] == "WARP":
+                    #    distance =
                     set_attack_forecast(cur_hero, chosen_map.tiles[new_tile].hero_on, distance)
 
                 elif new_tile in canvas.drag_data['assist_range'] and cur_hero.side == chosen_map.tiles[new_tile].hero_on.side\
@@ -1739,6 +1811,20 @@ def start_sim(player_units, enemy_units, chosen_map):
 
             action_performed = False
 
+            def set_text_val(label, value):
+                canvas.itemconfig(label, text=value)
+
+            def set_hp_bar_length(rect, percent):
+                new_length = int(60 * percent)
+                if new_length == 0:
+                    canvas.itemconfig(rect, state='hidden')
+                    return
+                coords = canvas.coords(rect)
+
+                coords[2] = coords[0] + new_length
+
+                canvas.coords(rect, *coords)
+
             # ATTAAAAAAAAAAAAAAAAAAAAAAACK!!!!!!!!!!!!!!!!!!
             if event.x < 539 and event.x > 0 and event.y < 810 and event.y > 90 and canvas.drag_data['target_path'] != "NONE" and \
                     chosen_map.tiles[new_tile].hero_on.side != chosen_map.tiles[mouse_new_tile].hero_on.side:
@@ -1818,19 +1904,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                     global animation
                     animation = False
 
-                def set_text_val(label, value):
-                    canvas.itemconfig(label, text=value)
 
-                def set_hp_bar_length(rect, percent):
-                    new_length = int(60 * percent)
-                    if new_length == 0:
-                        canvas.itemconfig(rect, state='hidden')
-                        return
-                    coords = canvas.coords(rect)
-
-                    coords[2] = coords[0] + new_length
-
-                    canvas.coords(rect, *coords)
 
                 distance = len(canvas.drag_data['target_path'])
                 combat_result = simulate_combat(player, enemy, True, turn_info[0], distance, [])
@@ -1886,15 +1960,43 @@ def start_sim(player_units, enemy_units, chosen_map):
                     if player.HPcur == 0 or enemy.HPcur == 0: break
                     i += 1
 
+                finish_time = 500 * (i + 1) + 200
+
                 atk_effects = combat_result[12]
                 def_effects = combat_result[13]
 
                 player.statusNeg = []
                 player.debuffs = [0, 0, 0, 0, 0]
 
-                end_of_combat(atk_effects, def_effects, player, enemy)
+                #saved_hp = []
+                #combined_units = player_units + enemy_units
 
-                finish_time = 500 * (i + 1) + 200
+                #for x in player_units + enemy_units:
+                #    saved_hp.append(x.HPcur)
+
+                damage_taken = end_of_combat(atk_effects, def_effects, player, enemy)
+
+                print(damage_taken)
+
+                for x in player_units + enemy_units:
+                    if x in damage_taken:
+                        canvas.after(finish_time, animate_damage_popup, canvas, damage_taken[x], x.tile.tileNum)
+                        x_side = x.side
+                        x_index = units_all[x_side].index(x)
+                        x_hp_label = hp_labels[x_side][x_index]
+                        x_hp_bar = hp_bar_fgs[x_side][x_index]
+
+                        hp_percentage = x.HPcur / x.visible_stats[HP]
+
+                        canvas.after(finish_time, set_text_val, x_hp_label, x.HPcur)
+                        canvas.after(finish_time, set_hp_bar_length, x_hp_bar, hp_percentage)
+
+                #i = 0
+                #while i < len(saved_hp):
+                #    if saved_hp[i] > combined_units[i]:
+                #        animate_damage_popup()
+
+
 
                 if player.HPcur == 0:
                     canvas.after(finish_time, hide_player, False)
@@ -1953,6 +2055,7 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                     final_pos = final_reposition_tile(unit_tile_num, ally_tile_num)
 
+                    # Move ally to other tile
                     ally.tile.hero_on = None
                     ally.tile = chosen_map.tiles[final_pos]
                     chosen_map.tiles[final_pos].hero_on = ally
@@ -1962,6 +2065,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                     ally_index = units_all[S].index(ally)
 
                     ally_sprite = sprite_IDs[S][ally_index]
+                    ally_grayscale = grayscale_IDs[S][ally_index]
                     ally_weapon_icon = weapon_IDs[S][ally_index]
                     ally_hp_label = hp_labels[S][ally_index]
                     ally_sp_label = special_labels[S][ally_index]
@@ -1969,6 +2073,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                     ally_hp_bar_bg = hp_bar_bgs[S][ally_index]
 
                     move_to_tile(canvas, ally_sprite, final_pos)
+                    move_to_tile(canvas, ally_grayscale, final_pos)
                     move_to_tile_wp(canvas, ally_weapon_icon, final_pos)
                     move_to_tile_hp(canvas, ally_hp_label, final_pos)
                     move_to_tile_sp(canvas, ally_sp_label, final_pos)
@@ -1978,7 +2083,59 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                 elif "draw" in player.assist.effects:
                     print("DRAW")
+
                 elif "swap" in player.assist.effects:
+
+                    unit_tile_num = player.tile.tileNum
+                    ally_tile_num = ally.tile.tileNum
+
+                    ally.tile = chosen_map.tiles[unit_tile_num]
+                    chosen_map.tiles[unit_tile_num].hero_on = ally
+
+                    player.tile = chosen_map.tiles[ally_tile_num]
+                    chosen_map.tiles[ally_tile_num].hero_on = player
+
+                    final_pos_player = player.tile.tileNum
+                    final_pos_ally = ally.tile.tileNum
+
+                    print(final_pos_player, final_pos_ally)
+
+                    ally_index = units_all[S].index(ally)
+
+                    ally_sprite = sprite_IDs[S][ally_index]
+                    ally_weapon_icon = weapon_IDs[S][ally_index]
+
+                    print(ally_weapon_icon)
+
+                    print(player_weapon_icons[ally_index])
+                    print(enemy_weapon_icons[ally_index])
+
+                    ally_hp_label = hp_labels[S][ally_index]
+                    ally_sp_label = special_labels[S][ally_index]
+                    ally_hp_bar_fg = hp_bar_fgs[S][ally_index]
+                    ally_hp_bar_bg = hp_bar_bgs[S][ally_index]
+                    ally_grayscale = grayscale_IDs[S][ally_index]
+
+                    move_to_tile(canvas, player_sprite, final_pos_player)
+                    move_to_tile(canvas, ally_sprite, final_pos_ally)
+
+                    move_to_tile(canvas, grayscale_sprite, final_pos_player)
+                    move_to_tile(canvas, ally_grayscale, final_pos_ally)
+
+                    move_to_tile_wp(canvas, weapon_icon_sprite, final_pos_player)
+                    move_to_tile_wp(canvas, ally_weapon_icon, final_pos_ally)
+
+                    move_to_tile_hp(canvas, hp_label, final_pos_player)
+                    move_to_tile_sp(canvas, sp_label, final_pos_player)
+                    move_to_tile_fg_bar(canvas, hp_bar_fg, final_pos_player)
+                    move_to_tile_fg_bar(canvas, hp_bar_bg, final_pos_player)
+
+                    move_to_tile_hp(canvas, ally_hp_label, final_pos_ally)
+                    move_to_tile_sp(canvas, ally_sp_label, final_pos_ally)
+                    move_to_tile_fg_bar(canvas, ally_hp_bar_fg, final_pos_ally)
+                    move_to_tile_fg_bar(canvas, ally_hp_bar_bg, final_pos_ally)
+
+
                     print("SWAP")
                 elif "pivot" in player.assist.effects:
                     print("PIVOT")
@@ -1987,7 +2144,100 @@ def start_sim(player_units, enemy_units, chosen_map):
                 elif "shove" in player.assist.effects:
                     print("SHOVE")
 
-                if "refresh" in player.assist.effects:
+                # Staff Healing
+                elif "heal" in player.assist.effects:
+                    hp_healed_ally = player.assist.effects["heal"]
+                    hp_healed_self = 0
+
+                    panic_factor = 1
+                    if Status.Panic in player.statusNeg: panic_factor = -1
+                    if Status.NullPanic in player.statusPos: panic_factor = 1
+                    self_atk_stat = player.visible_stats[ATK] + player.buffs[ATK] * panic_factor + player.debuffs[ATK]
+
+                    # Reconcile
+                    if "heal_self" in player.assist.effects:
+                        hp_healed_self = player.assist.effects["heal_self"]
+
+                    # Martyr
+                    if player.assist.effects["heal"] == -3:
+                        dmg_taken = player.visible_stats[HP] - player.HPcur
+                        hp_healed_ally = dmg_taken + 7
+                        hp_healed_self = dmg_taken//2
+
+                    # Martyr+
+                    if player.assist.effects["heal"] == -49:
+                        dmg_taken = player.visible_stats[HP] - player.HPcur
+                        hp_healed_ally = max(dmg_taken + self_atk_stat // 2, 7)
+                        hp_healed_self = dmg_taken // 2
+
+                    #print(player.specialCount == 0, player.special.type)
+
+                    staff_special_triggered = False
+
+                    if player.specialCount == 0 and player.special.type == "Healing":
+                        if "boost_heal" in player.special.effects:
+                            hp_healed_ally += player.special.effects["boost_heal"]
+
+                        allies_arr = units_all[S]
+                        for x in allies_arr:
+                            if x != player and x != ally and "heal_allies" in player.special.effects:
+
+                                x_index = allies_arr.index(x)
+                                x_hp_label = hp_labels[S][x_index]
+                                x_hp_bar = hp_bar_fgs[S][x_index]
+
+                                x.HPcur = min(x.visible_stats[HP], x.HPcur + 10)
+
+                                hp_percentage = x.HPcur / x.visible_stats[HP]
+
+                                set_text_val(x_hp_label, x.HPcur)
+                                set_hp_bar_length(x_hp_bar, hp_percentage)
+
+                            if x != player:
+                                if "atkBalm" in player.special.effects:
+                                    x.inflictStat(ATK, player.special.effects["atkBalm"])
+                                if "spdBalm" in player.special.effects:
+                                    x.inflictStat(SPD, player.special.effects["spdBalm"])
+                                if "defBalm" in player.special.effects:
+                                    x.inflictStat(DEF, player.special.effects["defBalm"])
+                                if "resBalm" in player.special.effects:
+                                    x.inflictStat(RES, player.special.effects["resBalm"])
+
+                        staff_special_triggered = True
+
+                    ally.HPcur = min(ally.visible_stats[HP], ally.HPcur + hp_healed_ally)
+                    player.HPcur = min(player.visible_stats[HP], player.HPcur + hp_healed_self)
+
+                    animate_heal_popup(canvas, hp_healed_ally, ally.tile.tileNum)
+
+                    # Get/Update HP assets
+                    ally_index = units_all[S].index(ally)
+                    ally_hp_label = hp_labels[S][ally_index]
+                    ally_hp_bar = hp_bar_fgs[S][ally_index]
+
+                    hp_percentage = ally.HPcur / ally.visible_stats[HP]
+                    set_text_val(ally_hp_label, ally.HPcur)
+                    set_hp_bar_length(ally_hp_bar, hp_percentage)
+
+                    # Display self heal (only if amount healed > 0)
+                    if hp_healed_self > 0:
+                        animate_heal_popup(canvas, hp_healed_self, player.tile.tileNum)
+
+                        # Update HP assets
+                        hp_percentage = player.HPcur / player.visible_stats[HP]
+                        set_text_val(hp_label, player.HPcur)
+                        set_hp_bar_length(hp_bar_fg, hp_percentage)
+
+                    # Charge special for Staff assist use
+                    if staff_special_triggered:
+                        player.specialCount = player.specialMax
+                        set_text_val(sp_label, player.specialCount)
+                    elif player.specialCount != -1:
+                        player.specialCount = max(player.specialCount - 1, 0)
+                        set_text_val(sp_label, player.specialCount)
+
+                elif "refresh" in player.assist.effects:
+                    # Grant ally another action
                     units_to_move.append(ally)
 
                     ally_index = units_all[S].index(ally)
@@ -2002,7 +2252,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                 player.statusNeg = []
                 player.debuffs = [0, 0, 0, 0, 0]
 
-            if not action_performed:
+            if not action_performed and successful_move:
                 player.statusNeg = []
                 player.debuffs = [0, 0, 0, 0, 0]
                 set_banner(player)

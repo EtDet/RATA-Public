@@ -71,24 +71,29 @@ def start_of_turn(team, turn):
         while i <= 5:
             tiles_within_n_spaces.append(tile.tilesWithinNSpaces(i))
 
-            for tile in tiles_within_n_spaces[i]:
-                units_within_n_spaces.append([])
-                allies_within_n_spaces.append([])
-                foes_within_n_spaces.append([])
+            units_within_n_spaces.append([])
+            allies_within_n_spaces.append([])
+            foes_within_n_spaces.append([])
 
-                if tile.hero_on is not None:
-                    units_within_n_spaces[i].append(tile.hero_on)
+            for tile_within in tiles_within_n_spaces[i]:
 
-                    if unit.side == tile.hero_on.side and unit != tile.hero_on:
-                        allies_within_n_spaces[i].append(tile.hero_on)
-                    if unit.side != tile.hero_on.side:
-                        foes_within_n_spaces[i].append(tile.hero_on)
+                if tile_within.hero_on is not None:
+                    #print(i, tile.tileNum, tile.hero_on.name)
+                    units_within_n_spaces[i].append(tile_within.hero_on)
+
+                    if unit.side == tile_within.hero_on.side and unit != tile_within.hero_on:
+                        allies_within_n_spaces[i].append(tile_within.hero_on)
+                    if unit.side != tile_within.hero_on.side:
+                        #print(tile.hero_on.side)
+                        foes_within_n_spaces[i].append(tile_within.hero_on)
 
             i += 1
 
         unitSkills = unit.getSkills()
         unitStats = unit.getStats()
         unitHPCur = unit.HPcur
+
+
 
         atkHPGreaterEqual25Percent = unitHPCur / unitStats[0] >= 0.25
         atkHPGreaterEqual50Percent = unitHPCur / unitStats[0] >= 0.50
@@ -103,13 +108,30 @@ def start_of_turn(team, turn):
             for ally in allies_within_n_spaces[1]:
                 ally.inflictStat(SPD, unitSkills["honeSpd"])
 
-        if "honeDef" in unitSkills:
+        if "fortifyDef" in unitSkills:
             for ally in allies_within_n_spaces[1]:
-                ally.inflictStat(DEF, unitSkills["honeDef"])
+                ally.inflictStat(DEF, unitSkills["fortifyDef"])
 
-        if "honeRes" in unitSkills:
+        if "fortifyRes" in unitSkills:
             for ally in allies_within_n_spaces[1]:
-                ally.inflictStat(RES, unitSkills["honeRes"])
+                ally.inflictStat(RES, unitSkills["fortifyRes"])
+
+        if "threatenAtk" in unitSkills:
+            #print(unit.name)
+            for foe in foes_within_n_spaces[2]:
+                foe.inflictStat(ATK, -unitSkills["threatenAtk"])
+
+        if "threatenSpd" in unitSkills:
+            for foe in foes_within_n_spaces[2]:
+                foe.inflictStat(SPD, -unitSkills["threatenSpd"])
+
+        if "threatenDef" in unitSkills:
+            for foe in foes_within_n_spaces[2]:
+                foe.inflictStat(DEF, -unitSkills["threatenDef"])
+
+        if "threatenRes" in unitSkills:
+            for foe in foes_within_n_spaces[2]:
+                foe.inflictStat(RES, -unitSkills["threatenRes"])
 
         if "defiantAtk" in unitSkills and unitHPCur / unitStats[0] <= 0.50:
             unit.inflictStat(ATK, 2 * unitSkills["defiantAtk"] + 1)
@@ -123,6 +145,7 @@ def start_of_turn(team, turn):
             unit.inflictStat(ATK, 6)
             unit.inflictStat(SPD, 6)
             unit.inflictStatus(Status.MobilityUp)
+
 
 def can_be_on_terrain(terrain_int, move_type_int):
     if terrain_int == 0 or terrain_int == 3: return True
@@ -193,11 +216,25 @@ def get_warp_moves(unit, unit_team, enemy_team):
 # within_N_rows_or_cols_self
 # within_N_rows_and_cols_self
 
-def foes_in_group(unit, units_in_area):
+def get_self(unit, other, units_in_area):
+    return [units_in_area[0]]
+
+def get_foe(unit, other, units_in_area):
+    return [units_in_area[1]]
+
+def foes_in_group(unit, other, units_in_area):
     returned_list = []
 
     for x in units_in_area:
         if unit.side != x.side:
+            returned_list.append(x)
+    return returned_list
+
+def foes_minus_other(unit, other, units_in_area):
+    returned_list = []
+
+    for x in units_in_area:
+        if unit.side != x.side and x != other:
             returned_list.append(x)
     return returned_list
 
@@ -208,20 +245,41 @@ def end_of_combat(atk_effects, def_effects, attacker, defender):
     defSkills = defender.getSkills()
     defStats = defender.getStats()
 
+    damage_taken = {}
+
     atkAreas = {}
+    atkAreas['one'] = [attacker, defender]
     atkAreas['within_2_spaces_foe'] = defender.tile.unitsWithinNSpaces(2)
 
     defAreas = {}
+    defAreas['one'] = [defender, attacker]
     defAreas['within_2_spaces_foe'] = attacker.tile.unitsWithinNSpaces(2)
 
     areaMethods = {}
+    areaMethods['self'] = get_self
+    areaMethods['foe'] = get_foe
+    areaMethods['foes_allies'] = foes_minus_other
     areaMethods['foe_and_foes_allies'] = foes_in_group
 
+    combined = atk_effects + def_effects
 
-    for effect in atk_effects:
-        units_in_area = atkAreas[effect[3]]
+    i = 0
+    while i < len(atk_effects + def_effects):
+        if i < len(atk_effects):
+            area = atkAreas
+            unit = attacker
+            other = defender
+        else:
+            area = defAreas
+            unit = defender
+            other = attacker
+
+
+        effect = combined[i]
+
+        units_in_area = area[effect[3]]
         unit_determine_method = areaMethods[effect[2]]
-        targeted_units = unit_determine_method(attacker, units_in_area)
+        targeted_units = unit_determine_method(unit, other, units_in_area)
 
         if effect[0] == "debuff_def":
             for x in targeted_units:
@@ -231,17 +289,16 @@ def end_of_combat(atk_effects, def_effects, attacker, defender):
             for x in targeted_units:
                 x.inflictStat(RES, -effect[1])
 
-    for effect in def_effects:
-        units_in_area = defAreas[effect[3]]
-        unit_determine_method = areaMethods[effect[2]]
-        targeted_units = unit_determine_method(defender, units_in_area)
-
-        if effect[0] == "debuff_def":
+        if effect[0] == "damage":
             for x in targeted_units:
-                x.inflictStat(DEF, -effect[1])
+                if x.HPcur != 0:
+                    x.HPcur = max(x.HPcur - effect[1], 1)
 
-        if effect[0] == "debuff_res":
-            for x in targeted_units:
-                x.inflictStat(RES, -effect[1])
+                    if x not in damage_taken:
+                        damage_taken[x] = effect[1]
+                    else:
+                        damage_taken[x] += effect[1]
 
+        i += 1
 
+    return damage_taken

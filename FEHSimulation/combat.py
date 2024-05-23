@@ -127,6 +127,10 @@ class HeroModifiers:
         self.circlet_miracle = False
         self.disable_foe_miracle = False
 
+        #staff
+        self.wrathful_staff = False
+        self.disable_foe_wrathful = False
+
 
 def move_letters(s, letter):
     if letter not in ['A', 'D']:
@@ -386,6 +390,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     # prevent counterattacks from defender (sweep, flash)
     cannotCounter = False
+    disableCannotCounter = False
 
     # cancel affinity, differs between ally and foe for
     # levels 2/3 because my life can't be easy
@@ -1302,6 +1307,18 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[2] += 5
         atkr.spGainOnAtk += 1
 
+    if "arthurBonus" in atkSkills and sum(attacker.buffs) > 0 and AtkPanicFactor != -1:
+        atkCombatBuffs = [x + 3 for x in atkCombatBuffs]
+
+    if "arthurBonus" in defSkills and sum(defender.buffs) > 0 and DefPanicFactor != -1:
+        defCombatBuffs = [x + 3 for x in defCombatBuffs]
+
+    if "arthurDebuffer" in atkSkills and (attacker.hasPenalty() or not atkHPEqual100Percent):
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+
+    if "arthurDebuffer" in defSkills and (defender.hasPenalty() or not defHPEqual100Percent):
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+
     if "up b bair" in atkSkills:
         map(lambda x: x + 4, atkCombatBuffs)
     if "up b bair" in defSkills and defAllyWithin2Spaces:
@@ -1686,14 +1703,24 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         "only Bros!"
 
     if "selfDmg" in atkSkills:  # damage to self after combat always
-        atkSelfDmg += atkSkills["selfDmg"]
+        #atkSelfDmg += atkSkills["selfDmg"]
         atkPostCombatEffs[0].append(("damage", atkSkills["selfDmg"], "self", "one"))
 
+    # Devil Axe
     if "atkOnlySelfDmg" in atkSkills:  # damage to attacker after combat iff attacker had attacked
-        atkRecoilDmg += atkSkills["atkOnlySelfDmg"]
+        atkPostCombatEffs[2].append(("damage", atkSkills["atkOnlySelfDmg"], "self", "one"))
 
+    if "atkOnlySelfDmg" in defSkills:  # damage to attacker after combat iff attacker had attacked
+        defPostCombatEffs[2].append(("damage", defSkills["atkOnlySelfDmg"], "self", "one"))
+
+    # Pain
     if "atkOnlyOtherDmg" in atkSkills:  # damage to other unit after combat iff attacker had attacked
-        NEWatkOtherDmg += atkSkills["atkOnlyOtherDmg"]
+        atkPostCombatEffs[2].append(("damage", atkSkills["atkOnlyOtherDmg"], "foe", "one"))
+
+    # Savage Blow
+    if "painOther" in atkSkills:
+
+        atkPostCombatEffs[2].append(("damage", atkSkills["painOther"], "foes_allies", "within_2_spaces_foe"))
 
     if "triAdeptS" in atkSkills and atkSkills["triAdeptS"] > triAdept: triAdept = atkSkills["triAdeptS"]
     if "triAdeptW" in atkSkills and atkSkills["triAdeptW"] > triAdept: triAdept = atkSkills["triAdeptW"]
@@ -1748,6 +1775,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if "cancelTA" in atkSkills:
         atkCA = atkSkills["cancelTA"]
+
+    if "wrathful" in atkSkills and atkHPCur/atkStats[HP] >= 1.5 - 0.5 * atkSkills["wrathful"]:
+        atkr.wrathful_staff = True
+
+    if "wrathful" in defSkills and defHPCur/defStats[HP] >= 1.5 - 0.5 * defSkills["wrathful"]:
+        defr.wrathful_staff = True
+
+    if "dazzling" in atkSkills and atkHPCur/atkStats[HP] >= 1.5 - 0.5 * atkSkills["dazzling"]:
+        cannotCounter = True
 
     # pseudo-miracle (the seliph zone)
 
@@ -1924,7 +1960,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "selfDmg" in defSkills: defSelfDmg += defSkills["selfDmg"]
 
     if "atkOnlySelfDmg" in defSkills: defRecoilDmg += defSkills["atkOnlySelfDmg"]
-    if "atkOnlyOtherDmg" in defSkills: NEWdefOtherDmg += defSkills["atkOnlyOtherDmg"]
+    if "atkOnlyOtherDmg" in defSkills:
+        defPostCombatEffs[2].append(("damage", defSkills["atkOnlyOtherDmg"], "foe", "one"))
 
     if "QRW" in defSkills and defHPCur / defStats[0] >= 1.0 - (defSkills["QRW"] * 0.1): defr.follow_ups_skill += 1
     if "QRS" in defSkills and defHPCur / defStats[0] >= 1.0 - (defSkills["QRS"] * 0.1): defr.follow_ups_skill += 1
@@ -2819,7 +2856,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             attack += math.trunc(I_stkr.most_recent_atk * (x / 100))
 
         # half damage if staff user without wrathful staff
-        if striker.getWeaponType() == "Staff": attack = math.trunc(attack * 0.5)
+        if striker.getWeaponType() == "Staff" and not I_stkr.wrathful_staff:
+            attack = math.trunc(attack * 0.5)
 
         # potent FU reduction
         attack = trunc(attack * curAttack.potentRedu / 100)
@@ -3215,6 +3253,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     atkFehMath = min(max(atkStats[ATK] - defStats[atkTargetingDefRes + 3], 0) + atkr.true_all_hits, 99)
     defFehMath = min(max(defStats[ATK] - atkStats[defTargetingDefRes + 3], 0) + defr.true_all_hits, 99)
+
+    if attacker.getWeaponType() == "Staff" and not atkr.wrathful_staff:
+        atkFehMath = atkFehMath//2
+
+    if defender.getWeaponType() == "Staff" and not defr.wrathful_staff:
+        defFehMath = defFehMath//2
 
     atkHitCount = startString2.count("A")
     defHitCount = startString2.count("D")
