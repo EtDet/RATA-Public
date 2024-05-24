@@ -12,10 +12,11 @@
     "playerStart": [1, 2, 3, 4],
     "enemyStart": [43, 44, 45, 46],
     "enemyData":
-    [  {"name": "Rosado",
+    [  {"name": "Effie",
        "level": 40,
        "rarity": 5,
-       "weapon": "Axe of Adoration",
+       "weapon": "Silver Lance",
+      "special": "Bonfire",
        "startMove": 1,
        "wallBreak": false
        },
@@ -23,6 +24,7 @@
        "level": 40,
        "rarity": 5,
        "weapon": "Silver Sword",
+          "assist": "Reposition",
        "startMove": 1,
        "wallBreak": false
       },
@@ -33,10 +35,10 @@
        "startMove": 1,
        "wallBreak": false
       },
-       {"name": "Ephraim",
+       {"name": "Barst",
        "level": 40,
        "rarity": 5,
-       "weapon": "Siegmund",
+       "weapon": "Iron Axe",
        "startMove": 1,
        "wallBreak": false
       }

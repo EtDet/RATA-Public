@@ -78,13 +78,11 @@ def start_of_turn(team, turn):
             for tile_within in tiles_within_n_spaces[i]:
 
                 if tile_within.hero_on is not None:
-                    #print(i, tile.tileNum, tile.hero_on.name)
                     units_within_n_spaces[i].append(tile_within.hero_on)
 
                     if unit.side == tile_within.hero_on.side and unit != tile_within.hero_on:
                         allies_within_n_spaces[i].append(tile_within.hero_on)
                     if unit.side != tile_within.hero_on.side:
-                        #print(tile.hero_on.side)
                         foes_within_n_spaces[i].append(tile_within.hero_on)
 
             i += 1
@@ -92,7 +90,6 @@ def start_of_turn(team, turn):
         unitSkills = unit.getSkills()
         unitStats = unit.getStats()
         unitHPCur = unit.HPcur
-
 
 
         atkHPGreaterEqual25Percent = unitHPCur / unitStats[0] >= 0.25
@@ -116,6 +113,11 @@ def start_of_turn(team, turn):
             for ally in allies_within_n_spaces[1]:
                 ally.inflictStat(RES, unitSkills["fortifyRes"])
 
+        if "fortifly" in unitSkills:
+            for ally in allies_within_n_spaces[2]:
+                ally.inflictStat(DEF, 6)
+                ally.inflictStat(RES, 6)
+
         if "threatenAtk" in unitSkills:
             #print(unit.name)
             for foe in foes_within_n_spaces[2]:
@@ -136,15 +138,32 @@ def start_of_turn(team, turn):
         if "defiantAtk" in unitSkills and unitHPCur / unitStats[0] <= 0.50:
             unit.inflictStat(ATK, 2 * unitSkills["defiantAtk"] + 1)
 
+        if "defiantSpd" in unitSkills and unitHPCur / unitStats[0] <= 0.50:
+            unit.inflictStat(SPD, 2 * unitSkills["defiantSpd"] + 1)
+
+        if "defiantDef" in unitSkills and unitHPCur / unitStats[0] <= 0.50:
+            unit.inflictStat(DEF, 2 * unitSkills["defiantDef"] + 1)
+
+        if "defiantRes" in unitSkills and unitHPCur / unitStats[0] <= 0.50:
+            unit.inflictStat(RES, 2 * unitSkills["defiantRes"] + 1)
+
+
+        if "wrath" in unitSkills and unitHPCur / unitStats[0] <= unitSkills["wrath"] * 0.25:
+            unit.chargeSpecial(1)
+            print("WRATH", unit.name)
+
         if "oddDefWave" in unitSkills and turn % 2 == 1:
             unit.inflictStat(DEF, unitSkills["oddDefWave"])
             for ally in allies_within_n_spaces[1]:
                 ally.inflictStat(DEF, unitSkills["oddDefWave"])
 
+        # United Bouquet - Sharena
         if "bridal_shenanigans" in unitSkills and atkHPGreaterEqual25Percent:
             unit.inflictStat(ATK, 6)
             unit.inflictStat(SPD, 6)
             unit.inflictStatus(Status.MobilityUp)
+
+        # return hash maps of units who have had damage dealt or healed, or if their special cooldown was modified
 
 
 def can_be_on_terrain(terrain_int, move_type_int):

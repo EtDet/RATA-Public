@@ -458,7 +458,7 @@ class Hero:
         print(self.name + "'s " + statStr + " was modified by " + str(num) + ".")
 
     def chargeSpecial(self, charge):
-        if charge > 1:
+        if charge != 0 and self.specialCount != -1:
             # will decrease special count by charge
             self.specialCount = max(0, self.specialCount - charge)
             self.specialCount = min(self.specialCount, self.specialMax)
@@ -503,15 +503,23 @@ class Hero:
 
     def getSkills(self):
         heroSkills = {}
-        if self.weapon != None: heroSkills.update(self.weapon.effects)
-        if self.special != None: heroSkills.update(self.special.effects)
-        if self.askill != None: heroSkills.update(self.askill.effects)
-        if self.bskill != None: heroSkills.update(self.bskill.effects)
-        if self.cskill != None: heroSkills.update(self.cskill.effects)
-        if self.sSeal != None: heroSkills.update(self.sSeal.effects)
-        if self.xskill != None: heroSkills.update(self.xskill.effects)
+        if self.weapon is not None:
+            heroSkills = {x: heroSkills.get(x, 0) + self.weapon.effects.get(x, 0) for x in set(heroSkills).union(self.weapon.effects)}
+        if self.special is not None:
+            heroSkills = {x: heroSkills.get(x, 0) + self.special.effects.get(x, 0) for x in set(heroSkills).union(self.special.effects)}
+        if self.askill is not None:
+            heroSkills = {x: heroSkills.get(x, 0) + self.askill.effects.get(x, 0) for x in set(heroSkills).union(self.askill.effects)}
+        if self.bskill is not None:
+            heroSkills = {x: heroSkills.get(x, 0) + self.bskill.effects.get(x, 0) for x in set(heroSkills).union(self.bskill.effects)}
+        if self.cskill is not None:
+            heroSkills = {x: heroSkills.get(x, 0) + self.cskill.effects.get(x, 0) for x in set(heroSkills).union(self.cskill.effects)}
+        if self.sSeal is not None:
+            heroSkills = {x: heroSkills.get(x, 0) + self.sSeal.effects.get(x, 0) for x in set(heroSkills).union(self.sSeal.effects)}
+        if self.xskill is not None:
+            heroSkills = {x: heroSkills.get(x, 0) + self.xskill.effects.get(x, 0) for x in set(heroSkills).union(self.xskill.effects)}
 
-        if self.emblem != None: heroSkills.update(self.getEmblemEffects())
+        if self.emblem is not None:
+            heroSkills = {x: heroSkills.get(x, 0) + self.getEmblemEffects().get(x, 0) for x in set(heroSkills).union(self.getEmblemEffects())}
 
         return heroSkills
 
