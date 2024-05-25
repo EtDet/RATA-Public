@@ -206,7 +206,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr_coords = (defr_x, defr_y)
 
         for e in combat_effects:
-
             owner_x = e.owner.tile.x_coord
             owner_y = e.owner.tile.y_coord
 
@@ -235,6 +234,11 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
             if in_range and ((e.owner == afflicted) == e.affectSelf):
                 updated_skills = {x: updated_skills.get(x, 0) + e.effect.get(x, 0) for x in set(updated_skills).union(e.effect)}
+
+            if targeted_side == attacker.side:
+                atkSkills = updated_skills
+            if targeted_side == defender.side:
+                defSkills = updated_skills
 
     def allies_within_n(unit, tile, n):
         unit_list = tile.unitsWithinNSpaces(n)
@@ -301,6 +305,11 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         for x in temp_atk_allies_arr:
             if x is not attacker and x.side == attacker.side:
                 atk_allies_arr.append(x)
+
+        temp_def_allies_arr = defender.tile.unitsWithinNSpaces(2)
+        for x in temp_def_allies_arr:
+            if x is not defender and x.side == defender.side:
+                def_allies_arr.append(x)
 
     for x in atk_allies_arr:
         if x.move == 0: atkInfAlliesWithin2Spaces += 1
@@ -427,6 +436,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     # index 0 - given regardless
     # index 1 - given if attacked by foe
     # index 2 - given if attacked foe
+    # index 3 - given only if user survives
     # ex: attacker has panic, defender is hit
     # elements of 2 with be appended to 0
     # at end of combat, all effects at index 0 will be given to defender
@@ -1302,6 +1312,22 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[2] += 5
         atkr.spGainOnAtk += 1
 
+    if "camillaBoost" in atkSkills and (atkCavAlliesWithin2Spaces or atkFlyAlliesWithin2Spaces):
+        atkCombatBuffs[ATK] += 4
+        atkCombatBuffs[SPD] += 4
+
+    if "camillaBoost" in defSkills and (defCavAlliesWithin2Spaces or defFlyAlliesWithin2Spaces):
+        defCombatBuffs[ATK] += 4
+        defCombatBuffs[SPD] += 4
+
+    if "camillaField_f" in atkSkills and (attacker.move == 1 or attacker.move == 2):
+        atkCombatBuffs[ATK] += 3
+        atkCombatBuffs[SPD] += 3
+
+    if "camillaField_f" in defSkills and (defender.move == 1 or defender.move == 2):
+        defCombatBuffs[ATK] += 3
+        defCombatBuffs[SPD] += 3
+
     if "berukaAxe" in atkSkills and atkHPGreaterEqual50Percent:
         defCombatBuffs[ATK] -= 4
         defr.spLossOnAtk -= 1
@@ -1724,10 +1750,16 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "atkOnlyOtherDmg" in atkSkills:  # damage to other unit after combat iff attacker had attacked
         atkPostCombatEffs[2].append(("damage", atkSkills["atkOnlyOtherDmg"], "foe", "one"))
 
-    # Savage Blow
+    # Pain+
     if "painOther" in atkSkills:
-
         atkPostCombatEffs[2].append(("damage", atkSkills["painOther"], "foes_allies", "within_2_spaces_foe"))
+
+    if "painOther" in defSkills:
+        defPostCombatEffs[2].append(("damage", defSkills["painOther"], "foes_allies", "within_2_spaces_foe"))
+
+    # Savage Blow
+    if "savageBlow" in atkSkills:
+        atkPostCombatEffs[2].append(("damage", atkSkills["savageBlow"], "foes_allies", "within_2_spaces_foe"))
 
     if "triAdeptS" in atkSkills and atkSkills["triAdeptS"] > triAdept: triAdept = atkSkills["triAdeptS"]
     if "triAdeptW" in atkSkills and atkSkills["triAdeptW"] > triAdept: triAdept = atkSkills["triAdeptW"]
@@ -1771,6 +1803,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "dagger" in defSkills:
         defPostCombatEffs[2].append(("debuff_def", defSkills["dagger"], "foe_and_foes_allies", "within_2_spaces_foe"))
         defPostCombatEffs[2].append(("debuff_res", defSkills["dagger"], "foe_and_foes_allies", "within_2_spaces_foe"))
+
+    if "sealAtk" in atkSkills: atkPostCombatEffs[0].append(("seal_atk", atkSkills["sealAtk"], "foe", "one"))
+    if "sealAtk" in defSkills: defPostCombatEffs[0].append(("seal_atk", defSkills["sealAtk"], "foe", "one"))
 
     if "hardyBearing" in atkSkills:
         atkr.hardy_bearing = True

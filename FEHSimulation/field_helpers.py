@@ -53,6 +53,17 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
 
+        if "camillaField" in unitSkills:
+            owner = unit
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = True
+            effects = {"camillaField_f": unitSkills["camillaField"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
     return combat_fields
 
 def start_of_turn(team, turn):
@@ -86,6 +97,10 @@ def start_of_turn(team, turn):
                         foes_within_n_spaces[i].append(tile_within.hero_on)
 
             i += 1
+
+        tiles_within_1_col = tile.tilesWithinNCols(1)
+        tiles_within_1_row = tile.tilesWithinNRows(1)
+        tiles_within_1_row_or_column = list(set(tiles_within_1_col) | set(tiles_within_1_row))
 
         unitSkills = unit.getSkills()
         unitStats = unit.getStats()
@@ -147,7 +162,6 @@ def start_of_turn(team, turn):
         if "defiantRes" in unitSkills and unitHPCur / unitStats[0] <= 0.50:
             unit.inflictStat(RES, 2 * unitSkills["defiantRes"] + 1)
 
-
         if "wrath" in unitSkills and unitHPCur / unitStats[0] <= unitSkills["wrath"] * 0.25:
             unit.chargeSpecial(1)
             print("WRATH", unit.name)
@@ -162,6 +176,14 @@ def start_of_turn(team, turn):
             unit.inflictStat(ATK, 6)
             unit.inflictStat(SPD, 6)
             unit.inflictStatus(Status.MobilityUp)
+
+        if "panicPloy" in unitSkills:
+            diff = 7 - unitSkills["panicPloy"] * 2
+            for tile in tiles_within_1_row_or_column:
+                if tile.hero_on is not None and tile.hero_on.side != unit.side:
+                    if tile.hero_on.HPcur <= unit.HPcur - diff:
+                        tile.hero_on.inflictStatus(Status.Panic)
+
 
         # return hash maps of units who have had damage dealt or healed, or if their special cooldown was modified
 
@@ -183,6 +205,15 @@ def get_warp_moves(unit, unit_team, enemy_team):
     unitStats = unit.getStats()
 
     warp_moves = []
+
+    if "wingsOfMercy" in unitSkills:
+        for ally in unit_team:
+            ally_hp = ally.HPcur/ally.getStats()[HP]
+            if ally != unit and ally_hp <= unitSkills["wingsOfMercy"] * 0.10 + 0.20:
+                adj_ally_spaces = ally.tile.tilesWithinNSpaces(1)
+                for adj_tile in adj_ally_spaces:
+                    if can_be_on_terrain(adj_tile.terrain, unit.move) and adj_tile.hero_on is None:
+                        warp_moves.append(adj_tile)
 
     if "escRoute" in unitSkills:
         if unit.HPcur/unitStats[HP] <= unitSkills["escRoute"] * 0.10 + 0.20:
@@ -299,6 +330,34 @@ def end_of_combat(atk_effects, def_effects, attacker, defender):
         units_in_area = area[effect[3]]
         unit_determine_method = areaMethods[effect[2]]
         targeted_units = unit_determine_method(unit, other, units_in_area)
+
+        if effect[0] == "seal_atk":
+            for x in targeted_units:
+                if x.side == attacker.side and defender.HPcur > 0:
+                    x.inflictStat(ATK, -effect[1])
+                if x.side == defender.side and attacker.HPcur > 0:
+                    x.inflictStat(ATK, -effect[1])
+
+        if effect[0] == "seal_spd":
+            for x in targeted_units:
+                if x.side == attacker.side and defender.HPcur > 0:
+                    x.inflictStat(SPD, -effect[1])
+                if x.side == defender.side and attacker.HPcur > 0:
+                    x.inflictStat(SPD, -effect[1])
+
+        if effect[0] == "seal_def":
+            for x in targeted_units:
+                if x.side == attacker.side and defender.HPcur > 0:
+                    x.inflictStat(DEF, -effect[1])
+                if x.side == defender.side and attacker.HPcur > 0:
+                    x.inflictStat(DEF, -effect[1])
+
+        if effect[0] == "seal_res":
+            for x in targeted_units:
+                if x.side == attacker.side and defender.HPcur > 0:
+                    x.inflictStat(RES, -effect[1])
+                if x.side == defender.side and attacker.HPcur > 0:
+                    x.inflictStat(RES, -effect[1])
 
         if effect[0] == "debuff_def":
             for x in targeted_units:

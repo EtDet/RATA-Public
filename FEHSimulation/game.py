@@ -106,16 +106,16 @@ sharena.set_level(40)
 
 #robin.tile = map0.tiles[18]
 
-tested_unit = makeHero("Caeda")
-tested_weapon = makeWeapon("Wing SwordEff")
-tested_assist = makeAssist("Rally Speed")
-tested_special = makeSpecial("Glimmer")
-tested_askill = makeSkill("Darting Blow 3")
-#tested_bskill = makeSkill("Lunge")
-tested_cskill = makeSkill("Fortify Fliers")
+tested_unit = makeHero("Chrom")
+tested_weapon = makeWeapon("Awakening Falchion")
+#tested_assist = makeAssist("Pivot")
+tested_special = makeSpecial("Aether")
+tested_askill = makeSkill("Defiant Def 3")
+#tested_bskill = makeSkill("Escape Route 3")
+tested_cskill = makeSkill("Spur Def 3")
 
 tested_unit.set_skill(tested_weapon, WEAPON)
-tested_unit.set_skill(tested_assist, ASSIST)
+#tested_unit.set_skill(tested_assist, ASSIST)
 tested_unit.set_skill(tested_special, SPECIAL)
 tested_unit.set_skill(tested_askill, ASKILL)
 #tested_unit.set_skill(tested_bskill, BSKILL)
@@ -1204,13 +1204,12 @@ def start_sim(player_units, enemy_units, chosen_map):
             canvas.drag_data['target_path'] = "NONE"
             canvas.drag_data['target_dest'] = -1
 
-            cur_hero_team = units_all[S]
-            other_team = units_all[not S]
+            cur_hero_team = units_alive[S]
+            other_team = units_alive[not S]
             warp_moves = get_warp_moves(cur_hero, cur_hero_team, other_team)
 
             for i in range(0, len(warp_moves)):
                 if warp_moves[i].tileNum not in canvas.drag_data['moves']:
-                    #print(warp_moves[i].tileNum)
 
                     canvas.drag_data['moves'].append(warp_moves[i].tileNum)
                     canvas.drag_data['paths'].append("WARP")
@@ -1347,15 +1346,19 @@ def start_sim(player_units, enemy_units, chosen_map):
 
 
                                 elif "pivot" in cur_hero.assist.effects:
+                                    valid_ally_cond = True
+
+                                    move_self_to = final_reposition_tile(n, m.destination)
+
+                                    if move_self_to != -1:
+                                        unit_on_dest = chosen_map.tiles[move_self_to].hero_on is not None and chosen_map.tiles[move_self_to].hero_on != cur_hero
+                                        can_traverse_dest = can_be_on_terrain(chosen_map.tiles[unit_on_dest].terrain, player.move)
+
+                                        if not unit_on_dest and can_traverse_dest:
+                                            valid_unit_cond = True
+
                                     print("PIVOT")
                                 elif "smite" in cur_hero.assist.effects:
-                                    # smite... oh smite...
-                                    # ally is moved 2 spaces away from unit,
-                                    # granted that the space 2 spaces away is traversable by the ally's move type
-                                    # and another foe or structure is not already on that tile
-                                    # but also, the tile being skipped over must not be a wall, structure, or enemy
-                                    # otherwise, try and perform a shove instead
-                                    # if neither move works, do nothing
 
                                     skip_over = final_reposition_tile(n, m.destination)
                                     final_dest = final_reposition_tile(skip_over, n)
@@ -2247,6 +2250,24 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                     print("SWAP")
                 elif "pivot" in player.assist.effects:
+                    unit_tile_num = player.tile.tileNum
+                    ally_tile_num = ally.tile.tileNum
+
+                    final_pos = final_reposition_tile(ally_tile_num, unit_tile_num)
+
+                    # Move ally to other tile
+                    player.tile.hero_on = None
+                    player.tile = chosen_map.tiles[final_pos]
+                    chosen_map.tiles[final_pos].hero_on = player
+
+                    move_to_tile(canvas, player_sprite, final_pos)
+                    move_to_tile(canvas, grayscale_sprite, final_pos)
+                    move_to_tile_wp(canvas, weapon_icon_sprite, final_pos)
+                    move_to_tile_hp(canvas, hp_label, final_pos)
+                    move_to_tile_sp(canvas, sp_label, final_pos)
+                    move_to_tile_fg_bar(canvas, hp_bar_fg, final_pos)
+                    move_to_tile_fg_bar(canvas, hp_bar_bg, final_pos)
+
                     print("PIVOT")
                 elif "smite" in player.assist.effects:
                     print("SMITE!!!")
@@ -2466,6 +2487,7 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                     cur_hero.statusNeg = []
                     cur_hero.debuffs = [0, 0, 0, 0, 0]
+                    set_banner(cur_hero)
 
                     canvas.itemconfig(grayscale_player_sprite_IDs[item_index], state='normal')
                     canvas.itemconfig(player_sprite_IDs[item_index], state='hidden')
@@ -2479,11 +2501,14 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                     cur_hero.statusNeg = []
                     cur_hero.debuffs = [0, 0, 0, 0, 0]
+                    set_banner(cur_hero)
 
                     canvas.itemconfig(grayscale_enemy_sprite_IDs[item_index], state='normal')
                     canvas.itemconfig(enemy_sprite_IDs[item_index], state='hidden')
                     if not units_to_move:
                         next_phase()
+
+
 
 
     window = ttk.Window(themename='darkly')
@@ -2639,6 +2664,7 @@ def start_sim(player_units, enemy_units, chosen_map):
     enemy_status_img = []
 
     units_all = [player_units_all, enemy_units_all]
+    units_alive = [player_units, enemy_units]
     sprite_IDs = [player_sprite_IDs, enemy_sprite_IDs]
     grayscale_IDs = [grayscale_player_sprite_IDs, grayscale_enemy_sprite_IDs]
     weapon_IDs = [player_weapon_icons, enemy_weapon_icons]
