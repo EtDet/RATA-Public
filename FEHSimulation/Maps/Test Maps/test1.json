@@ -35,10 +35,10 @@
        "startMove": 1,
        "wallBreak": false
       },
-       {"name": "Barst",
+       {"name": "Chrom",
        "level": 40,
        "rarity": 5,
-       "weapon": "Iron Axe",
+       "weapon": "Awakening Falchion",
        "startMove": 1,
        "wallBreak": false
       }

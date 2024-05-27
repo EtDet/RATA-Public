@@ -106,19 +106,22 @@ sharena.set_level(40)
 
 #robin.tile = map0.tiles[18]
 
-tested_unit = makeHero("Chrom")
-tested_weapon = makeWeapon("Awakening Falchion")
-#tested_assist = makeAssist("Pivot")
-tested_special = makeSpecial("Aether")
-tested_askill = makeSkill("Defiant Def 3")
-#tested_bskill = makeSkill("Escape Route 3")
-tested_cskill = makeSkill("Spur Def 3")
+tested_unit = makeHero("F!Corrin")
+tested_weapon = makeWeapon("Gloom BreathEff")
+#tested_assist = makeAssist("Martyr+")
+tested_special = makeSpecial("Draconic Aura")
+#tested_askill = makeSkill("Defense +3")
+tested_bskill = makeSkill("Seal Res 3")
+tested_cskill = makeSkill("Hone Atk 3")
+
+xander.allySupport = "M!Corrin"
+tested_unit.allySupport = "DA!Xander"
 
 tested_unit.set_skill(tested_weapon, WEAPON)
 #tested_unit.set_skill(tested_assist, ASSIST)
 tested_unit.set_skill(tested_special, SPECIAL)
-tested_unit.set_skill(tested_askill, ASKILL)
-#tested_unit.set_skill(tested_bskill, BSKILL)
+#tested_unit.set_skill(tested_askill, ASKILL)
+tested_unit.set_skill(tested_bskill, BSKILL)
 tested_unit.set_skill(tested_cskill, CSKILL)
 
 player_units_all = [ike, sharena, xander, tested_unit]
@@ -178,7 +181,7 @@ def allowed_movement(hero):
     return spaces_allowed
 
 #given a hero on a map, generate a list of tiles they can move to
-def get_possible_move_tiles(hero):
+def get_possible_move_tiles(hero, enemy_team):
     curTile = hero.tile
 
     spaces_allowed = allowed_movement(hero)
@@ -190,6 +193,17 @@ def get_possible_move_tiles(hero):
 
     char_arr = ['N', 'S', 'E', 'W']
 
+    # pass condition
+    pass_cond = False
+    if "passSk" in hero.getSkills():
+        pass_cond = hero.HPcur >= 1 - 0.25 * hero.getSkills()["passSk"]
+    if "passW" in hero.getSkills() and not pass_cond:
+        pass_cond = hero.HPcur >= 1 - 0.25 * hero.getSkills()["passW"]
+
+    # obstruct tiles created
+    obstruct_tiles = get_obstruct_tiles(hero, enemy_team)
+    visited_obstruct_tiles = []
+
     # while possibilities exist
     while queue:
         # get current tuple
@@ -197,6 +211,10 @@ def get_possible_move_tiles(hero):
 
         # not possible if too far
         if cost > spaces_allowed: break
+
+        if current_tile in obstruct_tiles and not pass_cond and current_tile != hero.tile:
+            visited_obstruct_tiles.append(current_tile)
+            continue
 
         # add tile to possible movements & visited
         possible_tiles.append(current_tile)
@@ -217,7 +235,11 @@ def get_possible_move_tiles(hero):
                 neighbor_cost = get_tile_cost(x, hero)
 
                 # if tile cost within allowed cost, tile is valid, and if hero is on it, they are ally
-                if cost + neighbor_cost <= spaces_allowed and neighbor_cost >= 0 and (x.hero_on is None or x.hero_on is not None and x.hero_on.side == hero.side):
+                within_allowed_cost = cost + neighbor_cost <= spaces_allowed
+
+
+
+                if within_allowed_cost and neighbor_cost >= 0 and (x.hero_on is None or (x.hero_on is not None and x.hero_on.side == hero.side) or pass_cond):
                     queue.append((x, cost + neighbor_cost, path_str + char_arr[i]))
                     visited.add(x)
             i += 1
@@ -225,10 +247,11 @@ def get_possible_move_tiles(hero):
     final_possible_tiles = []
     final_optimal_moves = []
 
-    final_possible_tiles.append(possible_tiles[0])
-    final_optimal_moves.append(optimal_moves[0])
+    if possible_tiles:
+        final_possible_tiles.append(possible_tiles[0])
+        final_optimal_moves.append(optimal_moves[0])
 
-    # remove tiles with allies as valid moves
+    # remove tiles with other units on as valid moves
     i = 1
     while i < len(possible_tiles):
         if possible_tiles[i].hero_on is None:
@@ -236,7 +259,7 @@ def get_possible_move_tiles(hero):
             final_optimal_moves.append(optimal_moves[i])
         i += 1
 
-    return (final_possible_tiles, final_optimal_moves)
+    return (final_possible_tiles, final_optimal_moves, visited_obstruct_tiles)
 
 # given an adjacent tile and hero, calculate the movement cost to get to it
 def get_tile_cost(tile, hero):
@@ -259,6 +282,20 @@ def get_tile_cost(tile, hero):
         if "pathfinder" in tile.hero_on.getSkills(): cost = 0
 
     return cost
+
+# OBSTRUCT TILE PLACEMENTS
+def get_obstruct_tiles(unit, enemy_team):
+    all_obstruct_tiles = []
+    for enemy in enemy_team:
+        enemy_skills = enemy.getSkills()
+        if "obstruct" in enemy_skills and enemy.HPcur/enemy.visible_stats[HP] >= 1.1 - enemy_skills["obstruct"] * 0.2:
+            tiles = enemy.tile.tilesWithinNSpaces(1)
+            for x in tiles:
+                if x not in all_obstruct_tiles:
+                    all_obstruct_tiles.append(x)
+
+    return all_obstruct_tiles
+
 
 # ASSIST SKILL VALIDATION
 
@@ -458,6 +495,9 @@ def start_sim(player_units, enemy_units, chosen_map):
         # alternate turns
         turn_info[1] = abs(turn_info[1] - 1)
 
+        while units_to_move:
+            units_to_move.pop()
+
         # increment count if player phase
         if turn_info[1] == PLAYER:
             turn_info[0] += 1
@@ -468,16 +508,20 @@ def start_sim(player_units, enemy_units, chosen_map):
             canvas.delete(next_phase.phase_txt)
             next_phase.phase_txt = canvas.create_text((540 / 2, 830), text="PLAYER PHASE", fill="#038cfc", font=("Helvetica", 20), anchor='center')
 
+
             for x in player_units:
                 units_to_move.append(x)
                 x.statusPos = []
                 x.buffs = [0] * 5
+                x.special_galeforce_triggered = False
 
             for i in range(0, len(enemy_units_all)):
                 canvas.itemconfig(grayscale_enemy_sprite_IDs[i], state='hidden')
                 canvas.itemconfig(enemy_sprite_IDs[i], state='normal')
 
-            start_of_turn(player_units, turn_info[0])
+            damage, heals = start_of_turn(player_units, turn_info[0])
+
+
 
         if turn_info[1] == ENEMY:
             canvas.delete(next_phase.phase_txt)
@@ -487,12 +531,13 @@ def start_sim(player_units, enemy_units, chosen_map):
                 units_to_move.append(x)
                 x.statusPos = []
                 x.buffs = [0] * 5
+                x.special_galeforce_triggered = False
 
             for i in range(0, len(player_units_all)):
                 canvas.itemconfig(grayscale_player_sprite_IDs[i], state='hidden')
                 canvas.itemconfig(player_sprite_IDs[i], state='normal')
 
-            start_of_turn(enemy_units, turn_info[0])
+            damage, heals = start_of_turn(enemy_units, turn_info[0])
 
         i = 0
         while i < len(player_units):
@@ -505,6 +550,18 @@ def start_sim(player_units, enemy_units, chosen_map):
             if enemy_units[i].specialCount != -1:
                 canvas.itemconfig(enemy_special_count_labels[i], text=enemy_units[i].specialCount)
             i += 1
+
+        for unit in player_units:
+            if unit in heals:
+                unit.HPcur = min(unit.visible_stats[HP], unit.HPcur + heals[unit])
+                animate_heal_popup(canvas, heals[unit], unit.tile.tileNum)
+                set_hp_visual(unit, unit.HPcur)
+
+        for unit in enemy_units:
+            if unit in heals:
+                unit.HPcur = min(unit.visible_stats[HP], unit.HPcur + heals[unit])
+                animate_heal_popup(canvas, heals[unit], unit.tile.tileNum)
+                set_hp_visual(unit, unit.HPcur)
 
     def clear_banner():
         if hasattr(set_banner, "banner_rectangle") and set_banner.banner_rectangle:
@@ -1131,6 +1188,7 @@ def start_sim(player_units, enemy_units, chosen_map):
         # Get the current mouse coordinates
         x, y = event.x, event.y
 
+
         # Out of bounds case
         if x < 0 or x > 540 or y <= 90 or y > 810:
             print("homer simpson")
@@ -1179,8 +1237,10 @@ def start_sim(player_units, enemy_units, chosen_map):
                                 'side': S
                                 }
 
+            enemy_team = units_all[S-1]
+
             # Get possible tiles to move to and a shortest path to get to that tile
-            moves, paths = get_possible_move_tiles(cur_hero)
+            moves, paths, obstruct_tiles = get_possible_move_tiles(cur_hero, enemy_team)
 
             # More drag data fields to be defined
             canvas.drag_data['moves'] = []
@@ -1217,7 +1277,13 @@ def start_sim(player_units, enemy_units, chosen_map):
                     distance = abs(end // 6 - tile // 6) + abs(end % 6 - tile % 6)
                     moves_obj_array.append(Move(end, 0, None, distance, True, "WARP"))
 
-
+            for i in range(0, len(obstruct_tiles)):
+                if obstruct_tiles[i].tileNum not in canvas.drag_data['moves'] and obstruct_tiles[i].hero_on is None:
+                    canvas.drag_data['moves'].append(obstruct_tiles[i].tileNum)
+                    canvas.drag_data['paths'].append("WARP")
+                    end = obstruct_tiles[i].tileNum
+                    distance = abs(end // 6 - tile // 6) + abs(end % 6 - tile % 6)
+                    moves_obj_array.append(Move(end, 0, None, distance, True, "WARP"))
 
             tile_arr = []
             canvas.drag_data['blue_tile_id_arr'] = tile_arr
@@ -1897,20 +1963,7 @@ def start_sim(player_units, enemy_units, chosen_map):
             player_original = chosen_map.tiles[new_tile].hero_on
 
             action_performed = False
-
-            def set_text_val(label, value):
-                canvas.itemconfig(label, text=value)
-
-            def set_hp_bar_length(rect, percent):
-                new_length = int(60 * percent)
-                if new_length == 0:
-                    canvas.itemconfig(rect, state='hidden')
-                    return
-                coords = canvas.coords(rect)
-
-                coords[2] = coords[0] + new_length
-
-                canvas.coords(rect, *coords)
+            galeforce_triggered = False
 
             # ATTAAAAAAAAAAAAAAAAAAAAAAACK!!!!!!!!!!!!!!!!!!
             if event.x < 539 and event.x > 0 and event.y < 810 and event.y > 90 and canvas.drag_data['target_path'] != "NONE" and \
@@ -1997,8 +2050,8 @@ def start_sim(player_units, enemy_units, chosen_map):
                 combat_result = simulate_combat(player, enemy, True, turn_info[0], distance, [])
                 attacks = combat_result[7]
 
-                for x in attacks:
-                    print(x.spCharges)
+                # for x in attacks:
+                #     print(x.spCharges)
 
                 # Visualization of the blows trading
                 i = 0
@@ -2057,6 +2110,7 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                 damage_taken = end_of_combat(atk_effects, def_effects, player, enemy)
 
+                # Post combat special charges go here
 
                 # Post combat damage across the field
                 for x in player_units + enemy_units:
@@ -2126,7 +2180,13 @@ def start_sim(player_units, enemy_units, chosen_map):
                     canvas.after(finish_time, move_to_tile_fg_bar, canvas, this_enemy_hp_bar_fg, enemy_move_pos)
                     canvas.after(finish_time, move_to_tile_fg_bar, canvas, this_enemy_hp_bar_bg, enemy_move_pos)
 
+                # galeforce goes here
 
+                if player.special is not None and "galeforce" in player.special.effects and player.specialCount == 0 and player.special_galeforce_triggered == False:
+                    player.special_galeforce_triggered = True
+                    galeforce_triggered = True
+
+                    player.specialCount = player.specialMax
 
                 # canto goes here
 
@@ -2170,7 +2230,11 @@ def start_sim(player_units, enemy_units, chosen_map):
 
 
                 canvas.after(finish_time, animation_done)
-                canvas.after(finish_time, hide_player, True)
+
+                if not galeforce_triggered:
+                    canvas.after(finish_time, hide_player, True)
+                else:
+                    canvas.after(finish_time, set_text_val, sp_label, player.specialCount)
 
             # SUPPOOOOOOOOOOOOOOOOOOOORT!!!!!!!!!!!!!!!!!!!!
             elif event.x < 539 and event.x > 0 and event.y < 810 and event.y > 90 and canvas.drag_data['target_path'] != "NONE" and \
@@ -2433,6 +2497,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                 player.statusNeg = []
                 player.debuffs = [0, 0, 0, 0, 0]
 
+            # DO NOTHIIIIIIIIIIIIIIING!!!!!
             if not action_performed and successful_move:
                 player.statusNeg = []
                 player.debuffs = [0, 0, 0, 0, 0]
@@ -2442,7 +2507,7 @@ def start_sim(player_units, enemy_units, chosen_map):
             cur_hero = player_original
             units_all[S][item_index].attacking_tile = None
 
-            if successful_move and cur_hero in units_to_move:
+            if successful_move and cur_hero in units_to_move and not galeforce_triggered:
                 units_to_move.remove(cur_hero)
 
                 item_index = canvas.drag_data['index']
@@ -2469,6 +2534,11 @@ def start_sim(player_units, enemy_units, chosen_map):
 
     def on_double_click(event):
         x, y = event.x, event.y
+
+        if x > 380 and y > 820 and x < 450 and y < 900:
+            next_phase()
+
+            return
 
         if x < 0 or x > 540 or y <= 90 or y > 810:
             print("homer simpson")
@@ -2508,6 +2578,30 @@ def start_sim(player_units, enemy_units, chosen_map):
                     if not units_to_move:
                         next_phase()
 
+    def set_text_val(label, value):
+        canvas.itemconfig(label, text=value)
+
+    def set_hp_bar_length(rect, percent):
+        new_length = int(60 * percent)
+        if new_length == 0:
+            canvas.itemconfig(rect, state='hidden')
+            return
+        coords = canvas.coords(rect)
+
+        coords[2] = coords[0] + new_length
+
+        canvas.coords(rect, *coords)
+
+    def set_hp_visual(unit, cur_HP):
+        S = unit.side
+        unit_index = units_all[S].index(unit)
+        unit_hp_label = hp_labels[S][unit_index]
+        unit_hp_bar = hp_bar_fgs[S][unit_index]
+
+        hp_percentage = cur_HP / unit.visible_stats[HP]
+
+        set_text_val(unit_hp_label, cur_HP)
+        set_hp_bar_length(unit_hp_bar, hp_percentage)
 
 
 
@@ -2758,9 +2852,6 @@ def start_sim(player_units, enemy_units, chosen_map):
         player_hp_bar_fg.append(hp_bar_fg)
 
 
-
-
-
     for i, enemy in enumerate(enemy_units_all):
         w_image = weapon_icons[weapons[enemy.wpnType][0]]
         weapon_icon = canvas.create_image(160, 50 * (i + 2), anchor=tk.NW, image=w_image, tags=enemy_tags[i])
@@ -2821,8 +2912,20 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         i += 1
 
+    end_turn = canvas.create_rectangle((380, 820, 450, 900), fill='#f21651', width=0)
+    end_turn_text = canvas.create_text(415, 855, text="End Turn", fill="#edb7be")
+    duo_skill = canvas.create_rectangle((460, 820, 530, 900), fill='#75f216', width=0)
+    end_turn_text = canvas.create_text(495, 855, text="Duo Skill", fill="#5e5b03")
 
-    start_of_turn(player_units, 1)
+
+    damage, heals = start_of_turn(player_units, 1)
+
+    for unit in player_units_all:
+        if unit in heals:
+            unit.HPcur = min(unit.visible_stats[HP], unit.HPcur + heals[unit])
+            animate_heal_popup(canvas, heals[unit], unit.tile.tileNum)
+
+            set_hp_visual(unit, unit.HPcur)
 
     i = 0
     while i < len(player_units):
@@ -2835,7 +2938,6 @@ def start_sim(player_units, enemy_units, chosen_map):
         if enemy_units[i].specialCount != -1:
             canvas.itemconfig(enemy_special_count_labels[i], text=enemy_units[i].specialCount)
         i += 1
-
 
     combat_fields = []
     combat_fields = create_combat_fields(player_units, enemy_units)

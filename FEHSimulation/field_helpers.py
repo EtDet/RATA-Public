@@ -53,6 +53,17 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
 
+        if "supportThem" in unitSkills:
+            owner = unit
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: o.allySupport == s.intName
+            affect_self = False
+            affect_other_side = True
+            effects = {"corrinField_f": unitSkills["supportThem"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
         if "camillaField" in unitSkills:
             owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
@@ -70,7 +81,6 @@ def start_of_turn(team, turn):
 
     # LOOP 1: BUFFS, DEBUFFS, AND STATUS EFFECTS
     for unit in team:
-
         tile = unit.tile
 
         tiles_within_n_spaces = [[]]
@@ -112,6 +122,8 @@ def start_of_turn(team, turn):
         atkHPGreaterEqual75Percent = unitHPCur / unitStats[0] >= 0.75
         atkHPEqual100Percent = unitHPCur == unitStats[0]
 
+
+
         if "honeAtk" in unitSkills:
             for ally in allies_within_n_spaces[1]:
                 ally.inflictStat(ATK, unitSkills["honeAtk"])
@@ -134,7 +146,6 @@ def start_of_turn(team, turn):
                 ally.inflictStat(RES, 6)
 
         if "threatenAtk" in unitSkills:
-            #print(unit.name)
             for foe in foes_within_n_spaces[2]:
                 foe.inflictStat(ATK, -unitSkills["threatenAtk"])
 
@@ -164,7 +175,6 @@ def start_of_turn(team, turn):
 
         if "wrath" in unitSkills and unitHPCur / unitStats[0] <= unitSkills["wrath"] * 0.25:
             unit.chargeSpecial(1)
-            print("WRATH", unit.name)
 
         if "oddDefWave" in unitSkills and turn % 2 == 1:
             unit.inflictStat(DEF, unitSkills["oddDefWave"])
@@ -184,8 +194,62 @@ def start_of_turn(team, turn):
                     if tile.hero_on.HPcur <= unit.HPcur - diff:
                         tile.hero_on.inflictStatus(Status.Panic)
 
+    # LOOP 2: DAMAGE AND HEALING
+    damage_taken = {}
+    heals_given = {}
 
-        # return hash maps of units who have had damage dealt or healed, or if their special cooldown was modified
+    for unit in team:
+        tile = unit.tile
+
+        tiles_within_n_spaces = [[]]
+        units_within_n_spaces = [[]]
+        allies_within_n_spaces = [[]]
+        foes_within_n_spaces = [[]]
+
+        i = 1
+        while i <= 5:
+            tiles_within_n_spaces.append(tile.tilesWithinNSpaces(i))
+
+            units_within_n_spaces.append([])
+            allies_within_n_spaces.append([])
+            foes_within_n_spaces.append([])
+
+            for tile_within in tiles_within_n_spaces[i]:
+
+                if tile_within.hero_on is not None:
+                    units_within_n_spaces[i].append(tile_within.hero_on)
+
+                    if unit.side == tile_within.hero_on.side and unit != tile_within.hero_on:
+                        allies_within_n_spaces[i].append(tile_within.hero_on)
+                    if unit.side != tile_within.hero_on.side:
+                        foes_within_n_spaces[i].append(tile_within.hero_on)
+
+            i += 1
+
+        tiles_within_1_col = tile.tilesWithinNCols(1)
+        tiles_within_1_row = tile.tilesWithinNRows(1)
+        tiles_within_1_row_or_column = list(set(tiles_within_1_col) | set(tiles_within_1_row))
+
+        unitSkills = unit.getSkills()
+        unitStats = unit.getStats()
+        unitHPCur = unit.HPcur
+
+
+        atkHPGreaterEqual25Percent = unitHPCur / unitStats[0] >= 0.25
+        atkHPGreaterEqual50Percent = unitHPCur / unitStats[0] >= 0.50
+        atkHPGreaterEqual75Percent = unitHPCur / unitStats[0] >= 0.75
+        atkHPEqual100Percent = unitHPCur == unitStats[0]
+
+        if "recoverW" in unitSkills:
+            if (turn - 1) % (5 - unitSkills["recoverW"]) == 0:
+                if unit not in heals_given:
+                    heals_given[unit] = 10
+                else:
+                    heals_given[unit] += 10
+
+
+    # return hash maps of units who have had damage dealt or healed, or if their special cooldown was modified
+    return damage_taken, heals_given
 
 
 def can_be_on_terrain(terrain_int, move_type_int):
@@ -251,7 +315,7 @@ def get_warp_moves(unit, unit_team, enemy_team):
 # self                - applies to only self
 # foe                 - applies to only foe
 # allies              - applies to only allies
-# foe_allies          - applies to only foe's allies
+# foes_allies          - applies to only foe's allies
 # self_and_allies     - applies to self and self's allies
 # foe_and_foes_allies - applies to foe and foe's allies
 
@@ -358,6 +422,14 @@ def end_of_combat(atk_effects, def_effects, attacker, defender):
                     x.inflictStat(RES, -effect[1])
                 if x.side == defender.side and attacker.HPcur > 0:
                     x.inflictStat(RES, -effect[1])
+
+        if effect[0] == "debuff_atk":
+            for x in targeted_units:
+                x.inflictStat(ATK, -effect[1])
+
+        if effect[0] == "debuff_spd":
+            for x in targeted_units:
+                x.inflictStat(SPD, -effect[1])
 
         if effect[0] == "debuff_def":
             for x in targeted_units:

@@ -164,6 +164,9 @@ class Hero:
         self.unitCombatInitiates = 0
         self.enemyCombatInitiates = 0
 
+        self.special_galeforce_triggered = False
+        self.nonspecial_galeforce_triggered = False
+
         self.beast_trans_condition = False
 
         self.tile = None

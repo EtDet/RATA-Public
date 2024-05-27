@@ -230,9 +230,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             # False True True   - Alfonse, do not allow
             # False False True  - Sharena in range, allow
 
+            condition = e.condition(afflicted)
+            print(condition)
+
             in_range = e.range(coords)(owner_coords)
 
-            if in_range and ((e.owner == afflicted) == e.affectSelf):
+            if in_range and ((e.owner == afflicted) == e.affectSelf) and condition:
                 updated_skills = {x: updated_skills.get(x, 0) + e.effect.get(x, 0) for x in set(updated_skills).union(e.effect)}
 
             if targeted_side == attacker.side:
@@ -270,6 +273,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     defAllyWithin3Spaces = 0
     defAllyWithin4Spaces = 0
 
+    atkWithin1SpaceOfSupportPartner = False
+    atkWithin2SpaceOfSupportPartner = False
+
+    defWithin1SpaceOfSupportPartner = False
+    defWithin2SpaceOfSupportPartner = False
+
     if is_in_sim:
         atkAdjacentToAlly = allies_within_n(attacker, attacker.attacking_tile, 1)
         atkAllyWithin2Spaces = allies_within_n(attacker, attacker.attacking_tile, 2)
@@ -280,6 +289,22 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defAllyWithin2Spaces = allies_within_n(defender, defender.tile, 2)
         defAllyWithin3Spaces = allies_within_n(defender, defender.tile, 3)
         defAllyWithin4Spaces = allies_within_n(defender, defender.tile, 4)
+
+        for ally in atkAdjacentToAlly:
+            if ally.intName == attacker.allySupport:
+                atkWithin1SpaceOfSupportPartner = True
+
+        for ally in atkAllyWithin2Spaces:
+            if ally.intName == attacker.allySupport:
+                atkWithin2SpaceOfSupportPartner = True
+
+        for ally in defAdjacentToAlly:
+            if ally.intName == defender.allySupport:
+                defWithin1SpaceOfSupportPartner = True
+
+        for ally in defAllyWithin2Spaces:
+            if ally.intName == defender.allySupport:
+                defWithin2SpaceOfSupportPartner = True
 
     atkFoeWithin2Spaces = 0
     defFoeWithin2Spaces = 0
@@ -959,6 +984,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[2] += 5
         atkr.disable_foe_guard = True
 
+
+
     if "swagDespPlusPlus" in defSkills and atkHPGreaterEqual75Percent:
         defCombatBuffs[1] += 5
         defCombatBuffs[2] += 5
@@ -1222,8 +1249,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.hardy_bearing = True
         if defHPGreaterEqual25Percent: map(lambda x: x + 5, defCombatBuffs)
 
-    if "spectrumBond" in atkSkills and atkAdjacentToAlly:  # awakening falchion
-        map(lambda x: x + atkSkills["spectrumBond"], atkCombatBuffs)
+    # Awakening Falchion (Refine)
+    if "spectrumBond" in atkSkills and atkAdjacentToAlly:
+        atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
+
+    if "spectrumBond" in defSkills and defAdjacentToAlly:
+        defCombatBuffs = [x + 4 for x in defCombatBuffs]
 
     if "sealedFalchion" in atkSkills and not atkHPEqual100Percent:
         map(lambda x: x + 5, atkCombatBuffs)
@@ -1239,6 +1270,11 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[1] += 5
         atkCombatBuffs[2] += 5
 
+    if "cordeliaLance" in atkSkills and atkHPCur/atkStats[HP] >= 0.70:
+        atkCombatBuffs[ATK] += 4
+        atkCombatBuffs[SPD] += 4
+
+    # Owain
     if "Sacred Stones Strike!" in atkSkills and atkAllyWithin3Spaces:
         atkCombatBuffs[1] += 5
         atkCombatBuffs[2] += 5
@@ -1266,6 +1302,21 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if atkHPGreaterEqual75Percent:
             defr.spGainWhenAtkd += 1
             defr.spGainOnAtk += 1
+
+    if "corrinField_f" in atkSkills: atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
+    if "corrinField_f" in defSkills: defCombatBuffs = [x + 4 for x in defCombatBuffs]
+
+    if "oldDarkBreath" in atkSkills:
+        atkPostCombatEffs[0].append(("debuff_atk", 5, "foe_and_foes_allies", "within_2_spaces_foe"))
+        atkPostCombatEffs[0].append(("debuff_spd", 5, "foe_and_foes_allies", "within_2_spaces_foe"))
+
+    if "refDarkBreath" in atkSkills:
+        atkPostCombatEffs[2].append(("debuff_atk", 7, "foe_and_foes_allies", "within_2_spaces_foe"))
+        atkPostCombatEffs[2].append(("debuff_spd", 7, "foe_and_foes_allies", "within_2_spaces_foe"))
+
+    if "refDarkBreath" in defSkills:
+        defPostCombatEffs[2].append(("debuff_atk", 7, "foe_and_foes_allies", "within_2_spaces_foe"))
+        defPostCombatEffs[2].append(("debuff_spd", 7, "foe_and_foes_allies", "within_2_spaces_foe"))
 
     if "waitTurns" in atkSkills:  # ryoma
         map(lambda x: x + 4, atkCombatBuffs)
@@ -1710,7 +1761,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.follow_ups_skill += 1
         atkPostCombatStatusesApplied[2].append(Status.Flash)
 
-    if "daydream_egg" in atkSkills and defHPGreaterEqual75Percent or defHasPenalty:
+    if "daydream_egg" in atkSkills and (defHPGreaterEqual75Percent or defHasPenalty):
         atkCombatBuffs[ATK] += 5
         atkCombatBuffs[DEF] += 5
         atkCombatBuffs[RES] += 5
@@ -1756,6 +1807,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if "painOther" in defSkills:
         defPostCombatEffs[2].append(("damage", defSkills["painOther"], "foes_allies", "within_2_spaces_foe"))
+
+    # Fear
+    if "fear" in atkSkills: atkPostCombatEffs[2].append(("debuff_atk", atkSkills["fear"], "foe", "one"))
+    if "fear" in defSkills: defPostCombatEffs[2].append(("debuff_atk", defSkills["fear"], "foe", "one"))
+
+    if "disperseFear" in atkSkills: atkPostCombatEffs[2].append(("debuff_atk", atkSkills["disperseFear"], "foes_allies", "within_2_spaces_foe"))
+    if "disperseFear" in defSkills: defPostCombatEffs[2].append(("debuff_atk", defSkills["disperseFear"], "foes_allies", "within_2_spaces_foe"))
 
     # Savage Blow
     if "savageBlow" in atkSkills:
@@ -1806,6 +1864,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if "sealAtk" in atkSkills: atkPostCombatEffs[0].append(("seal_atk", atkSkills["sealAtk"], "foe", "one"))
     if "sealAtk" in defSkills: defPostCombatEffs[0].append(("seal_atk", defSkills["sealAtk"], "foe", "one"))
+
+    if "sealSpd" in atkSkills: atkPostCombatEffs[0].append(("seal_spd", atkSkills["sealSpd"], "foe", "one"))
+    if "sealSpd" in defSkills: defPostCombatEffs[0].append(("seal_spd", defSkills["sealSpd"], "foe", "one"))
+
+    if "sealDef" in atkSkills: atkPostCombatEffs[0].append(("seal_def", atkSkills["sealDef"], "foe", "one"))
+    if "sealDef" in defSkills: defPostCombatEffs[0].append(("seal_def", defSkills["sealDef"], "foe", "one"))
+
+    if "sealRes" in atkSkills: atkPostCombatEffs[0].append(("seal_res", atkSkills["sealRes"], "foe", "one"))
+    if "sealRes" in defSkills: defPostCombatEffs[0].append(("seal_res", defSkills["sealRes"], "foe", "one"))
 
     if "hardyBearing" in atkSkills:
         atkr.hardy_bearing = True
@@ -1895,8 +1962,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "ILOVEBONUSES" in defSkills and defHPGreaterEqual50Percent or atkHasBonus:  # UPDATE WITH DEF SKILLS
         map(lambda x: x + 4, defCombatBuffs)
 
-    if "spectrumBond" in defSkills and defAdjacentToAlly:
-        map(lambda x: x + defSkills["spectrumBond"], defCombatBuffs)
+
 
     if ("belovedZofia" in defSkills and defHPEqual100Percent) or "belovedZofia2" in defSkills:
         map(lambda x: x + 4, defCombatBuffs)
@@ -2061,13 +2127,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             atkr.sp_charge_foe_first += 2
 
 
-
-
     # LITERALLY EVERYTHING THAT USES EXACT BONUS AND PENALTY VALUES GOES HERE
     # YEAH I GOTTA GET RID!!!!
 
     # THIS ISN'T WHAT DOMINANCE DOES, FIX!!!!!
-
     if "dominance" in atkSkills and AtkPanicFactor == 1:
         for i in range(1, 5): atkCombatBuffs[1] += attacker.buffs[i] * atkBonusesNeutralized[i]
 
@@ -2217,6 +2280,17 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "Minecraft Gaming" in defSkills:
         for i in range(1, 5):
             atkCombatBuffs[i] -= 5 + (max(AtkPanicFactor * attacker.buffs[i], 0) * -2) * (not atkBonusesNeutralized[i])
+
+    if "corrinPenaltyTheft" in atkSkills:
+        for i in range(1, 5):
+            print("MR FROG")
+            atkCombatBuffs[i] += ((min(defender.debuffs[i], 0) * -1) + (
+                        min(DefPanicFactor * defender.buffs[i], 0) * -1)) * (not defPenaltiesNeutralized[i])
+
+    if "corrinPenaltyTheft" in defSkills:
+        for i in range(1, 5):
+            defCombatBuffs[i] += ((min(attacker.debuffs[i], 0) * -1) + (
+                        min(AtkPanicFactor * attacker.buffs[i], 0) * -1)) * (atkPenaltiesNeutralized[i])
 
     # WHERE BONUSES AND PENALTIES ARE NEUTRALIZED
     for i in range(1, 5):
@@ -2511,10 +2585,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "effArmor" in atkSkills and "nullEffArm" not in defSkills and defender.move == 3: oneEffAtk = True
     if "effArmor" in defSkills and "nullEffArm" not in atkSkills and attacker.move == 3: oneEffDef = True
 
-    if ("effDrg" in atkSkills or Status.EffDragons in attacker.statusPos) and "nullEffDrg" not in defSkills and (
+    if ("effDragon" in atkSkills or Status.EffDragons in attacker.statusPos) and "nullEffDragon" not in defSkills and (
             defender.getTargetedDef() == 0 or "loptous" in defSkills):
         oneEffAtk = True
-    if ("effDrg" in defSkills or Status.EffDragons in defender.statusPos) and "nullEffDrg" not in atkSkills and (
+    if ("effDragon" in defSkills or Status.EffDragons in defender.statusPos) and "nullEffDragon" not in atkSkills and (
             attacker.getTargetedDef() == 0 or "loptous" in atkSkills):
         oneEffDef = True
 
@@ -2587,19 +2661,25 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     atkTargetingDefRes = int(attacker.getTargetedDef() == 1)
 
-    if attacker.getTargetedDef() == 0 and "dragonCheck" in atkSkills:
+    if attacker.getTargetedDef() == 0 and not "oldDragonstone" in atkSkills:
         if defender.getRange() == 2 and defStats[3] > defStats[4]:
             atkTargetingDefRes += 1
         elif defender.getRange() != 2:
             atkTargetingDefRes += 1
+    elif attacker.getTargetedDef() == 0:
+        atkTargetingDefRes += 1
 
     defTargetingDefRes = int(defender.getTargetedDef() == 1)
+    print(defTargetingDefRes)
 
-    if defender.getTargetedDef() == 0 and "dragonCheck" in defSkills:
+    if defender.getTargetedDef() == 0 and not "oldDragonstone" in defSkills:
         if attacker.getRange() == 2 and atkStats[3] > atkStats[4]:
             defTargetingDefRes += 1
         elif attacker.getRange() != 2:
             defTargetingDefRes += 1
+    elif defender.getTargetedDef() == 0:
+        defTargetingDefRes += 1
+
 
     if "permHexblade" in atkSkills: defTargetingDefRes = int(defStats[3] < defStats[4])
     if "permHexblade" in defSkills: atkTargetingDefRes = int(atkStats[3] < atkStats[4])
@@ -3376,7 +3456,7 @@ class CombatField():
     def __init__(self, owner, range, condition, affectSelf, affectedSide, effect):
         self.owner = owner
         self.range = range
-        self.condition = condition
+        self.condition = condition(owner)
         self.affectSelf = affectSelf
         self.affectedSide = affectedSide  # 0 for same as owner, 1 otherwise
         self.effect = effect
