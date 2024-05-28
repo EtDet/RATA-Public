@@ -162,7 +162,6 @@ class Hero:
         self.combatsThisTurnUnity = 0
         self.combatsThurTurnEnemy = 0
         self.unitCombatInitiates = 0
-        self.enemyCombatInitiates = 0
 
         self.special_galeforce_triggered = False
         self.nonspecial_galeforce_triggered = False
@@ -474,7 +473,7 @@ class Hero:
         print(self.name + " takes " + str(damage) + " damage out of combat.")
 
     def hasBonus(self):
-        return (sum(self.buffs) < 0 and Status.Panic not in self.statusNeg) or len(self.statusPos) > 0
+        return (sum(self.buffs) > 0 and Status.Panic not in self.statusNeg) or len(self.statusPos) > 0
 
     def hasPenalty(self):
         return sum(self.debuffs) < 0 or self.statusNeg

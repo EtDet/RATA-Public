@@ -12,10 +12,10 @@
     "playerStart": [1, 2, 3, 4],
     "enemyStart": [43, 44, 45, 46],
     "enemyData":
-    [  {"name": "Effie",
+    [  {"name": "F!Alear",
        "level": 40,
        "rarity": 5,
-       "weapon": "Siegmund",
+       "weapon": "Silver Sword+",
       "special": "Bonfire",
        "startMove": 1,
        "wallBreak": false
@@ -35,10 +35,10 @@
        "startMove": 1,
        "wallBreak": false
       },
-       {"name": "Chrom",
+       {"name": "Effie",
        "level": 40,
        "rarity": 5,
-       "weapon": "Awakening Falchion",
+       "weapon": "Silver Axe",
        "startMove": 1,
        "wallBreak": false
       }

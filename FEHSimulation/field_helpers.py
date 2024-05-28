@@ -53,6 +53,28 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
 
+        if "wardArmor" in unitSkills:
+            owner = unit
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = True
+            effects = {"wardArmor_f": 0}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
+        if "wardCav" in unitSkills:
+            owner = unit
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = True
+            effects = {"wardCav_f": 0}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
         if "supportThem" in unitSkills:
             owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
@@ -71,6 +93,17 @@ def create_combat_fields(player_team, enemy_team):
             affect_self = False
             affect_other_side = True
             effects = {"camillaField_f": unitSkills["camillaField"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
+        if "eliseField" in unitSkills:
+            owner = unit
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = False
+            effects = {"eliseField_f": unitSkills["eliseField"]}
 
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
@@ -173,6 +206,7 @@ def start_of_turn(team, turn):
         if "defiantRes" in unitSkills and unitHPCur / unitStats[0] <= 0.50:
             unit.inflictStat(RES, 2 * unitSkills["defiantRes"] + 1)
 
+        # Compile these all at once, sum together special modification from all sources
         if "wrath" in unitSkills and unitHPCur / unitStats[0] <= unitSkills["wrath"] * 0.25:
             unit.chargeSpecial(1)
 
@@ -180,6 +214,19 @@ def start_of_turn(team, turn):
             unit.inflictStat(DEF, unitSkills["oddDefWave"])
             for ally in allies_within_n_spaces[1]:
                 ally.inflictStat(DEF, unitSkills["oddDefWave"])
+
+        # Eternal Breath - Fae
+        if "honeFae" in unitSkills and allies_within_n_spaces[2]:
+            unit.inflictStat(ATK, 5)
+            unit.inflictStat(SPD, 5)
+            unit.inflictStat(DEF, 5)
+            unit.inflictStat(RES, 5)
+
+            for ally in allies_within_n_spaces[2]:
+                ally.inflictStat(ATK, 5)
+                ally.inflictStat(SPD, 5)
+                ally.inflictStat(DEF, 5)
+                ally.inflictStat(RES, 5)
 
         # United Bouquet - Sharena
         if "bridal_shenanigans" in unitSkills and atkHPGreaterEqual25Percent:
@@ -242,6 +289,13 @@ def start_of_turn(team, turn):
 
         if "recoverW" in unitSkills:
             if (turn - 1) % (5 - unitSkills["recoverW"]) == 0:
+                if unit not in heals_given:
+                    heals_given[unit] = 10
+                else:
+                    heals_given[unit] += 10
+
+        if "recoverSk" in unitSkills:
+            if (turn - 1) % (5 - unitSkills["recoverSk"]) == 0:
                 if unit not in heals_given:
                     heals_given[unit] = 10
                 else:
@@ -344,6 +398,24 @@ def foes_in_group(unit, other, units_in_area):
             returned_list.append(x)
     return returned_list
 
+def allies_in_group(unit, other, units_in_area):
+    returned_list = []
+
+    for x in units_in_area:
+        if unit.side == x.side and x != unit:
+            returned_list.append(x)
+
+    return returned_list
+
+def allies_plus_unit(unit, other, units_in_area):
+    returned_list = []
+
+    for x in units_in_area:
+        if unit.side == x.side:
+            returned_list.append(x)
+
+    return returned_list
+
 def foes_minus_other(unit, other, units_in_area):
     returned_list = []
 
@@ -363,15 +435,23 @@ def end_of_combat(atk_effects, def_effects, attacker, defender):
 
     atkAreas = {}
     atkAreas['one'] = [attacker, defender]
+    atkAreas['within_1_spaces_self'] = attacker.tile.unitsWithinNSpaces(1)
+    atkAreas['within_2_spaces_self'] = attacker.tile.unitsWithinNSpaces(2)
+    atkAreas['within_1_spaces_foe'] = defender.tile.unitsWithinNSpaces(1)
     atkAreas['within_2_spaces_foe'] = defender.tile.unitsWithinNSpaces(2)
 
     defAreas = {}
     defAreas['one'] = [defender, attacker]
+    defAreas['within_1_spaces_self'] = defender.tile.unitsWithinNSpaces(1)
+    defAreas['within_2_spaces_self'] = defender.tile.unitsWithinNSpaces(2)
+    defAreas['within_1_spaces_foe'] = attacker.tile.unitsWithinNSpaces(1)
     defAreas['within_2_spaces_foe'] = attacker.tile.unitsWithinNSpaces(2)
 
     areaMethods = {}
     areaMethods['self'] = get_self
     areaMethods['foe'] = get_foe
+    areaMethods['allies'] = allies_in_group
+    areaMethods['self_and_allies'] = allies_plus_unit
     areaMethods['foes_allies'] = foes_minus_other
     areaMethods['foe_and_foes_allies'] = foes_in_group
 
@@ -423,6 +503,22 @@ def end_of_combat(atk_effects, def_effects, attacker, defender):
                 if x.side == defender.side and attacker.HPcur > 0:
                     x.inflictStat(RES, -effect[1])
 
+        if effect[0] == "buff_atk":
+            for x in targeted_units:
+                x.inflictStat(ATK, effect[1])
+
+        if effect[0] == "buff_spd":
+            for x in targeted_units:
+                x.inflictStat(SPD, effect[1])
+
+        if effect[0] == "buff_def":
+            for x in targeted_units:
+                x.inflictStat(DEF, effect[1])
+
+        if effect[0] == "buff_res":
+            for x in targeted_units:
+                x.inflictStat(RES, effect[1])
+
         if effect[0] == "debuff_atk":
             for x in targeted_units:
                 x.inflictStat(ATK, -effect[1])
@@ -448,6 +544,11 @@ def end_of_combat(atk_effects, def_effects, attacker, defender):
                         damage_taken[x] = effect[1]
                     else:
                         damage_taken[x] += effect[1]
+
+        if effect[0] == "status":
+            for x in targeted_units:
+                x.inflictStatus(effect[1])
+
 
         i += 1
 

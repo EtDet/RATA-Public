@@ -106,16 +106,16 @@ sharena.set_level(40)
 
 #robin.tile = map0.tiles[18]
 
-tested_unit = makeHero("F!Corrin")
-tested_weapon = makeWeapon("Gloom BreathEff")
-#tested_assist = makeAssist("Martyr+")
-tested_special = makeSpecial("Draconic Aura")
-#tested_askill = makeSkill("Defense +3")
-tested_bskill = makeSkill("Seal Res 3")
-tested_cskill = makeSkill("Hone Atk 3")
+tested_unit = makeHero("Felicia")
+tested_weapon = makeWeapon("Iron Dagger")
+#tested_assist = makeAssist("Draw Back")
+tested_special = makeSpecial("Glacies")
+#tested_askill = makeSkill("Defiant Res 3")
+tested_bskill = makeSkill("Resistance +3")
+tested_cskill = makeSkill("Breath of Life 3")
 
-xander.allySupport = "M!Corrin"
-tested_unit.allySupport = "DA!Xander"
+#xander.allySupport = "M!Corrin"
+#tested_unit.allySupport = "DA!Xander"
 
 tested_unit.set_skill(tested_weapon, WEAPON)
 #tested_unit.set_skill(tested_assist, ASSIST)
@@ -557,11 +557,15 @@ def start_sim(player_units, enemy_units, chosen_map):
                 animate_heal_popup(canvas, heals[unit], unit.tile.tileNum)
                 set_hp_visual(unit, unit.HPcur)
 
+            unit.unitCombatInitiates = 0
+
         for unit in enemy_units:
             if unit in heals:
                 unit.HPcur = min(unit.visible_stats[HP], unit.HPcur + heals[unit])
                 animate_heal_popup(canvas, heals[unit], unit.tile.tileNum)
                 set_hp_visual(unit, unit.HPcur)
+
+            unit.unitCombatInitiates = 0
 
     def clear_banner():
         if hasattr(set_banner, "banner_rectangle") and set_banner.banner_rectangle:
@@ -1140,6 +1144,10 @@ def start_sim(player_units, enemy_units, chosen_map):
                 hp_healed_ally = dmg_taken + self_atk_stat//2
                 hp_healed_self = dmg_taken//2
 
+            # Recover+
+            if attacker.assist.effects["heal"] == -10:
+                hp_healed_ally = max(self_atk_stat//2 + 10, 15)
+
             if attacker.specialCount == 0 and attacker.special.type == "Healing":
                 if "boost_heal" in attacker.special.effects:
                     hp_healed_ally += attacker.special.effects["boost_heal"]
@@ -1147,8 +1155,17 @@ def start_sim(player_units, enemy_units, chosen_map):
                 if "heal_allies" in attacker.special.effects:
                     hp_healed_ally += attacker.special.effects["heal_allies"]
 
+            if "live_to_serve" in attacker.bskill.effects:
+                percentage = 0.25 + 0.25 * attacker.bskill.effects["live_to_serve"]
+                hp_healed_self += trunc(hp_healed_ally * percentage)
+
             new_ally_hp = min(ally.visible_stats[HP], ally.HPcur + hp_healed_ally)
             new_player_hp = min(attacker.visible_stats[HP], attacker.HPcur + hp_healed_self)
+
+        if "rec_aid" in attacker.assist.effects:
+            new_ally_hp = min(ally.visible_stats[HP], attacker.HPcur)
+            new_player_hp = min(attacker.visible_stats[HP], ally.HPcur)
+
 
         player_hp_calc = canvas.create_text((215, 16), text=str(attacker.HPcur) + " → " + str(new_player_hp),
                                             fill='yellow', font=("Helvetica", 11), anchor='center')
@@ -1400,9 +1417,20 @@ def start_sim(player_units, enemy_units, chosen_map):
                                     valid_ally_cond = move_ally_to != -1 and ally_is_tile_accessable
 
                                 elif "draw" in cur_hero.assist.effects:
+                                    move_unit_to = final_reposition_tile(m.destination, n)
+                                    move_ally_to = m.destination
+
+                                    ally = chosen_map.tiles[n].hero_on
+
+                                    no_one_on = chosen_map.tiles[move_unit_to].hero_on is None or chosen_map.tiles[move_unit_to].hero_on == cur_hero
+
+                                    no_one_on_ally = chosen_map.tiles[move_ally_to].hero_on is None or chosen_map.tiles[move_ally_to].hero_on == cur_hero
+
+                                    valid_unit_cond = can_be_on_terrain(chosen_map.tiles[move_unit_to].terrain, cur_hero.move) and move_unit_to != -1 and no_one_on
+                                    valid_ally_cond = can_be_on_terrain(chosen_map.tiles[move_ally_to].terrain, ally.move) and move_ally_to != -1 and no_one_on_ally
+
                                     print("DRAW")
                                 elif "swap" in cur_hero.assist.effects:
-                                    print("SWAP")
 
                                     move_unit_to = n
                                     move_ally_to = m.destination
@@ -1455,7 +1483,19 @@ def start_sim(player_units, enemy_units, chosen_map):
                                     valid_ally_cond = valid_shove or valid_smite
 
                                 elif "shove" in cur_hero.assist.effects:
-                                    print("SHOVE")
+                                    final_dest = final_reposition_tile(n, m.destination)
+                                    valid_unit_cond = True
+
+                                    ally = chosen_map.tiles[n].hero_on
+
+                                    valid_shove = False
+                                    if final_dest != -1:
+                                        unit_on_dest = chosen_map.tiles[final_dest].hero_on is not None and chosen_map.tiles[final_dest].hero_on != cur_hero
+                                        can_traverse_dest = can_be_on_terrain(chosen_map.tiles[final_dest].terrain, ally.move)
+
+                                        valid_shove = not unit_on_dest and can_traverse_dest
+
+                                    valid_ally_cond = valid_shove
 
                             elif cur_hero.assist.type == "Staff":
                                 if "heal" in cur_hero.assist.effects:
@@ -1491,6 +1531,15 @@ def start_sim(player_units, enemy_units, chosen_map):
                                 ally = chosen_map.tiles[n].hero_on
                                 has_dance_cond = ally.assist is None or (ally.assist is not None and ally.assist.type != "Refresh")
                                 valid_ally_cond = ally.side == cur_hero.side and ally not in units_to_move and has_dance_cond
+                            elif cur_hero.assist.type == "Other":
+                                if "rec_aid" in cur_hero.assist.effects:
+                                    ally = chosen_map.tiles[n].hero_on
+
+                                    ally_HP_result = min(ally.visible_stats[HP], player.HPcur)
+                                    player_HP_result = min(player.visible_stats[HP], ally.HPcur)
+
+                                    valid_unit_cond = player_HP_result > player.HPcur or ally_HP_result > ally.HPcur
+                                    valid_ally_cond = True
                             else:
                                 # big guy is a cheater
                                 print("wonderhoy")
@@ -2044,11 +2093,14 @@ def start_sim(player_units, enemy_units, chosen_map):
                     global animation
                     animation = False
 
-
-
                 distance = len(canvas.drag_data['target_path'])
                 combat_result = simulate_combat(player, enemy, True, turn_info[0], distance, [])
                 attacks = combat_result[7]
+
+                player.unitCombatInitiates += 1
+                enemy.unitCombatInitiates += 1
+
+                #print("After: ", enemy.unitCombatInitiates)
 
                 # for x in attacks:
                 #     print(x.spCharges)
@@ -2141,7 +2193,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                         enemy_move_pos = -1
 
                 elif "drag_back" in player.getSkills():
-                    player_move_pos = final_reposition_tile(enemy_tile_number, player_tile_number)
+                    player_move_pos = final_reposition_tile(player_tile_number, enemy_tile_number)
                     enemy_move_pos = player_tile_number
 
                 elif "lunge" in player.getSkills():
@@ -2152,7 +2204,19 @@ def start_sim(player_units, enemy_units, chosen_map):
                     player_move_pos = final_reposition_tile(player_tile_number, enemy_tile_number)
                     enemy_move_pos = enemy_tile_number
 
+                # movement conditions for post combat moves
                 if player_move_pos != -1 and enemy_move_pos != -1 and player.HPcur != 0:
+                    if chosen_map.tiles[player_move_pos].hero_on != None and (chosen_map.tiles[player_move_pos].hero_on != player and chosen_map.tiles[player_move_pos].hero_on != enemy):
+                        player_move_pos = -1
+                    elif chosen_map.tiles[enemy_move_pos].hero_on != None and (chosen_map.tiles[enemy_move_pos].hero_on != player and chosen_map.tiles[enemy_move_pos].hero_on != enemy):
+                        enemy_move_pos = -1
+                    elif not can_be_on_terrain(chosen_map.tiles[player_move_pos].terrain, player.move):
+                        player_move_pos = -1
+                    elif not can_be_on_terrain(chosen_map.tiles[enemy_move_pos].terrain, player.move):
+                        enemy_move_pos = -1
+
+                if player_move_pos != -1 and enemy_move_pos != -1 and player.HPcur != 0:
+
                     player.tile.hero_on = None
                     enemy.tile.hero_on = None
 
@@ -2276,7 +2340,42 @@ def start_sim(player_units, enemy_units, chosen_map):
 
 
                 elif "draw" in player.assist.effects:
-                    print("DRAW")
+                    unit_tile_num = player.tile.tileNum
+                    ally_tile_num = ally.tile.tileNum
+
+                    final_pos_player = final_reposition_tile(unit_tile_num, ally_tile_num)
+                    final_pos_ally = unit_tile_num
+
+                    print(final_pos_player, final_pos_ally)
+
+                    player.tile = chosen_map.tiles[final_pos_player]
+                    chosen_map.tiles[final_pos_player].hero_on = player
+
+                    ally.tile.hero_on = None
+                    ally.tile = chosen_map.tiles[final_pos_ally]
+                    chosen_map.tiles[final_pos_ally].hero_on = ally
+
+                    #final_pos_player = player.tile.tileNum
+                    #final_pos_ally = ally.tile.tileNum
+
+                    move_to_tile(canvas, player_sprite, final_pos_player)
+                    move_to_tile(canvas, ally_sprite, final_pos_ally)
+
+                    move_to_tile(canvas, grayscale_sprite, final_pos_player)
+                    move_to_tile(canvas, ally_grayscale, final_pos_ally)
+
+                    move_to_tile_wp(canvas, weapon_icon_sprite, final_pos_player)
+                    move_to_tile_wp(canvas, ally_weapon_icon, final_pos_ally)
+
+                    move_to_tile_hp(canvas, hp_label, final_pos_player)
+                    move_to_tile_sp(canvas, sp_label, final_pos_player)
+                    move_to_tile_fg_bar(canvas, hp_bar_fg, final_pos_player)
+                    move_to_tile_fg_bar(canvas, hp_bar_bg, final_pos_player)
+
+                    move_to_tile_hp(canvas, ally_hp_label, final_pos_ally)
+                    move_to_tile_sp(canvas, ally_sp_label, final_pos_ally)
+                    move_to_tile_fg_bar(canvas, ally_hp_bar_fg, final_pos_ally)
+                    move_to_tile_fg_bar(canvas, ally_hp_bar_bg, final_pos_ally)
 
                 elif "swap" in player.assist.effects:
 
@@ -2332,10 +2431,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                     move_to_tile_fg_bar(canvas, hp_bar_fg, final_pos)
                     move_to_tile_fg_bar(canvas, hp_bar_bg, final_pos)
 
-                    print("PIVOT")
                 elif "smite" in player.assist.effects:
-                    print("SMITE!!!")
-
                     unit_tile_num = player.tile.tileNum
                     ally_tile_num = ally.tile.tileNum
 
@@ -2379,7 +2475,22 @@ def start_sim(player_units, enemy_units, chosen_map):
                     move_to_tile_fg_bar(canvas, ally_hp_bar_bg, final_pos)
 
                 elif "shove" in player.assist.effects:
-                    print("SHOVE")
+                    unit_tile_num = player.tile.tileNum
+                    ally_tile_num = ally.tile.tileNum
+
+                    final_pos = final_reposition_tile(ally_tile_num, unit_tile_num)
+
+                    ally.tile.hero_on = None
+                    ally.tile = chosen_map.tiles[final_pos]
+                    chosen_map.tiles[final_pos].hero_on = ally
+
+                    move_to_tile(canvas, ally_sprite, final_pos)
+                    move_to_tile(canvas, ally_grayscale, final_pos)
+                    move_to_tile_wp(canvas, ally_weapon_icon, final_pos)
+                    move_to_tile_hp(canvas, ally_hp_label, final_pos)
+                    move_to_tile_sp(canvas, ally_sp_label, final_pos)
+                    move_to_tile_fg_bar(canvas, ally_hp_bar_fg, final_pos)
+                    move_to_tile_fg_bar(canvas, ally_hp_bar_bg, final_pos)
 
                 # Staff Healing
                 elif "heal" in player.assist.effects:
@@ -2406,6 +2517,10 @@ def start_sim(player_units, enemy_units, chosen_map):
                         dmg_taken = player.visible_stats[HP] - player.HPcur
                         hp_healed_ally = max(dmg_taken + self_atk_stat // 2, 7)
                         hp_healed_self = dmg_taken // 2
+
+                    # Recover+
+                    if player.assist.effects["heal"] == -10:
+                        hp_healed_ally = max(self_atk_stat // 2 + 10, 15)
 
                     staff_special_triggered = False
 
@@ -2438,7 +2553,12 @@ def start_sim(player_units, enemy_units, chosen_map):
                                 if "resBalm" in player.special.effects:
                                     x.inflictStat(RES, player.special.effects["resBalm"])
 
+
                         staff_special_triggered = True
+
+                    if "live_to_serve" in player.bskill.effects:
+                        percentage = 0.25 + 0.25 * player.bskill.effects["live_to_serve"]
+                        hp_healed_self += trunc(hp_healed_ally * percentage)
 
                     ally.HPcur = min(ally.visible_stats[HP], ally.HPcur + hp_healed_ally)
                     player.HPcur = min(player.visible_stats[HP], player.HPcur + hp_healed_self)
@@ -2491,6 +2611,24 @@ def start_sim(player_units, enemy_units, chosen_map):
                     ally.inflictStat(DEF, player.assist.effects["rallyDef"])
                 if "rallyRes" in player.assist.effects:
                     ally.inflictStat(RES, player.assist.effects["rallyRes"])
+
+                if "rec_aid" in player.assist.effects:
+                    switch_hp = abs(player.HPcur - ally.HPcur)
+
+                    ally_HP_result = min(ally.visible_stats[HP], player.HPcur)
+                    player_HP_result = min(player.visible_stats[HP], ally.HPcur)
+
+                    if player_HP_result > player.HPcur:
+                        animate_heal_popup(canvas, switch_hp, player.tile.tileNum)
+                        animate_damage_popup(canvas, switch_hp, ally.tile.tileNum)
+                    else:
+                        animate_heal_popup(canvas, switch_hp, ally.tile.tileNum)
+                        animate_damage_popup(canvas, switch_hp, player.tile.tileNum)
+
+                    player.HPcur = player_HP_result
+                    ally.HPcur = ally_HP_result
+                    set_hp_visual(player, player.HPcur)
+                    set_hp_visual(ally, ally.HPcur)
 
                 set_banner(player)
 
