@@ -106,13 +106,13 @@ sharena.set_level(40)
 
 #robin.tile = map0.tiles[18]
 
-tested_unit = makeHero("Felicia")
-tested_weapon = makeWeapon("Iron Dagger")
-#tested_assist = makeAssist("Draw Back")
-tested_special = makeSpecial("Glacies")
-#tested_askill = makeSkill("Defiant Res 3")
-tested_bskill = makeSkill("Resistance +3")
-tested_cskill = makeSkill("Breath of Life 3")
+tested_unit = makeHero("Frederick")
+tested_weapon = makeWeapon("Frederick's AxeEff")
+#tested_assist = makeAssist("Ardent Sacrifice")
+tested_special = makeSpecial("Luna")
+#tested_askill = makeSkill("Darting Blow 3")
+tested_bskill = makeSkill("Wings of Mercy 3")
+tested_cskill = makeSkill("Fortify Def 3")
 
 #xander.allySupport = "M!Corrin"
 #tested_unit.allySupport = "DA!Xander"
@@ -1166,6 +1166,10 @@ def start_sim(player_units, enemy_units, chosen_map):
             new_ally_hp = min(ally.visible_stats[HP], attacker.HPcur)
             new_player_hp = min(attacker.visible_stats[HP], ally.HPcur)
 
+        if "ardent_sac" in attacker.assist.effects:
+            new_ally_hp = min(ally.visible_stats[HP], ally.HPcur + 10)
+            new_player_hp = max(1, player.HPcur - 10)
+
 
         player_hp_calc = canvas.create_text((215, 16), text=str(attacker.HPcur) + " → " + str(new_player_hp),
                                             fill='yellow', font=("Helvetica", 11), anchor='center')
@@ -1540,6 +1544,12 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                                     valid_unit_cond = player_HP_result > player.HPcur or ally_HP_result > ally.HPcur
                                     valid_ally_cond = True
+
+                                elif "ardent_sac" in cur_hero.assist.effects:
+                                    ally = chosen_map.tiles[n].hero_on
+
+                                    valid_unit_cond = player.HPcur > 10
+                                    valid_ally_cond = ally.HPcur != ally.visible_stats[HP]
                             else:
                                 # big guy is a cheater
                                 print("wonderhoy")
@@ -2160,14 +2170,24 @@ def start_sim(player_units, enemy_units, chosen_map):
                 player.statusNeg = []
                 player.debuffs = [0, 0, 0, 0, 0]
 
-                damage_taken = end_of_combat(atk_effects, def_effects, player, enemy)
+                damage_taken, heals_given = end_of_combat(atk_effects, def_effects, player, enemy)
 
                 # Post combat special charges go here
 
-                # Post combat damage across the field
+                # Post combat damage/healing across the field
                 for x in player_units + enemy_units:
+                    hp_change = 0
                     if x in damage_taken:
-                        canvas.after(finish_time, animate_damage_popup, canvas, damage_taken[x], x.tile.tileNum)
+                        hp_change -= damage_taken[x]
+                    if x in heals_given:
+                        hp_change += heals_given[x]
+
+                    if hp_change != 0:
+                        if hp_change > 0:
+                            canvas.after(finish_time, animate_heal_popup, canvas, hp_change, x.tile.tileNum)
+                        if hp_change < 0:
+                            canvas.after(finish_time, animate_damage_popup, canvas, abs(hp_change), x.tile.tileNum)
+
                         x_side = x.side
                         x_index = units_all[x_side].index(x)
                         x_hp_label = hp_labels[x_side][x_index]
@@ -2627,6 +2647,16 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                     player.HPcur = player_HP_result
                     ally.HPcur = ally_HP_result
+                    set_hp_visual(player, player.HPcur)
+                    set_hp_visual(ally, ally.HPcur)
+
+                if "ardent_sac" in player.assist.effects:
+                    ally.HPcur = min(ally.visible_stats[HP], ally.HPcur + 10)
+                    player.HPcur = max(1, player.HPcur - 10)
+
+                    animate_heal_popup(canvas, 10, ally.tile.tileNum)
+                    animate_damage_popup(canvas, 10, player.tile.tileNum)
+
                     set_hp_visual(player, player.HPcur)
                     set_hp_visual(ally, ally.HPcur)
 

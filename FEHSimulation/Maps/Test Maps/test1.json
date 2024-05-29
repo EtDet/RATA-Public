@@ -12,7 +12,7 @@
     "playerStart": [1, 2, 3, 4],
     "enemyStart": [43, 44, 45, 46],
     "enemyData":
-    [  {"name": "F!Alear",
+    [  {"name": "Chrom",
        "level": 40,
        "rarity": 5,
        "weapon": "Silver Sword+",
@@ -38,7 +38,7 @@
        {"name": "Effie",
        "level": 40,
        "rarity": 5,
-       "weapon": "Silver Axe",
+       "weapon": "Iron Lance",
        "startMove": 1,
        "wallBreak": false
       }

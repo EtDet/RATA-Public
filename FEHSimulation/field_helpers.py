@@ -432,6 +432,7 @@ def end_of_combat(atk_effects, def_effects, attacker, defender):
     defStats = defender.getStats()
 
     damage_taken = {}
+    heals_given = {}
 
     atkAreas = {}
     atkAreas['one'] = [attacker, defender]
@@ -545,6 +546,16 @@ def end_of_combat(atk_effects, def_effects, attacker, defender):
                     else:
                         damage_taken[x] += effect[1]
 
+        if effect[0] == "heal":
+            for x in targeted_units:
+                if x.HPcur != 0:
+                    x.HPcur = min(x.HPcur + effect[1], x.visible_stats[HP])
+
+                    if x not in damage_taken:
+                        heals_given[x] = effect[1]
+                    else:
+                        heals_given[x] += effect[1]
+
         if effect[0] == "status":
             for x in targeted_units:
                 x.inflictStatus(effect[1])
@@ -552,4 +563,4 @@ def end_of_combat(atk_effects, def_effects, attacker, defender):
 
         i += 1
 
-    return damage_taken
+    return damage_taken, heals_given

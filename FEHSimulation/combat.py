@@ -1110,6 +1110,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "elistats" in defSkills and defHPGreaterEqual25Percent:
         map(lambda x: x + 4, defCombatBuffs)
 
+    if "closeSpectrum" in defSkills and attacker.wpnType in ["Sword", "Lance", "Axe", "RDragon", "BDragon", "GDragon", "CDragon", "RBeast", "BBeast", "GBeast", "CBeast"]:
+        defCombatBuffs = [x + 4 for x in defCombatBuffs]
+
     if "hamburger" in atkSkills:
         map(lambda x: x + 4, atkCombatBuffs)
         defBonusesNeutralized = [True] * 5
@@ -1367,6 +1370,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "refDarkBreath" in defSkills:
         defPostCombatEffs[2].append(("debuff_atk", 7, "foe_and_foes_allies", "within_2_spaces_foe"))
         defPostCombatEffs[2].append(("debuff_spd", 7, "foe_and_foes_allies", "within_2_spaces_foe"))
+
+    if "feliciaMagicGuard" in atkSkills and defender.wpnType in ["RTome", "BTome", "GTome", "CTome"]:
+        atkr.spGainOnAtk += 1
+        atkr.spGainWhenAtkd += 1
+
+    if "feliciaMagicGuard" in defSkills and attacker.wpnType in ["RTome", "BTome", "GTome", "CTome"]:
+        defr.spGainOnAtk += 1
+        defr.spGainWhenAtkd += 1
 
     if "waitTurns" in atkSkills:  # ryoma
         map(lambda x: x + 4, atkCombatBuffs)
@@ -1896,7 +1907,11 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     # Savage Blow
     if "savageBlow" in atkSkills:
-        atkPostCombatEffs[2].append(("damage", atkSkills["savageBlow"], "foes_allies", "within_2_spaces_foe"))
+        atkPostCombatEffs[0].append(("damage", atkSkills["savageBlow"], "foes_allies", "within_2_spaces_foe"))
+
+    # Breath of Life
+    if "breath_of_life" in atkSkills:
+        atkPostCombatEffs[0].append(("heal", atkSkills["breath_of_life"], "allies", "within_1_spaces_self"))
 
     if "triAdeptS" in atkSkills and atkSkills["triAdeptS"] > triAdept: triAdept = atkSkills["triAdeptS"]
     if "triAdeptW" in atkSkills and atkSkills["triAdeptW"] > triAdept: triAdept = atkSkills["triAdeptW"]
@@ -1933,6 +1948,16 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "firesweep" in atkSkills or "firesweep" in defSkills:
         cannotCounter = True
 
+    # Iron Dagger/Steel Dagger/Silver Dagger(+)
+    if "dagger_single" in atkSkills:
+        atkPostCombatEffs[2].append(("debuff_def", atkSkills["dagger_single"], "foe", "one"))
+        atkPostCombatEffs[2].append(("debuff_res", atkSkills["dagger_single"], "foe", "one"))
+
+    if "dagger_single" in defSkills:
+        defPostCombatEffs[2].append(("debuff_def", defSkills["dagger_single"], "foe", "one"))
+        defPostCombatEffs[2].append(("debuff_res", defSkills["dagger_single"], "foe", "one"))
+
+    # Dagger 7 (or other magnitudes)
     if "dagger" in atkSkills:
         atkPostCombatEffs[2].append(("debuff_def", atkSkills["dagger"], "foe_and_foes_allies", "within_2_spaces_foe"))
         atkPostCombatEffs[2].append(("debuff_res", atkSkills["dagger"], "foe_and_foes_allies", "within_2_spaces_foe"))
