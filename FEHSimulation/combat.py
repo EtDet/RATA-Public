@@ -1966,6 +1966,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defPostCombatEffs[2].append(("debuff_def", defSkills["dagger"], "foe_and_foes_allies", "within_2_spaces_foe"))
         defPostCombatEffs[2].append(("debuff_res", defSkills["dagger"], "foe_and_foes_allies", "within_2_spaces_foe"))
 
+    if "rogue_boost_single" in atkSkills:
+        atkPostCombatEffs[2].append(("buff_def", atkSkills["rogue_boost_single"], "self", "one"))
+        atkPostCombatEffs[2].append(("buff_res", atkSkills["rogue_boost_single"], "self", "one"))
+
     if "sealAtk" in atkSkills: atkPostCombatEffs[0].append(("seal_atk", atkSkills["sealAtk"], "foe", "one"))
     if "sealAtk" in defSkills: defPostCombatEffs[0].append(("seal_atk", defSkills["sealAtk"], "foe", "one"))
 
@@ -2790,12 +2794,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defTargetingDefRes += 1
 
 
-    if "permHexblade" in atkSkills: defTargetingDefRes = int(defStats[3] < defStats[4])
-    if "permHexblade" in defSkills: atkTargetingDefRes = int(atkStats[3] < atkStats[4])
+    if "permHexblade" in atkSkills: atkTargetingDefRes = int(defStats[3] < defStats[4])
+    if "permHexblade" in defSkills: defTargetingDefRes = int(atkStats[3] < atkStats[4])
 
     # additional follow-up granted by outspeeding
-    outspeedFactor = 5
-
     atkOutspeedFactor = 5
     defOutspeedFactor = 5
 
@@ -3509,15 +3511,40 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     return atkHPCur, defHPCur, atkCombatBuffs, defCombatBuffs, wpnAdvHero, oneEffAtk, oneEffDef, \
         attackList, atkFehMath, atkHitCount, defFehMath, defHitCount, atkPostCombatEffs[0], defPostCombatEffs[0]
 
+# Get AOE damage from attacker to foe
 
-# new combat function needs to return the following:
-# attack values for all attacks in combat, regardless of a unit's death ✓
-# which attack finishes a unit ✓
-# FEH Math calculation (have to redo true damage calculation)
-# special cooldowns after each attack ✓
-# hashmap of post-combat effects (oooo we'll get there don't need now)
-# weapon triangle advantage ✓
-# combat buffs ✓
+def get_AOE_damage(attacker, defender):
+    atkSkills = attacker.getSkills()
+    atkStats = attacker.getStats()
+
+    defSkills = defender.getSkills()
+    defStats = defender.getStats()
+
+    atkr_atk = attacker.visible_stats[ATK]
+
+    atkTargetingDefRes = int(attacker.getTargetedDef() == 1)
+
+    if attacker.getTargetedDef() == 0 and not "oldDragonstone" in atkSkills:
+        if defender.getRange() == 2 and defStats[3] > defStats[4]:
+            atkTargetingDefRes += 1
+        elif defender.getRange() != 2:
+            atkTargetingDefRes += 1
+    elif attacker.getTargetedDef() == 0:
+        atkTargetingDefRes += 1
+
+    if "permHexblade" in atkSkills: atkTargetingDefRes = int(defStats[3] < defStats[4])
+
+    defr_def = defender.visible_stats[3 + atkTargetingDefRes]
+
+    power_int = atkSkills["aoe_power"]
+
+    if power_int == 0:
+        return max(trunc(0.8 * (atkr_atk - defr_def)), 0)
+    if power_int == 1:
+        return max(atkr_atk - defr_def, 0)
+    if power_int == 2:
+        return max(trunc(1.5 * (atkr_atk - defr_def)), 0)
+
 
 # FEH Math
 # Atk - Def/Res + True Damage applied for all hits
@@ -3574,58 +3601,10 @@ class CombatField():
 # flowerOfEaseField = CombatField(mirabilis, exRange1, exCondition, False, True, flowerofease_base)
 
 # SPECIALS
-daylight = Special("Daylight", "Restores HP = 30% of damage dealt.", {"healSelf": 3}, 3, SpecialType.Offense)
-noontime = Special("Noontime", "Restores HP = 30% of damage dealt.", {"healSelf": 3}, 2, SpecialType.Offense)
-sol = Special("Sol", "Restores HP = 50% of damage dealt.", {"healSelf": 5}, 3, SpecialType.Offense)
-aether = Special("Aether",
-                 "Treats foe's Def/Res as if reduced by 50% during combat. Restores HP = half of damage dealt.",
-                 {"defReduce": 5, "healSelf": 5}, 5, SpecialType.Offense)
-
-newMoon = Special("New Moon", "Treats foe's Def/Res as if reduced by 30% during combat.", {"defReduce": 3}, 3,
-                  SpecialType.Offense)
-moonbow = Special("Moonbow", "Treats foe's Def/Res as if reduced by 30% during combat.", {"defReduce": 3}, 2,
-                  SpecialType.Offense)
-luna = Special("Luna", "Treats foe's Def/Res as if reduced by 50% during combat.", {"defReduce": 5}, 3,
-               SpecialType.Offense)
-lethality = Special("Lethality",
-                    "When Special triggers, treats foe's Def/Res as if reduced by 75% during combat. Disables non-Special skills that \"reduce damage by X%.\"",
-                    {"defReduce": 7.5, "spIgnorePercDmgReduc": 0}, 4, SpecialType.Offense)
-
-nightSky = Special("Night Sky", "Boosts damage dealt by 50%.", {"dmgBoost": 5}, 3, SpecialType.Offense)
-glimmer = Special("Glimmer", "Boosts damage dealt by 50%.", {"dmgBoost": 5}, 2, SpecialType.Offense)
-astra = Special("Astra", "Boosts damage dealt by 150%.", {"dmgBoost": 15}, 4, SpecialType.Offense)
-
-dragonGaze = Special("Dragon Gaze", "Boosts damage by 30% of unit's Atk.", {"atkBoostSp": 3}, 4, SpecialType.Offense)
-draconicAura = Special("Draconic Aura", "Boosts damage by 30% of unit's Atk.", {"atkBoostSp": 3}, 3,
-                       SpecialType.Offense)
-dragonFang = Special("Dragon Fang", "Boosts damage by 50% of unit's Atk.", {"atkBoostSp": 5}, 4, SpecialType.Offense)
 
 lunarFlash = Special("Lunar Flash",
                      "Treats foe’s Def/Res as if reduced by 20% during combat. Boosts damage by 20% of unit's Spd.",
                      {"defReduce": 2, "spdBoostSp": 2}, 2, SpecialType.Offense)
-
-bonfire = Special("Bonfire", "Boosts damage by 50% of unit's Def.", {"defBoostSp": 5}, 3, SpecialType.Offense)
-ignis = Special("Ignis", "Boost damage by 80% of unit's Def.", {"defBoostSp": 8}, 4, SpecialType.Offense)
-
-iceberg = Special("Iceberg", "Boosts damage by 50% of unit's Res.", {"resBoostSp": 5}, 3, SpecialType.Offense)
-glacies = Special("Glacies", "Boosts damage by 80% of unit's Res.", {"resBoostSp": 8}, 4, SpecialType.Offense)
-
-buckler = Special("Buckler", "Reduces damage from an adjacent foe's attack by 30%.", {"closeShield": 3}, 3,
-                  SpecialType.Defense)
-pavise = Special("Pavise", "Reduces damage from an adjacent foe's attack by 50%.", {"closeShield": 5}, 3,
-                 SpecialType.Defense)
-escutcheon = Special("Escutcheon", "Reduces damage from an adjacent foe's attack by 30%.", {"closeShield": 3}, 2,
-                     SpecialType.Defense)
-
-holyVestiments = Special("Holy Vestments", "If foe is 2 spaces from unit, reduces damage from foe's attack by 30%.",
-                         {"distantShield": 3}, 3, SpecialType.Defense)
-sacredCowl = Special("Sacred Cowl", "If foe is 2 spaces from unit, reduces damage from foe's attack by 30%.",
-                     {"distantShield": 3}, 2, SpecialType.Defense)
-aegis = Special("Aegis", "If foe is 2 spaces from unit, reduces damage from foe's attack by 50%.", {"distantShield": 5},
-                3, SpecialType.Defense)
-
-miracle = Special("Miracle", "If unit's HP > 1 and foe would reduce unit's HP to 0, unit survives with 1 HP.",
-                  {"miracleSP": 0}, 5, SpecialType.Defense)
 
 # A SKILLS
 
@@ -3636,20 +3615,6 @@ fury4 = Skill("Fury 4", "Grants Atk/Spd/Def/Res+4. After combat, deals 8 damage 
 # HIGHEST TRIANGLE ADEPT LEVEL USED
 # SMALLER LEVELS DO NOT STACK WITH ONE ANOTHER
 # ONLY HIGHEST LEVEL USED
-
-svalinnShield = Skill("Svalinn Shield", "Neutralizes \"effective against armored\" bonuses.", {"nullEffArm": 0})
-graniShield = Skill("Grani's Shield", "Neutralizes \"effective against cavalry\" bonuses.", {"nullEffCav": 0})
-ioteShield = Skill("Iote's Shield", "Neutralizes \"effective against fliers\" bonuses.", {"nullEffFly": 0})
-
-bonusDoubler1 = Skill("Bonus Doubler 1",
-                      "Grants bonus to Atk/Spd/Def/Res during combat = 50% of current bonus on each of unit’s stats. Calculates each stat bonus independently.",
-                      {"bonusDoublerSk": 1})
-bonusDoubler2 = Skill("Bonus Doubler 2",
-                      "Grants bonus to Atk/Spd/Def/Res during combat = 75% of current bonus on each of unit’s stats. Calculates each stat bonus independently.",
-                      {"bonusDoublerSk": 2})
-bonusDoubler3 = Skill("Bonus Doubler 3",
-                      "Grants bonus to Atk/Spd/Def/Res during combat = current bonus on each of unit’s stats. Calculates each stat bonus independently.",
-                      {"bonusDoublerSk": 3})
 
 sorceryBlade1 = Skill("Sorcery Blade 1",
                       "At start of combat, if unit’s HP = 100% and unit is adjacent to a magic ally, calculates damage using the lower of foe’s Def or Res.",
@@ -3665,15 +3630,6 @@ sorceryBlade3 = Skill("Sorcery Blade 3",
 
 specialSpiral3 = Skill("Special Spiral 3", "I dunno", {"specialSpiralS": 3})
 
-vantage1 = Skill("Vantage 1",
-                 "If unit's HP ≤ 25% and foe initiates combat, unit can counterattack before foe's first attack.",
-                 {"vantage": 1})
-vantage2 = Skill("Vantage 2",
-                 "If unit's HP ≤ 50% and foe initiates combat, unit can counterattack before foe's first attack.",
-                 {"vantage": 2})
-vantage3 = Skill("Vantage 3",
-                 "If unit's HP ≤ 75% and foe initiates combat, unit can counterattack before foe's first attack.",
-                 {"vantage": 3})
 
 quickRiposte1 = Skill("Quick Riposte 1",
                       "If unit's HP ≥ 90% and foe initiates combat, unit makes a guaranteed follow-up attack.",
