@@ -148,7 +148,7 @@ def move_letters(s, letter):
 
 
 # Perform a combat between two heroes
-def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, combat_effects):
+def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, combat_effects, atkHPCur = None, defHPCur = None):
     # Invalid Combat if one unit is dead
     # or if attacker does not have weapon
     if attacker.HPcur <= 0 or defender.HPcur <= 0 or attacker.weapon is None:
@@ -179,8 +179,11 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     atkr = HeroModifiers()
     defr = HeroModifiers()
 
-    atkHPCur = attacker.HPcur
-    defHPCur = defender.HPcur
+    if atkHPCur is None:
+        atkHPCur = attacker.HPcur
+
+    if defHPCur is None:
+        defHPCur = defender.HPcur
 
     atkSpCountCur = attacker.specialCount
     defSpCountCur = defender.specialCount
@@ -500,6 +503,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "defBlow" in atkSkills: atkCombatBuffs[3] += atkSkills["defBlow"] * 2
     if "resBlow" in atkSkills: atkCombatBuffs[4] += atkSkills["resBlow"] * 2
 
+    # SPUR / DRIVE / GOAD / WARD SKILLS
+
     if "spurAtk_f" in atkSkills: atkCombatBuffs[ATK] += atkSkills["spurAtk_f"]
     if "spurSpd_f" in atkSkills: atkCombatBuffs[SPD] += atkSkills["spurSpd_f"]
     if "spurDef_f" in atkSkills: atkCombatBuffs[DEF] += atkSkills["spurDef_f"]
@@ -510,6 +515,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "spurDef_f" in defSkills: defCombatBuffs[DEF] += defSkills["spurDef_f"]
     if "spurRes_f" in defSkills: defCombatBuffs[RES] += defSkills["spurRes_f"]
 
+    if "goadCav_f" in atkSkills and attacker.move == 1:
+        atkCombatBuffs[ATK] += 4
+        atkCombatBuffs[SPD] += 4
+
+    if "goadCav_f" in defSkills and defender.move == 1:
+        defCombatBuffs[ATK] += 4
+        defCombatBuffs[SPD] += 4
+
     if "wardCav_f" in atkSkills and attacker.move == 1:
         atkCombatBuffs[DEF] += 4
         atkCombatBuffs[RES] += 4
@@ -517,6 +530,30 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "wardCav_f" in defSkills and attacker.move == 1:
         defCombatBuffs[DEF] += 4
         defCombatBuffs[RES] += 4
+
+    if "goadFly_f" in atkSkills and attacker.move == 2:
+        atkCombatBuffs[ATK] += 4
+        atkCombatBuffs[SPD] += 4
+
+    if "goadFly_f" in defSkills and defender.move == 2:
+        defCombatBuffs[ATK] += 4
+        defCombatBuffs[SPD] += 4
+
+    if "wardFly_f" in atkSkills and attacker.move == 2:
+        atkCombatBuffs[DEF] += 4
+        atkCombatBuffs[RES] += 4
+
+    if "wardFly_f" in defSkills and attacker.move == 2:
+        defCombatBuffs[DEF] += 4
+        defCombatBuffs[RES] += 4
+
+    if "goadArmor_f" in atkSkills and attacker.move == 3:
+        atkCombatBuffs[ATK] += 4
+        atkCombatBuffs[SPD] += 4
+
+    if "goadArmor_f" in defSkills and defender.move == 3:
+        defCombatBuffs[ATK] += 4
+        defCombatBuffs[SPD] += 4
 
     if "wardArmor_f" in atkSkills and attacker.move == 3:
         atkCombatBuffs[DEF] += 4
@@ -526,25 +563,69 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[DEF] += 4
         defCombatBuffs[RES] += 4
 
+    # LULL SKILLS
+
+    if "lullAtk" in atkSkills:
+        defCombatBuffs[ATK] -= atkSkills["lullAtk"]
+        defBonusesNeutralized[ATK] = True
+
+    if "lullSpd" in atkSkills:
+        defCombatBuffs[SPD] -= atkSkills["lullSpd"]
+        defBonusesNeutralized[SPD] = True
+
+    if "lullDef" in atkSkills:
+        defCombatBuffs[DEF] -= atkSkills["lullDef"]
+        defBonusesNeutralized[DEF] = True
+
+    if "lullRes" in atkSkills:
+        defCombatBuffs[RES] -= atkSkills["lullRes"]
+        defBonusesNeutralized[RES] = True
+
+    if "lullAtk" in defSkills:
+        atkCombatBuffs[ATK] -= defSkills["lullAtk"]
+        atkBonusesNeutralized[ATK] = True
+
+    if "lullSpd" in defSkills:
+        atkCombatBuffs[SPD] -= defSkills["lullSpd"]
+        atkBonusesNeutralized[SPD] = True
+
+    if "lullDef" in defSkills:
+        atkCombatBuffs[DEF] -= defSkills["lullDef"]
+        atkBonusesNeutralized[DEF] = True
+
+    if "lullRes" in defSkills:
+        atkCombatBuffs[RES] -= defSkills["lullRes"]
+        atkBonusesNeutralized[RES] = True
+
+    # BOOST SKILLS
+
     if "fireBoost" in atkSkills and atkHPCur >= defHPCur + 3: atkCombatBuffs[1] += atkSkills["fireBoost"] * 2
     if "windBoost" in atkSkills and atkHPCur >= defHPCur + 3: atkCombatBuffs[2] += atkSkills["windBoost"] * 2
     if "earthBoost" in atkSkills and atkHPCur >= defHPCur + 3: atkCombatBuffs[3] += atkSkills["earthBoost"] * 2
     if "waterBoost" in atkSkills and atkHPCur >= defHPCur + 3: atkCombatBuffs[4] += atkSkills["waterBoost"] * 2
+
+    # BRAZEN SKILLS
 
     if "brazenAtk" in atkSkills and atkHPCur / atkStats[HP] <= 0.8: atkCombatBuffs[1] += atkSkills["brazenAtk"]
     if "brazenSpd" in atkSkills and atkHPCur / atkStats[HP] <= 0.8: atkCombatBuffs[2] += atkSkills["brazenSpd"]
     if "brazenDef" in atkSkills and atkHPCur / atkStats[HP] <= 0.8: atkCombatBuffs[3] += atkSkills["brazenDef"]
     if "brazenRes" in atkSkills and atkHPCur / atkStats[HP] <= 0.8: atkCombatBuffs[4] += atkSkills["brazenRes"]
 
+    # BOND SKILLS
+
     if "atkBond" in atkSkills and atkAdjacentToAlly: atkCombatBuffs[1] += atkSkills["atkBond"]
     if "spdBond" in atkSkills and atkAdjacentToAlly: atkCombatBuffs[2] += atkSkills["spdBond"]
     if "defBond" in atkSkills and atkAdjacentToAlly: atkCombatBuffs[3] += atkSkills["defBond"]
     if "resBond" in atkSkills and atkAdjacentToAlly: atkCombatBuffs[4] += atkSkills["resBond"]
 
+    # REIN SKILLS
+
     if "atkRein" in atkSkills: defCombatBuffs[ATK] -= atkSkills["atkRein"]
     if "spdRein" in atkSkills: defCombatBuffs[SPD] -= atkSkills["atkRein"]
     if "defRein" in atkSkills: defCombatBuffs[DEF] -= atkSkills["atkRein"]
     if "resRein" in atkSkills: defCombatBuffs[RES] -= atkSkills["atkRein"]
+
+    # CLASH SKILLS
 
     if "atkClash" in atkSkills and spaces_moved_by_atkr > 0: atkCombatBuffs[ATK] += min(atkSkills["atkClash"], spaces_moved_by_atkr) + min(2 * atkSkills["atkClash"] - 1, 6)
     if "spdClash" in atkSkills and spaces_moved_by_atkr > 0: atkCombatBuffs[SPD] += min(atkSkills["spdClash"], spaces_moved_by_atkr) + min(2 * atkSkills["spdClash"] - 1, 6)
@@ -553,6 +634,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "atkClash" in defSkills and spaces_moved_by_atkr > 0: defCombatBuffs[ATK] += min(defSkills["atkClash"], spaces_moved_by_atkr) + min(2 * defSkills["atkClash"] - 1, 6)
     if "spdClash" in defSkills and spaces_moved_by_atkr > 0: defCombatBuffs[SPD] += min(defSkills["spdClash"], spaces_moved_by_atkr) + min(2 * defSkills["spdClash"] - 1, 6)
     if "defClash" in defSkills and spaces_moved_by_atkr > 0: defCombatBuffs[DEF] += min(defSkills["defClash"], spaces_moved_by_atkr) + min(2 * defSkills["defClash"] - 1, 6)
+
+    # EXCEL
 
     if "atk_spd_dashing_defense" in atkSkills:
         if spaces_moved_by_atkr > 0:
@@ -563,6 +646,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "atk_spd_dashing_defense" in defSkills:
         if defender.getSpecialType() == "Offense":
             atkr.TDR_all_hits += 3 * min(spaces_moved_by_atkr, 4)
+
+    # START OF UNIT-EXCLUSIVE SKILLS
 
     if "ILOVEBONUSES" in atkSkills and atkHPGreaterEqual50Percent or atkHasBonus:
         map(lambda x: x + 4, atkCombatBuffs)
@@ -620,6 +705,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if defender.move == 3 or attacker.move == 1:
             atkr.all_hits_heal += 7
 
+    if "old" in atkSkills and defHPCur/defStats[HP] >= 0.70:
+        atkCombatBuffs[ATK] += 5
+        atkCombatBuffs[RES] += 5
+
+    if "old" in defSkills:
+        atkCombatBuffs[ATK] += 5
+        atkCombatBuffs[RES] += 5
+
     if "guardraug" in atkSkills and atkAllyWithin2Spaces:
         atkCombatBuffs[ATK] += 5
         atkCombatBuffs[DEF] += 5
@@ -631,6 +724,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[3] += 5
         defPenaltiesNeutralized[ATK] = True
         defPenaltiesNeutralized[DEF] = True
+
+    if "gordin_field_f" in atkSkills:
+        atkCombatBuffs[ATK] -= 4
+        atkCombatBuffs[DEF] -= 4
+
+    if "gordin_field_f" in defSkills:
+        defCombatBuffs[ATK] -= 4
+        defCombatBuffs[DEF] -= 4
 
     if "devilAxe" in atkSkills:
         atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
@@ -1062,6 +1163,20 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.spGainWhenAtkd += 1
         defr.disable_foe_guard = True
 
+    # Weighted Lance (Gwendolyn)
+    if "gwendyBoost" in atkSkills and atkHPGreaterEqual50Percent:
+        atkr.spGainWhenAtkd += 1
+
+        atkCombatBuffs[DEF] += 4
+        atkCombatBuffs[RES] += 4
+
+    if "gwendyBoost" in defSkills and defHPGreaterEqual50Percent:
+        defr.spGainWhenAtkd += 1
+
+        defCombatBuffs[DEF] += 4
+        defCombatBuffs[RES] += 4
+
+
     if "light_buff" in atkSkills:
         atkPostCombatEffs[0].append(("buff_def", 4, "allies", "within_1_spaces_self"))
         atkPostCombatEffs[0].append(("buff_res", 4, "allies", "within_1_spaces_self"))
@@ -1316,14 +1431,37 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[1] += 5
         atkCombatBuffs[2] += 5
 
+    # Cordelia's Lance
     if "cordeliaLance" in atkSkills and atkHPCur/atkStats[HP] >= 0.70:
         atkCombatBuffs[ATK] += 4
         atkCombatBuffs[SPD] += 4
 
+    # Hewn Lance - Donnel
     if "donnelBoost" in atkSkills:
         atkCombatBuffs[ATK] += 4
         atkCombatBuffs[DEF] += 4
         defr.follow_up_denials -= 1
+
+    # Candied Dagger - Gaius
+    if "gaius_candy" in atkSkills:
+        atkCombatBuffs[SPD] += 4
+        atkr.true_stat_damages.append((SPD, 10))
+
+    if "gaius_damage_ref" in atkSkills and defHPEqual100Percent:
+        atkr.true_all_hits += 7
+
+    # Corvus Tome - Henry
+    if "henryLowAtkBoost" in atkSkills and defStats[ATK] + defPhantomStats[ATK] >= atkStats[ATK] + atkPhantomStats[ATK] + 3:
+        defCombatBuffs[ATK] -= 6
+        defCombatBuffs[RES] -= 6
+        defr.spLossOnAtk -= 1
+        defr.spLossWhenAtkd -= 1
+
+    if "henryLowAtkBoost" in defSkills and atkStats[ATK] + atkPhantomStats[ATK] >= defStats[ATK] + defPhantomStats[ATK] + 3:
+        atkCombatBuffs[ATK] -= 6
+        atkCombatBuffs[RES] -= 6
+        atkr.spLossOnAtk -= 1
+        atkr.spLossWhenAtkd -= 1
 
     # Owain
     if "Sacred Stones Strike!" in atkSkills and atkAllyWithin3Spaces:
@@ -1371,6 +1509,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defPostCombatEffs[2].append(("debuff_atk", 7, "foe_and_foes_allies", "within_2_spaces_foe"))
         defPostCombatEffs[2].append(("debuff_spd", 7, "foe_and_foes_allies", "within_2_spaces_foe"))
 
+    # Felicia's Plate (Felicia)
+
     if "feliciaMagicGuard" in atkSkills and defender.wpnType in ["RTome", "BTome", "GTome", "CTome"]:
         atkr.spGainOnAtk += 1
         atkr.spGainWhenAtkd += 1
@@ -1379,6 +1519,48 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.spGainOnAtk += 1
         defr.spGainWhenAtkd += 1
 
+    # Jakob's Tray (Jakob)
+
+    if "jakobDebuff" in atkSkills:
+        defCombatBuffs = [x - 4 for x in defCombatBuffs]
+
+    if "jakobAllyBoost" in atkSkills:
+        ally_condition = False
+        for ally in atkAllyWithin2Spaces:
+            if ally.HPcur < ally.visible_stats[HP]:
+                ally_condition = True
+
+        if ally_condition:
+            atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
+
+    if "jakobAllyBoost" in defSkills:
+        ally_condition = False
+        for ally in defAllyWithin2Spaces:
+            if ally.HPcur < ally.visible_stats[HP]:
+                ally_condition = True
+
+        if ally_condition:
+            defCombatBuffs = [x + 4 for x in defCombatBuffs]
+
+    # Inveterate Axe (Gunter)
+    if "gunterJointDrive" in atkSkills and atkAllyWithin2Spaces:
+        atkCombatBuffs[ATK] += 4
+        atkCombatBuffs[DEF] += 4
+
+    if "gunterJointDrive" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs[ATK] += 4
+        defCombatBuffs[DEF] += 4
+
+    if "gunterJointDrive_f" in atkSkills and (attacker.move == 0 or attacker.move == 1):
+        atkCombatBuffs[ATK] += 4
+        atkCombatBuffs[DEF] += 4
+
+    if "gunterJointDrive_f" in defSkills and (defender.move == 0 or defender.move == 1):
+        defCombatBuffs[ATK] += 4
+        defCombatBuffs[DEF] += 4
+
+    # Raijinto (Ryoma)
+
     if "waitTurns" in atkSkills:  # ryoma
         map(lambda x: x + 4, atkCombatBuffs)
         atkr.prevent_foe_FU, atkr.prevent_self_FU_denial = True
@@ -1386,6 +1568,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "waitTurns" in defSkills and defAllyWithin2Spaces:
         map(lambda x: x + 4, defCombatBuffs)
         defr.prevent_foe_FU, defr.prevent_self_FU_denial = True
+
+    if "hinokaBoost" in atkSkills and (atkFlyAlliesWithin2Spaces or atkInfAlliesWithin2Spaces):
+        atkCombatBuffs[ATK] += 4
+        atkCombatBuffs[SPD] += 4
+
+    if "hinokaBoost" in defSkills and (defFlyAlliesWithin2Spaces or defInfAlliesWithin2Spaces):
+        defCombatBuffs[ATK] += 4
+        defCombatBuffs[SPD] += 4
 
     if "xanderific" in atkSkills and defHPGreaterEqual75Percent:
         defCombatBuffs[1] -= 5
@@ -1970,6 +2160,18 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkPostCombatEffs[2].append(("buff_def", atkSkills["rogue_boost_single"], "self", "one"))
         atkPostCombatEffs[2].append(("buff_res", atkSkills["rogue_boost_single"], "self", "one"))
 
+    if "rogue_boost_single" in defSkills:
+        defPostCombatEffs[2].append(("buff_def", defSkills["rogue_boost_single"], "self", "one"))
+        defPostCombatEffs[2].append(("buff_res", defSkills["rogue_boost_single"], "self", "one"))
+
+    if "rogue_boost" in atkSkills:
+        atkPostCombatEffs[2].append(("buff_def", atkSkills["rogue_boost"], "self_and_allies", "within_2_spaces_self"))
+        atkPostCombatEffs[2].append(("buff_res", atkSkills["rogue_boost"], "self_and_allies", "within_2_spaces_self"))
+
+    if "rogue_boost" in defSkills:
+        defPostCombatEffs[2].append(("buff_def", defSkills["rogue_boost"], "self_and_allies", "within_2_spaces_self"))
+        defPostCombatEffs[2].append(("buff_res", defSkills["rogue_boost"], "self_and_allies", "within_2_spaces_self"))
+
     if "sealAtk" in atkSkills: atkPostCombatEffs[0].append(("seal_atk", atkSkills["sealAtk"], "foe", "one"))
     if "sealAtk" in defSkills: defPostCombatEffs[0].append(("seal_atk", defSkills["sealAtk"], "foe", "one"))
 
@@ -2408,13 +2610,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
 
 
-
     # WHERE BONUSES AND PENALTIES ARE NEUTRALIZED
     for i in range(1, 5):
         atkCombatBuffs[i] += atkPenaltiesNeutralized[i] * (attacker.debuffs[i] + min(attacker.buffs[i] * AtkPanicFactor, 0))
-        atkCombatBuffs[i] += atkBonusesNeutralized[i] * max(attacker.buffs[i] * AtkPanicFactor, 0)
+        atkCombatBuffs[i] -= atkBonusesNeutralized[i] * max(attacker.buffs[i] * AtkPanicFactor, 0)
         defCombatBuffs[i] += defPenaltiesNeutralized[i] * (defender.debuffs[i] + min(defender.buffs[i] * DefPanicFactor, 0))
-        defCombatBuffs[i] += defBonusesNeutralized[i] * max(defender.buffs[i] * DefPanicFactor, 0)
+        defCombatBuffs[i] -= defBonusesNeutralized[i] * max(defender.buffs[i] * DefPanicFactor, 0)
 
     # add combat buffs to stats
 
@@ -2451,6 +2652,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.spGainWhenAtkd += 1
         defr.spLossWhenAtkd -= 1
         defr.spLossOnAtk -= 1
+
+
 
     if "wanderer" in atkSkills and defHPGreaterEqual75Percent and atkPhantomStats[SPD] > defPhantomStats[SPD]:
         atkr.spGainOnAtk += 1
@@ -2578,10 +2781,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if defr.prevent_self_FU_denial: defr.follow_up_denials = 0
 
     # TRUE DAMAGE ADDITION
+    # oh shoot we need to account for both sides
 
     for x in atkr.true_stat_damages:
         stat, percentage = x
         atkr.true_all_hits += math.trunc(atkStats[stat] * (percentage/100))
+        print(stat, atkStats[stat], (percentage/100), math.trunc(atkStats[stat] * (percentage/100)))
 
     for x in defr.true_stat_damages:
         stat, percentage = x
@@ -2695,6 +2900,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if "effFly" in atkSkills and "nullEffFly" not in defSkills and defender.move == 2: oneEffAtk = True
     if "effFly" in defSkills and "nullEffFly" not in atkSkills and attacker.move == 2: oneEffDef = True
+
+    if attacker.wpnType in ["RBow", "BBow", "GBow", "CBow"] and "nullEffFly" not in defSkills and defender.move == 2:
+        oneEffAtk = True
+
+    if defender.wpnType in ["RBow", "BBow", "GBow", "CBow"] and "nullEffFly" not in atkSkills and attacker.move == 2:
+        oneEffDef = True
 
     if "effArmor" in atkSkills and "nullEffArm" not in defSkills and defender.move == 3: oneEffAtk = True
     if "effArmor" in defSkills and "nullEffArm" not in atkSkills and attacker.move == 3: oneEffDef = True
@@ -3520,7 +3731,29 @@ def get_AOE_damage(attacker, defender):
     defSkills = defender.getSkills()
     defStats = defender.getStats()
 
-    atkr_atk = attacker.visible_stats[ATK]
+    # Panic Status Effect
+    AtkPanicFactor = 1
+    DefPanicFactor = 1
+
+    # buffs + debuffs calculation
+    # throughout combat, PanicFactor * buff produces the current buff value
+    if Status.Panic in attacker.statusNeg: AtkPanicFactor *= -1
+    if Status.Panic in defender.statusNeg: DefPanicFactor *= -1
+
+    if Status.NullPanic in attacker.statusPos: AtkPanicFactor = 1
+    if Status.NullPanic in defender.statusPos: DefPanicFactor = 1
+
+    atkStats[ATK] += attacker.buffs[ATK] * AtkPanicFactor + attacker.debuffs[ATK]
+    atkStats[SPD] += attacker.buffs[SPD] * AtkPanicFactor + attacker.debuffs[SPD]
+    atkStats[DEF] += attacker.buffs[DEF] * AtkPanicFactor + attacker.debuffs[DEF]
+    atkStats[RES] += attacker.buffs[RES] * AtkPanicFactor + attacker.debuffs[RES]
+
+    defStats[ATK] += defender.buffs[ATK] * DefPanicFactor + defender.debuffs[ATK]
+    defStats[SPD] += defender.buffs[SPD] * DefPanicFactor + defender.debuffs[SPD]
+    defStats[DEF] += defender.buffs[DEF] * DefPanicFactor + defender.debuffs[DEF]
+    defStats[RES] += defender.buffs[RES] * DefPanicFactor + defender.debuffs[RES]
+
+    atkr_atk = atkStats[ATK]
 
     atkTargetingDefRes = int(attacker.getTargetedDef() == 1)
 
@@ -3534,16 +3767,21 @@ def get_AOE_damage(attacker, defender):
 
     if "permHexblade" in atkSkills: atkTargetingDefRes = int(defStats[3] < defStats[4])
 
-    defr_def = defender.visible_stats[3 + atkTargetingDefRes]
+    defr_def = defStats[3 + atkTargetingDefRes]
 
     power_int = atkSkills["aoe_power"]
 
+    true_damage = 0
+
+    if "gaius_damage_ref" in atkSkills and defStats[HP] == defender.HPcur:
+        true_damage += 7
+
     if power_int == 0:
-        return max(trunc(0.8 * (atkr_atk - defr_def)), 0)
+        return max(trunc(0.8 * (atkr_atk - defr_def)), 0) + true_damage
     if power_int == 1:
-        return max(atkr_atk - defr_def, 0)
+        return max(atkr_atk - defr_def, 0) + true_damage
     if power_int == 2:
-        return max(trunc(1.5 * (atkr_atk - defr_def)), 0)
+        return max(trunc(1.5 * (atkr_atk - defr_def)), 0) + true_damage
 
 
 # FEH Math

@@ -563,6 +563,9 @@ class Hero:
     def haveAssist(self):
         return not self.assist is None
 
+    def __str__(self):
+        return self.intName
+
 class Skill:
     def __init__(self, name, desc, letter, tier, effects, exc_users):
         self.name = name
@@ -676,28 +679,28 @@ class HarmonicSkill(DuoSkill):
 class Status(Enum):
     # negative
 
-    Gravity = 0  # 🔵 Movement reduced to 1
+    CantoControl = 0  # 🔵 If range = 1 Canto skill becomes Canto 1, if range = 2, turn ends when canto triggers
     Panic = 1  # 🔴 Buffs are negated & treated as penalties
-    Flash = 2  # 🔴 Unable to counterattack
-    TriAdept = 4  # 🔴 Triangle Adept 3, weapon tri adv/disadv affected by 20%
-    Guard = 5  # 🔴 Special charge -1
-    Isolation = 8  # 🟢 Cannot use or receive assist skills
-    DeepWounds = 17  # 🟢 Cannot recover HP
-    Stall = 26  # 🔵 Converts MobilityUp to Gravity
-    FalseStart = 29  # 🟢 Disables "at start of turn" skills, does not neutralize beast transformations or reusable duo/harmonized skills, cancelled by Odd/Even Recovery Skills
-    CantoControl = 32  # 🔵 If range = 1 Canto skill becomes Canto 1, if range = 2, turn ends when canto triggers
-    Exposure = 38  # 🔴 Foe's attacks deal +10 true damage
-    Undefended = 41  # 🔴 Cannot be protected by savior
-    Feud = 42  # 🔴 Disables all allies' skills (excluding self) in combat, does not include savior, but you get undefended if you get this because Embla
-    Sabotage = 48  # 🔴 Reduces atk/spd/def/res by lowest debuff among unit & allies within 2 spaces during combat
-    Discord = 49  # 🔴 Reduces atk/spd/def/res by 2 + number of allies within 2 spaces of unit, max 3 during combat
-    Ploy = 53 # 🔴 Nullifies Bonus Doubler, Treachery, and Grand Strategy on unit
-    Schism = 54 # 🔴 Nullifies DualStrike, TriangleAttack, and Pathfinder, unit does not count towards allies w/ TriangleAttack or DualStrike. If neutralized, those bonuses are neutralized as well
-    DisableMiracle = 55 # 🔴 Disables skills which allow unit to survive with 1HP (besides special Miracle)
-    TimesGrip = 60 # 🔴 Inflicts Atk/Spd/Def/Res-4 during next combat, neutralizes skills during allies' combats
-    CancelAction = 61  # 🟢 After start of turn skills trigger, unit's action ends immediately (cancels active units in Summoner Duels)
-    HushSpectrum = 62
-    ShareSpoils = 64
+    Exposure = 2  # 🔴 Foe's attacks deal +10 true damage
+    Sabotage = 3  # 🔴 Reduces atk/spd/def/res by lowest debuff among unit & allies within 2 spaces during combat
+    Discord = 4  # 🔴 Reduces atk/spd/def/res by 2 + number of allies within 2 spaces of unit, max 3 during combat
+    HushSpectrum = 5
+    ShareSpoils = 6
+    FalseStart = 7  # 🟢 Disables "at start of turn" skills, does not neutralize beast transformations or reusable duo/harmonized skills, cancelled by Odd/Even Recovery Skills
+    Flash = 8  # 🔴 Unable to counterattack
+    Isolation = 9  # 🟢 Cannot use or receive assist skills
+    DeepWounds = 10  # 🟢 Cannot recover HP
+    NullMiracle = 11  # 🔴 Disables skills which allow unit to survive with 1HP (besides special Miracle)
+    Undefended = 12  # 🔴 Cannot be protected by savior
+    Feud = 13  # 🔴 Disables all allies' skills (excluding self) in combat, does not include savior, but you get undefended if you get this because Embla
+    Ploy = 14 # 🔴 Nullifies Bonus Doubler, Treachery, and Grand Strategy on unit
+    Schism = 15 # 🔴 Nullifies DualStrike, TriangleAttack, and Pathfinder, unit does not count towards allies w/ TriangleAttack or DualStrike. If neutralized, those bonuses are neutralized as well
+    TimesGrip = 16  # 🔴 Inflicts Atk/Spd/Def/Res-4 during next combat, neutralizes skills during allies' combats
+    Gravity = 17  # 🔵 Movement reduced to 1
+    Stall = 18  # 🔵 Converts MobilityUp to Gravity
+    Guard = 19  # 🔴 Special charge -1
+    TriAdept = 20  # 🔴 Triangle Adept 3, weapon tri adv/disadv affected by 20%
+    CancelAction = 21  # 🟢 After start of turn skills trigger, unit's action ends immediately (cancels active units in Summoner Duels)
 
     # positive
 
@@ -767,12 +770,14 @@ veyle = Hero("Veyle", "Veyle", 17, "BTome", 0, [39, 46, 30, 21, 46], [50, 70, 50
 
 #print(veyle.visible_stats)
 
+print("Reading Unit & Skill Data...")
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 hero_sheet = pd.read_csv(__location__ + '\\FEHstats.csv')
 weapon_sheet = pd.read_csv(__location__ + '\\FEHWeapons.csv')
 assist_sheet = pd.read_csv(__location__ + '\\FEHAssists.csv')
 special_sheet = pd.read_csv(__location__ + '\\FEHSpecials.csv')
 skills_sheet = pd.read_csv(__location__ + '\\FEHABCXSkills.csv')
+print("Unit & Skill Data Loaded.")
 
 def makeHero(name):
     row = hero_sheet.loc[hero_sheet['IntName'] == name]

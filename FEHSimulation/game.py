@@ -8,6 +8,8 @@ import os
 import json
 from re import sub
 
+print("Beginning running...")
+
 PLAYER = 0
 ENEMY = 1
 
@@ -83,10 +85,11 @@ potent4 = makeSkill("Potent 4")
 
 
 
-xander = makeHero("DA!Xander")
-xander.set_skill(makeWeapon("Dusk Uchiwa+"), WEAPON)
+xander = makeHero("Azura")
+xander.set_skill(makeWeapon("Silver Lance+"), WEAPON)
+#xander.set_skill(united_bouquet, WEAPON)
 xander.set_skill(makeAssist("Dance"), ASSIST)
-xander.set_skill(makeSkill("Close Counter"), ASKILL)
+xander.set_skill(makeSkill("Distant Counter"), ASKILL)
 xander.set_skill(makeSkill("Quick Riposte 3"), BSKILL)
 xander.set_skill(makeSkill("Odd Def Wave 3"), CSKILL)
 
@@ -106,23 +109,25 @@ sharena.set_level(40)
 
 #robin.tile = map0.tiles[18]
 
-tested_unit = makeHero("Gaius")
-tested_weapon = makeWeapon("Rogue Dagger+")
-tested_assist = makeAssist("Rally Speed")
-tested_special = makeSpecial("Growing Thunder")
-tested_askill = makeSkill("Defiant Atk 3")
-tested_bskill = makeSkill("Pass 3")
-#tested_cskill = makeSkill("Fortify Def 3")
+tested_unit = makeHero("Jeorge")
+tested_weapon = makeWeapon("Parthia")
+#tested_assist = makeAssist("Rally Resistance")
+tested_special = makeSpecial("Blazing Flame")
+#tested_askill = makeSkill("Defense +3")
+tested_bskill = makeSkill("Seal Atk 3")
+tested_cskill = makeSkill("Spur Spd 3")
 
 #xander.allySupport = "M!Corrin"
 #tested_unit.allySupport = "DA!Xander"
 
 tested_unit.set_skill(tested_weapon, WEAPON)
-tested_unit.set_skill(tested_assist, ASSIST)
+#tested_unit.set_skill(tested_assist, ASSIST)
 tested_unit.set_skill(tested_special, SPECIAL)
-tested_unit.set_skill(tested_askill, ASKILL)
+#tested_unit.set_skill(tested_askill, ASKILL)
 tested_unit.set_skill(tested_bskill, BSKILL)
-#tested_unit.set_skill(tested_cskill, CSKILL)
+tested_unit.set_skill(tested_cskill, CSKILL)
+
+#tested_unit.resp = True
 
 player_units_all = [ike, sharena, xander, tested_unit]
 enemy_units_all = []
@@ -151,6 +156,10 @@ while i < len(data["enemyData"]):
     if "special" in data["enemyData"][i]:
         curSpecial = makeSpecial(data["enemyData"][i]["special"])
         curEnemy.set_skill(curSpecial, SPECIAL)
+
+    if "cskill" in data["enemyData"][i]:
+        curCSkill = makeSkill(data["enemyData"][i]["cskill"])
+        curEnemy.set_skill(curCSkill, CSKILL)
 
     if "alt_stats" in data["enemyData"][i]:
         curEnemy.visible_stats = data["enemyData"][i]["alt_stats"]
@@ -541,14 +550,20 @@ def start_sim(player_units, enemy_units, chosen_map):
         return -1
 
     def next_phase():
+
         # alternate turns
         turn_info[1] = abs(turn_info[1] - 1)
 
         while units_to_move:
             units_to_move.pop()
 
+        clear_banner()
+
         # increment count if player phase
         if turn_info[1] == PLAYER:
+
+            print("---- PLAYER PHASE ----")
+
             turn_info[0] += 1
 
             canvas.delete(next_phase.turn_txt)
@@ -564,15 +579,21 @@ def start_sim(player_units, enemy_units, chosen_map):
                 x.buffs = [0] * 5
                 x.special_galeforce_triggered = False
 
+            for x in enemy_units:
+                x.statusNeg = []
+                x.debuffs = [0] * 5
+
             for i in range(0, len(enemy_units_all)):
                 canvas.itemconfig(grayscale_enemy_sprite_IDs[i], state='hidden')
                 canvas.itemconfig(enemy_sprite_IDs[i], state='normal')
 
-            damage, heals = start_of_turn(player_units, turn_info[0])
+            damage, heals = start_of_turn(player_units, enemy_units, turn_info[0])
 
 
 
         if turn_info[1] == ENEMY:
+            print("---- ENEMY PHASE ----")
+
             canvas.delete(next_phase.phase_txt)
             next_phase.phase_txt = canvas.create_text((540 / 2, 830), text="ENEMY PHASE", fill="#e8321e", font=("Helvetica", 20), anchor='center')
 
@@ -582,11 +603,15 @@ def start_sim(player_units, enemy_units, chosen_map):
                 x.buffs = [0] * 5
                 x.special_galeforce_triggered = False
 
+            for x in player_units:
+                x.statusNeg = []
+                x.debuffs = [0] * 5
+
             for i in range(0, len(player_units_all)):
                 canvas.itemconfig(grayscale_player_sprite_IDs[i], state='hidden')
                 canvas.itemconfig(player_sprite_IDs[i], state='normal')
 
-            damage, heals = start_of_turn(enemy_units, turn_info[0])
+            damage, heals = start_of_turn(enemy_units, player_units, turn_info[0])
 
         i = 0
         while i < len(player_units):
@@ -956,8 +981,20 @@ def start_sim(player_units, enemy_units, chosen_map):
     def set_attack_forecast(attacker: Hero, defender: Hero, distance):
         clear_banner()
 
+        atkHP = attacker.HPcur
+        defHP = defender.HPcur
 
-        result = simulate_combat(attacker, defender, True, turn_info[0], distance, combat_fields)
+        print(atkHP)
+
+        aoe_present = False
+        if attacker.special is not None and attacker.special.type == "AOE" and attacker.specialCount == 0:
+            aoe_damage: int = get_AOE_damage(attacker, defender)
+
+            defHP = max(1, defHP - aoe_damage)
+
+            aoe_present = True
+
+        result = simulate_combat(attacker, defender, True, turn_info[0], distance, combat_fields, atkHPCur=atkHP, defHPCur=defHP)
 
         player_name = attacker.name
         player_move_type = moves[attacker.move]
@@ -1038,17 +1075,6 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         # HP Calculation
 
-        atkHP = attacker.HPcur
-        defHP = defender.HPcur
-
-        aoe_present = False
-        if attacker.special is not None and attacker.special.type == "AOE" and attacker.specialCount == 0:
-            aoe_damage: int = get_AOE_damage(attacker, defender)
-
-            defHP = max(1, defHP - aoe_damage)
-
-            aoe_present = True
-
         if aoe_present:
             atk_feh_math = str(aoe_damage) + "+" + str(atk_feh_math)
 
@@ -1056,11 +1082,11 @@ def start_sim(player_units, enemy_units, chosen_map):
         while i < len(attacks):
             if attacks[i].attackOwner == 0:
                 defHP = max(0, defHP - attacks[i].damage)
-                atkHP = min(attacker.stats[HP], atkHP + attacks[i].healed)
+                atkHP = min(attacker.visible_stats[HP], atkHP + attacks[i].healed)
 
             if attacks[i].attackOwner == 1:
                 atkHP = max(0, atkHP - attacks[i].damage)
-                defHP = min(defender.stats[HP], defHP + attacks[i].healed)
+                defHP = min(defender.visible_stats[HP], defHP + attacks[i].healed)
 
             if atkHP == 0 or defHP == 0: break
             i += 1
@@ -1617,6 +1643,11 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                                     valid_unit_cond = player.HPcur > 10
                                     valid_ally_cond = ally.HPcur != ally.visible_stats[HP]
+                                elif "harsh_comm" in cur_hero.assist.effects:
+                                    ally = chosen_map.tiles[n].hero_on
+
+                                    valid_unit_cond = True
+                                    valid_ally_cond = sum(ally.debuffs) < 0
                             else:
                                 # big guy is a cheater
                                 print("wonderhoy")
@@ -2819,6 +2850,13 @@ def start_sim(player_units, enemy_units, chosen_map):
                     set_hp_visual(player, player.HPcur)
                     set_hp_visual(ally, ally.HPcur)
 
+                if "harsh_comm" in player.assist.effects:
+                    i = 1
+                    while i < len(ally.debuffs):
+                        ally.buffs[i] = max(abs(ally.debuffs[i]), ally.buffs[i])
+                        ally.debuffs[i] = 0
+                        i += 1
+
                 set_banner(player)
 
                 player.statusNeg = []
@@ -3255,8 +3293,8 @@ def start_sim(player_units, enemy_units, chosen_map):
     duo_skill = canvas.create_rectangle((460, 820, 530, 900), fill='#75f216', width=0)
     end_turn_text = canvas.create_text(495, 855, text="Duo Skill", fill="#5e5b03")
 
-
-    damage, heals = start_of_turn(player_units, 1)
+    print("---- PLAYER PHASE ----")
+    damage, heals = start_of_turn(player_units, enemy_units, 1)
 
     for unit in player_units_all:
         if unit in heals:

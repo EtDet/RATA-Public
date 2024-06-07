@@ -17,6 +17,7 @@
        "rarity": 5,
        "weapon": "Silver Sword+",
       "special": "Bonfire",
+      "cskill": "Hone Atk 2",
        "startMove": 1,
        "wallBreak": false
        },
@@ -35,10 +36,10 @@
        "startMove": 1,
        "wallBreak": false
       },
-       {"name": "Effie",
+       {"name": "Cecilia",
        "level": 40,
        "rarity": 5,
-       "weapon": "Iron Lance",
+       "weapon": "Rexcalibur",
        "startMove": 1,
        "wallBreak": false
       }

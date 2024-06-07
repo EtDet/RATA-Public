@@ -53,13 +53,13 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
 
-        if "wardArmor" in unitSkills:
+        if "goadCav" in unitSkills:
             owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: True
             affect_self = False
             affect_other_side = True
-            effects = {"wardArmor_f": 0}
+            effects = {"goadCav_f": 0}
 
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
@@ -75,6 +75,61 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
 
+        if "goadFly" in unitSkills:
+            owner = unit
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = True
+            effects = {"goadFly_f": 0}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
+        if "wardFly" in unitSkills:
+            owner = unit
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = True
+            effects = {"wardFly_f": 0}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
+        if "goadArmor" in unitSkills:
+            owner = unit
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = True
+            effects = {"goadArmor_f": 0}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
+        if "wardArmor" in unitSkills:
+            owner = unit
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = True
+            effects = {"wardArmor_f": 0}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
+        if "gordin_field" in unitSkills:
+            owner = unit
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = False
+            effects = {"gordin_field_f": unitSkills["gordin_field"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
         if "supportThem" in unitSkills:
             owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
@@ -82,6 +137,17 @@ def create_combat_fields(player_team, enemy_team):
             affect_self = False
             affect_other_side = True
             effects = {"corrinField_f": unitSkills["supportThem"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
+        if "gunterJointDrive" in unitSkills:
+            owner = unit
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = True
+            effects = {"gunterJointDrive_f": 5}
 
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
@@ -110,10 +176,30 @@ def create_combat_fields(player_team, enemy_team):
 
     return combat_fields
 
-def start_of_turn(team, turn):
+def start_of_turn(starting_team, waiting_team, turn):
+
+    # Return units within a given team with the greatest of a given stat
+    def units_with_extreme_stat(cur_team, stat, find_max=True):
+        if not cur_team:
+            return []
+
+        extreme_stat = cur_team[0].visible_stats[stat]
+        extreme_stat_units = [cur_team[0]]
+
+        for unit in cur_team[1:]:
+            unit_stat = unit.visible_stats[stat]
+
+            if (find_max and unit_stat == extreme_stat) or (not find_max and unit_stat == extreme_stat):
+                extreme_stat_units.append(unit)
+
+            if (find_max and unit_stat > extreme_stat) or (not find_max and unit_stat < extreme_stat):
+                extreme_stat = unit_stat
+                extreme_stat_units = [unit]
+
+        return extreme_stat_units
 
     # LOOP 1: BUFFS, DEBUFFS, AND STATUS EFFECTS
-    for unit in team:
+    for unit in starting_team:
         tile = unit.tile
 
         tiles_within_n_spaces = [[]]
@@ -155,7 +241,7 @@ def start_of_turn(team, turn):
         atkHPGreaterEqual75Percent = unitHPCur / unitStats[0] >= 0.75
         atkHPEqual100Percent = unitHPCur == unitStats[0]
 
-
+        # HONE/FORTIFY
 
         if "honeAtk" in unitSkills:
             for ally in allies_within_n_spaces[1]:
@@ -173,10 +259,43 @@ def start_of_turn(team, turn):
             for ally in allies_within_n_spaces[1]:
                 ally.inflictStat(RES, unitSkills["fortifyRes"])
 
+        if "honecav" in unitSkills:
+            for ally in allies_within_n_spaces[2]:
+                if ally.move == 1:
+                    ally.inflictStat(ATK, 6)
+                    ally.inflictStat(SPD, 6)
+
+        if "forticav" in unitSkills:
+            for ally in allies_within_n_spaces[2]:
+                if ally.move == 1:
+                    ally.inflictStat(DEF, 6)
+                    ally.inflictStat(RES, 6)
+
+        if "honefly" in unitSkills:
+            for ally in allies_within_n_spaces[2]:
+                if ally.move == 2:
+                    ally.inflictStat(ATK, 6)
+                    ally.inflictStat(SPD, 6)
+
         if "fortifly" in unitSkills:
             for ally in allies_within_n_spaces[2]:
-                ally.inflictStat(DEF, 6)
-                ally.inflictStat(RES, 6)
+                if ally.move == 2:
+                    ally.inflictStat(DEF, 6)
+                    ally.inflictStat(RES, 6)
+
+        if "honearmor" in unitSkills:
+            for ally in allies_within_n_spaces[2]:
+                if ally.move == 3:
+                    ally.inflictStat(ATK, 6)
+                    ally.inflictStat(SPD, 6)
+
+        if "fortiarmor" in unitSkills:
+            for ally in allies_within_n_spaces[2]:
+                if ally.move == 3:
+                    ally.inflictStat(DEF, 6)
+                    ally.inflictStat(RES, 6)
+
+        # THREATEN
 
         if "threatenAtk" in unitSkills:
             for foe in foes_within_n_spaces[2]:
@@ -194,6 +313,8 @@ def start_of_turn(team, turn):
             for foe in foes_within_n_spaces[2]:
                 foe.inflictStat(RES, -unitSkills["threatenRes"])
 
+        # DEFIANT SKILLS
+
         if "defiantAtk" in unitSkills and unitHPCur / unitStats[0] <= 0.50:
             unit.inflictStat(ATK, 2 * unitSkills["defiantAtk"] + 1)
 
@@ -206,14 +327,43 @@ def start_of_turn(team, turn):
         if "defiantRes" in unitSkills and unitHPCur / unitStats[0] <= 0.50:
             unit.inflictStat(RES, 2 * unitSkills["defiantRes"] + 1)
 
+        # CHILL SKILLS
+
+        if "gunterChill" in unitSkills:
+            lowest_spd = units_with_extreme_stat(waiting_team, SPD, find_max=False)
+            for unit in lowest_spd:
+                unit.inflictStat(ATK, -5)
+                unit.inflictStat(DEF, -5)
+
         # Compile these all at once, sum together special modification from all sources
         if "wrath" in unitSkills and unitHPCur / unitStats[0] <= unitSkills["wrath"] * 0.25:
             unit.chargeSpecial(1)
+
+        # WAVE SKILLS
 
         if "oddDefWave" in unitSkills and turn % 2 == 1:
             unit.inflictStat(DEF, unitSkills["oddDefWave"])
             for ally in allies_within_n_spaces[1]:
                 ally.inflictStat(DEF, unitSkills["oddDefWave"])
+
+        # SABOTAGE SKILLS
+
+        if "sabotageAtk" in unitSkills:
+            for foe in waiting_team:
+
+                if allies_within_n(foe, 1):
+                    unit_res = unit.visible_stats[RES]
+                    foe_res = foe.visible_stats[RES]
+
+                    if "phantomRes" in unit.getSkills():
+                        unit_res += unit.getSkills()["phantomRes"]
+                    if "phantomRes" in foe.getSkills():
+                        foe_res += foe.getSkills()["phantomRes"]
+
+                    if foe_res <= unit_res - 3:
+                        foe.inflictStat(ATK, -7)
+
+        # THE UNIQUE SKILL STUFF
 
         # Eternal Breath - Fae
         if "honeFae" in unitSkills and allies_within_n_spaces[2]:
@@ -245,7 +395,7 @@ def start_of_turn(team, turn):
     damage_taken = {}
     heals_given = {}
 
-    for unit in team:
+    for unit in starting_team:
         tile = unit.tile
 
         tiles_within_n_spaces = [[]]
@@ -305,6 +455,16 @@ def start_of_turn(team, turn):
     # return hash maps of units who have had damage dealt or healed, or if their special cooldown was modified
     return damage_taken, heals_given
 
+# Allies within N spaces of unit
+def allies_within_n(unit, n):
+    unit_list = unit.tile.unitsWithinNSpaces(n)
+    returned_list = []
+
+    for x in unit_list:
+        if x != unit and unit.side == x.side:
+            returned_list.append(x)
+
+    return returned_list
 
 def can_be_on_terrain(terrain_int, move_type_int):
     if terrain_int == 0 or terrain_int == 3: return True
@@ -352,9 +512,28 @@ def get_warp_moves(unit, unit_team, enemy_team):
                     if can_be_on_terrain(adj_tile.terrain, unit.move) and adj_tile.hero_on is None:
                         warp_moves.append(adj_tile)
 
+    for ally in unit_team:
+        allySkills = ally.getSkills()
+        allyStats = ally.getStats()
+
+        if "refineNaginata" in allySkills and (unit.move == 0 or unit.move == 2):
+            units_within_2 = allies_within_n(ally, 2)
+            if unit in units_within_2:
+
+                local_spaces = ally.tile.tilesWithinNSpaces(1)
+                for tile in local_spaces:
+                    warp_moves.append(tile)
+
+    # Remove duplicates
     warp_moves = list(set(warp_moves))
 
-    return warp_moves
+    # Remove tiles other heroes are on
+    result_warp_moves = []
+    for tile in warp_moves:
+        if tile.hero_on is None:
+            result_warp_moves.append(tile)
+
+    return result_warp_moves
 
 # STRING COLLECTION
 # -- EFFECT TYPES --
