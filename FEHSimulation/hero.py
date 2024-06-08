@@ -21,6 +21,17 @@ CSKILL = 5
 SSEAL = 6
 XSKILL = 7
 
+MELEE_WEAPONS = ["Sword", "Lance", "Axe",
+                 "RDragon", "BDragon", "GDragon", "CDragon",
+                 "RBeast", "BBeast", "GBeast", "CBeast"]
+
+RANGED_WEAPONS = ["RTome", "BTome", "GTome", "CTome",
+                  "RDagger", "BDagger", "GDagger", "CDagger",
+                  "RBow", "BBow", "GBow", "CBow",
+                  "Staff"]
+
+MAGIC_WEAPONS = RANGED_WEAPONS[0:4]
+
 # return stat increase needed for level 1 -> 40
 def growth_to_increase(value, rarity):
     return trunc(0.39 * (trunc(value * (0.79 + (0.07 * rarity)))))

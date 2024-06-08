@@ -9,8 +9,9 @@ def create_combat_fields(player_team, enemy_team):
         unitSkills = unit.getSkills()
         unitStats = unit.getStats()
 
+        owner = unit
+
         if "spurAtk" in unitSkills:
-            owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 1
             condition = lambda s: lambda o: True
             affect_self = False
@@ -21,7 +22,6 @@ def create_combat_fields(player_team, enemy_team):
             combat_fields.append(field)
 
         if "spurSpd" in unitSkills:
-            owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 1
             condition = lambda s: lambda o: True
             affect_self = False
@@ -32,7 +32,6 @@ def create_combat_fields(player_team, enemy_team):
             combat_fields.append(field)
 
         if "spurDef" in unitSkills:
-            owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 1
             condition = lambda s: lambda o: True
             affect_self = False
@@ -43,7 +42,6 @@ def create_combat_fields(player_team, enemy_team):
             combat_fields.append(field)
 
         if "spurRes" in unitSkills:
-            owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 1
             condition = lambda s: lambda o: True
             affect_self = False
@@ -54,7 +52,6 @@ def create_combat_fields(player_team, enemy_team):
             combat_fields.append(field)
 
         if "goadCav" in unitSkills:
-            owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: True
             affect_self = False
@@ -65,7 +62,6 @@ def create_combat_fields(player_team, enemy_team):
             combat_fields.append(field)
 
         if "wardCav" in unitSkills:
-            owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: True
             affect_self = False
@@ -76,7 +72,6 @@ def create_combat_fields(player_team, enemy_team):
             combat_fields.append(field)
 
         if "goadFly" in unitSkills:
-            owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: True
             affect_self = False
@@ -87,7 +82,6 @@ def create_combat_fields(player_team, enemy_team):
             combat_fields.append(field)
 
         if "wardFly" in unitSkills:
-            owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: True
             affect_self = False
@@ -98,7 +92,6 @@ def create_combat_fields(player_team, enemy_team):
             combat_fields.append(field)
 
         if "goadArmor" in unitSkills:
-            owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: True
             affect_self = False
@@ -109,7 +102,6 @@ def create_combat_fields(player_team, enemy_team):
             combat_fields.append(field)
 
         if "wardArmor" in unitSkills:
-            owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: True
             affect_self = False
@@ -119,8 +111,19 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
 
+        # UNIQUE STUFF
+
+        if "driveSpectrum" in unitSkills:
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = True
+            effects = {"driveSpectrum_f": unitSkills["driveSpectrum"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
         if "gordin_field" in unitSkills:
-            owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: True
             affect_self = False
@@ -131,7 +134,6 @@ def create_combat_fields(player_team, enemy_team):
             combat_fields.append(field)
 
         if "supportThem" in unitSkills:
-            owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: o.allySupport == s.intName
             affect_self = False
@@ -142,7 +144,6 @@ def create_combat_fields(player_team, enemy_team):
             combat_fields.append(field)
 
         if "gunterJointDrive" in unitSkills:
-            owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: True
             affect_self = False
@@ -153,7 +154,6 @@ def create_combat_fields(player_team, enemy_team):
             combat_fields.append(field)
 
         if "camillaField" in unitSkills:
-            owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: True
             affect_self = False
@@ -164,7 +164,6 @@ def create_combat_fields(player_team, enemy_team):
             combat_fields.append(field)
 
         if "eliseField" in unitSkills:
-            owner = unit
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: True
             affect_self = False
@@ -329,17 +328,27 @@ def start_of_turn(starting_team, waiting_team, turn):
 
         # CHILL SKILLS
 
+        if "chillResW" in unitSkills:
+            highest_res = units_with_extreme_stat(waiting_team, RES, find_max=True)
+            for foe in highest_res:
+                foe.inflictStat(RES, -7)
+
         if "gunterChill" in unitSkills:
             lowest_spd = units_with_extreme_stat(waiting_team, SPD, find_max=False)
-            for unit in lowest_spd:
-                unit.inflictStat(ATK, -5)
-                unit.inflictStat(DEF, -5)
+            for foe in lowest_spd:
+                foe.inflictStat(ATK, -5)
+                foe.inflictStat(DEF, -5)
 
         # Compile these all at once, sum together special modification from all sources
         if "wrath" in unitSkills and unitHPCur / unitStats[0] <= unitSkills["wrath"] * 0.25:
             unit.chargeSpecial(1)
 
         # WAVE SKILLS
+
+        if "evenAtkWaveW" in unitSkills and turn % 2 == 0:
+            unit.inflictStat(ATK, unitSkills["evenAtkWaveW"])
+            for ally in allies_within_n_spaces[1]:
+                ally.inflictStat(ATK, unitSkills["evenAtkWaveW"])
 
         if "oddDefWave" in unitSkills and turn % 2 == 1:
             unit.inflictStat(DEF, unitSkills["oddDefWave"])
@@ -348,7 +357,7 @@ def start_of_turn(starting_team, waiting_team, turn):
 
         # SABOTAGE SKILLS
 
-        if "sabotageAtk" in unitSkills:
+        if "sabotageAtkW" in unitSkills:
             for foe in waiting_team:
 
                 if allies_within_n(foe, 1):
@@ -364,6 +373,12 @@ def start_of_turn(starting_team, waiting_team, turn):
                         foe.inflictStat(ATK, -7)
 
         # THE UNIQUE SKILL STUFF
+
+        # Aura - Linde
+        if "lindeAtkBuff" in unitSkills:
+            for ally in allies_within_n_spaces[1]:
+                if ally.wpnType in MAGIC_WEAPONS or ally.wpnType == "Staff":
+                    ally.inflictStat(ATK, 6)
 
         # Eternal Breath - Fae
         if "honeFae" in unitSkills and allies_within_n_spaces[2]:

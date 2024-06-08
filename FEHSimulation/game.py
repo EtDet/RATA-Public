@@ -1,5 +1,5 @@
 from combat import *
-from field_helpers import start_of_turn, end_of_combat, create_combat_fields, get_warp_moves
+from field_helpers import start_of_turn, end_of_combat, create_combat_fields, get_warp_moves, allies_within_n
 from map import Map
 import tkinter as tk
 import ttkbootstrap as ttk
@@ -85,8 +85,8 @@ potent4 = makeSkill("Potent 4")
 
 
 
-xander = makeHero("Azura")
-xander.set_skill(makeWeapon("Silver Lance+"), WEAPON)
+xander = makeHero("Lilina")
+xander.set_skill(makeWeapon("ForblazeEff"), WEAPON)
 #xander.set_skill(united_bouquet, WEAPON)
 xander.set_skill(makeAssist("Dance"), ASSIST)
 xander.set_skill(makeSkill("Distant Counter"), ASKILL)
@@ -109,21 +109,21 @@ sharena.set_level(40)
 
 #robin.tile = map0.tiles[18]
 
-tested_unit = makeHero("Jeorge")
-tested_weapon = makeWeapon("Parthia")
-#tested_assist = makeAssist("Rally Resistance")
-tested_special = makeSpecial("Blazing Flame")
-#tested_askill = makeSkill("Defense +3")
-tested_bskill = makeSkill("Seal Atk 3")
-tested_cskill = makeSkill("Spur Spd 3")
+tested_unit = makeHero("Odin")
+tested_weapon = makeWeapon("Odin's GrimoireEff")
+tested_assist = makeAssist("Pivot")
+tested_special = makeSpecial("Moonbow")
+tested_askill = makeSkill("Fury 3")
+tested_bskill = makeSkill("Desperation 3")
+tested_cskill = makeSkill("Threaten Res 3")
 
 #xander.allySupport = "M!Corrin"
 #tested_unit.allySupport = "DA!Xander"
 
 tested_unit.set_skill(tested_weapon, WEAPON)
-#tested_unit.set_skill(tested_assist, ASSIST)
+tested_unit.set_skill(tested_assist, ASSIST)
 tested_unit.set_skill(tested_special, SPECIAL)
-#tested_unit.set_skill(tested_askill, ASKILL)
+tested_unit.set_skill(tested_askill, ASKILL)
 tested_unit.set_skill(tested_bskill, BSKILL)
 tested_unit.set_skill(tested_cskill, CSKILL)
 
@@ -554,6 +554,9 @@ def start_sim(player_units, enemy_units, chosen_map):
         # alternate turns
         turn_info[1] = abs(turn_info[1] - 1)
 
+        units_to_move_CACHE = units_to_move[:]
+        print(units_to_move_CACHE)
+
         while units_to_move:
             units_to_move.pop()
 
@@ -580,8 +583,9 @@ def start_sim(player_units, enemy_units, chosen_map):
                 x.special_galeforce_triggered = False
 
             for x in enemy_units:
-                x.statusNeg = []
-                x.debuffs = [0] * 5
+                if x in units_to_move_CACHE:
+                    x.statusNeg = []
+                    x.debuffs = [0] * 5
 
             for i in range(0, len(enemy_units_all)):
                 canvas.itemconfig(grayscale_enemy_sprite_IDs[i], state='hidden')
@@ -604,8 +608,9 @@ def start_sim(player_units, enemy_units, chosen_map):
                 x.special_galeforce_triggered = False
 
             for x in player_units:
-                x.statusNeg = []
-                x.debuffs = [0] * 5
+                if x in units_to_move_CACHE:
+                    x.statusNeg = []
+                    x.debuffs = [0] * 5
 
             for i in range(0, len(player_units_all)):
                 canvas.itemconfig(grayscale_player_sprite_IDs[i], state='hidden')
@@ -760,11 +765,15 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         fills = ['white'] * 5
 
+        panic_factor = 1
+        if Status.Panic in hero.statusNeg: panic_factor = -1
+        if Status.NullPanic in hero.statusPos: panic_factor = 1
+
         i = 0
         while i < 5:
-            if hero.buffs[i] > abs(hero.debuffs[i]):
+            if hero.buffs[i] * panic_factor > abs(hero.debuffs[i]):
                 fills[i] = 'blue'
-            if abs(hero.debuffs[i]) > hero.buffs[i]:
+            if abs(hero.debuffs[i]) > hero.buffs[i] * panic_factor:
                 fills[i] = 'red'
 
             if i == HP and hero.HPcur < 10:
@@ -780,10 +789,10 @@ def start_sim(player_units, enemy_units, chosen_map):
         set_banner.rect_array.append(canvas.create_text((205, 38), text="/" + str(stats[HP]), fill='white', font=("Helvetica", 12)))
         set_banner.rect_array.append(canvas.create_text((250, 38), text=str(percentage) + "%", fill='white', font=("Helvetica", 12)))
 
-        displayed_atk = min(max(stats[ATK] + hero.buffs[ATK] + hero.debuffs[ATK], 0), 99)
-        displayed_spd = min(max(stats[SPD] + hero.buffs[SPD] + hero.debuffs[SPD], 0), 99)
-        displayed_def = min(max(stats[DEF] + hero.buffs[DEF] + hero.debuffs[DEF], 0), 99)
-        displayed_res = min(max(stats[RES] + hero.buffs[RES] + hero.debuffs[RES], 0), 99)
+        displayed_atk = min(max(stats[ATK] + hero.buffs[ATK] * panic_factor + hero.debuffs[ATK], 0), 99)
+        displayed_spd = min(max(stats[SPD] + hero.buffs[SPD] * panic_factor + hero.debuffs[SPD], 0), 99)
+        displayed_def = min(max(stats[DEF] + hero.buffs[DEF] * panic_factor + hero.debuffs[DEF], 0), 99)
+        displayed_res = min(max(stats[RES] + hero.buffs[RES] * panic_factor + hero.debuffs[RES], 0), 99)
 
         set_banner.rect_array.append(canvas.create_text((185, 56), text=displayed_atk, fill=fills[ATK], font=("Helvetica", 11)))
         set_banner.rect_array.append(canvas.create_text((265, 56), text=displayed_spd, fill=fills[SPD], font=("Helvetica", 11)))
@@ -983,8 +992,6 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         atkHP = attacker.HPcur
         defHP = defender.HPcur
-
-        print(atkHP)
 
         aoe_present = False
         if attacker.special is not None and attacker.special.type == "AOE" and attacker.specialCount == 0:
@@ -1246,6 +1253,24 @@ def start_sim(player_units, enemy_units, chosen_map):
             # Recover+
             if attacker.assist.effects["heal"] == -10:
                 hp_healed_ally = max(self_atk_stat//2 + 10, 15)
+
+            # Rehabilitate
+            if attacker.assist.effects["heal"] == -1:
+                ally_hp_max = ally.visible_stats[HP]
+                ally_hp_cur = ally.HPcur
+
+                hp_healed_ally = max(7 + ally_hp_max - (2 * ally_hp_cur), 7)
+
+            # Rehabilitate+
+            if attacker.assist.effects["heal"] == -2:
+                ally_hp_max = ally.visible_stats[HP]
+                ally_hp_cur = ally.HPcur
+
+                hp_healed_ally = max(self_atk_stat//2 - 10, 7) + max(ally_hp_max - (2 * ally_hp_cur), 0)
+
+            # Physic+
+            if attacker.assist.effects["heal"] == -50:
+                hp_healed_ally = max(self_atk_stat//2, 8)
 
             if attacker.specialCount == 0 and attacker.special.type == "Healing":
                 if "boost_heal" in attacker.special.effects:
@@ -2732,6 +2757,23 @@ def start_sim(player_units, enemy_units, chosen_map):
                     if player.assist.effects["heal"] == -10:
                         hp_healed_ally = max(self_atk_stat // 2 + 10, 15)
 
+                    # Rehabilitate
+                    if player.assist.effects["heal"] == -1:
+                        ally_hp_max = ally.visible_stats[HP]
+                        ally_hp_cur = ally.HPcur
+
+                        hp_healed_ally = max(7 + ally_hp_max - (2 * ally_hp_cur), 7)
+
+                    # Rehabilitate+
+                    if player.assist.effects["heal"] == -2:
+                        ally_hp_max = ally.visible_stats[HP]
+                        ally_hp_cur = ally.HPcur
+
+                        hp_healed_ally = max(self_atk_stat // 2 - 10, 7) + max(ally_hp_max - (2 * ally_hp_cur), 0)
+
+                    if player.assist.effects["heal"] == -50:
+                        hp_healed_ally = max(self_atk_stat // 2, 8)
+
                     staff_special_triggered = False
 
                     if player.specialCount == 0 and player.special.type == "Healing":
@@ -2862,6 +2904,31 @@ def start_sim(player_units, enemy_units, chosen_map):
                 player.statusNeg = []
                 player.debuffs = [0, 0, 0, 0, 0]
 
+                # Link skills
+                if player.assist.type == "Move":
+                    playerSkills = player.getSkills()
+                    allySkills = ally.getSkills()
+
+                    if "atkSpdLinkW" in playerSkills or "atkSpdLinkW" in allySkills:
+                        affected_units = [player, ally]
+
+                        for hero in affected_units:
+                            hero.inflictStat(ATK, 6)
+                            hero.inflictStat(SPD, 6)
+
+                    if "laslowShmovement" in playerSkills or "laslowShmovement" in allySkills:
+                        affected_units = [player, ally]
+                        affected_units += allies_within_n(player, 2)
+                        affected_units += allies_within_n(ally, 2)
+
+                        affected_units = list(set(affected_units))
+
+                        for hero in affected_units:
+                            hero.inflictStat(ATK, 4)
+                            hero.inflictStat(SPD, 4)
+                            hero.inflictStat(DEF, 4)
+                            hero.inflictStat(RES, 4)
+
             # DO NOTHIIIIIIIIIIIIIIING!!!!!
             if not action_performed and successful_move:
                 player.statusNeg = []
@@ -2898,6 +2965,9 @@ def start_sim(player_units, enemy_units, chosen_map):
 
 
     def on_double_click(event):
+        global animation
+        if animation: return
+
         x, y = event.x, event.y
 
         if x > 380 and y > 820 and x < 450 and y < 900:
@@ -2906,7 +2976,7 @@ def start_sim(player_units, enemy_units, chosen_map):
             return
 
         if x < 0 or x > 540 or y <= 90 or y > 810:
-            print("homer simpson")
+            print("simpson gamer")
             return
 
         x_comp = event.x // 90
@@ -3169,8 +3239,8 @@ def start_sim(player_units, enemy_units, chosen_map):
         respString = "-R" if x.resp else ""
         curImage = Image.open(__location__ + "\\Sprites\\" + x.intName + respString + ".png")
         curImage = curImage.transpose(Image.FLIP_LEFT_RIGHT)
-        modifier = curImage.height/85
-        resized_image = curImage.resize((int(curImage.width / modifier), 85), Image.LANCZOS)
+        #resized_image = curImage.resize((int(curImage.width / modifier), 85), Image.LANCZOS)
+        resized_image = curImage.resize((int(curImage.width / 2.1), int(curImage.height / 2.1)), Image.LANCZOS)
 
         curPhoto = ImageTk.PhotoImage(resized_image)
         enemy_sprites.append(curPhoto)
