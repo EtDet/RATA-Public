@@ -133,6 +133,16 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
 
+        if "tharja_field" in unitSkills:
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = False
+            effects = {"tharja_field_f": unitSkills["tharja_field"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
         if "supportThem" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: o.allySupport == s.intName
@@ -300,17 +310,33 @@ def start_of_turn(starting_team, waiting_team, turn):
             for foe in foes_within_n_spaces[2]:
                 foe.inflictStat(ATK, -unitSkills["threatenAtk"])
 
+        if "threatenAtkW" in unitSkills:
+            for foe in foes_within_n_spaces[2]:
+                foe.inflictStat(ATK, -unitSkills["threatenAtkW"])
+
         if "threatenSpd" in unitSkills:
             for foe in foes_within_n_spaces[2]:
                 foe.inflictStat(SPD, -unitSkills["threatenSpd"])
+
+        if "threatenSpdW" in unitSkills:
+            for foe in foes_within_n_spaces[2]:
+                foe.inflictStat(SPD, -unitSkills["threatenSpdW"])
 
         if "threatenDef" in unitSkills:
             for foe in foes_within_n_spaces[2]:
                 foe.inflictStat(DEF, -unitSkills["threatenDef"])
 
+        if "threatenDefW" in unitSkills:
+            for foe in foes_within_n_spaces[2]:
+                foe.inflictStat(DEF, -unitSkills["threatenDefW"])
+
         if "threatenRes" in unitSkills:
             for foe in foes_within_n_spaces[2]:
                 foe.inflictStat(RES, -unitSkills["threatenRes"])
+
+        if "threatenResW" in unitSkills:
+            for foe in foes_within_n_spaces[2]:
+                foe.inflictStat(RES, -unitSkills["threatenResW"])
 
         # DEFIANT SKILLS
 
@@ -392,6 +418,31 @@ def start_of_turn(starting_team, waiting_team, turn):
                 ally.inflictStat(SPD, 5)
                 ally.inflictStat(DEF, 5)
                 ally.inflictStat(RES, 5)
+
+        # Tactical Bolt/Gale (M!/F!Robin)
+        if "spectrumTactic" in unitSkills:
+            move_arrs = [[], [], [], []]
+            for ally in allies_within_n_spaces[2]:
+                move_arrs[ally.move].append(ally)
+
+            for arr in move_arrs:
+                if len(arr) <= 2:
+                    for ally in arr:
+                        ally.inflictStat(ATK, 4)
+                        ally.inflictStat(SPD, 4)
+                        ally.inflictStat(DEF, 4)
+                        ally.inflictStat(RES, 4)
+
+        # Dignified Bow - Virion
+        if "virionPanic" in unitSkills:
+            for foe in waiting_team:
+
+                if allies_within_n(foe, 1):
+                    unit_hp = unit.HPcur
+                    foe_hp = foe.HPcur
+
+                    if foe_hp <= unit_hp - 1:
+                        foe.inflictStatus(Status.Panic)
 
         # United Bouquet - Sharena
         if "bridal_shenanigans" in unitSkills and atkHPGreaterEqual25Percent:
@@ -522,7 +573,7 @@ def get_warp_moves(unit, unit_team, enemy_team):
         potential_allies = unit.tile.unitsWithinNSpaces(2)
         for ally in potential_allies:
             if ally != unit and ally.side == unit.side:
-                adj_ally_spaces = ally.tile.tilesWithinNSpaces(2)
+                adj_ally_spaces = ally.tile.tilesWithinNSpaces(1)
                 for adj_tile in adj_ally_spaces:
                     if can_be_on_terrain(adj_tile.terrain, unit.move) and adj_tile.hero_on is None:
                         warp_moves.append(adj_tile)

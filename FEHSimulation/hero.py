@@ -30,6 +30,8 @@ RANGED_WEAPONS = ["RTome", "BTome", "GTome", "CTome",
                   "RBow", "BBow", "GBow", "CBow",
                   "Staff"]
 
+DRAGON_WEAPONS = ["RDragon", "BDragon", "GDragon", "CDragon"]
+
 MAGIC_WEAPONS = RANGED_WEAPONS[0:4]
 
 # return stat increase needed for level 1 -> 40

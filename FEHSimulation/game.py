@@ -109,13 +109,13 @@ sharena.set_level(40)
 
 #robin.tile = map0.tiles[18]
 
-tested_unit = makeHero("Odin")
-tested_weapon = makeWeapon("Odin's GrimoireEff")
+tested_unit = makeHero("Wrys")
+tested_weapon = makeWeapon("Slow+Daz")
 tested_assist = makeAssist("Pivot")
-tested_special = makeSpecial("Moonbow")
-tested_askill = makeSkill("Fury 3")
+tested_special = makeSpecial("Astra")
+tested_askill = makeSkill("Svalinn Shield")
 tested_bskill = makeSkill("Desperation 3")
-tested_cskill = makeSkill("Threaten Res 3")
+tested_cskill = makeSkill("Threaten Def 3")
 
 #xander.allySupport = "M!Corrin"
 #tested_unit.allySupport = "DA!Xander"
@@ -284,6 +284,8 @@ def get_tile_cost(tile, hero):
     if tile.divine_vein == 1 and tile.divine_vein_owner != hero.side and hero.getRange() == 2: cost = 2
 
     if Status.TraverseTerrain in hero.statusPos: cost = 1
+
+    if "cannotStopTakumi" in hero.getSkills() and hero.HPcur/hero.visible_stats[HP] >= 0.50: cost = 1
 
     if tile.hero_on is not None:
         if "pathfinder" in tile.hero_on.getSkills(): cost = 0
