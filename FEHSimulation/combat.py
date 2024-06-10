@@ -4228,8 +4228,8 @@ guard4 = Skill("Guard 4",
 # noah = Hero("Noah", 40, 42, 45, 35, 25, "Sword", 0, marthFalchion, luna, None, None, None)
 # mio = Hero("Mio", 38, 39, 47, 27, 29, "BDagger", 0, tacticalBolt, moonbow, None, None, None)
 
-player = Hero("Marth", "E!Marth", 0, "Sword", 0, [41, 45, 47, 33, 27], [50, 80, 90, 55, 40], 5, 165)
-enemy = Hero("Lucina", "B!Lucina", 0, "Lance", 0, [41, 34, 36, 27, 19], [50, 60, 60, 45, 35], 30, 165)
+player = Hero("Marth", "E!Marth", "Something", 0, "Sword", 0, [41, 45, 47, 33, 27], [50, 80, 90, 55, 40], 5, 165)
+enemy = Hero("Lucina", "B!Lucina", "Minecrafter", 0, "Lance", 0, [41, 34, 36, 27, 19], [50, 60, 60, 45, 35], 30, 165)
 
 player_weapon = Weapon("Hero-King Sword", "Hero-King Sword", "", 16, 1, "Sword", {"slaying": 1, "effDragon": 0}, {})
 enemy_weapon = Weapon("Iron Lance", "Iron Lance", "", 6, 1, "Lance", {"shez!": 0}, {})

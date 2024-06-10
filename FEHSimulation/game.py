@@ -93,7 +93,7 @@ xander.set_skill(makeSkill("Distant Counter"), ASKILL)
 xander.set_skill(makeSkill("Quick Riposte 3"), BSKILL)
 xander.set_skill(makeSkill("Odd Def Wave 3"), CSKILL)
 
-sharena = Hero("Sharena", "BR!Sharena", 0, "Lance", 1, [40, 44, 47, 32, 21], [50, 70, 90, 50, 35], 5, 24)
+sharena = Hero("Sharena", "BR!Sharena", "Pillars of Peace", 0, "Lance", 1, [40, 44, 47, 32, 21], [50, 70, 90, 50, 35], 5, 24)
 
 sharena.set_skill(united_bouquet, WEAPON)
 sharena.set_skill(no_quarter, SPECIAL)
@@ -109,8 +109,8 @@ sharena.set_level(40)
 
 #robin.tile = map0.tiles[18]
 
-tested_unit = makeHero("Wrys")
-tested_weapon = makeWeapon("Slow+Daz")
+tested_unit = makeHero("Seiðr")
+tested_weapon = makeWeapon("Falchion")
 tested_assist = makeAssist("Pivot")
 tested_special = makeSpecial("Astra")
 tested_askill = makeSkill("Svalinn Shield")
@@ -3216,7 +3216,7 @@ def start_sim(player_units, enemy_units, chosen_map):
 
     for x in player_units_all:
         respString = "-R" if x.resp else ""
-        curImage = Image.open(__location__ + "\\Sprites\\" + x.intName + respString + ".png")
+        curImage = Image.open(__location__ + "\\TestSprites\\" + x.intName + respString + ".png")
         #modifier = curImage.height/85
         #resized_image = curImage.resize((int(curImage.width / modifier), 85), Image.LANCZOS)
         resized_image = curImage.resize((int(curImage.width / 2.1), int(curImage.height/ 2.1)), Image.LANCZOS)

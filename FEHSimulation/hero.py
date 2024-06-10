@@ -59,7 +59,7 @@ def change_highest_two(array, opp):
 
 
 class Hero:
-    def __init__(self, name, intName, game, wpnType, move, stats, growths, flower_limit, BVID):
+    def __init__(self, name, intName, epithet, game, wpnType, move, stats, growths, flower_limit, BVID):
         self.name = name # Unit's name (Julia, Gregor, Ratatoskr, etc.)
         self.intName = intName # Unit's unique name (M!Shez, A!Mareeta, HA!F!Grima, etc.)
 
@@ -761,7 +761,7 @@ class Status(Enum):
     HalfDamageReduction = 159 # 🔴 Cuts foe's damage reduction skill efficacy in half
     EssenceDrain = 163
 
-veyle = Hero("Veyle", "Veyle", 17, "BTome", 0, [39, 46, 30, 21, 46], [50, 70, 50, 40, 90], 5, 54)
+veyle = Hero("Veyle", "Veyle", "Her", 17, "BTome", 0, [39, 46, 30, 21, 46], [50, 70, 50, 40, 90], 5, 54)
 #obscurité = Weapon("Obscurité", "idk", 14, 2, {"stuff":10})
 
 #print(veyle.stats)
@@ -798,6 +798,7 @@ def makeHero(name):
 
     name = row.loc[n, 'Name']
     int_name = row.loc[n, 'IntName']
+    epithet = row.loc[n, 'Epithet']
     game = row.loc[n, 'Game']
     wpnType = row.loc[n, 'Weapon Type']
     moveType = row.loc[n, 'Movement']
@@ -814,10 +815,11 @@ def makeHero(name):
     dfl = row.loc[n, 'DFlowerLimit']
     bvid = row.loc[n, 'BVID']
 
-    return Hero(name, int_name, game, wpnType, moveType, [u_hp, u_atk, u_spd, u_def, u_res], [g_hp, g_atk, g_spd, g_def, g_res], dfl, bvid)
+    return Hero(name, int_name, epithet, game, wpnType, moveType, [u_hp, u_atk, u_spd, u_def, u_res], [g_hp, g_atk, g_spd, g_def, g_res], dfl, bvid)
 
 def makeWeapon(name):
     # ﻿
+    # I found this cool thing in the spreadsheet what is this
 
     row = weapon_sheet.loc[weapon_sheet['IntName'] == name]
     n = row.index.values[0]

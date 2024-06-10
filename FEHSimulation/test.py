@@ -1,95 +1,83 @@
-import tkinter as tk
-from PIL import Image, ImageTk
+# https://feheroes.fandom.com/wiki/Special:Redirect/file/Alfonse_Prince_of_Askr_Mini_Unit_Ok.png
 
-class DraggableObject():
-    def __init__(self, master, canvas, identifier, bg_image, icon_image):
+import requests
+from hero import hero_sheet, Hero
+from PIL import Image
+from io import BytesIO
+import unicodedata
 
-        self.canvas = canvas
-        self.identifier = identifier
 
-        # Load and store images
-        self.bg_image = ImageTk.PhotoImage(Image.open(bg_image))
-        self.icon_image = ImageTk.PhotoImage(Image.open(icon_image))
+def download_and_save_image(url, save_path):
+    response = requests.get(url)
 
-        # Create background image
-        self.bg_item = canvas.create_image(0, 0, anchor="center", image=self.bg_image, tags=identifier)
+    if response.status_code == 200:
 
-        # Create icon image
-        self.icon_item = canvas.create_image(5, 5, anchor="center", image=self.icon_image, tags=identifier)
+        image = Image.open(BytesIO(response.content))
 
-        # Create text labels
-        self.label1 = canvas.create_text(30, 30, text="Label 1", anchor="center", tags=identifier)
-        self.label2 = canvas.create_text(5, 85, text="Label 2", anchor="center", tags=identifier)
+        final_save_path = 'TestSprites\\' + save_path + ".png"
 
-        # Create progress bar rectangles
-        self.bar_bg = canvas.create_rectangle(50, 85, 90, 90, fill="gray", tags=identifier)
-        self.bar_fg = canvas.create_rectangle(50, 85, 50, 90, fill="green", tags=identifier)
+        image.save(final_save_path)
 
-        # Create bottom right image
-        self.bottom_image = None
+        print(f"Image successfully saved to {final_save_path}")
+    else:
+        print(f"Failed to retrieve image. Status code: {response.status_code}")
+        return -1
 
-        # Bind mouse events for dragging
-        self.canvas.bind("<B1-Motion>", self.on_motion)
 
-        self.x_pos = 0
-        self.y_pos = 0
+def normalize_string(input_string):
+    # Remove quotes and apostrophes
+    input_string = input_string.replace('"', '').replace("'", "")
 
-    def on_motion(self, event):
-        delta_x = event.x - self.x_pos
-        delta_y = event.y - self.y_pos
-        #self.canvas.place(x=self.canvas.winfo_x() + delta_x, y=self.canvas.winfo_y() + delta_y)
-        self.canvas.move(self.identifier, delta_x, delta_y)
+    # Replace Eth and Thorn
+    input_string = input_string.replace('ð', 'd')
+    input_string = input_string.replace('þ', 'th')
 
-        self.x_pos = event.x
-        self.y_pos = event.y
+    # Remove accented characters, set to ASCII
+    normalized_string = unicodedata.normalize('NFKD', input_string)
+    ascii_string = normalized_string.encode('ASCII', 'ignore').decode('ASCII')
 
-    def set_label1_text(self, text):
-        self.canvas.itemconfigure(self.label1, text=text)
+    # Replace spaces
+    ascii_string = ascii_string.replace(' ', '_')
 
-    def set_label2_text(self, text):
-        self.canvas.itemconfigure(self.label2, text=text)
+    return ascii_string
 
-    def set_progress(self, progress):
-        # Assuming progress is a value between 0 and 1
-        self.canvas.coords(self.bar_fg, 50, 85, 50 + (40 * progress), 90)
+names = hero_sheet['Name']
+int_names = hero_sheet['IntName']
+epithets = hero_sheet['Epithet']
+weapons = hero_sheet['Weapon Type']
+has_resps = hero_sheet['HasResp']
 
-    def set_bottom_image(self, image_path):
-        if self.bottom_image:
-            self.canvas.delete(self.bottom_image)
-        if image_path:
-            image = ImageTk.PhotoImage(Image.open(image_path))
-            self.bottom_image = self.canvas.create_image(70, 85, anchor="nw", image=image)
+i = 0
+while i < len(names):
+    name = normalize_string(names[i])
+    int_name = int_names[i]
+    epithet = normalize_string(epithets[i])
+    has_resp = has_resps[i]
+    weapon = weapons[i]
 
-    def grayscale_bg(self):
-        # Convert background image to grayscale
-        grayscale_image = ImageTk.PhotoImage(Image.open("Sprites//Death Knight.png").convert("L"))
-        self.canvas.itemconfigure(self.bg_item, image=grayscale_image)
-        self.bg_image = grayscale_image
+    #print(name + "_" + epithet)
 
-curImage = Image.open("Sprites//E!Ike.png")
-modifier = curImage.height/85
-resized_image = curImage.resize((int(curImage.width / modifier), 85), Image.LANCZOS)
-#curPhoto = ImageTk.PhotoImage(resized_image)
+    image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_Mini_Unit_Ok.png"
 
-# Usage example
-root = tk.Tk()
-main_canvas = tk.Canvas(root, width=400, height=400)
-main_canvas.pack()
-obj1 = DraggableObject(root, main_canvas, "tag1", "Sprites//Death Knight.png", "Sprites//E!Ike.png")
-#obj1.place(x=10, y=10)
+    download_and_save_image(image_url, int_name)
 
-obj2 = DraggableObject(root, main_canvas, "tag2", "Sprites//Death Knight.png", "Sprites//Anna.png")
-#obj2.place(x=100, y=20)
+    if has_resp == True:
+        resp_image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_Resplendent_Mini_Unit_Ok.png"
+        save_name = int_name + "-R"
+        download_and_save_image(resp_image_url, save_name)
 
-# Update labels
-obj1.set_label1_text("2")
-obj1.set_label2_text("21")
+    if weapon in ["RBeast", "BBeast", "GBeast", "CBeast"]:
+        beast_image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_TransformMap_Mini_Unit_Idle.png"
+        beast_name = int_name + "-Tr"
+        download_and_save_image(beast_image_url, beast_name)
 
-# Update progress bar
-obj1.set_progress(0.75)
+    i += 1
 
-root.mainloop()
 
-# I don't think I need to create a new object, just modify the code to select the hero based on the tile clicked
-# instead of finding the overlapping image. And drag all elements when overlapped, like I could even have the
-# grayscale image there and remain invisible because the component ID is unrelated, man I am a genius.
+# Example usage
+
+# 'https://feheroes.fandom.com/wiki/Special:Redirect/file/Seidr_Goddess_of_Hope_Mini_Unit_Ok.png'
+
+#image_url = 'https://feheroes.fandom.com/wiki/Special:Redirect/file/Alfonse_Prince_of_Askr_Mini_Unit_Ok.png'
+#sample_save_path = 'TestSprites\\downloaded_image.png'
+#download_and_save_image(image_url, save_path)
