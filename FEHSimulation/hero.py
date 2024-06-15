@@ -60,12 +60,17 @@ def change_highest_two(array, opp):
 
 class Hero:
     def __init__(self, name, intName, epithet, game, wpnType, move, stats, growths, flower_limit, BVID):
-        self.name = name # Unit's name (Julia, Gregor, Ratatoskr, etc.)
-        self.intName = intName # Unit's unique name (M!Shez, A!Mareeta, HA!F!Grima, etc.)
+        # Unit's name (Julia, Corrin, Ratatoskr, etc.)
+        self.name: str = name
 
-        self.side = 0 # 0 - player, 1 - enemy
+        # Unit's unique name (M!Shez, A!Mareeta, HA!F!Grima, etc.)
+        self.intName: str = intName
 
-        # FE Game of Origin - used by harmonic skills, Askr's Opened Domain, and Alear's Weapons
+        # Unit's side on the map
+        # 0 - player, 1 - enemy
+        self.side: int = 0
+
+        # FE Game of Origin
         # 0 - Heroes
         # 1/3/11/12 - Shadow Dragon/(New) Mystery
         # 2/15 - Gaiden/Echoes
@@ -85,45 +90,51 @@ class Hero:
         # 117 - E!Marth (FE1 & 17)
         # 313 - Naga & H!Naga (FE3 & FE13)
         # 776 - A!Ced & L!Lief (FE4 & FE5)
-        self.game = game
+        self.game: int = game
 
-        self.rarity = 5
-        self.level = 40
+        # Rarity of hero, 1-5 Stars. Affects base stats.
+        self.rarity: int = 5
 
-        self.BVID = BVID
+        # Level of hero, 1-40. Increases stats per level up.
+        self.level: int = 40
 
-        # internal stats, change often
-        self.stats = stats[:]
+        # 8-bit integer used for determining level-ups.
+        self.BVID: int = BVID
 
-        # stats changed by skills
-        self.skill_stat_mods = [0] * 5
+        # Internal stats, change often
+        self.stats: list[int] = stats[:]
+
+        # Stats changed by skills
+        self.skill_stat_mods: list[int] = [0] * 5
 
         # visible stats, what is shown in-game
-        self.visible_stats = stats[:]
+        self.visible_stats: list[int] = stats[:]
 
-        self.HPcur = self.visible_stats[HP]
+        # Current health
+        self.HPcur: int = self.visible_stats[HP]
 
         # percentage growths for each stat
-        self.growths = growths
+        self.growths: list[int] = growths
 
         # level 1 5★ base stats, constant
-        self.BASE_STATS = stats[:]
+        self.BASE_STATS: list[int] = stats[:]
+
         for i in range(0, 5):
             self.BASE_STATS[i] -= growth_to_increase(self.growths[i], self.rarity)
 
         # field buffs for different stats, will not change if
         # hero has Panic effect
-        self.buffs = [0, 0, 0, 0, 0]
+        self.buffs: list[int] = [0, 0, 0, 0, 0]
 
         # field debuffs for different stats, can only be negative
         # HC converts into buff, removes debuff values from units
 
-        self.debuffs = [0, 0, 0, 0, 0]
+        self.debuffs: list[int] = [0, 0, 0, 0, 0]
 
-        self.skill_effects = {}
+        self.skill_effects: dict[str:int] = {}
 
-        self.statusPos = []  # array of positive status effects currently held, cleared upon start of unit's turn
-        self.statusNeg = []  # array of negative status effects currently held, cleared upon end of unit's next action
+        self.statusPos: list[Status] = []  # array of positive status effects currently held, cleared upon start of unit's turn
+        self.statusNeg: list[Status] = []  # array of negative status effects currently held, cleared upon end of unit's next action
 
         # specific unit skills
         self.weapon = None
@@ -367,6 +378,8 @@ class Hero:
             return "Colorless"
 
     def set_skill(self, skill, slot):
+        if skill is None: return
+
         # Weapon Skill Add
         if slot == 0:
             self.weapon = skill

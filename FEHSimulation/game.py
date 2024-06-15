@@ -110,7 +110,7 @@ sharena.set_level(40)
 #robin.tile = map0.tiles[18]
 
 tested_unit = makeHero("Seiðr")
-tested_weapon = makeWeapon("Falchion")
+tested_weapon = makeWeapon("Awakening Falchion")
 tested_assist = makeAssist("Pivot")
 tested_special = makeSpecial("Astra")
 tested_askill = makeSkill("Svalinn Shield")
@@ -3050,7 +3050,7 @@ def start_sim(player_units, enemy_units, chosen_map):
     frame = ttk.Frame(window)
     frame.pack(fill=tk.BOTH, expand=True)
 
-    canvas = tk.Canvas(frame, width=540, height=890)  # Adjust the canvas size
+    canvas = tk.Canvas(frame, width=540, height=890)
     canvas.drag_data = None
     canvas.pack()
 

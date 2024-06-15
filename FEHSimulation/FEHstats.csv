@@ -2,7 +2,7 @@
 Abel,Abel,The Panther,39,33,32,25,25,1,Lance,1,-1,50,60,55,40,45,25,198,HERO,FALSE,0
 Aelfric,Aelfric,Custodian Monk,43,40,31,20,37,0,RTome,16,-1,55,70,55,35,65,15,23,HERO,FALSE,0
 Alcryst,Alcryst,Tender Archer,39,43,46,30,24,0,CBow,17,-1,50,70,75,60,45,10,106,REARM,FALSE,0
-BR!Alcryst,Alcryst,Tender Groom,40,44,46,35,23,0,RBow,17,-1,50,75,90,55,40,5,-1,HERO,FALSE,0
+BR!Alcryst,Alcryst,Tender Groom,40,44,46,35,23,0,RBow,17,-1,50,75,90,55,40,5,158,HERO,FALSE,0
 F!Alear,Alear,Dragon Child,40,43,46,32,26,0,Sword,17,-1,50,70,70,65,50,10,137,HERO,FALSE,0
 L!F!Alear,Alear,Awoken Divinity,40,41,47,33,37,0,GDragon,17,-1,55,70,80,65,75,5,101,LEGEND,FALSE,0
 M!Alear,Alear,Dragon Youth,40,44,45,33,25,0,Sword,17,-1,50,70,70,65,50,10,77,HERO,FALSE,0
@@ -188,7 +188,7 @@ P!M!Corrin,Corrin,Dream Prince,42,35,35,31,24,0,BDragon,14,-1,60,65,65,60,45,30,
 FA!M!Corrin,Corrin,Bloodbound Beast,42,38,38,33,26,0,BDragon,14,-1,55,70,70,65,50,25,42,0,FALSE,0
 NI!M!Corrin,Corrin,Daylight Ninja Act,41,40,38,35,28,0,Lance,14,-1,50,70,65,60,50,15,152,0,FALSE,0
 H!M!Corrin,Corrin,Celestial Sorcerer,44,44,21,44,39,0,GDragon,14,-1,60,80,40,85,70,10,130,0,FALSE,0
-L!M!Corrin,Corrin,Child of Dawn,40,40,46,27,46,0,GDragon,14,-1,50,75,90,50,80,5,-1,0,FALSE,0
+L!M!Corrin,Corrin,Child of Dawn,40,40,46,27,46,0,GDragon,14,-1,50,75,90,50,80,5,162,0,FALSE,0
 F!Corrin,Corrin,Fateful Princess,41,27,34,34,21,0,BDragon,14,-1,50,45,65,60,35,30,2,0,TRUE,0
 SU!F!Corrin,Corrin,Novice Vacationer,34,31,34,22,26,2,BTome,14,-1,40,55,60,40,45,25,182,0,FALSE,0
 P!F!Corrin,Corrin,Dream Princess,41,31,37,32,27,0,GDragon,14,-1,60,55,70,60,50,30,100,0,FALSE,0
@@ -242,7 +242,7 @@ L!Edelgard,Edelgard,Flame Emperor,45,42,17,39,36,3,Axe,16,-1,60,70,30,60,65,25,2
 FA!Edelgard,Edelgard,Hegemon Husk,45,42,14,44,39,3,CBeast,16,-1,55,70,25,75,70,20,84,0,FALSE,0
 SU!Edelgard,Edelgard,Sun Empresses,46,45,17,43,39,3,Sword,16,-1,60,75,30,70,70,15,109,0,FALSE,0
 WI!Edelgard,Edelgard,Snowfall Future,46,47,17,47,44,3,Lance,16,-1,60,90,30,75,70,5,110,0,FALSE,0
-Edward,Edward,Blade of Justice,40,43,46,43,21,0,Sword,10,-1,50,70,80,80,35,5,-1,HERO,FALSE,0
+Edward,Edward,Blade of Justice,40,43,46,43,21,0,Sword,10,-1,50,70,80,80,35,5,178,HERO,FALSE,0
 Effie,Effie,Army of One,50,40,22,33,23,3,Lance,14,-1,65,65,40,50,45,25,171,0,TRUE,0
 V!Effie,Effie,Dedicated Heart,43,46,43,32,23,0,Axe,14,-1,55,80,70,55,45,10,161,0,FALSE,0
 A!Eir,Eir,Life Ascendant,35,42,45,16,35,1,GDagger,0,-1,45,70,75,30,70,10,63,0,FALSE,0
@@ -278,7 +278,7 @@ B!Eliwood,Eliwood,Marquess Pherae,40,37,35,32,18,1,Lance,7,-1,50,65,60,60,30,25,
 CH!Eliwood,Eliwood,Pledged Friend,39,45,46,29,20,1,Sword,7,-1,50,70,75,60,40,10,241,0,FALSE,0
 NY!Elm,Elm,Resolute Grouch,41,40,45,27,31,2,GBeast,0,-1,50,70,75,50,55,10,85,0,FALSE,0
 Embla,Embla,God of Closure,41,43,44,31,24,2,RBeast,0,-1,50,70,75,60,45,10,38,0,FALSE,0
-BR!Embla,Embla,Closed-Off Bride,40,45,47,35,22,2,CBeast,0,-1,50,80,90,55,35,5,-1,HERO,FALSE,0
+BR!Embla,Embla,Closed-Off Bride,40,45,47,35,22,2,CBeast,0,-1,50,80,90,55,35,5,108,HERO,FALSE,0
 Emmeryn,Emmeryn,Gentle Exalt,43,32,34,23,30,0,Staff,13,-1,55,60,60,40,50,25,157,0,FALSE,0
 CH!Emmeryn,Emmeryn,Selfless Exalt,40,47,25,23,47,0,Staff,13,-1,50,90,45,40,75,5,106,HERO,FALSE,0
 H!Ena,Ena,Autumn Tactician,44,36,23,37,36,0,RDragon,10,-1,55,60,45,65,60,20,138,0,FALSE,0
@@ -427,7 +427,7 @@ P!Hinoka,Hinoka,Blue Sky Warrior,37,32,35,17,29,2,CBow,14,-1,45,60,60,30,50,25,2
 PI!Hinoka,Hinoka,Fair Pirate Pair,40,40,40,23,23,2,GBow,14,-1,50,70,70,45,40,20,187,0,FALSE,0
 HS!Hinoka,Hinoka,Relaxed Warrior,38,35,35,16,26,2,GDagger,14,-1,50,60,60,30,45,25,157,0,FALSE,0
 L!Hinoka,Hinoka,Thundering Wings,40,46,46,23,22,2,RBow,14,-1,50,90,70,45,40,10,71,0,FALSE,0
-Hinoka,Hinoka,Warrior Princess,41,35,32,25,24,2,Lance,14,-1,50,65,55,45,40,25,235,0,FALSE,0
+Hinoka,Hinoka,Warrior Princess,41,35,32,25,24,2,Lance,14,-1,50,65,55,45,40,25,235,0,TRUE,0
 Holst,Holst,Hero of Leicester,42,43,41,35,26,0,Sword,16,-1,55,75,70,60,45,10,231,HERO,FALSE,0
 Hortensia,Hortensia,Little Charmer,36,44,47,16,34,2,Staff,17,-1,45,70,90,30,60,5,195,REARM,FALSE,0
 Hríd,Hríd,Icy Blade,41,37,17,36,26,1,Sword,0,-1,50,70,30,55,50,25,213,LEGEND,FALSE,0
@@ -474,7 +474,7 @@ Jagen,Jagen,Veteran Knight,37,27,24,25,35,1,Lance,1,-1,40,45,40,40,55,25,2,HERO,
 H!Jakob,Jakob,Devoted Monster,42,35,23,33,32,3,CBow,14,-1,50,60,40,55,55,25,94,HERO,FALSE,0
 Jakob,Jakob,Devoted Servant,39,29,31,25,24,0,CDagger,14,-1,50,50,50,45,45,25,226,HERO,FALSE,0
 Jamke,Jamke,Prince of Verdane,38,36,32,29,17,0,CBow,4,-1,50,65,50,50,30,30,134,HERO,FALSE,0
-Jarod,Jarod,Nevassa General,42,46,44,34,27,0,Lance,10,-1,55,90,75,50,45,5,-1,HERO,FALSE,0
+Jarod,Jarod,Nevassa General,42,46,44,34,27,0,Lance,10,-1,55,90,75,50,45,5,179,HERO,FALSE,0
 Jeorge,Jeorge,Perfect Shot,37,32,32,24,22,0,CBow,4,-1,45,55,55,45,40,30,135,HERO,TRUE,0
 Jeralt,Jeralt,Blade Breaker,41,43,26,39,30,1,Lance,16,-1,50,70,50,70,55,10,91,HERO,FALSE,0
 Jill,Jill,Fiery Dracoknight,40,39,40,36,17,2,Axe,9,-1,50,70,70,60,30,20,3,HERO,FALSE,0
@@ -546,7 +546,7 @@ NI!Laevatein,Laevatein,Ninja of Múspell,41,42,18,37,34,2,Axe,0,-1,50,70,30,70,6
 Laevatein,Laevatein,Searing Steel,39,37,31,34,22,0,Sword,0,-1,50,60,55,60,40,30,166,0,FALSE,0
 Lara,Lara,Step Lively,40,35,44,34,24,0,RDagger,5,-1,55,70,75,60,45,5,110,0,FALSE,2
 Lapis,Lapis,Mighty Flower,41,41,45,29,32,0,Sword,17,-1,55,75,70,50,55,10,214,0,FALSE,0
-BR!Lapis,Lapis,Mighty Bride,41,42,47,30,24,1,Sword,17,-1,50,70,90,50,45,5,-1,HERO,FALSE,0
+BR!Lapis,Lapis,Mighty Bride,41,42,47,30,24,1,Sword,17,-1,50,70,90,50,45,5,72,HERO,FALSE,0
 Larcei,Larcei,Keen Kin,41,36,40,30,25,0,Sword,4,-1,55,65,70,50,40,25,160,0,FALSE,0
 CF!Larcei,Larcei,Scion of Astra,40,39,42,33,28,0,Axe,4,-1,50,70,70,55,50,15,99,0,FALSE,0
 BR!Larum,Larum,Dancing Bride,38,32,40,26,31,2,Lance,6,-1,45,65,70,50,55,15,132,0,FALSE,0
@@ -568,7 +568,7 @@ SU!Leo,Leo,Seashore's Prince,37,32,27,16,35,0,RTome,14,-1,45,55,50,25,65,30,93,0
 V!Leo,Leo,Shrouded Heart,37,45,31,16,45,1,GBow,14,-1,50,70,60,30,80,10,223,0,FALSE,0
 Leo,Leo,Sorcerous Prince,39,29,22,25,30,1,RTome,14,-1,50,50,40,45,50,25,41,0,FALSE,0
 Leon,Leon,True of Heart,39,34,30,30,15,0,CBow,15,-1,50,60,55,50,25,30,54,0,FALSE,0
-Leonardo,Leonardo,Freedom's Arrow,40,44,42,26,36,0,CBow,10,-1,50,70,75,50,65,5,-1,HERO,FALSE,0
+Leonardo,Leonardo,Freedom's Arrow,40,44,42,26,36,0,CBow,10,-1,50,70,75,50,65,5,180,HERO,FALSE,0
 SU!Leonie,Leonie,Relentless Rays,41,36,39,27,19,1,CBow,16,-1,55,65,70,45,35,20,113,0,FALSE,0
 Lethe,Lethe,Gallia's Valkyrie,41,33,38,26,19,1,RBeast,10,-1,55,55,65,50,30,25,18,0,FALSE,0
 NY!Lethe,Lethe,New Year's Claw,41,35,41,27,18,1,GBeast,10,-1,55,60,70,50,30,25,148,0,FALSE,0
@@ -696,7 +696,7 @@ B!Micaiah,Micaiah,Queen of Dawn,36,37,28,17,37,2,GTome,10,-1,45,70,50,30,60,25,1
 L!Micaiah,Micaiah,Radiant Queen,38,42,31,19,41,0,CTome,10,-1,50,70,55,35,70,15,170,0,FALSE,0
 DA!Micaiah,Micaiah,Summer's Dawn,33,34,20,18,34,0,RTome,10,-1,45,60,35,35,65,30,74,0,FALSE,0
 SU!Micaiah,Micaiah,Wavecrest Maiden,38,42,30,16,37,1,CTome,10,-1,50,70,55,30,65,15,66,0,FALSE,0
-X!Micaiah,Micaiah,Dawning Maiden,40,47,16,30,46,2,GTome,10,-1,50,90,30,50,75,5,-1,ATTU,FALSE,0
+X!Micaiah,Micaiah,Dawning Maiden,40,47,16,30,46,2,GTome,10,-1,50,90,30,50,75,5,144,ATTU,FALSE,0
 Michalis,Michalis,Ambitious King,43,34,26,35,19,2,Axe,1,-1,55,60,45,60,35,25,108,0,FALSE,0
 SP!Michalis,Michalis,Fruiting Ambition,43,45,32,47,17,2,Lance,1,-1,55,80,55,80,30,10,254,0,FALSE,0
 Midori,Midori,Reliable Chemist,41,41,30,34,21,0,RBow,14,-1,55,70,55,55,40,25,229,0,FALSE,0
@@ -749,7 +749,7 @@ Natasha,Natasha,Sacred Healer,37,36,32,24,36,0,Staff,8,-1,45,65,55,40,65,20,191,
 NI!Navarre,Navarre,Scarlet Ninja,41,39,42,31,23,0,Lance,1,-1,50,70,70,55,40,20,243,0,FALSE,0
 Navarre,Navarre,Scarlet Sword,42,31,37,23,24,0,Sword,1,-1,55,55,60,40,45,25,33,0,FALSE,0
 Neimi,Neimi,Tearful Archer,39,39,42,21,35,0,RBow,8,-1,50,70,70,40,60,15,236,0,FALSE,0
-BR!Nel,Nel,Stoic Bride,40,42,46,30,36,0,GDragon,17,-1,50,75,90,50,50,5,,HERO,FALSE,0
+BR!Nel,Nel,Stoic Bride,40,42,46,30,36,0,GDragon,17,-1,50,75,90,50,50,5,165,HERO,FALSE,0
 Nemesis,Nemesis,King of Liberation,43,39,23,37,34,0,Sword,16,-1,60,65,40,60,60,20,190,0,FALSE,0
 Nephenee,Nephenee,Fierce Halberdier,37,31,35,34,20,0,Lance,9,-1,45,55,60,60,35,30,176,0,TRUE,0
 DA!Nephenee,Nephenee,Sincere Dancer,37,35,36,24,25,0,CBow,9,-1,50,60,65,45,50,25,157,0,FALSE,0
@@ -942,7 +942,7 @@ Shanna,Shanna,Sprightly Flier,39,30,35,25,29,2,Lance,6,-1,50,50,60,45,50,25,193,
 Shannan,Shannan,Wielder of Astra,43,38,36,37,18,0,Sword,4,-1,55,70,65,60,30,25,247,FALSE,FALSE,0
 Sharena,Sharena,Princess of Askr,43,32,32,29,22,0,Lance,0,-1,55,55,55,50,40,25,218,FALSE,FALSE,0
 SP!Sharena,Sharena,Spring Princess,37,32,36,16,30,0,GTome,0,-1,45,55,60,30,55,30,172,FALSE,FALSE,0
-BR!Sharena,Sharena,Pillars of Peace,40,44,47,32,21,1,Lance,0,-1,50,70,90,60,35,5,-1,DUO,FALSE,0
+BR!Sharena,Sharena,Pillars of Peace,40,44,47,32,21,1,Lance,0,-1,50,70,90,60,35,5,234,DUO,FALSE,0
 Sheena,Sheena,Princess of Gra,45,30,25,36,33,3,Axe,1,-1,55,50,45,55,60,25,49,0,TRUE,0
 F!Shez,Shez,Keen Mercenary,38,41,42,32,34,0,Axe,16,-1,50,70,70,55,60,10,43,0,FALSE,0
 M!Shez,Shez,Rising Mercenary,40,43,41,37,26,0,Sword,16,-1,50,70,70,65,50,10,239,0,FALSE,0
@@ -982,7 +982,7 @@ B!Soren,Soren,Radiant Confidant,40,45,34,16,47,0,GTome,10,-1,50,70,70,30,80,5,22
 DE!Soren,Soren,Wind of Tradition,38,43,34,18,45,0,BTome,10,-1,50,75,60,30,75,10,190,0,FALSE,0
 TH!Sothe,Sothe,Rushing Dawn,41,39,41,28,23,2,GDagger,10,-1,55,70,70,50,40,15,204,0,FALSE,0
 Sothe,Sothe,Zephyr,39,36,33,22,21,0,CDagger,10,-1,50,60,55,40,40,30,203,0,TRUE,0
-R!Sothe,Sothe,Dawning Zephyr,43,43,47,30,25,0,CDagger,10,-1,50,70,90,50,50,5,-1,REARM,FALSE,0
+R!Sothe,Sothe,Dawning Zephyr,43,43,47,30,25,0,CDagger,10,-1,50,70,90,50,50,5,135,REARM,FALSE,0
 H!Sothis,Sothis,Bound-Spirit Duo,40,36,42,31,34,2,BDragon,16,-1,50,70,75,55,70,15,15,0,FALSE,0
 Sothis,Sothis,Girl on the Throne,41,34,39,32,27,0,RDragon,16,-1,55,65,70,60,55,25,107,0,FALSE,0
 WI!Sothis,Sothis,Silver Specter,44,35,41,30,35,3,GDragon,16,-1,60,70,75,50,60,25,88,0,FALSE,0

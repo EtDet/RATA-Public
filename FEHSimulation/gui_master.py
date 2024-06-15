@@ -1,4 +1,4 @@
-from combat import *
+import hero
 import pandas as pd
 import os
 
@@ -8,30 +8,6 @@ from PIL import Image, ImageTk
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 megaSpread = pd.read_csv(__location__ + '\\FEHstats.csv')
-
-def makeHero(name):
-    row = megaSpread.loc[megaSpread['IntName'] == name]
-    n = row.index.values[0]
-
-    name = row.loc[n, 'Name']
-    int_name = row.loc[n, 'IntName']
-    game = row.loc[n, 'Game']
-    wpnType = row.loc[n, 'Weapon Type']
-    moveType = row.loc[n, 'Movement']
-    u_hp = row.loc[n, 'HP']
-    u_atk = row.loc[n, 'Atk']
-    u_spd = row.loc[n, 'Spd']
-    u_def = row.loc[n, 'Def']
-    u_res = row.loc[n, 'Res']
-    g_hp = row.loc[n, 'HP Grow']
-    g_atk = row.loc[n, 'Atk Grow']
-    g_spd = row.loc[n, 'Spd Grow']
-    g_def = row.loc[n, 'Def Grow']
-    g_res = row.loc[n, 'Res Grow']
-    dfl = row.loc[n, 'DFlowerLimit']
-    bvid = row.loc[n, 'BVID']
-
-    return Hero(name, int_name, game, wpnType, moveType, [u_hp, u_atk, u_spd, u_def, u_res], [g_hp, g_atk, g_spd, g_def, g_res], dfl, bvid)
 
 
 def singlePlayerButton():
@@ -78,7 +54,7 @@ def myUnitsButton():
 
     # Create buttons for each unit
     for i, hrow in enumerate(unit_read.iterrows()):
-        curHero = makeHero(hrow[1]['IntName'])
+        curHero = hero.makeHero(hrow[1]['IntName'])
 
         respString = "-R" if hrow[1]['Resplendent'] == True else ""
 
@@ -114,7 +90,7 @@ def searchUnits():
     i = 0
     for hrow in unit_read.iterrows():
 
-        curHero = makeHero(hrow[1]['IntName'])
+        curHero = hero.makeHero(hrow[1]['IntName'])
 
         #print(curHero.intName)
         #print(hrow[1]['Build Name'])
@@ -170,13 +146,13 @@ def on_canvas_mousewheel(event):
 
 # window
 window = ttk.Window(themename='darkly')
-window.title('Fire Emblem Heroes Simulator')
+window.title('RATA')
 window.geometry('800x600')
 window.iconbitmap(__location__ + "\\Sprites\\Marth.ico")
 
 
 #top label
-title_label = ttk.Label(master=window, text='RATA', font='nintendoP_Skip-D_003 24')
+title_label = ttk.Label(master=window, text='RATA - An FE: Heroes Simulator', font='nintendoP_Skip-D_003 24')
 title_label.pack(side='top', anchor='nw')
 
 subtitle_label = ttk.Label(master=window, text='By CloudX (2024)', font='nintendoP_Skip-D_003 12')
@@ -244,6 +220,7 @@ output_label.pack(side='left', padx=100)
 search_string = tk.StringVar()
 search_bar = ttk.Entry(search_frame, textvariable=search_string)
 search_bar.pack(side='left')
+
 search_button = ttk.Button(search_frame, text='Search', command=searchUnits)
 search_button.pack(side='left', padx=5)
 
