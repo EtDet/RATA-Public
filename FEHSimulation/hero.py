@@ -35,6 +35,11 @@ BEAST_WEAPONS = ["RBeast", "BBeast", "GBeast", "CBeast"]
 BOW_WEAPONS = ["RBow", "BBow", "GBow", "CBow"]
 DAGGER_WEAPONS = ["RDagger", "BDagger", "GDagger", "CDagger"]
 
+RED_WEAPONS = ["Sword", "RTome", "RDagger", "RBow", "RDragon", "RBeast"]
+BLUE_WEAPONS = ["Lance", "BTome", "BDagger", "BBow", "BDragon", "BBeast"]
+GREEN_WEAPONS = ["Axe", "GTome", "GDagger", "GBow", "GDragon", "GBeast"]
+COLORLESS_WEAPONS = ["Staff", "CTome", "CDagger", "CBow", "CDragon", "CBeast"]
+
 MAGIC_WEAPONS = RANGED_WEAPONS[0:4]
 
 # return stat increase needed for level 1 -> 40
@@ -877,6 +882,8 @@ weapon_sheet = pd.read_csv(__location__ + '\\FEHWeapons.csv')
 assist_sheet = pd.read_csv(__location__ + '\\FEHAssists.csv')
 special_sheet = pd.read_csv(__location__ + '\\FEHSpecials.csv')
 skills_sheet = pd.read_csv(__location__ + '\\FEHABCXSkills.csv')
+
+impl_skills_sheet = pd.read_csv("FEHImplABCXSkills.csv")
 print("Unit & Skill Data Loaded.")
 
 def makeHero(name):

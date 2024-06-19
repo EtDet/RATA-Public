@@ -207,12 +207,15 @@ def generate_creation():
     remove_elements()
 
     top_frame.pack(side=tk.TOP, expand=False, fill=tk.X)
+    bottom_frame.pack(side=tk.BOTTOM, expand=False, fill=tk.X)
     unit_stat_frame.pack(side=tk.LEFT, expand=False, fill=tk.BOTH)
     dropbox_frame.pack(side=tk.LEFT, expand=True, fill=tk.X)
+
 
     current_elements.append(unit_stat_frame)
     current_elements.append(dropbox_frame)
     current_elements.append(top_frame)
+    current_elements.append(bottom_frame)
 
 def clear_creation_fields():
     curProxy.reset()
@@ -238,22 +241,40 @@ def clear_creation_fields():
 
     # Reset Weapon/Assist/Special options
     creation_comboboxes[6]['values'] = []
+    creation_comboboxes[7]['values'] = []
     creation_comboboxes[8]['values'] = []
     creation_comboboxes[9]['values'] = []
+
+    creation_comboboxes[18]['values'] = []
+    creation_comboboxes[19]['values'] = []
+    creation_comboboxes[20]['values'] = []
 
 def generate_all_units_option():
     names = hero.hero_sheet['Name']
     int_names = hero.hero_sheet['IntName']
     epithets = hero.hero_sheet['Epithet']
 
+    # Units currently allowed for this build of the sim, what's implemented so far
+    implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "Barst", "Bartre", "Beruka", "Caeda",
+                          "Cain", "Camilla", "Catria", "Cecilia", "Cherche", "chrom", "Clarine", "Cordelia", "M!Corrin", "F!Corrin",
+                          "Donnel", "Draug", "Effie", "Elise", "Eliwood", "Est", "Fae", "Felicia", "Fir", "Florina",
+                          "Frederick", "Gaius", "Gordin", "Gunter", "Gwendolyn", "Hana", "Hawkeye", "Hector", "Henry", "Hinata",
+                          "Hinoka", "Jagen", "Jakob", "Jeorge", "Kagero", "Laslow", "Leo", "Lilina", "Linde", "Lissa",
+                          "Lon'qu", "Lucina", "Lyn", "Maria", "Marth", "Matthew", "Merric", "Minerva", "Niles", "Nino",
+                          "Nowi", "Oboro", "Odin", "Ogma", "Olivia", "Palla", "Raigh", "Raven", "Peri", "M!Robin",
+                          "Roy", "Ryoma", "Saizo", "Sakura", "F!Selena", "Serra", "Setsuna", "Shanna", "Sharena", "Sheena",
+                          "Sophia", "Stahl", "Subaki", "Sully", "Takumi", "Tharja", "Y!Tiki", "A!Tiki", "Virion", "Wrys"]
+
     options = []
     intName_dict = {}
 
     i = 0
     while i < len(names):
-        cur_string = names[i] + ": " + epithets[i]
-        options.append(cur_string)
-        intName_dict[cur_string] = int_names[i]
+        if int_names[i] in implemented_heroes:
+            cur_string = names[i] + ": " + epithets[i]
+            options.append(cur_string)
+            intName_dict[cur_string] = int_names[i]
+
         i += 1
 
     return options, intName_dict
@@ -275,6 +296,18 @@ def get_valid_weapons(cur_hero):
 
     weapons_of_type = []
     prf_weapons = []
+
+    # Implemented weapons
+    implemented_weapons = ["Iron Sword", "Steel Sword", "Silver Sword", "Silver Sword+", "Armorslayer", "Armorslayer+", "Brave Sword", "Brave Sword+", "Ruby Sword", "Ruby Sword+", "Killing Edge", "Killing Edge+",
+                           "Iron Lance", "Steel Lance", "Silver Lance", "Silver Lance+", "Heavy Spear", "Heavy Spear+", "Brave Lance", "Brave Lance+", "Sapphire Lance", "Sapphire Lance+", "Killer Lance", "Killer Lance+",
+                           "Iron Axe", "Steel Axe", "Silver Axe", "Silver Axe+", "Hammer", "Hammer+", "Brave Axe", "Brave Axe+", "Emerald Axe", "Emerald Axe+", "Killer Axe", "Killer Axe+",
+                           "Iron Bow", "Steel Bow", "Silver Bow", "Silver Bow+", "Killer Bow", "Killer Bow+", "Brave Bow", "Brave Bow+", "Assassin's Bow", "Assassin's Bow+",
+                           "Iron Dagger", "Steel Dagger", "Silver Dagger", "Silver Dagger+", "Smoke Dagger", "Smoke Dagger+", "Rogue Dagger", "Rogue Dagger+", "Poison Dagger", "Poison Dagger+",
+                           "Fire", "Elfire", "Bolganone", "Bolganone+", "Flux", "Ruin", "Fenrir", "Fenrir+", "Rauðrblade", "Rauðrblade+", "Rauðrraven", "Rauðrraven+", "Rauðrwolf", "Rauðrwolf+",
+                           "Thunder", "Elthunder", "Thoron", "Thoron+", "Blárblade", "Blárblade+", "Blárraven", "Blárraven+",
+                           "Wind", "Elwind", "Rexcalibur", "Rexcalibur+", "Gronnblade", "Gronnblade+", "Gronnraven", "Gronnraven+",
+                           "Assault", "Absorb", "Absorb+", "Fear", "Fear+", "Slow", "Slow+", "Gravity", "Gravity+", "Panic", "Panic+", "Pain", "Pain+",
+                           "Fire Breath", "Fire Breath+", "Flametongue", "Flametongue+", "Lightning Breath", "Lightning Breath+", "Light Breath", "Light Breath+"]
 
     # Remove of different weapon
     i = 0
@@ -324,7 +357,7 @@ def get_valid_weapons(cur_hero):
             if substring in string:
                 is_valid = False
 
-        if is_valid:
+        if is_valid and string in implemented_weapons:
             unrefined_weapons.append(string)
 
     unrefined_weapons = sorted(unrefined_weapons)
@@ -373,22 +406,29 @@ def get_valid_assists(cur_hero):
     standard_assists = []
     prf_assists = []
 
+    implemented_assists = ["Heal", "Mend", "Reconcile", "Recover", "Recover+", "Martyr", "Martyr+", "Rehabilitate", "Rehabilitate+", "Restore", "Restore+",
+                           "Rally Attack", "Rally Speed", "Rally Defence", "Rally Resistance",
+                           "Dance", "Sing",
+                           "Harsh Command", "Ardent Sacrifice", "Reciprocal Aid",
+                           "Draw Back", "Reposition", "Swap", "Pivot", "Shove", "Smite",]
+
     i = 0
     while i < len(assist_names):
-        if (len(exclusive_all[i]) == 0):
-            standard_assists.append(assist_names[i])
+        if assist_names[i] in implemented_assists:
+            if (len(exclusive_all[i]) == 0):
+                standard_assists.append(assist_names[i])
 
-        elif cur_hero.intName in exclusive_all[i]:
-            prf_assists.append(assist_names[i])
+            elif cur_hero.intName in exclusive_all[i]:
+                prf_assists.append(assist_names[i])
 
-        elif "Staff" in exclusive_all[i] and cur_hero.wpnType == "Staff":
-            standard_assists.append(assist_names[i])
+            elif "Staff" in exclusive_all[i] and cur_hero.wpnType == "Staff":
+                standard_assists.append(assist_names[i])
 
-        elif "Dancers" in exclusive_all[i] and cur_hero.refresh_type == 2:
-            prf_assists.append(assist_names[i])
+            elif "Dancers" in exclusive_all[i] and cur_hero.refresh_type == 2:
+                prf_assists.append(assist_names[i])
 
-        elif "Singers" in exclusive_all[i] and cur_hero.refresh_type == 1:
-            prf_assists.append(assist_names[i])
+            elif "Singers" in exclusive_all[i] and cur_hero.refresh_type == 1:
+                prf_assists.append(assist_names[i])
 
         i += 1
 
@@ -416,9 +456,16 @@ def get_valid_specials(cur_hero):
     standard_specials = []
     prf_specials = []
 
-    # Lists of specials allowed by move and weapon, only those in both are given
-    allowed_by_move = []
-    allowed_by_wpn = []
+    # Implemented Specials
+    implemented_specials = ["Glowing Ember", "Bonfire", "Ignis", "Chilling Wind", "Iceberg", "Glacies", "New Moon", "Moonbow", "Luna",
+                            "Dragon Gaze", "Draconic Aura", "Dragon Fang", "Night Sky", "Glimmer", "Astra", "Retribution", "Reprisal", "Vengeance",
+                            "Daylight", "Noontime", "Sol", "Aether",
+                            "Rising Flame", "Blazing Flame", "Growing Flame",
+                            "Rising Light", "Blazing Light", "Growing Light",
+                            "Rising Thunder", "Blazing Thunder", "Growing Thunder",
+                            "Rising Wind", "Blazing Wind", "Growing Wind",
+                            "Buckler", "Escutcheon", "Pavise", "Holy Vestiments", "Sacred Cowl", "Aegis", "Miracle",
+                            "Imbue", "Heavenly Light", "Kindled-Fire Balm", "Swift-Winds Balm", "Solid-Earth Balm", "Still-Water Balm"]
 
     i = 0
     while i < len(special_names):
@@ -426,7 +473,7 @@ def get_valid_specials(cur_hero):
         if cur_hero.intName in exclusive_all[i]:
             prf_specials.append(special_names[i])
 
-        elif (len(exclusive_all[i]) == 0):
+        elif (len(exclusive_all[i]) == 0) and special_names[i] in implemented_specials:
 
             add_cond = True
 
@@ -460,8 +507,117 @@ def get_valid_specials(cur_hero):
 
     return ["None"] + prf_specials + standard_specials
 
-#def get_valid_abc_skills(cur_hero):
+def get_valid_abc_skills(cur_hero):
+    skill_names = hero.impl_skills_sheet["Name"]
+    skill_letters = hero.impl_skills_sheet["Letter"]
 
+    exclusive1 = list(hero.impl_skills_sheet['ExclusiveUser1'])
+    exclusive2 = list(hero.impl_skills_sheet['ExclusiveUser2'])
+    exclusive3 = list(hero.impl_skills_sheet['ExclusiveUser3'])
+
+    restr_move = list(hero.impl_skills_sheet['RestrictedMovement'])
+    restr_wpn = list(hero.impl_skills_sheet['RestrictedWeapons'])
+
+    # Zip into 2D array by row
+    exclusive_all = list(zip(exclusive1, exclusive2, exclusive3))
+
+    # Purge NaN values
+    exclusive_all = [[value for value in sublist if not isinstance(value, float) or not isnan(value)] for sublist in exclusive_all]
+
+    standard_skills = []
+    standard_skill_letters = []
+
+    prf_skills = []
+    prf_skill_letters = []
+
+    i = 0
+    while i < len(skill_names):
+
+        if cur_hero.intName in exclusive_all[i]:
+            prf_skills.append(skill_names[i])
+            prf_skill_letters.append(skill_letters[i])
+
+        elif (len(exclusive_all[i]) == 0):
+
+            add_cond = True
+
+            # Color Conditions
+            if restr_wpn[i] == "Colorless" and cur_hero.wpnType in hero.COLORLESS_WEAPONS: add_cond = False
+            if restr_wpn[i] == "Red" and cur_hero.wpnType in hero.RED_WEAPONS: add_cond = False
+            if restr_wpn[i] == "Blue" and cur_hero.wpnType in hero.BLUE_WEAPONS: add_cond = False
+            if restr_wpn[i] == "Green" and cur_hero.wpnType in hero.GREEN_WEAPONS: add_cond = False
+
+            if restr_wpn[i] == "Staff" and cur_hero.wpnType == "Staff": add_cond = False
+            if restr_wpn[i] == "NotStaff" and cur_hero.wpnType != "Staff": add_cond = False
+            if restr_wpn[i] == "NotDragon" and cur_hero.wpnType not in hero.DRAGON_WEAPONS: add_cond = False
+            if restr_wpn[i] == "NotDagger" and cur_hero.wpnType not in hero.DAGGER_WEAPONS: add_cond = False
+            if restr_wpn[i] == "NotMagic" and cur_hero.wpnType not in hero.MAGIC_WEAPONS: add_cond = False
+            if restr_wpn[i] == "NotBow" and cur_hero.wpnType not in hero.BOW_WEAPONS: add_cond = False
+
+            if "Dragon" in restr_wpn[i] and restr_wpn[i] != "NotDragon" and cur_hero.wpnType in hero.DRAGON_WEAPONS: add_cond = False
+            elif "Beast" in restr_wpn[i] and restr_wpn[i] != "NotBeast" and cur_hero.wpnType in hero.BEAST_WEAPONS:  add_cond = False
+            elif "Staff" in restr_wpn[i] and restr_wpn[i] != "NotStaff" and cur_hero.wpnType == "Staff":             add_cond = False
+
+            if "Ranged" in restr_wpn[i] and cur_hero.wpnType in hero.RANGED_WEAPONS: add_cond = False
+            if "Melee" in restr_wpn[i] and cur_hero.wpnType in hero.MELEE_WEAPONS: add_cond = False
+
+
+            # Movement conditions
+            if "Inf" in restr_move[i] and cur_hero.move == 0: add_cond = False
+            elif "Cav" in restr_move[i] and cur_hero.move == 1: add_cond = False
+            elif "Fly" in restr_move[i] and cur_hero.move == 2: add_cond = False
+            elif "Armor" in restr_move[i] and cur_hero.move == 3: add_cond = False
+
+            if add_cond:
+                standard_skills.append(skill_names[i])
+                standard_skill_letters.append(skill_letters[i])
+
+        i += 1
+
+    #all_valid_skills = prf_skills + standard_skills
+    #all_valid_sk_letters = prf_skill_letters + standard_skill_letters
+
+    # Seperate into A, B, and C skills
+    prf_a = []
+    prf_b = []
+    prf_c = []
+
+    i = 0
+    while i < len(prf_skills):
+        if prf_skill_letters[i] == 'A':
+            prf_a.append(prf_skills[i])
+        elif prf_skill_letters[i] == 'B':
+            prf_b.append(prf_skills[i])
+        elif prf_skill_letters[i] == 'C':
+            prf_c.append(prf_skills[i])
+
+        i += 1
+
+
+    a_skills = []
+    b_skills = []
+    c_skills = []
+
+    i = 0
+    while i < len(standard_skills):
+        if standard_skill_letters[i] == 'A':
+            a_skills.append(standard_skills[i])
+        elif standard_skill_letters[i] == 'B':
+            b_skills.append(standard_skills[i])
+        elif standard_skill_letters[i] == 'C':
+            c_skills.append(standard_skills[i])
+
+        i += 1
+
+    a_skills = sorted(a_skills)
+    b_skills = sorted(b_skills)
+    c_skills = sorted(c_skills)
+
+    a_skills = ["None"] + prf_a + a_skills
+    b_skills = ["None"] + prf_b + b_skills
+    c_skills = ["None"] + prf_c + c_skills
+
+    return a_skills, b_skills, c_skills
 
 # Scroll list of units
 def on_canvas_mousewheel(event):
@@ -484,8 +640,6 @@ window.geometry('800x600')
 window.title('FEH Sim')
 window.configure(background='#797282')
 window.iconbitmap("Sprites\\Marth.ico")
-
-
 
 # MAIN MENU ELEMENTS
 title_label = tk.Label(master=window, text='RATA - An FE: Heroes Simulator', font='nintendoP_Skip-D_003 24')
@@ -537,13 +691,24 @@ unit_read = pd.read_csv("feh_user_units.csv")
 
 # UNIT CREATION
 
-# Three frames
+# Four frames
 top_frame = tk.Frame(window, bg='gray')
 unit_stat_frame = tk.Frame(window, bg='#2b2a69')
 dropbox_frame = tk.Frame(window, bg='#a5b7c2')
+bottom_frame = tk.Frame(window, bg='gray')
 
 creation_back_button = tk.Button(top_frame, text='<- Cancel', command=generate_units, width=10)
 creation_back_button.pack(side=tk.LEFT, anchor='nw', padx=10, pady=10)
+
+creation_make_button = tk.Button(bottom_frame, text='Create', command=generate_units, width=10)
+creation_make_button.pack(side=tk.RIGHT, anchor='nw', padx=10, pady=10)
+
+creation_build_field = tk.Text(bottom_frame, height=1, width=30, font="Helvetica")
+creation_build_field.pack(side=tk.RIGHT, anchor='nw', padx=10, pady=10)
+
+creation_make_text = tk.Label(bottom_frame, text='Build Name: ', width=10)
+creation_make_text.pack(side=tk.RIGHT, anchor='nw', padx=10, pady=10)
+
 
 pixel = tk.PhotoImage(width=1, height=1)
 
@@ -674,7 +839,30 @@ def handle_selection_change_name(event):
     # Set allowed assists
     creation_comboboxes[9]['values'] = specials
 
+    # ABC Skills
+    a_sk, b_sk, c_sk = get_valid_abc_skills(madeHero)
 
+    if creation_str_vars[18].get() not in a_sk:
+        curProxy.askill = None
+        creation_str_vars[18].set("None")
+
+    # Set allowed assists
+    creation_comboboxes[18]['values'] = a_sk
+
+    if creation_str_vars[19].get() not in b_sk:
+        curProxy.bskill = None
+        creation_str_vars[19].set("None")
+
+    # Set allowed assists
+    creation_comboboxes[19]['values'] = b_sk
+
+    if creation_str_vars[20].get() not in c_sk:
+        curProxy.cskill = None
+        creation_str_vars[20].set("None")
+
+    # Set allowed assists
+    creation_comboboxes[20]['values'] = c_sk
+    #print(a_sk, b_sk, c_sk)
 
 
     handle_selection_change_name.created_hero = madeHero
@@ -888,6 +1076,60 @@ def handle_selection_change_special(event):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
+def handle_selection_change_askill(event):
+    selected_value = event.widget.get()
+    print(f"You selected: {selected_value}")
+
+    # Set proxy value
+    if selected_value != "None":
+        curProxy.askill = hero.makeSkill(selected_value)
+    else:
+        curProxy.askill = None
+
+    if handle_selection_change_name.created_hero is not None:
+        curProxy.apply_proxy(handle_selection_change_name.created_hero)
+
+        i = 0
+        while i < 5:
+            creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
+            i += 1
+
+def handle_selection_change_bskill(event):
+    selected_value = event.widget.get()
+    print(f"You selected: {selected_value}")
+
+    # Set proxy value
+    if selected_value != "None":
+        curProxy.bskill = hero.makeSkill(selected_value)
+    else:
+        curProxy.bskill = None
+
+    if handle_selection_change_name.created_hero is not None:
+        curProxy.apply_proxy(handle_selection_change_name.created_hero)
+
+        i = 0
+        while i < 5:
+            creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
+            i += 1
+
+def handle_selection_change_cskill(event):
+    selected_value = event.widget.get()
+    print(f"You selected: {selected_value}")
+
+    # Set proxy value
+    if selected_value != "None":
+        curProxy.cskill = hero.makeSkill(selected_value)
+    else:
+        curProxy.cskill = None
+
+    if handle_selection_change_name.created_hero is not None:
+        curProxy.apply_proxy(handle_selection_change_name.created_hero)
+
+        i = 0
+        while i < 5:
+            creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
+            i += 1
+
 creation_str_vars = []
 creation_comboboxes = []
 
@@ -897,7 +1139,7 @@ for row in range(12):
 
     tk.Label(left_dropbox_frame, text=names[row], width=12).grid(row=row, column=0, padx=10, pady=5)
     combo1 = ttk.Combobox(left_dropbox_frame, textvariable=cur_str_var)
-    combo1.grid(row=row, column=1, padx=10, pady=12)
+    combo1.grid(row=row, column=1, padx=10, pady=10)
 
     creation_str_vars.append(cur_str_var)
     creation_comboboxes.append(combo1)
@@ -952,7 +1194,7 @@ for row in range(11):
 
     tk.Label(right_dropbox_frame, text=names2[row], width=12).grid(row=row, column=0, padx=10, pady=5)
     combo1 = ttk.Combobox(right_dropbox_frame, textvariable=cur_str_var)
-    combo1.grid(row=row, column=1, padx=10, pady=12)
+    combo1.grid(row=row, column=1, padx=10, pady=10)
 
     creation_str_vars.append(cur_str_var)
     creation_comboboxes.append(combo1)
@@ -973,6 +1215,18 @@ for row in range(11):
     if row == 4:
         combo1['textvariable'] = None
         #combo1['values'] = iv_strs
+
+    if row == 6:
+        combo1['textvariable'] = None
+        combo1.bind("<<ComboboxSelected>>", handle_selection_change_askill)
+
+    if row == 7:
+        combo1['textvariable'] = None
+        combo1.bind("<<ComboboxSelected>>", handle_selection_change_bskill)
+
+    if row == 8:
+        combo1['textvariable'] = None
+        combo1.bind("<<ComboboxSelected>>", handle_selection_change_cskill)
 
 def check_input(event):
     value = event.widget.get()
