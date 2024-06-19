@@ -59,13 +59,13 @@ Ayra,Ayra,Astra's Wielder,41,33,37,31,21,0,Sword,4,-1,50,60,60,55,40,30,143,HERO
 T!Ayra,Ayra,Together in Tea,40,44,46,32,17,1,Sword,4,-1,50,70,80,65,30,10,231,,FALSE,0
 Azama,Azama,Carefree Monk,43,21,26,32,25,0,Staff,14,-1,55,40,45,55,45,30,149,HERO,TRUE,0
 Azelle,Azelle,Youthful Flame,41,37,39,26,23,0,RTome,4,-1,50,65,65,50,40,20,233,HERO,FALSE,0
-NY!Azura,Azura,Celebratory Spirit,37,30,35,22,26,2,Axe,14,-1,50,55,60,40,50,25,102,HERO,FALSE,Sing
-DE!Azura,Azura,Hatari Duet,37,37,39,16,23,1,GTome,14,-1,50,70,70,30,45,15,171,ATTU,FALSE,Sing
-DA!Azura,Azura,Lady of Ballads,35,32,34,20,28,0,Axe,14,-1,45,60,60,40,50,30,255,HERO,FALSE,Sing
-Azura,Azura,Lady of the Lake,36,31,33,21,28,0,Lance,14,-1,45,60,60,40,50,25,83,HERO,TRUE,Sing
-L!Azura,Azura,Vallite Songstress,33,30,35,17,24,2,BTome,14,-1,45,55,65,30,45,25,47,LEGEND,FALSE,Sing
-P!Azura,Azura,Young Songstress,36,33,29,17,25,0,GTome,14,-1,50,60,55,30,45,30,32,HERO,FALSE,Sing
-X!Azura,Azura,Song's Reflection,38,45,46,18,28,1,Axe,14,-1,50,75,90,35,50,5,21,HERO,FALSE,Sing
+NY!Azura,Azura,Celebratory Spirit,37,30,35,22,26,2,Axe,14,-1,50,55,60,40,50,25,102,HERO,FALSE,1
+DE!Azura,Azura,Hatari Duet,37,37,39,16,23,1,GTome,14,-1,50,70,70,30,45,15,171,ATTU,FALSE,1
+DA!Azura,Azura,Lady of Ballads,35,32,34,20,28,0,Axe,14,-1,45,60,60,40,50,30,255,HERO,FALSE,1
+Azura,Azura,Lady of the Lake,36,31,33,21,28,0,Lance,14,-1,45,60,60,40,50,25,83,HERO,TRUE,1
+L!Azura,Azura,Vallite Songstress,33,30,35,17,24,2,BTome,14,-1,45,55,65,30,45,25,47,LEGEND,FALSE,1
+P!Azura,Azura,Young Songstress,36,33,29,17,25,0,GTome,14,-1,50,60,55,30,45,30,32,HERO,FALSE,1
+X!Azura,Azura,Song's Reflection,38,45,46,18,28,1,Axe,14,-1,50,75,90,35,50,5,21,HERO,FALSE,1
 Balthus,Balthus,King of Grappling,47,42,24,37,31,0,Axe,16,-1,65,70,45,60,55,15,183,HERO,FALSE,0
 Bantu,Bantu,Tiki's Guardian,45,34,28,35,26,0,RDragon,3,-1,65,55,50,60,45,25,169,HERO,FALSE,0
 Barst,Barst,The Hatchet,46,33,32,30,17,0,Axe,1,-1,60,55,55,55,30,25,48,HERO,FALSE,0
@@ -761,8 +761,8 @@ SU!Nifl,Nifl,Tropical Ice God,39,38,43,28,26,1,CDragon,0,-1,50,65,70,50,50,15,95
 Niime,Niime,Mountain Hermit,36,42,33,17,43,0,CTome,6,-1,45,70,60,30,75,15,240,0,FALSE,0
 Niles,Niles,Cruel to Be Kind,37,25,34,17,34,0,CBow,14,-1,45,45,60,30,60,30,9,0,TRUE,0
 H!Niles,Niles,Forbidden Tease,37,34,39,25,29,3,BBow,14,-1,45,55,65,45,50,25,197,0,FALSE,0
-Nils,Nils,Bright Bard,45,31,35,26,25,0,BDragon,7,-1,65,55,60,50,45,25,207,0,FALSE,0
-H!Nils,Nils,Wandering Star,44,35,41,21,35,0,GDragon,7,-1,65,65,70,40,60,10,139,0,FALSE,0
+Nils,Nils,Bright Bard,45,31,35,26,25,0,BDragon,7,-1,65,55,60,50,45,25,207,0,FALSE,3
+H!Nils,Nils,Wandering Star,44,35,41,21,35,0,GDragon,7,-1,65,65,70,40,60,10,139,0,FALSE,3
 Nina,Nina,Eye Spy,35,32,37,16,31,0,CBow,14,-1,45,55,60,30,55,30,184,0,TRUE,0
 TH!Nina,Nina,Shadowy Figures,38,37,43,18,32,1,CDagger,14,-1,50,70,70,35,55,15,72,0,FALSE,0
 BR!Ninian,Ninian,Bright-Eyed Bride,34,28,33,18,27,2,BTome,7,-1,45,50,60,35,50,25,61,0,FALSE,0

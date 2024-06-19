@@ -31,6 +31,9 @@ RANGED_WEAPONS = ["RTome", "BTome", "GTome", "CTome",
                   "Staff"]
 
 DRAGON_WEAPONS = ["RDragon", "BDragon", "GDragon", "CDragon"]
+BEAST_WEAPONS = ["RBeast", "BBeast", "GBeast", "CBeast"]
+BOW_WEAPONS = ["RBow", "BBow", "GBow", "CBow"]
+DAGGER_WEAPONS = ["RDagger", "BDagger", "GDagger", "CDagger"]
 
 MAGIC_WEAPONS = RANGED_WEAPONS[0:4]
 
@@ -59,7 +62,7 @@ def change_highest_two(array, opp):
 
 
 class Hero:
-    def __init__(self, name, intName, epithet, game, wpnType, move, stats, growths, flower_limit, BVID):
+    def __init__(self, name, intName, epithet, game, wpnType, move, stats, growths, flower_limit, BVID, refresh_type):
         # Unit's name (Julia, Corrin, Ratatoskr, etc.)
         self.name: str = name
 
@@ -152,12 +155,14 @@ class Hero:
         self.move = int(move)
         self.moveTiles = -(abs(int(move) - 1)) + 3
 
+        self.refresh_type = refresh_type
+
         self.specialCount = -1
         self.specialMax = -1
 
         # Interval IV Guide
-        # A A A, neutral w/o asc asset
-        # A A B, neutral w/ asc asset B
+        # A A A, neutral, no asc asset
+        # A A B, neutral, asc asset B
         # A B A, asset A, flaw B, no asc asset
         # A B B, asset A, flaw and asc asset cancel out
         # A B C, asset A, flaw B, asc asset C
@@ -356,6 +361,8 @@ class Hero:
         self.flaw = new_flaw
         self.asc_asset = new_asc_asset
 
+        #print("END", new_asset, new_flaw, new_asc_asset)
+
         self.set_level(self.level)
 
     def set_emblem(self, emblem, emblem_merges):
@@ -378,7 +385,12 @@ class Hero:
             return "Colorless"
 
     def set_skill(self, skill, slot):
-        if skill is None: return
+
+        self.remove_skill(slot)
+
+        # If skill is none, undo any changes imposed by the skill instead
+        if skill == None:
+            return
 
         # Weapon Skill Add
         if slot == 0:
@@ -413,8 +425,7 @@ class Hero:
         if slot == 7:
             self.xskill = skill
 
-        if "HPBoost" in skill.effects:
-            self.skill_stat_mods[HP] += skill.effects["HPBoost"]
+        if "HPBoost" in skill.effects: self.skill_stat_mods[HP] += skill.effects["HPBoost"]
         if "atkBoost" in skill.effects: self.skill_stat_mods[ATK] += skill.effects["atkBoost"]
         if "spdBoost" in skill.effects: self.skill_stat_mods[SPD] += skill.effects["spdBoost"]
         if "defBoost" in skill.effects: self.skill_stat_mods[DEF] += skill.effects["defBoost"]
@@ -434,12 +445,17 @@ class Hero:
             self.specialCount = self.special.cooldown
             self.specialMax = self.special.cooldown
 
+            # Slaying effect in weapons
             if self.weapon is not None and "slaying" in self.weapon.effects:
                 self.specialCount = max(self.specialCount - self.weapon.effects["slaying"], 1)
                 self.specialMax = max(self.specialMax - self.weapon.effects["slaying"], 1)
+
+            # Reverse slaying effect in older staff assists
             if self.assist is not None and "slaying" in self.assist.effects:
                 self.specialCount = max(self.specialCount - self.assist.effects["slaying"], 1)
                 self.specialMax = max(self.specialMax - self.assist.effects["slaying"], 1)
+
+            # Emblem Marth's slaying effect
             if self.emblem is not None and self.emblem == "Marth":
                 self.specialCount = max(self.specialCount - self.weapon.effects["slaying"], 1)
                 self.specialMax = max(self.specialMax - self.weapon.effects["slaying"], 1)
@@ -448,6 +464,82 @@ class Hero:
             self.specialMax = -1
 
         self.set_visible_stats()
+
+    def remove_skill(self, slot):
+        skill = None
+
+        if slot == WEAPON: skill = self.weapon
+        if slot == ASSIST: skill = self.assist
+        if slot == SPECIAL: skill = self.special
+        if slot == ASKILL: skill = self.askill
+        if slot == BSKILL: skill = self.bskill
+        if slot == CSKILL: skill = self.cskill
+        if slot == SSEAL: skill = self.sSeal
+        if slot == XSKILL: skill = self.xskill
+
+        # If skill at slot is already None, nothing else to do
+        if skill == None:
+            return
+
+        # Remove stats granted by current skill
+        if "HPBoost" in skill.effects: self.skill_stat_mods[HP] -= skill.effects["HPBoost"]
+        if "atkBoost" in skill.effects: self.skill_stat_mods[ATK] -= skill.effects["atkBoost"]
+        if "spdBoost" in skill.effects: self.skill_stat_mods[SPD] -= skill.effects["spdBoost"]
+        if "defBoost" in skill.effects: self.skill_stat_mods[DEF] -= skill.effects["defBoost"]
+        if "resBoost" in skill.effects: self.skill_stat_mods[RES] -= skill.effects["resBoost"]
+
+        if "atkspdBoost" in skill.effects:
+            self.skill_stat_mods[ATK] -= skill.effects["atkspdBoost"]
+            self.skill_stat_mods[SPD] -= skill.effects["atkspdBoost"]
+
+        if "spectrumBoost" in skill.effects:
+            self.skill_stat_mods[ATK] -= skill.effects["spectrumBoost"]
+            self.skill_stat_mods[SPD] -= skill.effects["spectrumBoost"]
+            self.skill_stat_mods[DEF] -= skill.effects["spectrumBoost"]
+            self.skill_stat_mods[RES] -= skill.effects["spectrumBoost"]
+
+        # Remove the skill from the correct slot
+        if slot == WEAPON and skill is not None:
+            self.skill_stat_mods[ATK] -= skill.mt
+            self.weapon = None
+
+        if slot == ASSIST:
+            self.assist = None
+
+        if slot == SPECIAL:
+            self.specialCount = -1
+            self.specialMax = -1
+            self.special = None
+
+        if slot == ASKILL: self.askill = None
+        if slot == BSKILL: self.bskill = None
+        if slot == CSKILL: self.cskill = None
+        if slot == SSEAL: self.sSeal = None
+        if slot == XSKILL: self.xskill = None
+
+        # Reset special count
+        if self.special is not None:
+            self.specialCount = self.special.cooldown
+            self.specialMax = self.special.cooldown
+
+            # Slaying effect in weapons
+            if self.weapon is not None and "slaying" in self.weapon.effects:
+                self.specialCount = max(self.specialCount - self.weapon.effects["slaying"], 1)
+                self.specialMax = max(self.specialMax - self.weapon.effects["slaying"], 1)
+
+            # Reverse slaying effect in older staff assists
+            if self.assist is not None and "slaying" in self.assist.effects:
+                self.specialCount = max(self.specialCount - self.assist.effects["slaying"], 1)
+                self.specialMax = max(self.specialMax - self.assist.effects["slaying"], 1)
+
+            # Emblem Marth's slaying effect
+            if self.emblem is not None and self.emblem == "Marth":
+                self.specialCount = max(self.specialCount - self.weapon.effects["slaying"], 1)
+                self.specialMax = max(self.specialMax - self.weapon.effects["slaying"], 1)
+
+        # Reset stats
+        self.set_visible_stats()
+
 
     def set_visible_stats(self):
         i = 0
@@ -727,6 +819,8 @@ class Status(Enum):
     Guard = 19  # 🔴 Special charge -1
     TriAdept = 20  # 🔴 Triangle Adept 3, weapon tri adv/disadv affected by 20%
     CancelAction = 21  # 🟢 After start of turn skills trigger, unit's action ends immediately (cancels active units in Summoner Duels)
+    Frozen = 22 # 🔴 Increases/decreases speed difference needed to make follow up for unit/foe by max(2 * Δdef + 10, 10)
+
 
     # positive
 
@@ -774,27 +868,7 @@ class Status(Enum):
     HalfDamageReduction = 159 # 🔴 Cuts foe's damage reduction skill efficacy in half
     EssenceDrain = 163
 
-veyle = Hero("Veyle", "Veyle", "Her", 17, "BTome", 0, [39, 46, 30, 21, 46], [50, 70, 50, 40, 90], 5, 54)
-#obscurité = Weapon("Obscurité", "idk", 14, 2, {"stuff":10})
 
-#print(veyle.stats)
-
-#veyle.set_IVs(ATK, DEF, SPD)
-
-#print(veyle.level)
-#print(veyle.visible_stats)
-
-#veyle.set_merges(10)
-#veyle.set_dragonflowers(5)
-#veyle.set_level(40)
-
-#print(veyle.visible_stats)
-
-# reset visible stats after each step of the process
-
-#veyle.set_skill(obscurité, 0)
-
-#print(veyle.visible_stats)
 
 print("Reading Unit & Skill Data...")
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -827,8 +901,9 @@ def makeHero(name):
     g_res = row.loc[n, 'Res Grow']
     dfl = row.loc[n, 'DFlowerLimit']
     bvid = row.loc[n, 'BVID']
+    refreshType = row.loc[n, 'RefreshType']
 
-    return Hero(name, int_name, epithet, game, wpnType, moveType, [u_hp, u_atk, u_spd, u_def, u_res], [g_hp, g_atk, g_spd, g_def, g_res], dfl, bvid)
+    return Hero(name, int_name, epithet, game, wpnType, moveType, [u_hp, u_atk, u_spd, u_def, u_res], [g_hp, g_atk, g_spd, g_def, g_res], dfl, bvid, refreshType)
 
 def makeWeapon(name):
     # ﻿
@@ -845,8 +920,6 @@ def makeWeapon(name):
     rng = row.loc[n, 'Range']
     effects = {}
     users = []
-
-
 
     if not pd.isna(row.loc[n, 'Effect1']) and not pd.isna(row.loc[n, 'Level1']): effects.update({row.loc[n, 'Effect1']: int(row.loc[n, 'Level1'])})
     if not pd.isna(row.loc[n, 'Effect2']) and not pd.isna(row.loc[n, 'Level2']): effects.update({row.loc[n, 'Effect2']: int(row.loc[n, 'Level2'])})
@@ -930,3 +1003,25 @@ def makeSkill(name):
     if not pd.isna(row.loc[n, 'ExclusiveUser3']): users.append(row.loc[n, 'ExclusiveUser3'])
 
     return Skill(name, desc, letter, tier, effects, users)
+
+veyle = makeHero("Veyle")
+#obscurité = Weapon("Obscurité", "idk", 14, 2, {"stuff":10})
+
+#print(veyle.stats)
+
+#veyle.set_IVs(ATK, DEF, SPD)
+
+#print(veyle.level)
+#print(veyle.visible_stats)
+
+#veyle.set_merges(10)
+#veyle.set_dragonflowers(5)
+#veyle.set_level(40)
+
+#print(veyle.visible_stats)
+
+# reset visible stats after each step of the process
+
+#veyle.set_skill(obscurité, 0)
+
+#print(veyle.visible_stats)
