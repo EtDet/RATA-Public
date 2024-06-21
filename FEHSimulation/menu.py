@@ -1,11 +1,13 @@
 import hero
 import pandas as pd
 
+from csv import writer
 import webbrowser
 from PIL import Image, ImageTk
 import tkinter as tk
 from tkinter import ttk
 from math import isnan
+from functools import partial
 
 WEAPON = 0
 ASSIST = 1
@@ -130,9 +132,13 @@ def about():
     webbrowser.open("https://github.com/EtDet/RATA-Public", new=0, autoraise=True)
 
 def remove_elements():
+    spacer.config(fg="#797282", text="W")
+
     for x in current_elements:
         x.pack_forget()
-        #x.place_forget()
+
+    edit_button.pack_forget()
+    delete_button.pack_forget()
 
     current_elements.clear()
 
@@ -152,8 +158,8 @@ def generate_units():
 
     remove_elements()
 
-    width = 100
-    height = 100
+    width = 97
+    height = 97
 
     pixel = tk.PhotoImage(width=1, height=1)
     pre_button = tk.Button(button_frame, command=generate_creation, text="Create New", image=pixel, compound=tk.TOP, height=height, width=width, font='Helvetica 8')
@@ -162,8 +168,8 @@ def generate_units():
 
     row, col = 0, 1
 
+    unit_read = pd.read_csv("my_units.csv")
     for i, hrow in enumerate(unit_read.iterrows()):
-        #curHero = hero.makeHero(hrow[1]['IntName'])
 
         respString = "-R" if hrow[1]['Resplendent'] == True else ""
 
@@ -179,8 +185,9 @@ def generate_units():
         curImage = ImageTk.PhotoImage(resized_image2)
 
         images.append(curImage)
-        tempButton = tk.Button(button_frame, image=curImage, text=str(hrow[1]['Build Name']), compound=tk.TOP, height=height, width=width, font='Helvetica 8')
-        tempButton.image = curImage  # Store the reference to prevent garbage collection
+        build_name = str(hrow[1]['Build Name'])
+        tempButton = tk.Button(button_frame, command=partial(show_edit_prompt, i, build_name), image=curImage, text=build_name, compound=tk.TOP, height=height, width=width, font='Helvetica 8')
+        tempButton.image = curImage
         tempButton.grid(row=row, column=col, padx=3, pady=3)
 
         col += 1
@@ -193,15 +200,26 @@ def generate_units():
     unit_canvas.configure(scrollregion=unit_canvas.bbox("all"))
 
     search_frame.pack(pady=10)
+    select_frame.pack(pady=10)
     unit_canvas.pack(side='left', fill='both', expand=True)
     unit_scrollbar.pack(side='right', fill='y')
-    button_frame.pack(side='left', pady=10)
+    button_frame.pack(side='left', padx=(1,4), pady=5)
 
     current_elements.append(search_frame)
     current_elements.append(unit_canvas)
     current_elements.append(button_frame)
     current_elements.append(unit_scrollbar)
+    current_elements.append(select_frame)
 
+def show_edit_prompt(num, build_name):
+    spacer.config(fg="#252a33", text=f'What do you want to do with "{build_name}"?')
+
+    edit_button.config(command=partial(generate_creation_edit, num))
+
+    edit_button.pack(side='left', padx=20)
+    delete_button.pack(side='left')
+
+    print(num, build_name)
 
 def generate_creation():
     remove_elements()
@@ -216,6 +234,131 @@ def generate_creation():
     current_elements.append(dropbox_frame)
     current_elements.append(top_frame)
     current_elements.append(bottom_frame)
+
+def generate_creation_edit(num):
+    # Move to creation screen
+    generate_creation()
+
+    print(num)
+    my_units = pd.read_csv("my_units.csv")
+
+    row = my_units.loc[num]
+    print(row)
+
+
+    # Internal name from sheet
+    int_name = row["IntName"]
+    curHero = hero.makeHero(int_name)
+
+
+    # Name
+    title_name = curHero.name + ": " + curHero.epithet
+    creation_comboboxes[0].set(title_name)
+    handle_selection_change_name()
+
+    # Rarity
+    rarity = row["Rarity"]
+    creation_comboboxes[1].set(rarity)
+    handle_selection_change_rarity()
+
+    # Level
+    level = row["Level"]
+    creation_comboboxes[13].set(level)
+    handle_selection_change_level()
+
+    # Merges
+    merges = row["Merges"]
+    creation_comboboxes[2].set(merges)
+    handle_selection_change_merge()
+
+    # Asset
+    asset = STAT_STR[row["Asset"]]
+    creation_comboboxes[3].set(asset)
+    handle_selection_change_asset()
+
+    # Flaw
+    flaw = STAT_STR[row["Flaw"]]
+    creation_comboboxes[15].set(flaw)
+    handle_selection_change_flaw()
+
+    # Weapon
+    weapon = row["Weapon"]
+
+    if pd.isnull(weapon):
+        weapon = "None"
+
+    refine_substrings = ["Eff", "Atk", "Spd", "Def", "Res", "Wra", "Daz"]
+    if weapon[-3:] in refine_substrings:
+        weapon = weapon[:-3]
+
+    creation_comboboxes[6].set(weapon)
+    handle_selection_change_weapon()
+
+    # Refine
+    refine = row["Weapon"]
+
+    if pd.isnull(refine):
+        refine = "None"
+
+    if refine[-3:] in refine_substrings:
+        refine = refine[-3:]
+    else:
+        refine = "None"
+
+    creation_comboboxes[7].set(refine)
+    handle_selection_change_refine()
+
+    # Assist
+    assist = row["Assist"]
+
+    if pd.isnull(assist):
+        assist = "None"
+
+    creation_comboboxes[8].set(assist)
+    handle_selection_change_assist()
+
+    # Special
+    special = row["Special"]
+
+    if pd.isnull(special):
+        special = "None"
+
+    creation_comboboxes[8].set(special)
+    handle_selection_change_special()
+
+    # A Skill
+    askill = row["ASkill"]
+
+    if pd.isnull(askill):
+        askill = "None"
+
+    creation_comboboxes[18].set(askill)
+    handle_selection_change_askill()
+
+    # B Skill
+    bskill = row["BSkill"]
+
+    if pd.isnull(askill):
+        bskill = "None"
+
+    creation_comboboxes[18].set(bskill)
+    handle_selection_change_bskill()
+
+    # C Skill
+    cskill = row["CSkill"]
+
+    if pd.isnull(cskill):
+        cskill = "None"
+
+    creation_comboboxes[18].set(cskill)
+    handle_selection_change_cskill()
+
+    # Build Name
+    build_name.set(row["Build Name"])
+
+    # TOMORROW: CHANGE THE CREATE BUTTON TO A SAVE BUTTON
+    # WHEN CLICKED, REPLACE ROW
+
 
 def clear_creation_fields():
     curProxy.reset()
@@ -248,6 +391,9 @@ def clear_creation_fields():
     creation_comboboxes[18]['values'] = []
     creation_comboboxes[19]['values'] = []
     creation_comboboxes[20]['values'] = []
+
+    build_name.set("")
+    error_text.config(fg='#292e36')
 
 def generate_all_units_option():
     names = hero.hero_sheet['Name']
@@ -619,6 +765,55 @@ def get_valid_abc_skills(cur_hero):
 
     return a_skills, b_skills, c_skills
 
+# Upon valid unit and name options, add the unit to the CSV file
+def add_unit_to_list():
+    hero_to_add = handle_selection_change_name.created_hero
+
+    print(creation_str_vars[0].get(), build_name.get())
+    if creation_str_vars[0].get() != "" and build_name.get() != "":
+
+        name = hero_to_add.intName
+        weapon = hero_to_add.weapon.intName if hero_to_add.weapon is not None else None
+        assist = hero_to_add.assist.name if hero_to_add.assist is not None else None
+        special = hero_to_add.special.name if hero_to_add.special is not None else None
+        askill = hero_to_add.askill.name if hero_to_add.askill is not None else None
+        bskill = hero_to_add.bskill.name if hero_to_add.bskill is not None else None
+        cskill = hero_to_add.cskill.name if hero_to_add.cskill is not None else None
+        sSeal = None
+        xskill = None
+        level = hero_to_add.level
+        merges = hero_to_add.merges
+        rarity = hero_to_add.rarity
+        asset = hero_to_add.asset
+        flaw = hero_to_add.flaw
+        asc = hero_to_add.asc_asset
+        sSupport = 0
+        aSupport = None
+        blessing = None
+        dflowers = 0
+        resp = False
+        emblem = None
+        emblem_merges = 0
+        cheats = False
+
+        data = [name, build_name.get(),
+                weapon, assist, special, askill, bskill, cskill, sSeal, xskill,
+                level, merges, rarity, asset, flaw, asc, aSupport, sSupport, blessing, dflowers, resp, emblem, emblem_merges, cheats]
+
+        try:
+            my_units_file = "my_units.csv"
+
+            with open(my_units_file, mode="a", newline='') as file:
+                f_writer = writer(file)
+                f_writer.writerow(data)
+
+            generate_units()
+
+        except PermissionError:
+            print(f"Error: Permission denied when writing to file. Please close {my_units_file} and try again.")
+    else:
+        error_text.config(fg='#d60408')
+
 # Scroll list of units
 def on_canvas_mousewheel(event):
     canvas = unit_canvas
@@ -657,12 +852,12 @@ front_page_paddings = [(100, 20), (10, 20), (20, 20), (0, 20), (0, 20), (0, 20),
 
 # UNIT SELECTION ELEMENTS
 
-search_frame = ttk.Frame(window)
+search_frame = tk.Frame(window, bg='#797282')
 back_button = tk.Button(search_frame, text='<- Back', command=generate_main, width=10)
 back_button.pack(side='left')
 
-output_label = ttk.Label(master=search_frame, text='Name Search:')
-output_label.pack(side='left', padx=(25, 5))
+name_search_label = ttk.Label(master=search_frame, text='Name Search:')
+name_search_label.pack(side='left', padx=(25, 5))
 
 search_string = tk.StringVar()
 search_bar = ttk.Entry(search_frame, textvariable=search_string, width=30)
@@ -671,8 +866,16 @@ search_bar.pack(side='left', padx=(5,20))
 search_button = tk.Button(search_frame, text='Search', width=15) #, command=searchUnits)
 search_button.pack(side='left')
 
+select_frame = tk.Frame(window, bg='#797282')
+edit_button = tk.Button(select_frame, text='Edit', command=generate_main, width=10)
+delete_button = tk.Button(select_frame, text='Delete', command=generate_main, width=10)
+
+spacer = tk.Label(select_frame, text="W", font=("Arial 14"), bg='#797282', fg='#797282')
+spacer.pack(side=tk.LEFT)
+
+
 # Canvas
-unit_canvas = tk.Canvas(window)
+unit_canvas = tk.Canvas(window, bg="#9ea8b8")
 
 # Scrollbar, for Canvas
 unit_scrollbar = ttk.Scrollbar(window, orient='vertical', command=unit_canvas.yview)
@@ -681,33 +884,37 @@ unit_canvas.configure(yscrollcommand=unit_scrollbar.set)
 unit_canvas.bind("<Configure>", lambda e: unit_canvas.configure(scrollregion=unit_canvas.bbox("all")))
 unit_canvas.bind_all("<MouseWheel>", on_canvas_mousewheel)
 
-unit_subframe = tk.Frame(unit_canvas, bg='red', width=300, height=300)
+unit_subframe = tk.Frame(unit_canvas, width=300, height=300)
 unit_canvas.create_window((0, 0), window=unit_subframe, anchor='nw')
 button_frame = tk.Frame(unit_subframe)
 
-unit_elements = [search_frame, unit_canvas, unit_scrollbar, button_frame]
+unit_elements = [search_frame, select_frame, unit_canvas, unit_scrollbar, button_frame]
 
-unit_read = pd.read_csv("feh_user_units.csv")
+
 
 # UNIT CREATION
 
 # Four frames
-top_frame = tk.Frame(window, bg='gray')
+top_frame = tk.Frame(window, bg='#292e36')
 unit_stat_frame = tk.Frame(window, bg='#2b2a69')
 dropbox_frame = tk.Frame(window, bg='#a5b7c2')
-bottom_frame = tk.Frame(window, bg='gray')
+bottom_frame = tk.Frame(window, bg='#292e36')
 
 creation_back_button = tk.Button(top_frame, text='<- Cancel', command=generate_units, width=10)
 creation_back_button.pack(side=tk.LEFT, anchor='nw', padx=10, pady=10)
 
-creation_make_button = tk.Button(bottom_frame, text='Create', command=generate_units, width=10)
+creation_make_button = tk.Button(bottom_frame, text='Create', command=add_unit_to_list, width=10)
 creation_make_button.pack(side=tk.RIGHT, anchor='nw', padx=10, pady=10)
 
-creation_build_field = tk.Text(bottom_frame, height=1, width=30, font="Helvetica")
+build_name = tk.StringVar()
+creation_build_field = tk.Entry(bottom_frame, width=30, font="Helvetica", textvariable=build_name)
 creation_build_field.pack(side=tk.RIGHT, anchor='nw', padx=10, pady=10)
 
 creation_make_text = tk.Label(bottom_frame, text='Build Name: ', width=10)
 creation_make_text.pack(side=tk.RIGHT, anchor='nw', padx=10, pady=10)
+
+error_text = tk.Label(bottom_frame, text='Error: No Unit Selected or Build Name Empty', bg='#292e36', fg='#292e36', font="Helvetica 10 bold")
+error_text.pack(side=tk.RIGHT, anchor='nw', padx=10, pady=10)
 
 
 pixel = tk.PhotoImage(width=1, height=1)
@@ -762,8 +969,8 @@ right_dropbox_frame = tk.Frame(dropbox_frame, bg="#a5b7c2")
 left_dropbox_frame.pack(padx=8, pady=7, side=tk.LEFT, anchor='nw')
 right_dropbox_frame.pack(padx=8, pady=7, side=tk.RIGHT, anchor='ne')
 
-def handle_selection_change_name(event):
-    selected_value = event.widget.get()
+def handle_selection_change_name(event=None):
+    selected_value = creation_str_vars[0].get()
     print(f"You selected: {selected_value}")
 
     cur_intName = intName_dict[selected_value]
@@ -886,8 +1093,8 @@ def handle_selection_change_name(event):
         creation_stats[i].set(stat_strings[i] + str(madeHero.visible_stats[i]))
         i += 1
 
-def handle_selection_change_rarity(event):
-    selected_value = event.widget.get()
+def handle_selection_change_rarity(event=None):
+    selected_value = creation_str_vars[1].get()
     print(f"You selected: {selected_value}")
 
     curProxy.rarity = int(selected_value)
@@ -903,8 +1110,8 @@ def handle_selection_change_rarity(event):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
-def handle_selection_change_level(event):
-    selected_value = event.widget.get()
+def handle_selection_change_level(event=None):
+    selected_value = creation_str_vars[13].get()
     print(f"You selected: {selected_value}")
 
     curProxy.level = int(selected_value)
@@ -923,8 +1130,8 @@ def handle_selection_change_level(event):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
-def handle_selection_change_merge(event):
-    selected_value = event.widget.get()
+def handle_selection_change_merge(event=None):
+    selected_value = creation_str_vars[2].get()
     print(f"You selected: {selected_value}")
 
     curProxy.merge = int(selected_value)
@@ -940,8 +1147,8 @@ def handle_selection_change_merge(event):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
-def handle_selection_change_asset(event):
-    selected_value = event.widget.get()
+def handle_selection_change_asset(event=None):
+    selected_value = creation_str_vars[3].get()
     print(f"You selected: {selected_value}")
 
     stat_int = STATS[selected_value]
@@ -971,8 +1178,8 @@ def handle_selection_change_asset(event):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
-def handle_selection_change_flaw(event):
-    selected_value = event.widget.get()
+def handle_selection_change_flaw(event=None):
+    selected_value = creation_str_vars[15].get()
     print(f"You selected: {selected_value}")
 
     stat_int = STATS[selected_value]
@@ -998,8 +1205,8 @@ def handle_selection_change_flaw(event):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
-def handle_selection_change_weapon(event):
-    selected_value = event.widget.get()
+def handle_selection_change_weapon(event=None):
+    selected_value = creation_str_vars[6].get()
     print(f"You selected: {selected_value}")
 
     # Set proxy value
@@ -1023,8 +1230,8 @@ def handle_selection_change_weapon(event):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
-def handle_selection_change_refine(event):
-    selected_value = event.widget.get()
+def handle_selection_change_refine(event=None):
+    selected_value = creation_str_vars[7].get()
     print(f"You selected: {selected_value}")
 
     if selected_value != "None":
@@ -1040,8 +1247,8 @@ def handle_selection_change_refine(event):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
-def handle_selection_change_assist(event):
-    selected_value = event.widget.get()
+def handle_selection_change_assist(event=None):
+    selected_value = creation_str_vars[8].get()
     print(f"You selected: {selected_value}")
 
     # Set proxy value
@@ -1058,8 +1265,8 @@ def handle_selection_change_assist(event):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
-def handle_selection_change_special(event):
-    selected_value = event.widget.get()
+def handle_selection_change_special(event=None):
+    selected_value = creation_str_vars[9].get()
     print(f"You selected: {selected_value}")
 
     # Set proxy value
@@ -1076,8 +1283,8 @@ def handle_selection_change_special(event):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
-def handle_selection_change_askill(event):
-    selected_value = event.widget.get()
+def handle_selection_change_askill(event=None):
+    selected_value = creation_str_vars[18].get()
     print(f"You selected: {selected_value}")
 
     # Set proxy value
@@ -1094,8 +1301,8 @@ def handle_selection_change_askill(event):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
-def handle_selection_change_bskill(event):
-    selected_value = event.widget.get()
+def handle_selection_change_bskill(event=None):
+    selected_value = creation_str_vars[19].get()
     print(f"You selected: {selected_value}")
 
     # Set proxy value
@@ -1112,8 +1319,8 @@ def handle_selection_change_bskill(event):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
-def handle_selection_change_cskill(event):
-    selected_value = event.widget.get()
+def handle_selection_change_cskill(event=None):
+    selected_value = creation_str_vars[20].get()
     print(f"You selected: {selected_value}")
 
     # Set proxy value

@@ -74,6 +74,8 @@ class Hero:
         # Unit's unique name (M!Shez, A!Mareeta, HA!F!Grima, etc.)
         self.intName: str = intName
 
+        self.epithet: str = epithet
+
         # Unit's side on the map
         # 0 - player, 1 - enemy
         self.side: int = 0
