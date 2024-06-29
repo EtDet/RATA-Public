@@ -558,9 +558,12 @@ class Hero:
         self.HPcur = self.visible_stats[0]
 
     def inflictStatus(self, status):
+        # Positive status
         if status.value > 100 and status not in self.statusPos:
             self.statusPos.append(status)
             print(self.name + " receives " + status.name + " (+).")
+
+        # Negative status
         elif status.value < 100 and status not in self.statusNeg:
             self.statusNeg.append(status)
             print(self.name + " receives " + status.name + " (-).")
@@ -653,6 +656,17 @@ class Hero:
     def getEmblemEffects(self):
         if self.emblem is None: return {}
         if self.emblem == "Marth": return {"shine on": 1, "slaying": 1}
+        if self.emblem == "Celica": return {"care for us": 2}
+        if self.emblem == "Sigurd": return {"provide for us": 4}
+        if self.emblem == "Leif": return {"free us": 5}
+        if self.emblem == "Roy": return {"rise up": 6}
+        if self.emblem == "Lyn": return {"sweep across": 7}
+        if self.emblem == "Eirika": return {"restore calm": 8}
+        if self.emblem == "Ike": return {"fight on": 9}
+        if self.emblem == "Micaiah": return {"heal us": 10}
+        if self.emblem == "Lucina": return {"reignite us": 13}
+        if self.emblem == "Corrin": return {"bare your fangs": 14}
+        if self.emblem == "Byleth": return {"teach us": 16}
 
     def getCooldown(self):
         if self.special != None: return self.special.getCooldown()
@@ -824,13 +838,11 @@ class Status(Enum):
     Gravity = 17  # 🔵 Movement reduced to 1
     Stall = 18  # 🔵 Converts MobilityUp to Gravity
     Guard = 19  # 🔴 Special charge -1
-    TriAdept = 20  # 🔴 Triangle Adept 3, weapon tri adv/disadv affected by 20%
-    CancelAction = 21  # 🟢 After start of turn skills trigger, unit's action ends immediately (cancels active units in Summoner Duels)
-    Frozen = 22 # 🔴 Increases/decreases speed difference needed to make follow up for unit/foe by max(2 * Δdef + 10, 10)
-
+    Frozen = 20  # 🔴 Increases/decreases speed difference needed to make follow up for unit/foe by max(2 * Δdef + 10, 10)
+    TriAdept = 21  # 🔴 Triangle Adept 3, weapon tri adv/disadv affected by 20%
+    CancelAction = 22  # 🟢 After start of turn skills trigger, unit's action ends immediately (cancels active units in Summoner Duels)
 
     # positive
-
     MobilityUp = 103  # 🔵 Movement increased by 1, cancelled by Gravity
     Orders = 106  # 🔵 Unit can move to space adjacent to ally within 2 spaces
     EffDragons = 107  # 🔴 Gain effectiveness against dragons
@@ -863,7 +875,7 @@ class Status(Enum):
     FoePenaltyDoubler = 140  # 🔴 Inflicts atk/spd/def/res -X on foe equal to current penalty on each stat
     DualStrike = 143  # 🔴 If unit initiates combat and is adjacent to unit with DualStrike, unit attacks twice
     TraverseTerrain = 144  # 🔵 Ignores slow terrain (bushes/trenches)
-    ReduceAoE = 145  # 🔴 Reduces non-Røkkr AoE damage taken by 80%
+    ReduceAreaOfEffect = 145  # 🔴 Reduces non-Røkkr AoE damage taken by 80%
     NullPenalties = 146  # 🔴 Neutralizes unit's penalties in combat
     Hexblade = 147  # 🔴 Damage inflicted using lower of foe's def or res (applies to AoE skills)
     RallySpectrum = 150 # 🔴 Grants atk/spd/def/res +5 and grants -1 cooldown at start of combat to allies with brave (currently enabled) or slaying effects, otherwise grants -2 cooldown

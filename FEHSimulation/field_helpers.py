@@ -207,6 +207,10 @@ def start_of_turn(starting_team, waiting_team, turn):
 
         return extreme_stat_units
 
+    sp_charges = {}
+    for unit in starting_team + waiting_team:
+        sp_charges[unit] = 0
+
     # LOOP 1: BUFFS, DEBUFFS, AND STATUS EFFECTS
     for unit in starting_team:
         tile = unit.tile
@@ -365,9 +369,13 @@ def start_of_turn(starting_team, waiting_team, turn):
                 foe.inflictStat(ATK, -5)
                 foe.inflictStat(DEF, -5)
 
-        # Compile these all at once, sum together special modification from all sources
+        # SP CHARGE
         if "wrath" in unitSkills and unitHPCur / unitStats[0] <= unitSkills["wrath"] * 0.25:
-            unit.chargeSpecial(1)
+            sp_charges[unit] += 1
+
+        # Time's Pulse
+        if "timesPulseSp" in unitSkills and unit.specialCount == unit.specialMax:
+            sp_charges[unit] += 1
 
         # WAVE SKILLS
 
@@ -457,6 +465,10 @@ def start_of_turn(starting_team, waiting_team, turn):
                     if tile.hero_on.HPcur <= unit.HPcur - diff:
                         tile.hero_on.inflictStatus(Status.Panic)
 
+    # LOOP 1.5: APPLY SUMMED SP CHARGES
+    for unit in sp_charges:
+        unit.chargeSpecial(sp_charges[unit])
+
     # LOOP 2: DAMAGE AND HEALING
     damage_taken = {}
     heals_given = {}
@@ -517,6 +529,34 @@ def start_of_turn(starting_team, waiting_team, turn):
                 else:
                     heals_given[unit] += 10
 
+    # LOOP 3: AFTER START OF TURN SKILLS
+    for unit in starting_team:
+
+        unitSkills = unit.getSkills()
+        unitStats = unit.getStats()
+        unitHPCur = unit.HPcur
+
+        if "l&d_detox" in unitSkills:
+            unit.debuffs[ATK] = 0
+            unit.debuffs[SPD] = 0
+
+            if Status.Panic in unit.statusNeg:
+                unit.statusNeg.remove(Status.Panic)
+
+    # LOOP 4: AFTER START OF TURN SKILLS, ENEMY PHASE
+    for unit in waiting_team:
+        unitSkills = unit.getSkills()
+        unitStats = unit.getStats()
+        unitHPCur = unit.HPcur
+
+        if "l&d_detox" in unitSkills:
+
+            unit.debuffs[ATK] = 0
+            unit.debuffs[SPD] = 0
+
+            if Status.Panic in unit.statusNeg:
+                unit.statusNeg.remove(Status.Panic)
+
 
     # return hash maps of units who have had damage dealt or healed, or if their special cooldown was modified
     return damage_taken, heals_given
@@ -544,6 +584,25 @@ def can_be_on_terrain(terrain_int, move_type_int):
         if move_type_int == 2: return True
         else: return False
 
+def can_be_on_tile(tile, move_type_int):
+    if tile.structure_on is not None:
+        # Destructable wall
+        if tile.structure_on.struct_type == 0 and tile.structure_on.health != 0:
+            return 0
+
+    if tile.terrain == 0 or tile.terrain == 3: return True
+    if tile.terrain == 4: return False
+
+    if tile.terrain == 1:
+        if move_type_int == 1: return False
+        else: return True
+
+    if tile.terrain == 2:
+        if move_type_int == 2: return True
+        else: return False
+
+
+
 def get_warp_moves(unit, unit_team, enemy_team):
     unitSkills = unit.getSkills()
     unitStats = unit.getStats()
@@ -556,7 +615,7 @@ def get_warp_moves(unit, unit_team, enemy_team):
             if ally != unit and ally_hp <= unitSkills["wingsOfMercy"] * 0.10 + 0.20:
                 adj_ally_spaces = ally.tile.tilesWithinNSpaces(1)
                 for adj_tile in adj_ally_spaces:
-                    if can_be_on_terrain(adj_tile.terrain, unit.move) and adj_tile.hero_on is None:
+                    if can_be_on_tile(adj_tile, unit.move) and adj_tile.hero_on is None:
                         warp_moves.append(adj_tile)
 
     if "escRoute" in unitSkills:
@@ -566,7 +625,7 @@ def get_warp_moves(unit, unit_team, enemy_team):
                 if ally != unit:
                     adj_ally_spaces = ally.tile.tilesWithinNSpaces(1)
                     for adj_tile in adj_ally_spaces:
-                        if can_be_on_terrain(adj_tile.terrain, unit.move) and adj_tile.hero_on is None:
+                        if can_be_on_tile(adj_tile, unit.move) and adj_tile.hero_on is None:
                             warp_moves.append(adj_tile)
 
     if "annaSchmovement" in unitSkills and unit.HPcur/unitStats[HP] >= 0.50:
@@ -575,13 +634,41 @@ def get_warp_moves(unit, unit_team, enemy_team):
             if ally != unit and ally.side == unit.side:
                 adj_ally_spaces = ally.tile.tilesWithinNSpaces(1)
                 for adj_tile in adj_ally_spaces:
-                    if can_be_on_terrain(adj_tile.terrain, unit.move) and adj_tile.hero_on is None:
+                    if can_be_on_tile(adj_tile, unit.move) and adj_tile.hero_on is None:
                         warp_moves.append(adj_tile)
 
+    if "eCelicaWarp" in unitSkills:
+        potential_foes = unit.tile.unitsWithinNSpaces(6)
+        for foe in potential_foes:
+            if foe.side != unit.side:
+                adj_foe_spaces = foe.tile.tilesWithinNSpaces(2)
+
+                nearest_tile_dist = 20
+                nearest_tiles = []
+
+                for warp_tile in adj_foe_spaces:
+                    dist = abs(warp_tile.x_coord - unit.tile.x_coord) + abs(warp_tile.y_coord - unit.tile.y_coord)
+
+                    # If closer than current closest tile
+                    if dist < nearest_tile_dist:
+                        nearest_tiles = [warp_tile]
+                        nearest_tile_dist = dist
+
+                    # If as close as current closest tile
+                    elif dist == nearest_tile_dist:
+                        nearest_tiles.append(warp_tile)
+
+
+                for adj_tile in nearest_tiles:
+                    if can_be_on_tile(adj_tile, unit.move) and adj_tile.hero_on is None and adj_tile not in foe.tile.tilesWithinNSpaces(1):
+                        warp_moves.append(adj_tile)
+
+    # Ally skills which enable warping
     for ally in unit_team:
         allySkills = ally.getSkills()
         allyStats = ally.getStats()
 
+        # Hinoka's Spear
         if "refineNaginata" in allySkills and (unit.move == 0 or unit.move == 2):
             units_within_2 = allies_within_n(ally, 2)
             if unit in units_within_2:

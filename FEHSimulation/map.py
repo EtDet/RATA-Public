@@ -161,18 +161,18 @@ class Tile:
 
 
 class Structure:
-    def __init__(self, struct_type, health, bct, rct, bcb, rcb):
+    def __init__(self, struct_type, health):
 
         # structure key
 
+        # 0 - Common Wall
         self.struct_type = struct_type
+
+        # How many hits needed to break structure
+        # 1 or 2, structure is present
+        # 0, structure is destoryed
+        # -1, structure is indestructable
         self.health = health
-
-        self.blueCanTraverse = bct
-        self.redCanTraverse = rct
-
-        self.blueCanBreak = bcb
-        self.redCanBreak = rcb
 
 # class AR_Structure: SUBCLASS
 # level
@@ -199,11 +199,19 @@ class Map:
         self.player_start_spaces = []
         self.enemy_start_spaces = []
 
+        self.liquid_texture = "CombatSprites\\WavePattern.png"
+        self.wall_texture = "CombatSprites\\Wallpattern.png"
+
     def add_start_space(self, tile_no, side):
         if not side: self.player_start_spaces.append(tile_no)
         else: self.enemy_start_spaces.append(tile_no)
 
     def define_map(self, map_json):
+
+        if "liquid" in map_json:
+            self.liquid_texture = map_json["liquid"]
+        if "wall" in map_json:
+            self.wall_texture = map_json["wall"]
 
         i = 0
         j = len(self.tiles)-1
@@ -222,3 +230,19 @@ class Map:
             self.player_start_spaces.append(x)
         for x in map_json["enemyStart"]:
             self.enemy_start_spaces.append(x)
+
+        # Structures
+        if "struct_walls" in map_json:
+            walls = map_json["struct_walls"]
+
+            for x in walls["static"]:
+                temp_struct = Structure(0, -1)
+                self.tiles[x].structure_on = temp_struct
+
+            for x in walls["twoBreak"]:
+                temp_struct = Structure(0, 2)
+                self.tiles[x].structure_on = temp_struct
+
+            for x in walls["oneBreak"]:
+                temp_struct = Structure(0, 1)
+                self.tiles[x].structure_on = temp_struct

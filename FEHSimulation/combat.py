@@ -15,6 +15,8 @@ RES = 4
 # A set of modifiers that change how combat and attacks work
 class HeroModifiers:
     def __init__(self):
+        self.start_of_combat_HP = -1
+
         self.preTriangleAtk = 0
 
         # attack order
@@ -91,7 +93,11 @@ class HeroModifiers:
         self.true_sp_next = 0  # divine pulse/negating fang
         self.true_sp_next_CACHE = 0
 
+        # An array to easily store true damage given by a particular stat (ex. deals damage = 20% of unit's Res)
         self.true_stat_damages = []
+
+        # Enables extra true damage and DR piercing based on current HP
+        self.resonance = False
 
         self.TDR_all_hits = 0
         self.TDR_first_strikes = 0
@@ -111,8 +117,9 @@ class HeroModifiers:
         self.most_recent_atk = 0  # used in calculating this vvvvv
         self.retaliatory_next = 0  # brash assault/counter roar uses most recent hit's damage
 
-        self.burn_damage = 0
-        self.capped_burn_damage = 0
+        self.self_burn_damage = 0
+        self.foe_burn_damage = 0
+        self.capped_foe_burn_damage = 0
 
         # healing
         self.all_hits_heal = 0
@@ -186,6 +193,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if defHPCur is None:
         defHPCur = defender.HPcur
+
+    atkr.start_of_combat_HP = atkHPCur
+    defr.start_of_combat_HP = defHPCur
 
     atkSpCountCur = attacker.specialCount
     defSpCountCur = defender.specialCount
@@ -649,6 +659,25 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if defender.getSpecialType() == "Offense":
             atkr.TDR_all_hits += 3 * min(spaces_moved_by_atkr, 4)
 
+    # FINISH
+
+    if "atkFinish" in atkSkills and atkAllyWithin3Spaces: atkCombatBuffs[ATK] += min(atkSkills["atkFinish"] * 2, 7)
+    if "spdFinish" in atkSkills and atkAllyWithin3Spaces: atkCombatBuffs[SPD] += min(atkSkills["spdFinish"] * 2, 7)
+    if "defFinish" in atkSkills and atkAllyWithin3Spaces: atkCombatBuffs[DEF] += min(atkSkills["defFinish"] * 2, 7)
+    if "resFinish" in atkSkills and atkAllyWithin3Spaces: atkCombatBuffs[RES] += min(atkSkills["resFinish"] * 2, 7)
+
+    if "finishDmg" in atkSkills and atkAllyWithin3Spaces: atkr.true_finish += atkSkills["finishDmg"]
+    if "finishHeal" in atkSkills and atkAllyWithin3Spaces: atkr.finish_mid_combat_heal += 7
+
+    if "atkFinish" in defSkills and defAllyWithin3Spaces: defCombatBuffs[ATK] += min(defSkills["atkFinish"] * 2, 7)
+    if "spdFinish" in defSkills and defAllyWithin3Spaces: defCombatBuffs[SPD] += min(defSkills["spdFinish"] * 2, 7)
+    if "defFinish" in defSkills and defAllyWithin3Spaces: defCombatBuffs[DEF] += min(defSkills["defFinish"] * 2, 7)
+    if "resFinish" in defSkills and defAllyWithin3Spaces: defCombatBuffs[RES] += min(defSkills["resFinish"] * 2, 7)
+
+    if "finishDmg" in defSkills and defAllyWithin3Spaces: defr.true_finish += defSkills["finishDmg"]
+    if "finishHeal" in defSkills and defAllyWithin3Spaces: defr.finish_mid_combat_heal += 7
+
+
     # START OF UNIT-EXCLUSIVE WEAPONS
 
     if "driveSpectrum_f" in atkSkills:
@@ -952,6 +981,31 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         map(lambda x: x + 4, atkCombatBuffs)
         atkr.all_hits_heal += 7
 
+    if "eCelicaBoost" in atkSkills:
+        atkCombatBuffs[ATK] += 6 + trunc(atkStats[SPD] * 0.2)
+        atkCombatBuffs[SPD] += 6 + trunc(atkStats[SPD] * 0.2)
+
+        atkr.true_stat_damages.append((SPD, 20))
+
+        defBonusesNeutralized[SPD] = True
+        defBonusesNeutralized[RES] = True
+
+        atkr.sp_charge_FU += 1
+
+        atkr.self_desperation = True
+
+    if "eCelicaBoost" in defSkills:
+        defCombatBuffs[ATK] += 6 + trunc(defStats[SPD] * 0.2)
+        defCombatBuffs[SPD] += 6 + trunc(defStats[SPD] * 0.2)
+
+        defr.true_stat_damages.append((SPD, 20))
+
+        atkBonusesNeutralized[SPD] = True
+        atkBonusesNeutralized[RES] = True
+
+        defr.sp_charge_FU += 1
+
+    # Golden Dagger (Saber)
     if "SUPER MARIO!!!" in atkSkills and atkSpCountCur == 0:
         map(lambda x: x + 3, atkCombatBuffs)
 
@@ -2216,7 +2270,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[RES] += 5
 
     if "the_dose" in atkSkills and atkHPGreaterEqual25Percent:
-        atkr.capped_burn_damage = max(atkr.capped_burn_damage, 8)
+        atkr.capped_foe_burn_damage = max(atkr.capped_foe_burn_damage, 8)
         X = trunc(atkStats[DEF] * 0.2) + 6
         defCombatBuffs[ATK] -= X
         defCombatBuffs[DEF] -= X
@@ -2701,6 +2755,34 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             atkr.damage_reduction_reduction *= 0.5
             atkr.sp_charge_foe_first += 2
 
+    if "laguz_friend" in defSkills:
+        skill_lvl = defSkills["laguz_friend"]
+        if skill_lvl == 4: atkStats[ATK] -= 5
+
+        if defender.getMaxSpecialCooldown() >= 3 and defender.getSpecialType() == "Offense" or defender.getSpecialType() == "Defense":
+            defr.damage_reduction_reduction *= 0.5
+            defr.sp_charge_foe_first += 2
+
+    if "resonance" in atkSkills:
+        X = max(trunc(0.2 * (atkStats[HP] - 20)), 0)
+
+        atkr.self_burn_damage += X
+
+        defCombatBuffs[SPD] -= 4
+        defCombatBuffs[RES] -= 4
+
+        atkr.resonance = True
+
+    if "resonance" in defSkills:
+        X = max(trunc(0.2 * (defStats[HP] - 20)), 0)
+
+        defr.self_burn_damage += X
+
+        atkCombatBuffs[SPD] -= 4
+        atkCombatBuffs[RES] -= 4
+
+        defr.resonance = True
+
 
     # LITERALLY EVERYTHING THAT USES EXACT BONUS AND PENALTY VALUES GOES HERE
     # YEAH I GOTTA GET RID!!!!
@@ -2903,13 +2985,21 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                         min(AtkPanicFactor * attacker.buffs[i], 0) * -1)) * (atkPenaltiesNeutralized[i])
 
 
+    #print(defCombatBuffs)
 
     # WHERE BONUSES AND PENALTIES ARE NEUTRALIZED
     for i in range(1, 5):
-        atkCombatBuffs[i] += atkPenaltiesNeutralized[i] * (attacker.debuffs[i] + min(attacker.buffs[i] * AtkPanicFactor, 0))
+        atkCombatBuffs[i] -= atkPenaltiesNeutralized[i] * (attacker.debuffs[i] + min(attacker.buffs[i] * AtkPanicFactor, 0))
         atkCombatBuffs[i] -= atkBonusesNeutralized[i] * max(attacker.buffs[i] * AtkPanicFactor, 0)
-        defCombatBuffs[i] += defPenaltiesNeutralized[i] * (defender.debuffs[i] + min(defender.buffs[i] * DefPanicFactor, 0))
+
+
+        # problem line vvvvv
+        defCombatBuffs[i] -= defPenaltiesNeutralized[i] * (defender.debuffs[i] + min(defender.buffs[i] * DefPanicFactor, 0))
+
         defCombatBuffs[i] -= defBonusesNeutralized[i] * max(defender.buffs[i] * DefPanicFactor, 0)
+
+
+    #print(defCombatBuffs)
 
     # add combat buffs to stats
 
@@ -3096,12 +3186,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if defr.prevent_self_FU_denial: defr.follow_up_denials = 0
 
     # TRUE DAMAGE ADDITION
-    # oh shoot we need to account for both sides
 
     for x in atkr.true_stat_damages:
         stat, percentage = x
         atkr.true_all_hits += math.trunc(atkStats[stat] * (percentage/100))
-        print(stat, atkStats[stat], (percentage/100), math.trunc(atkStats[stat] * (percentage/100)))
 
     for x in defr.true_stat_damages:
         stat, percentage = x
@@ -3201,6 +3289,19 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if attacker.getSpecialType() == "Defense":
             atkr.true_sp_next += trunc(0.05 * skill_lvl * max(atkStats[DEF], atkStats[RES]))
             if skill_lvl == 4: atkr.sp_pierce_after_DSP = True
+
+    if "laguz_friend" in defSkills:
+        skill_lvl = defSkills["laguz_friend"]
+
+        if defender.getMaxSpecialCooldown() >= 3 and defender.getSpecialType() == "Offense" or defender.getSpecialType() == "Defense":
+            defr.TDR_all_hits += trunc(0.05 * skill_lvl * max(defStats[DEF], defStats[RES]))
+
+        if defender.getMaxSpecialCooldown() >= 3 and defender.getSpecialType() == "Offense":
+            defr.true_sp += trunc(0.05 * skill_lvl * max(defStats[DEF], defStats[RES]))
+            if skill_lvl == 4: defr.sp_pierce_DR = True
+        if defender.getSpecialType() == "Defense":
+            defr.true_sp_next += trunc(0.05 * skill_lvl * max(defStats[DEF], defStats[RES]))
+            if skill_lvl == 4: defr.sp_pierce_after_DSP = True
 
     # EFFECTIVENESS CHECK
 
@@ -3322,6 +3423,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if "permHexblade" in atkSkills: atkTargetingDefRes = int(defStats[3] < defStats[4])
     if "permHexblade" in defSkills: defTargetingDefRes = int(atkStats[3] < atkStats[4])
+
+    # Defensive terrain
+    if atkDefensiveTerrain:
+        atkr.TDR_all_hits += trunc(0.3 * atkStats[defTargetingDefRes + 3])
+
+    if defDefensiveTerrain:
+        defr.TDR_all_hits += trunc(0.3 * defStats[atkTargetingDefRes + 3])
+
+    print(atkr.TDR_all_hits, defr.TDR_all_hits)
 
     # additional follow-up granted by outspeeding
     atkOutspeedFactor = 5
@@ -3605,6 +3715,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         attack += dmgBoost  # true damage by specials
         attack += I_stkr.true_all_hits  # true damage on all hits
 
+        if I_stkr.resonance:
+            resonance_damage = min(max((I_stkr.start_of_combat_HP - stkHPCur) * 2, 6), 12)
+            attack += resonance_damage
+
         attack += I_stkr.true_sp_next_CACHE
         I_stkr.true_sp_next_CACHE = 0
 
@@ -3641,12 +3755,18 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         # damage reduction
         total_reduction = 1
 
+        stkr_DRR = I_stkr.damage_reduction_reduction
+
+        # Resonance Piercing
+        if I_stkr.resonance:
+            stkr_DRR *= (min(max((I_stkr.start_of_combat_HP - stkHPCur) * 10, 30), 60)) / 100
+
         if not (I_stkr.always_pierce_DR or
                 (stkr_sp_triggered and I_stkr.sp_pierce_DR) or
                 (curAttack.isFollowUp and I_stkr.pierce_DR_FU) or
                 (I_stkr.sp_pierce_after_def_sp_CACHE)):
             for x in curReduction:
-                total_reduction *= 1 - (x / 100 * I_stkr.damage_reduction_reduction)  # change by redu factor
+                total_reduction *= 1 - (x / 100 * stkr_DRR)  # change by redu factor
 
         I_stkr.sp_pierce_after_def_sp_CACHE = False
 
@@ -3796,10 +3916,28 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         return stkHPCur, steHPCur, stkSpCount, steSpCount, presented_attack, totalHealedAmount
 
-    # pre-combat damage
+    # burn damage
 
-    defHPCur = max(defHPCur - atkr.burn_damage, 1)
-    atkHPCur = max(atkHPCur - defr.burn_damage, 1)
+    burn_damages = [0, 0]
+
+    if "A" in startString2:
+        defHPCur = max(defHPCur - atkr.foe_burn_damage, 1)
+        atkHPCur = max(atkHPCur - atkr.self_burn_damage, 1)
+
+        burn_damages[0] += atkr.foe_burn_damage
+        burn_damages[1] += atkr.self_burn_damage
+
+    if "D" in startString2:
+        atkHPCur = max(atkHPCur - defr.foe_burn_damage, 1)
+        defHPCur = max(defHPCur - defr.self_burn_damage, 1)
+
+        burn_damages[1] += defr.foe_burn_damage
+        burn_damages[0] += defr.self_burn_damage
+
+    #print(burn_damages)
+    #print(atkHPCur)
+
+
 
     # PERFORM THE ATTACKS
 
@@ -3824,8 +3962,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             atkSpCountCur = max(0, atkSpCountCur - atkr.sp_charge_first)
             atkSpCountCur = min(atkSpCountCur, attacker.specialMax)
 
-        if curAtk.attackOwner == 0 and (
-                curAtk.attackNumSelf == 2 and not atkr.brave or curAtk.attackNumSelf == 3 and atkr.brave):
+            defSpCountCur = max(0, defSpCountCur - defr.sp_charge_foe_first)
+
+        # On attacker's follow-up attack
+        if curAtk.attackOwner == 0 and (curAtk.attackNumSelf == 2 and not atkr.brave or curAtk.attackNumSelf == 3 and atkr.brave):
             atkSpCountCur = max(0, atkSpCountCur - atkr.sp_charge_FU)
             atkSpCountCur = min(atkSpCountCur, attacker.specialMax)
 
@@ -3839,8 +3979,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             defSpCountCur = max(0, defSpCountCur - defr.sp_charge_first)
             defSpCountCur = min(defSpCountCur, defender.specialMax)
 
-        if curAtk.attackOwner == 1 and (
-                curAtk.attackNumSelf == 2 and not defr.brave or curAtk.attackNumSelf == 3 and defr.brave):
+            atkSpCountCur = max(0, atkSpCountCur - atkr.sp_charge_foe_first)
+
+        # On defender's follow-up attack
+        if curAtk.attackOwner == 1 and (curAtk.attackNumSelf == 2 and not defr.brave or curAtk.attackNumSelf == 3 and defr.brave):
             defSpCountCur = max(0, defSpCountCur - defr.sp_charge_FU)
             defSpCountCur = min(defSpCountCur, defender.specialMax)
 
@@ -4036,7 +4178,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     defHitCount = startString2.count("D")
 
     return atkHPCur, defHPCur, atkCombatBuffs, defCombatBuffs, wpnAdvHero, oneEffAtk, oneEffDef, \
-        attackList, atkFehMath, atkHitCount, defFehMath, defHitCount, atkPostCombatEffs[0], defPostCombatEffs[0]
+        attackList, atkFehMath, atkHitCount, defFehMath, defHitCount, atkPostCombatEffs[0], defPostCombatEffs[0], burn_damages
 
 # Get AOE damage from attacker to foe
 
@@ -4228,8 +4370,8 @@ guard4 = Skill("Guard 4",
 # noah = Hero("Noah", 40, 42, 45, 35, 25, "Sword", 0, marthFalchion, luna, None, None, None)
 # mio = Hero("Mio", 38, 39, 47, 27, 29, "BDagger", 0, tacticalBolt, moonbow, None, None, None)
 
-player = Hero("Marth", "E!Marth", "Something", 0, "Sword", 0, [41, 45, 47, 33, 27], [50, 80, 90, 55, 40], 5, 165)
-enemy = Hero("Lucina", "B!Lucina", "Minecrafter", 0, "Lance", 0, [41, 34, 36, 27, 19], [50, 60, 60, 45, 35], 30, 165)
+player = Hero("Marth", "E!Marth", "Something", 0, "Sword", 0, [41, 45, 47, 33, 27], [50, 80, 90, 55, 40], 5, 165, 0)
+enemy = Hero("Lucina", "B!Lucina", "Minecrafter", 0, "Lance", 0, [41, 34, 36, 27, 19], [50, 60, 60, 45, 35], 30, 165, 0)
 
 player_weapon = Weapon("Hero-King Sword", "Hero-King Sword", "", 16, 1, "Sword", {"slaying": 1, "effDragon": 0}, {})
 enemy_weapon = Weapon("Iron Lance", "Iron Lance", "", 6, 1, "Lance", {"shez!": 0}, {})

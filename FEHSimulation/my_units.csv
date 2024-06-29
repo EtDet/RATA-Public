@@ -1,19 +1,17 @@
-﻿IntName,Build Name,Weapon,Assist,Special,ASkill,BSkill,CSkill,SSeal,XSkill,Level,Merges,Rarity,Asset,Flaw,Ascended,SSupport,ASupport,Blessing,Dragonflowers,Resplendent,Emblem,EmblemMerges,Cheats
-Ephraim,Test Ephraim 1,Siegmund (+Eff),,Moonbow,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0,,,0,FALSE,,0,FALSE
-Alfonse,Fire Emblem Hero,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0,,,0,FALSE,,0,FALSE
-FA!M!Corrin,evil corn,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0,,,0,FALSE,,0,FALSE
-Fomortiis,lol. lmao.,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0,,,0,FALSE,,0,FALSE
-Hríd,Have you seen me?,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0,,,0,FALSE,,0,FALSE
-Karin,:D,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0,,,0,FALSE,,0,FALSE
-M!Shez,SHEZ!,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0,,,0,FALSE,,0,FALSE
-Mirabilis,zzzzzzzzz,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0,,,0,FALSE,,0,FALSE
-NY!Reginn,The Reginn,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0,,,0,FALSE,,0,FALSE
-Reinhardt,i now use the,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0,,,0,FALSE,,0,FALSE
-SP!Bernadetta,fhgdsfhgdjfhk,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0,,,0,FALSE,,0,FALSE
-V!Roy,our boy,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0,,,0,FALSE,,0,FALSE
-SU!Mia,hiya boss,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0,,,0,FALSE,,0,FALSE
-Myrrh,Dragon go myrrrrrrh,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0,,,0,FALSE,,0,FALSE
-Heiðr,test,,,,,,,,,40,0,5,0,0,0,,0,,0,FALSE,,0,FALSE
-Lucina,Whatever Lucina,Sealed Falchion,Reposition,Aether,Armored Blow 3,Axebreaker 3,Breath of Life 3,,,38,2,3,1,2,1,,0,,0,False,,0,False
-Gaius,refined man,Candied DaggerEff,,,Armored Blow 3,Axebreaker 3,Breath of Life 3,,,40,0,5,0,0,0,,0,,0,False,,0,False
-Lyn,no weapon lyn!!!,,,,,,,,,40,0,5,0,0,0,,0,,0,False,,0,False
+IntName,Build Name,Weapon,Assist,Special,ASkill,BSkill,CSkill,SSeal,XSkill,Level,Merges,Rarity,Asset,Flaw,Ascended,SSupport,ASupport,Blessing,Dragonflowers,Resplendent,Emblem,EmblemMerges,Cheats
+Ephraim,Test Ephraim 1,Siegmund (+Eff),,Moonbow,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
+Alfonse,Fire Emblem Hero,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
+Hríd,Have you seen me?,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
+Karin,:D,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
+M!Shez,SHEZ!,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
+Mirabilis,zzzzzzzzz,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
+NY!Reginn,The Reginn,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
+Reinhardt,i now use the,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
+SP!Bernadetta,fhgdsfhgdjfhk,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
+V!Roy,our boy,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
+SU!Mia,hiya boss,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
+Myrrh,Dragon go myrrrrrrh,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
+Lucina,Cool Lucina!,Sealed FalchionEff,Reposition,,Armored Blow 3,Axebreaker 3,Breath of Life 3,,,38,2,3,1,3,1,,0.0,,0,False,,0,False
+Gaius,refined man 2,Candied DaggerEff,,,Armored Blow 3,Axebreaker 3,Breath of Life 3,,,40,0,5,1,0,1,,0.0,,0,False,,0,False
+A!Tiki,222l,,,,,,,,,40,0,5,0,0,0,,0.0,,0,False,,0,False
+Maria,121,Absorb+Wra,Rehabilitate+,Miracle,Defiant Spd 3,Desperation 3,Breath of Life 3,,,40,0,5,0,0,0,,0,,0,False,,0,False

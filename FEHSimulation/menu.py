@@ -1,7 +1,7 @@
 import hero
 import pandas as pd
 
-from csv import writer
+from csv import reader, writer
 import webbrowser
 from PIL import Image, ImageTk
 import tkinter as tk
@@ -158,6 +158,9 @@ def generate_units():
 
     remove_elements()
 
+    for widget in button_frame.winfo_children():
+        widget.grid_remove()
+
     width = 97
     height = 97
 
@@ -215,6 +218,7 @@ def show_edit_prompt(num, build_name):
     spacer.config(fg="#252a33", text=f'What do you want to do with "{build_name}"?')
 
     edit_button.config(command=partial(generate_creation_edit, num))
+    delete_button.config(command=partial(delete_unit, num))
 
     edit_button.pack(side='left', padx=20)
     delete_button.pack(side='left')
@@ -323,7 +327,7 @@ def generate_creation_edit(num):
     if pd.isnull(special):
         special = "None"
 
-    creation_comboboxes[8].set(special)
+    creation_comboboxes[9].set(special)
     handle_selection_change_special()
 
     # A Skill
@@ -338,10 +342,10 @@ def generate_creation_edit(num):
     # B Skill
     bskill = row["BSkill"]
 
-    if pd.isnull(askill):
+    if pd.isnull(bskill):
         bskill = "None"
 
-    creation_comboboxes[18].set(bskill)
+    creation_comboboxes[19].set(bskill)
     handle_selection_change_bskill()
 
     # C Skill
@@ -350,7 +354,7 @@ def generate_creation_edit(num):
     if pd.isnull(cskill):
         cskill = "None"
 
-    creation_comboboxes[18].set(cskill)
+    creation_comboboxes[20].set(cskill)
     handle_selection_change_cskill()
 
     # Build Name
@@ -358,7 +362,15 @@ def generate_creation_edit(num):
 
     # TOMORROW: CHANGE THE CREATE BUTTON TO A SAVE BUTTON
     # WHEN CLICKED, REPLACE ROW
+    creation_make_button.config(text="Save", command=partial(edit_unit_in_list, num))
 
+def delete_unit(num):
+
+    data = pd.read_csv("my_units.csv")
+    data = data.drop(num)
+    data.to_csv("my_units.csv", index=False)
+
+    generate_units()
 
 def clear_creation_fields():
     curProxy.reset()
@@ -394,6 +406,9 @@ def clear_creation_fields():
 
     build_name.set("")
     error_text.config(fg='#292e36')
+
+    # Reset save button to Create
+    creation_make_button.config(text="Create", command=add_unit_to_list)
 
 def generate_all_units_option():
     names = hero.hero_sheet['Name']
@@ -807,6 +822,62 @@ def add_unit_to_list():
                 f_writer = writer(file)
                 f_writer.writerow(data)
 
+            # Go back to unit selection screen
+            generate_units()
+
+        except PermissionError:
+            print(f"Error: Permission denied when writing to file. Please close {my_units_file} and try again.")
+    else:
+        error_text.config(fg='#d60408')
+
+
+def edit_unit_in_list(num):
+    hero_to_add = handle_selection_change_name.created_hero
+
+    if creation_str_vars[0].get() != "" and build_name.get() != "":
+
+        name = hero_to_add.intName
+        weapon = hero_to_add.weapon.intName if hero_to_add.weapon is not None else None
+        assist = hero_to_add.assist.name if hero_to_add.assist is not None else None
+        special = hero_to_add.special.name if hero_to_add.special is not None else None
+        askill = hero_to_add.askill.name if hero_to_add.askill is not None else None
+        bskill = hero_to_add.bskill.name if hero_to_add.bskill is not None else None
+        cskill = hero_to_add.cskill.name if hero_to_add.cskill is not None else None
+        sSeal = None
+        xskill = None
+        level = hero_to_add.level
+        merges = hero_to_add.merges
+        rarity = hero_to_add.rarity
+        asset = hero_to_add.asset
+        flaw = hero_to_add.flaw
+        asc = hero_to_add.asc_asset
+        sSupport = 0
+        aSupport = None
+        blessing = None
+        dflowers = 0
+        resp = False
+        emblem = None
+        emblem_merges = 0
+        cheats = False
+
+        data = [name, build_name.get(),
+                weapon, assist, special, askill, bskill, cskill, sSeal, xskill,
+                level, merges, rarity, asset, flaw, asc, aSupport, sSupport, blessing, dflowers, resp, emblem, emblem_merges, cheats]
+
+        try:
+            my_units_file = "my_units.csv"
+
+            with open(my_units_file, 'r', newline='') as file:
+                f_reader = reader(file)
+                read_data = list(f_reader)
+
+            read_data[num + 1] = data
+
+            with open(my_units_file, mode="w", newline='') as file:
+                f_writer = writer(file)
+                f_writer.writerows(read_data)
+
+            # Go back to unit selection screen
             generate_units()
 
         except PermissionError:
@@ -834,7 +905,7 @@ window = tk.Tk()
 window.geometry('800x600')
 window.title('FEH Sim')
 window.configure(background='#797282')
-window.iconbitmap("Sprites\\Marth.ico")
+#window.iconbitmap("Sprites\\Marth.ico")
 
 # MAIN MENU ELEMENTS
 title_label = tk.Label(master=window, text='RATA - An FE: Heroes Simulator', font='nintendoP_Skip-D_003 24')
@@ -868,7 +939,7 @@ search_button.pack(side='left')
 
 select_frame = tk.Frame(window, bg='#797282')
 edit_button = tk.Button(select_frame, text='Edit', command=generate_main, width=10)
-delete_button = tk.Button(select_frame, text='Delete', command=generate_main, width=10)
+delete_button = tk.Button(select_frame, text='Delete', command=delete_unit, width=10, bg="#e64337")
 
 spacer = tk.Label(select_frame, text="W", font=("Arial 14"), bg='#797282', fg='#797282')
 spacer.pack(side=tk.LEFT)

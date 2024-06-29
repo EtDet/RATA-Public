@@ -144,6 +144,7 @@ FA!Celica,Celica,Imprisoned Soul,40,35,35,27,26,0,Sword,15,-1,50,60,60,50,45,30,
 L!Celica,Celica,Queen of Valentia,40,38,38,18,28,0,GTome,15,-1,50,65,70,30,50,25,76,LEGEND,FALSE,0
 A!Celica,Celica,Valentia's Hope,40,43,42,21,25,0,CTome,15,-1,50,75,70,40,45,15,44,ASC,FALSE,0
 B!Celica,Celica,Warrior Priestess,38,33,39,29,24,0,Sword,15,-1,50,60,65,50,40,30,16,HERO,TRUE,0
+E!Celica,Celica,Of Echoes,45,46,46,21,24,0,BTome,15,17,-1,-1,-1,-1,-1,5,-1,EMBLEM,FALSE,0
 Céline,Céline,Joyous Royal,37,41,44,17,38,0,GTome,17,-1,50,70,75,30,65,10,205,HERO,FALSE,0
 Cervantes,Cervantes,Invincible General,50,45,31,44,25,3,Lance,13,-1,70,75,60,70,40,10,72,HERO,FALSE,0
 Chad,Chad,Lycian Wildcat,45,30,37,26,23,0,CDagger,6,-1,60,55,65,45,40,25,205,HERO,FALSE,0
