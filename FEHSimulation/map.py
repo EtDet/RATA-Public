@@ -199,8 +199,8 @@ class Map:
         self.player_start_spaces = []
         self.enemy_start_spaces = []
 
-        self.liquid_texture = "CombatSprites\\WavePattern.png"
-        self.wall_texture = "CombatSprites\\Wallpattern.png"
+        self.liquid_texture = "WavePattern.png"
+        self.wall_texture = "Wallpattern.png"
 
     def add_start_space(self, tile_no, side):
         if not side: self.player_start_spaces.append(tile_no)

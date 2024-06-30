@@ -43,9 +43,11 @@ class Move():
 # Create blank to be played upon
 map0 = Map(0)
 
+map_num = "Z0010"
+
 # Read JSON data associated with loaded map
 #with open(__location__ + "\\Maps\\Story Maps\\Book 1\\Preface\\story0-0-1.json") as read_file: data = json.load(read_file)
-with open(__location__ + "\\Maps\\Test Maps\\test2.json") as read_file: data = json.load(read_file)
+with open(__location__ + "\\Maps\\Arena Maps\\Map_" + map_num + ".json") as read_file: data = json.load(read_file)
 
 # Fill in terrain, starting tiles, enemy units, etc. into map
 map0.define_map(data)
@@ -2741,6 +2743,9 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                 chosen_map.tiles[mouse_new_tile].structure_on.health -= 1
 
+                #if chosen_map.tiles[mouse_new_tile].structure_on.health == 0:
+                #    chosen_map.tiles[mouse_new_tile].structure_on = None
+
                 refresh_walls()
 
             # SUPPOOOOOOOOOOOOOOOOOOOORT!!!!!!!!!!!!!!!!!!!!
@@ -3269,7 +3274,7 @@ def start_sim(player_units, enemy_units, chosen_map):
 
     # map
     #map_image = Image.open(__location__ + "\\Maps\\Story Maps\\Book 1\\Preface\\" + "story0_0_1" + ".png")
-    map_image = Image.open(__location__ + "\\Maps\\Test Maps\\" + "test2" + ".png")
+    map_image = Image.open(__location__ + "\\Maps\\Arena Maps\\" + "Map_" + map_num + ".png")
     map_photo = ImageTk.PhotoImage(map_image)
     canvas.create_image(0, 90, anchor=tk.NW, image=map_photo)
 

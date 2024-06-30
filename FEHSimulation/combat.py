@@ -3431,8 +3431,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if defDefensiveTerrain:
         defr.TDR_all_hits += trunc(0.3 * defStats[atkTargetingDefRes + 3])
 
-    print(atkr.TDR_all_hits, defr.TDR_all_hits)
-
     # additional follow-up granted by outspeeding
     atkOutspeedFactor = 5
     defOutspeedFactor = 5
