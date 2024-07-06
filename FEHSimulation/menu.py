@@ -8,6 +8,7 @@ import tkinter as tk
 from tkinter import ttk
 from math import isnan
 from functools import partial
+import json
 
 WEAPON = 0
 ASSIST = 1
@@ -142,6 +143,8 @@ def remove_elements():
 
     current_elements.clear()
 
+    window.unbind("<MouseWheel>")
+
 def generate_main():
     remove_elements()
 
@@ -150,6 +153,25 @@ def generate_main():
         front_page_elements[i].pack(pady=front_page_paddings[i])
         current_elements.append(front_page_elements[i])
         i += 1
+
+def maps_on_mousewheel(event):
+    map_listing_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+
+def generate_maps():
+    remove_elements()
+
+    map_frame.pack(pady=10)
+    map_listing_frame.pack(side=tk.LEFT, fill=tk.Y)
+    map_preview_frame.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
+
+    inner_frame.update_idletasks()
+    map_listing_canvas.config(width=inner_frame.winfo_reqwidth())
+
+    window.bind("<MouseWheel>", maps_on_mousewheel)
+
+    current_elements.append(map_frame)
+    current_elements.append(map_listing_frame)
+    current_elements.append(map_preview_frame)
 
 def generate_units():
     cur_unit_selected.set("")
@@ -910,7 +932,7 @@ window.configure(background='#797282')
 # MAIN MENU ELEMENTS
 title_label = tk.Label(master=window, text='RATA - An FE: Heroes Simulator', font='nintendoP_Skip-D_003 24')
 subtitle_label = tk.Label(master=window, text='By CloudX (2024)', font='nintendoP_Skip-D_003 12')
-start_button = tk.Button(window, command=remove_elements, width=30, text="Level Select", font="Helvetica", cursor="hand2", overrelief="raised", bg='blue', fg='white')
+start_button = tk.Button(window, command=generate_maps, width=30, text="Level Select", font="Helvetica", cursor="hand2", overrelief="raised", bg='blue', fg='white')
 units_button = tk.Button(window, command=generate_units, width=30, text="My Units", font="Helvetica", cursor="hand2", overrelief="raised", bg='blue', fg='white')
 help_button = tk.Button(window, command=about,width=30, text="User Guide", font="Helvetica", cursor="hand2", overrelief="raised", bg='blue', fg='white')
 dev_button = tk.Button(window, command=about,width=30, text="Developer Guide", font="Helvetica", cursor="hand2", overrelief="raised", bg='blue', fg='white')
@@ -919,7 +941,59 @@ quit_button = tk.Button(window, command=window.destroy, width=30, text="Close", 
 front_page_elements = [title_label, subtitle_label, start_button, units_button, help_button, dev_button, quit_button]
 front_page_paddings = [(100, 20), (10, 20), (20, 20), (0, 20), (0, 20), (0, 20), (0, 20)]
 
+# MAP SELECTION ELEMENTS
 
+# Top frame, displays title
+map_frame = tk.Frame(window, bg='#797282')
+
+# Left frame, displays selectable maps
+map_listing_frame = tk.Frame(window, bg='#770000', borderwidth=0)
+
+# Left canvas
+map_listing_canvas = tk.Canvas(map_listing_frame, bg='#004400', borderwidth=0, highlightthickness=0)
+map_listing_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+
+map_scrollbar = tk.Scrollbar(map_listing_frame, bg="black", orient='vertical', command=map_listing_canvas.yview)
+map_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+map_listing_canvas.configure(yscrollcommand=map_scrollbar.set)
+map_listing_canvas.bind('<Configure>', lambda e: map_listing_canvas.configure(scrollregion=map_listing_canvas.bbox("all")))
+
+inner_frame = tk.Frame(map_listing_canvas, bg="#10141c")
+
+map_listing_canvas.create_window((0, 0), window=inner_frame, anchor="nw")
+
+
+
+for i in range(24):
+    with open("Maps\\Arena Maps\\Map_Z" + str(i+1).zfill(4) + ".json") as read_file: data = json.load(read_file)
+    map_name = data["name"]
+
+    button_color = "#224763"
+    select_color = "#347deb"
+    if "Volcano" in map_name:
+        button_color = "#fcba03"
+        select_color = "red"
+
+    map_image = Image.open("Maps\\Arena Maps\\Map_Z" + str(i+1).zfill(4) + ".png")
+    map_image = map_image.resize((300, 400), Image.LANCZOS)
+    curImage = ImageTk.PhotoImage(map_image)
+
+    button = tk.Button(inner_frame, image=curImage, bg=button_color, fg="#ffff24", font=("Arial 20 bold"), activebackground=select_color, height=60, width=300, text=map_name, compound="center")
+    button.image = curImage
+    button.pack(padx=10, pady=5)
+
+
+
+# Right frame, displays preview of currently selected map
+map_preview_frame = tk.Frame(window, bg='#293240')
+
+
+map_top_label = tk.Label(map_frame, text='Arena Maps', font='Arial 18 bold')
+map_top_label.pack(side='top')
+
+map_back_button = tk.Button(map_frame, text='<- Back', command=generate_main, width=10)
+map_back_button.pack(side='left', padx=(0, 700))
 
 # UNIT SELECTION ELEMENTS
 
@@ -934,7 +1008,7 @@ search_string = tk.StringVar()
 search_bar = ttk.Entry(search_frame, textvariable=search_string, width=30)
 search_bar.pack(side='left', padx=(5,20))
 
-search_button = tk.Button(search_frame, text='Search', width=15) #, command=searchUnits)
+search_button = tk.Button(search_frame, text='Search', width=15)
 search_button.pack(side='left')
 
 select_frame = tk.Frame(window, bg='#797282')
@@ -949,7 +1023,7 @@ spacer.pack(side=tk.LEFT)
 unit_canvas = tk.Canvas(window, bg="#9ea8b8")
 
 # Scrollbar, for Canvas
-unit_scrollbar = ttk.Scrollbar(window, orient='vertical', command=unit_canvas.yview)
+unit_scrollbar = tk.Scrollbar(window, orient='vertical', command=unit_canvas.yview)
 
 unit_canvas.configure(yscrollcommand=unit_scrollbar.set)
 unit_canvas.bind("<Configure>", lambda e: unit_canvas.configure(scrollregion=unit_canvas.bbox("all")))

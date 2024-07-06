@@ -111,6 +111,36 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
 
+        if "spdRC" in unitSkills:
+            range = lambda s: lambda o: abs(s[0] - o[0]) <= 1 or abs(s[1] - o[1]) <= 1
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = False
+            effects = {"spdRC_f": unitSkills["spdRC"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
+        if "defRC" in unitSkills:
+            range = lambda s: lambda o: abs(s[0] - o[0]) <= 1 or abs(s[1] - o[1]) <= 1
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = False
+            effects = {"defRC_f": unitSkills["defRC"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
+        if "cruxField" in unitSkills:
+            range = lambda s: lambda o: abs(s[0] - o[0]) <= 1 or abs(s[1] - o[1]) <= 1
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = False
+            effects = {"cruxField_f": unitSkills["cruxField"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
         # UNIQUE STUFF
 
         if "driveSpectrum" in unitSkills:
@@ -183,6 +213,7 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
 
+
     return combat_fields
 
 def start_of_turn(starting_team, waiting_team, turn):
@@ -253,6 +284,12 @@ def start_of_turn(starting_team, waiting_team, turn):
         atkHPGreaterEqual50Percent = unitHPCur / unitStats[0] >= 0.50
         atkHPGreaterEqual75Percent = unitHPCur / unitStats[0] >= 0.75
         atkHPEqual100Percent = unitHPCur == unitStats[0]
+
+        # All allies
+        allies = []
+        for hero in starting_team:
+            if hero is not unit:
+                allies.append(hero)
 
         # HONE/FORTIFY
 
@@ -389,6 +426,11 @@ def start_of_turn(starting_team, waiting_team, turn):
             for ally in allies_within_n_spaces[1]:
                 ally.inflictStat(DEF, unitSkills["oddDefWave"])
 
+        if "premiumResWave" in unitSkills:
+            unit.inflictStat(RES, 6)
+            for ally in allies_within_n_spaces[2]:
+                ally.inflictStat(RES, 6)
+
         # SABOTAGE SKILLS
 
         if "sabotageAtkW" in unitSkills:
@@ -451,6 +493,19 @@ def start_of_turn(starting_team, waiting_team, turn):
 
                     if foe_hp <= unit_hp - 1:
                         foe.inflictStatus(Status.Panic)
+
+        # Bond Blast (SU!F!Alear)
+        if "summerAlearBonds" in unitSkills:
+            support_partner_present = False
+            for ally in allies:
+                if ally.allySupport == unit.intName:
+                    support_partner_present = True
+
+            if not support_partner_present:
+                highest_atk = units_with_extreme_stat(allies_within_n_spaces[2], ATK)
+
+                for high_atk_ally in highest_atk:
+                    high_atk_ally.inflictStatus(Status.Bonded)
 
         # United Bouquet - Sharena
         if "bridal_shenanigans" in unitSkills and atkHPGreaterEqual25Percent:
@@ -620,7 +675,6 @@ def get_warp_moves(unit, unit_team, enemy_team):
 
     if "escRoute" in unitSkills:
         if unit.HPcur/unitStats[HP] <= unitSkills["escRoute"] * 0.10 + 0.20:
-
             for ally in unit_team:
                 if ally != unit:
                     adj_ally_spaces = ally.tile.tilesWithinNSpaces(1)
@@ -634,6 +688,15 @@ def get_warp_moves(unit, unit_team, enemy_team):
             if ally != unit and ally.side == unit.side:
                 adj_ally_spaces = ally.tile.tilesWithinNSpaces(1)
                 for adj_tile in adj_ally_spaces:
+                    if can_be_on_tile(adj_tile, unit.move) and adj_tile.hero_on is None:
+                        warp_moves.append(adj_tile)
+
+    if "summerPetraBoost" in unitSkills:
+        potential_allies = unit.tile.unitsWithinNSpaces(2)
+        for ally in potential_allies:
+            if ally != unit and ally.side == unit.side:
+                close_ally_spaces = ally.tile.tilesWithinNSpaces(2)
+                for adj_tile in close_ally_spaces:
                     if can_be_on_tile(adj_tile, unit.move) and adj_tile.hero_on is None:
                         warp_moves.append(adj_tile)
 
@@ -891,7 +954,6 @@ def end_of_combat(atk_effects, def_effects, attacker, defender):
         if effect[0] == "status":
             for x in targeted_units:
                 x.inflictStatus(effect[1])
-
 
         i += 1
 

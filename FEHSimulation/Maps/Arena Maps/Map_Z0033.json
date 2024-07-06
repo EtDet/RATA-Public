@@ -20,12 +20,14 @@
     "playerStart": [7, 9, 2, 4],
     "enemyStart": [37, 44, 45, 40],
     "enemyData":
-    [  {"name": "Virion",
+    [  {"name": "E!Celica",
        "level": 40,
        "rarity": 5,
-       "weapon": "Dignified Bow",
-      "special": "Bonfire",
-      "cskill": "Hone Atk 2",
+       "weapon": "Caring Magic",
+      "special": "Warp Ragnarok",
+      "askill": "Verge of Death",
+      "bskill": "Resonance 4",
+      "cskill": "Inf. Null Follow 4",
        "startMove": 1,
        "wallBreak": false
        },

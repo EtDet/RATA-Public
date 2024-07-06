@@ -557,6 +557,15 @@ class Hero:
 
         self.HPcur = self.visible_stats[0]
 
+    # Getting stats with applied buffs and debuffs
+    def get_visible_stats(self, STAT):
+        panic_factor = 1
+        if Status.Panic in self.statusNeg: panic_factor = -1
+        if Status.NullPanic in self.statusPos: panic_factor = 1
+        buff_applied_stat = self.visible_stats[STAT] + self.buffs[STAT] * panic_factor + self.debuffs[STAT]
+        return buff_applied_stat
+
+
     def inflictStatus(self, status):
         # Positive status
         if status.value > 100 and status not in self.statusPos:
@@ -575,7 +584,6 @@ class Hero:
         self.statusNeg.clear()
 
     def inflictStat(self, stat, num):
-        statStr = ""
         if stat == ATK: statStr = "Atk"
         elif stat == SPD: statStr = "Spd"
         elif stat == DEF: statStr = "Def"
@@ -588,6 +596,7 @@ class Hero:
         print(self.name + "'s " + statStr + " was modified by " + str(num) + ".")
 
     def chargeSpecial(self, charge):
+        # Will only charge special if charge is >0, and if special is present (-1 represents no special equipped)
         if charge != 0 and self.specialCount != -1:
             # will decrease special count by charge
             self.specialCount = max(0, self.specialCount - charge)
@@ -606,6 +615,7 @@ class Hero:
     def hasPenalty(self):
         return sum(self.debuffs) < 0 or self.statusNeg
 
+    # Determine which defense stat should be targeted when attacking
     def getTargetedDef(self):
         isTome = self.wpnType == "RTome" or self.wpnType == "BTome" or self.wpnType == "GTome" or self.wpnType == "CTome" or self.wpnType == "Staff"
         isDragon = self.wpnType == "RDragon" or self.wpnType == "BDragon" or self.wpnType == "GDragon" or self.wpnType == "CDragon"
@@ -668,17 +678,11 @@ class Hero:
         if self.emblem == "Corrin": return {"bare your fangs": 14}
         if self.emblem == "Byleth": return {"teach us": 16}
 
-    def getCooldown(self):
-        if self.special != None: return self.special.getCooldown()
-        else: return -1
-
     def getStats(self):
         return self.visible_stats[:]
 
-    def getName(self):
-        return self.name
-
     def getSpName(self):
+        if self.special is None: return "Nil Special"
         return self.special.getName()
 
     def getSpecialType(self):
@@ -699,8 +703,13 @@ class Hero:
         x = random.randint(0, 3)
         return self.spLines[x]
 
-    def haveAssist(self):
-        return not self.assist is None
+    def isAllyOf(self, other):
+        if other is None: return False
+        return other.side == self.side and other is not self
+
+    def isEnemyOf(self, other):
+        if other is None: return False
+        return other.side != self.side
 
     def __str__(self):
         return self.intName
@@ -739,7 +748,7 @@ class AssistType(Enum):
     Refresh = 3
     Other = 4
 
-class Assist():
+class Assist:
     def __init__(self, name, desc, effects, range, type, users):
         self.name = name
         self.desc = desc
@@ -748,13 +757,7 @@ class Assist():
         self.type = type
         self.users = users
 
-class SpecialType(Enum):
-    Offense = 0
-    Defense = 1
-    AreaOfEffect = 2
-    Galeforce = 3
-
-class Special():
+class Special:
     def __init__(self, name, desc, effects, cooldown, type):
         self.name = name
         self.desc = desc
@@ -762,7 +765,6 @@ class Special():
         self.cooldown = cooldown
         self.type = type
 
-    def getCooldown(self): return self.cooldown
     def getName(self): return self.name
 
 class Blessing():
@@ -886,6 +888,8 @@ class Status(Enum):
     FirstReduce40 = 158 # 🔴 If initiating combat, reduce damage of first attack received by 40%
     HalfDamageReduction = 159 # 🔴 Cuts foe's damage reduction skill efficacy in half
     EssenceDrain = 163
+    Bonded = 164 # 🔴 Activates different effects depending on skills present in battle
+    Bulwark = 165
 
 
 

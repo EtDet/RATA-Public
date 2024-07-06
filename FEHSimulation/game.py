@@ -43,7 +43,7 @@ class Move():
 # Create blank to be played upon
 map0 = Map(0)
 
-map_num = "Z0010"
+map_num = "Z0033"
 
 # Read JSON data associated with loaded map
 #with open(__location__ + "\\Maps\\Story Maps\\Book 1\\Preface\\story0-0-1.json") as read_file: data = json.load(read_file)
@@ -127,19 +127,19 @@ sharena.set_level(40)
 
 #robin.tile = map0.tiles[18]
 
-tested_unit = makeHero("Seiðr")
-tested_weapon = makeWeapon("Excalibur")
-tested_assist = makeAssist("Pivot")
-tested_special = makeSpecial("Astra")
-tested_askill = makeSkill("Svalinn Shield")
-tested_bskill = makeSkill("Desperation 3")
-tested_cskill = makeSkill("Threaten Def 3")
+tested_unit = makeHero("SU!F!Alear")
+tested_weapon = makeWeapon("Maritime Arts")
+#tested_assist = makeAssist("Pivot")
+tested_special = makeSpecial("Bond Blast")
+tested_askill = makeSkill("Spd/Res Finish 4")
+tested_bskill = makeSkill("Null C-Disrupt 4")
+tested_cskill = makeSkill("Even Res Wave D")
 
 #xander.allySupport = "M!Corrin"
 #tested_unit.allySupport = "DA!Xander"
 
 tested_unit.set_skill(tested_weapon, WEAPON)
-tested_unit.set_skill(tested_assist, ASSIST)
+#tested_unit.set_skill(tested_assist, ASSIST)
 tested_unit.set_skill(tested_special, SPECIAL)
 tested_unit.set_skill(tested_askill, ASKILL)
 tested_unit.set_skill(tested_bskill, BSKILL)
@@ -2025,9 +2025,7 @@ def start_sim(player_units, enemy_units, chosen_map):
             # and there existed a target on previous tile
 
             # previously targeting something, but now not targeting anyone
-            if (cur_tile_Obj.hero_on is None or cur_tile_Obj.hero_on == cur_hero) and cur_tile_Obj.structure_on is None and canvas.drag_data['target'] is not None:
-
-                print("NUH UH")
+            if (cur_tile_Obj.hero_on is None or cur_tile_Obj.hero_on == cur_hero) and (cur_tile_Obj.structure_on is None or cur_tile_Obj.structure_on.health == 0) and canvas.drag_data['target'] is not None:
 
                 set_banner(cur_hero)
 
@@ -2226,9 +2224,10 @@ def start_sim(player_units, enemy_units, chosen_map):
 
             cur_hero = units_all[canvas.drag_data['side']][canvas.drag_data['index']]
 
+            # For each potential target in range, set current tile as the most recent tile visited that the dragged unit can attack from
             for x in canvas.drag_data['targets_and_tiles']:
-                if prev_tile_int in canvas.drag_data['targets_and_tiles'][x]:
-                    canvas.drag_data['targets_most_recent_tile'][x] = prev_tile_int
+                if cur_tile_int in canvas.drag_data['targets_and_tiles'][x]:
+                    canvas.drag_data['targets_most_recent_tile'][x] = cur_tile_int
 
             # if
             # there is a hero on new tile,
@@ -2501,7 +2500,7 @@ def start_sim(player_units, enemy_units, chosen_map):
                 distance = len(canvas.drag_data['target_path'])
 
                 # Simulate combat
-                combat_result = simulate_combat(player, enemy, True, turn_info[0], distance, [])
+                combat_result = simulate_combat(player, enemy, True, turn_info[0], distance, combat_fields)
                 attacks = combat_result[7]
 
                 player.unitCombatInitiates += 1

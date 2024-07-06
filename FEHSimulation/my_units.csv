@@ -1,17 +1,8 @@
 IntName,Build Name,Weapon,Assist,Special,ASkill,BSkill,CSkill,SSeal,XSkill,Level,Merges,Rarity,Asset,Flaw,Ascended,SSupport,ASupport,Blessing,Dragonflowers,Resplendent,Emblem,EmblemMerges,Cheats
-Ephraim,Test Ephraim 1,Siegmund (+Eff),,Moonbow,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
 Alfonse,Fire Emblem Hero,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
-Hríd,Have you seen me?,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
-Karin,:D,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
-M!Shez,SHEZ!,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
-Mirabilis,zzzzzzzzz,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
-NY!Reginn,The Reginn,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
-Reinhardt,i now use the,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
-SP!Bernadetta,fhgdsfhgdjfhk,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
-V!Roy,our boy,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
-SU!Mia,hiya boss,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
-Myrrh,Dragon go myrrrrrrh,Siegmund,,Bonfire,Death Blow 3,Quick Riposte 3,,,,40,0,5,0,0,0,0.0,,,0,False,,0,False
 Lucina,Cool Lucina!,Sealed FalchionEff,Reposition,,Armored Blow 3,Axebreaker 3,Breath of Life 3,,,38,2,3,1,3,1,,0.0,,0,False,,0,False
 Gaius,refined man 2,Candied DaggerEff,,,Armored Blow 3,Axebreaker 3,Breath of Life 3,,,40,0,5,1,0,1,,0.0,,0,False,,0,False
-A!Tiki,222l,,,,,,,,,40,0,5,0,0,0,,0.0,,0,False,,0,False
-Maria,121,Absorb+Wra,Rehabilitate+,Miracle,Defiant Spd 3,Desperation 3,Breath of Life 3,,,40,0,5,0,0,0,,0,,0,False,,0,False
+A!Tiki,222l,,,,,,,,,40,0,5,1,0,1,,0.0,,0,False,,0,False
+Maria,121,Absorb+Wra,Rehabilitate+,Miracle,Defiant Spd 3,Desperation 3,Breath of Life 3,,,40,0,5,0,0,0,,0.0,,0,False,,0,False
+Sharena,sharena buuild,FensalirEff,Reposition,Noontime,Darting Blow 3,Vantage 3,Threaten Spd 3,,,40,0,5,0,0,0,,0.0,,0,False,,0,False
+Roy,OUR BOY!!!,Binding BladeEff,Reposition,Iceberg,Life and Death 3,G Tomebreaker 3,Savage Blow 3,,,40,10,5,1,0,1,,0.0,,0,False,,0,False
