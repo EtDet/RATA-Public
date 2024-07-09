@@ -74,25 +74,28 @@ class HeroModifiers:
         self.DR_sp_trigger_next_all_SP = []
         self.DR_sp_trigger_next_all_SP_CACHE = []
 
-        # Armored Beacon/Floe/Blaze, Supreme Heaven, Emblem Ike Engaged, etc.
+        # Armored Beacon/Floe/Blaze, Supreme Heaven, Emblem Ike Ring, etc.
         self.DR_sp_trigger_by_any_special_SP = []
 
+        # DR specific to Great Aether
         self.DR_great_aether_SP = False
 
+        # Multiplies all damage reduction foe has by this number.
         self.damage_reduction_reduction = 1
 
-        self.sp_pierce_DR = False
-        self.pierce_DR_FU = False
-        self.always_pierce_DR = False
-        self.sp_pierce_after_def_sp = False # laguz friend 4
+        self.sp_pierce_DR = False # DR pierce on special
+        self.pierce_DR_FU = False # DR pierce on follow-up
+        self.always_pierce_DR = False # DR pierce on any hit
+
+        self.sp_pierce_after_def_sp = False # DR pierce on next hit after defensive special trigger
         self.sp_pierce_after_def_sp_CACHE = False
 
         # true damage / true reduction
         self.true_all_hits = 0
         self.true_first_hit = 0  # domain of flame
-        self.true_finish = 0
+        self.true_finish = 0 # added after special is currently ready or has triggered
         self.true_after_foe_first = 0
-        self.true_sp = 0  # wo dao
+        self.true_sp = 0  # added only on special trigger
 
         self.true_sp_next = 0  # divine pulse/negating fang
         self.true_sp_next_CACHE = 0
@@ -108,6 +111,7 @@ class HeroModifiers:
         self.TDR_second_strikes = 0
         self.TDR_on_def_sp = 0
 
+        # Niðhöggr
         self.TDR_dmg_taken_cap = 0
         self.TDR_dmg_taken_extra_stacks = 0
 
@@ -2015,10 +2019,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
                 if ally_spd >= 40: num_ally_high_spd += 1
 
-        X = min(num_ally_high_atk + num_ally_high_spd, 3)
+        # X is capped for stats, but not cooldown gain. Currently bugged?
+        # https://twitter.com/i/status/1809296394047701142
+        X = num_ally_high_atk + num_ally_high_spd
 
-        atkCombatBuffs[ATK] += 6 * X
-        atkCombatBuffs[SPD] += 6 * X
+        atkCombatBuffs[ATK] += 6 * min(X, 3)
+        atkCombatBuffs[SPD] += 6 * min(X, 3)
 
         if attacker.getSpecialType() == "Offense":
             A = X + 1
@@ -4631,9 +4637,9 @@ player_weapon = Weapon("Hero-King Sword", "Hero-King Sword", "", 16, 1, "Sword",
 enemy_weapon = Weapon("Iron Lance", "Iron Lance", "", 6, 1, "Lance", {"shez!": 0}, {})
 
 ragnell = Weapon("Emblem Ragnell", "Emblem Ragnell", "", 16, 1, "Sword", {"slaying": 1, "dCounter": 0, "BIGIKEFAN": 1018}, {})
-GREAT_AETHER = Special("Great Aether", "", {"numFoeAtkBoostSp": 4, "AETHER_GREAT": 1018}, 4)
+GREAT_AETHER = Special("Great Aether", "", {"numFoeAtkBoostSp": 4, "AETHER_GREAT": 1018}, 4, "Offense")
 
-lodestar_rush = Special("Lodestar Rush", "", {"spdBoostSp": 4, "tempo": 0, "potentFix": 100}, 2)
+lodestar_rush = Special("Lodestar Rush", "", {"spdBoostSp": 4, "tempo": 0, "potentFix": 100}, 2, "Offense")
 
 player.set_skill(ragnell, WEAPON)
 enemy.set_skill(enemy_weapon, WEAPON)

@@ -1,6 +1,7 @@
 import hero
-import pandas as pd
+from map import wall_crops
 
+import pandas as pd
 from csv import reader, writer
 import webbrowser
 from PIL import Image, ImageTk
@@ -126,7 +127,141 @@ class HeroProxy():
         apl_hero.set_skill(self.sSeal, SSEAL)
         apl_hero.set_skill(self.xskill, XSKILL)
 
+class SelectProxy:
+    def __init__(self):
+        self.team_buttons = []
 
+        # By default, with no boxes highlighted, the value should be 0
+        # Negative values correlate to the team boxes (-1, -2, -3, -4, ...)
+        # Positive values correlate to the lower boxes (1, 2, 3, 4, ...)
+        # 0 also correlates to the 'Undo' button, but this button is unable to be highlighted
+        self.highlighted_box = 0
+
+    def set_team_boxes(self, num_boxes):
+        self.team_buttons = [0] * num_boxes
+        self.highlighted_box = 0
+
+    def clear_highlighted_box(self):
+        if self.highlighted_box > 0:
+            map_unit_selection.my_unit_buttons[self.highlighted_box - 1].configure(bg="linen")
+        if self.highlighted_box < 0:
+            map_unit_selection.team_buttons[self.highlighted_box * -1 - 1].configure(bg="linen")
+
+    def set_highlighted_box(self):
+        if self.highlighted_box > 0:
+            map_unit_selection.my_unit_buttons[self.highlighted_box - 1].configure(bg="RoyalBlue1")
+        if self.highlighted_box < 0:
+            map_unit_selection.team_buttons[self.highlighted_box * -1 - 1].configure(bg="RoyalBlue1")
+
+    def update_button_appearance(self):
+        i = 0
+        while i < len(self.team_buttons):
+            if self.team_buttons[i] == 0:
+                map_unit_selection.team_buttons[i].configure(image=pixel, text="Empty")
+            else:
+                img = map_unit_selection.my_unit_buttons[self.team_buttons[i] - 1].image
+                txt = map_unit_selection.my_unit_buttons[self.team_buttons[i] - 1].text
+
+                map_unit_selection.team_buttons[i].configure(image=img, text=txt)
+
+            i += 1
+
+    def box_clicked(self, box_id):
+        self.clear_highlighted_box()
+
+        def autofill(num):
+            i = 0
+            while i < len(self.team_buttons):
+                if self.team_buttons[i] == 0:
+                    self.team_buttons[i] = num
+                    break
+
+                i += 1
+
+        # When pressing undo button, set to
+        def undo():
+            # If currently highlighting a team box
+            if self.highlighted_box < 0:
+                self.team_buttons[self.highlighted_box * -1 - 1] = 0
+            # If currently highlighting a lower box, but still in team
+            elif self.highlighted_box in self.team_buttons and self.highlighted_box != 0:
+                self.team_buttons = [0 if x == self.highlighted_box else x for x in self.team_buttons]
+            # Else, remove first avalilable
+            else:
+                for i in range(len(self.team_buttons) - 1, -1, -1):
+                    if self.team_buttons[i] != 0:
+                        self.team_buttons[i] = 0
+                        break
+
+            self.highlighted_box = 0
+
+        def swap(team_index, lower_num):
+            index1 = team_index * -1 - 1
+            index2 = self.team_buttons.index(lower_num)
+
+            self.team_buttons[index1], self.team_buttons[index2] = self.team_buttons[index2], self.team_buttons[index1]
+
+            self.highlighted_box = 0
+
+        # Pressing undo button
+        if box_id == 0:
+            undo()
+
+        # Now selecting a unit currently on the team
+        elif box_id < 0:
+            # If no box is already selected, first the first point to this box
+            if self.highlighted_box == 0:
+                self.highlighted_box = box_id
+            # Select another box currently on the team
+            elif self.highlighted_box < 0:
+                if self.highlighted_box == box_id:
+                    self.highlighted_box = 0
+                else:
+                    self.highlighted_box = box_id
+            # Lower box selected
+            else:
+                # If lower box currently in team
+                if self.highlighted_box in self.team_buttons:
+                    # Swap if lower box currently in team and not currently highlighted
+                    # Also happens if highlighted and selected unit are the same, no change occurs
+                    swap(box_id, self.highlighted_box)
+                # Else, set currently highlighted from lower with newly selected from upper boxes
+                else:
+                    self.team_buttons[box_id * -1 - 1] = self.highlighted_box
+                    self.highlighted_box = 0
+
+        # Now selecting a unit in lower boxes
+        elif box_id > 0:
+            # If no unit currently selected
+            if self.highlighted_box == 0:
+                # Not currently in the team and space is available
+                if box_id not in self.team_buttons and 0 in self.team_buttons:
+                    autofill(box_id)
+                # Team currently full or already in team, just highlight this box
+                else:
+                    self.highlighted_box = box_id
+            # If already highlighting a box in the team
+            elif self.highlighted_box < 0:
+                # If currently on the team, perform a swap
+                if box_id in self.team_buttons:
+                    swap(self.highlighted_box, box_id)
+                # Else, replace unit on team with one not on team
+                else:
+                    self.team_buttons[self.highlighted_box * -1 - 1] = box_id
+                    self.highlighted_box = 0
+            # Currently highlighting another box below, just select that new box
+            elif self.highlighted_box > 0:
+                if self.highlighted_box == box_id:
+                    self.highlighted_box = 0
+                else:
+                    self.highlighted_box = box_id
+
+        self.set_highlighted_box()
+
+        self.update_button_appearance()
+
+        print(self.highlighted_box)
+        print(self.team_buttons)
 
 
 def about():
@@ -143,10 +278,16 @@ def remove_elements():
 
     current_elements.clear()
 
+    # Clear Map Canvas
+    preview_canvas.delete('all')
+    preview_canvas.create_text(canvas_width // 2, canvas_height // 2, text="No Map Selected", font="Arial 18 bold", fill="yellow")
+
     window.unbind("<MouseWheel>")
 
 def generate_main():
     remove_elements()
+
+    next_button.pack_forget()
 
     i = 0
     while i < len(front_page_elements):
@@ -265,12 +406,9 @@ def generate_creation_edit(num):
     # Move to creation screen
     generate_creation()
 
-    print(num)
     my_units = pd.read_csv("my_units.csv")
 
     row = my_units.loc[num]
-    print(row)
-
 
     # Internal name from sheet
     int_name = row["IntName"]
@@ -297,15 +435,21 @@ def generate_creation_edit(num):
     creation_comboboxes[2].set(merges)
     handle_selection_change_merge()
 
-    # Asset
+    # Asset & Flaw
     asset = STAT_STR[row["Asset"]]
-    creation_comboboxes[3].set(asset)
-    handle_selection_change_asset()
-
-    # Flaw
     flaw = STAT_STR[row["Flaw"]]
-    creation_comboboxes[15].set(flaw)
-    handle_selection_change_flaw()
+
+    # Neutral
+    if asset == flaw:
+        creation_comboboxes[3].set("None")
+        handle_selection_change_asset()
+    # Not Neutral
+    else:
+        creation_comboboxes[3].set(asset)
+        handle_selection_change_asset()
+
+        creation_comboboxes[15].set(flaw)
+        handle_selection_change_flaw()
 
     # Weapon
     weapon = row["Weapon"]
@@ -395,7 +539,7 @@ def delete_unit(num):
     generate_units()
 
 def clear_creation_fields():
-    curProxy.reset()
+    heroProxy.reset()
 
     creation_image_label.config(image=pixel)
     creation_image_label.image = pixel
@@ -806,7 +950,9 @@ def get_valid_abc_skills(cur_hero):
 def add_unit_to_list():
     hero_to_add = handle_selection_change_name.created_hero
 
-    print(creation_str_vars[0].get(), build_name.get())
+    cur_build_name = build_name.get()
+
+    print(creation_str_vars[0].get(), cur_build_name)
     if creation_str_vars[0].get() != "" and build_name.get() != "":
 
         name = hero_to_add.intName
@@ -833,7 +979,7 @@ def add_unit_to_list():
         emblem_merges = 0
         cheats = False
 
-        data = [name, build_name.get(),
+        data = [name, cur_build_name,
                 weapon, assist, special, askill, bskill, cskill, sSeal, xskill,
                 level, merges, rarity, asset, flaw, asc, aSupport, sSupport, blessing, dflowers, resp, emblem, emblem_merges, cheats]
 
@@ -847,6 +993,8 @@ def add_unit_to_list():
             # Go back to unit selection screen
             generate_units()
 
+            spacer.config(fg="lime", text=f'"{cur_build_name}" created successfully.')
+
         except PermissionError:
             print(f"Error: Permission denied when writing to file. Please close {my_units_file} and try again.")
     else:
@@ -856,7 +1004,9 @@ def add_unit_to_list():
 def edit_unit_in_list(num):
     hero_to_add = handle_selection_change_name.created_hero
 
-    if creation_str_vars[0].get() != "" and build_name.get() != "":
+    cur_build_name = build_name.get()
+
+    if creation_str_vars[0].get() != "" and cur_build_name != "":
 
         name = hero_to_add.intName
         weapon = hero_to_add.weapon.intName if hero_to_add.weapon is not None else None
@@ -882,7 +1032,7 @@ def edit_unit_in_list(num):
         emblem_merges = 0
         cheats = False
 
-        data = [name, build_name.get(),
+        data = [name, cur_build_name,
                 weapon, assist, special, askill, bskill, cskill, sSeal, xskill,
                 level, merges, rarity, asset, flaw, asc, aSupport, sSupport, blessing, dflowers, resp, emblem, emblem_merges, cheats]
 
@@ -902,14 +1052,30 @@ def edit_unit_in_list(num):
             # Go back to unit selection screen
             generate_units()
 
+            spacer.config(fg="lime", text=f'"{cur_build_name}" saved successfully.')
+
         except PermissionError:
             print(f"Error: Permission denied when writing to file. Please close {my_units_file} and try again.")
     else:
         error_text.config(fg='#d60408')
 
-# Scroll list of units
+# Scroll list of units when editing
 def on_canvas_mousewheel(event):
     canvas = unit_canvas
+    delta = -1 * int(event.delta / 100)
+
+    # Scroll the canvas vertically
+    canvas.yview_scroll(delta, "units")
+
+    # Prevent scrolling upwards if we're already at the top
+    if delta < 0:
+        top, bottom = canvas.yview()
+        if top <= 0:
+            canvas.yview_moveto(0)
+
+# Scroll list of units after map selection
+def my_canvas_on_mousewheel(event):
+    canvas = my_units_canvas
     delta = -1 * int(event.delta / 100)
 
     # Scroll the canvas vertically
@@ -963,8 +1129,196 @@ inner_frame = tk.Frame(map_listing_canvas, bg="#10141c")
 
 map_listing_canvas.create_window((0, 0), window=inner_frame, anchor="nw")
 
+# Set current map looked at in the preview canvas
+def set_map_canvas(map_data, curImage):
+    print(map_data["name"])
 
+    preview_canvas.delete('all')
 
+    # Place liquid background
+    liquid_texture = "WavePattern.png"
+
+    if "liquid" in map_data:
+        liquid_texture = map_data["liquid"]
+
+    liquid_image = Image.open("CombatSprites\\" + liquid_texture)
+    liquid_photo = ImageTk.PhotoImage(liquid_image)
+    preview_canvas.create_image(0, 0, anchor=tk.NW, image=liquid_photo)
+
+    set_map_canvas.liquid = liquid_photo
+
+    # Place map
+    map_image = ImageTk.getimage(curImage)
+    map_image = map_image.resize((canvas_width, canvas_height), Image.LANCZOS)
+    map_photo = ImageTk.PhotoImage(map_image)
+    preview_canvas.create_image(2, 2, anchor=tk.NW, image=map_photo)
+
+    set_map_canvas.image = map_photo
+
+    # Place walls
+    set_map_canvas.walls = []
+
+    if "struct_walls" in map_data:
+        # Default wall texture
+        wall_texture = "Wallpattern.png"
+
+        # Optional provided wall texture
+        if "wall" in map_data:
+            wall_texture = map_data["wall"]
+
+        wall_image = Image.open("CombatSprites\\" + wall_texture)
+
+        all_walls = map_data["struct_walls"]["static"] + map_data["struct_walls"]["oneBreak"] + map_data["struct_walls"]["twoBreak"]
+
+        for tile_num in map_data["struct_walls"]["oneBreak"]:
+
+            x_comp = tile_num % 6
+            y_comp = tile_num // 6
+
+            result = [-1, -1, -1, -1]
+
+            if y_comp + 1 < 8: result[0] = tile_num + 6
+            if y_comp - 1 >= 0: result[1] = tile_num - 6
+            if x_comp + 1 < 6: result[2] = tile_num + 1
+            if x_comp - 1 >= 0: result[3] = tile_num - 1
+
+            wall_type = 0
+            iterator = 1
+
+            for adj_tile in result:
+                if adj_tile in all_walls:
+                    wall_type += iterator
+
+                iterator *= 2
+
+            wall_health_offset = 364
+            cur_crop = list(wall_crops[wall_type])
+
+            # Singleton wall is placed going downwards
+            if wall_type == 0:
+                cur_crop[1] += wall_health_offset
+                cur_crop[3] += wall_health_offset
+            else:
+                cur_crop[0] += wall_health_offset
+                cur_crop[2] += wall_health_offset
+
+            cur_wall = wall_image.crop(cur_crop)
+            cur_wall = cur_wall.resize((58, 58), Image.LANCZOS)
+            cur_photo = ImageTk.PhotoImage(cur_wall)
+
+            preview_canvas.create_image(x_comp * 58 + 2, canvas_height - (y_comp + 1) * 58 + 2, anchor=tk.NW, image=cur_photo)
+
+            set_map_canvas.walls.append(cur_photo)
+
+        for tile_num in map_data["struct_walls"]["twoBreak"]:
+
+            x_comp = tile_num % 6
+            y_comp = tile_num // 6
+
+            result = [-1, -1, -1, -1]
+
+            if y_comp + 1 < 8: result[0] = tile_num + 6
+            if y_comp - 1 >= 0: result[1] = tile_num - 6
+            if x_comp + 1 < 6: result[2] = tile_num + 1
+            if x_comp - 1 >= 0: result[3] = tile_num - 1
+
+            wall_type = 0
+            iterator = 1
+
+            for adj_tile in result:
+                if adj_tile in all_walls:
+                    wall_type += iterator
+
+                iterator *= 2
+
+            wall_health_offset = 182
+            cur_crop = list(wall_crops[wall_type])
+
+            # Singleton wall is placed going downwards
+            if wall_type == 0:
+                cur_crop[1] += wall_health_offset
+                cur_crop[3] += wall_health_offset
+            else:
+                cur_crop[0] += wall_health_offset
+                cur_crop[2] += wall_health_offset
+
+            cur_wall = wall_image.crop(cur_crop)
+            cur_wall = cur_wall.resize((58, 58), Image.LANCZOS)
+            cur_photo = ImageTk.PhotoImage(cur_wall)
+
+            preview_canvas.create_image(x_comp * 58 + 2, canvas_height - (y_comp + 1) * 58 + 2, anchor=tk.NW, image=cur_photo)
+
+            set_map_canvas.walls.append(cur_photo)
+
+        for tile_num in map_data["struct_walls"]["static"]:
+
+            x_comp = tile_num % 6
+            y_comp = tile_num // 6
+
+            result = [-1, -1, -1, -1]
+
+            if y_comp + 1 < 8: result[0] = tile_num + 6
+            if y_comp - 1 >= 0: result[1] = tile_num - 6
+            if x_comp + 1 < 6: result[2] = tile_num + 1
+            if x_comp - 1 >= 0: result[3] = tile_num - 1
+
+            wall_type = 0
+            iterator = 1
+
+            for adj_tile in result:
+                if adj_tile in all_walls:
+                    wall_type += iterator
+
+                iterator *= 2
+
+            wall_health_offset = 0
+            cur_crop = list(wall_crops[wall_type])
+
+            # Singleton wall is placed going downwards
+            if wall_type == 0:
+                cur_crop[1] += wall_health_offset
+                cur_crop[3] += wall_health_offset
+            else:
+                cur_crop[0] += wall_health_offset
+                cur_crop[2] += wall_health_offset
+
+            cur_wall = wall_image.crop(cur_crop)
+            cur_wall = cur_wall.resize((58, 58), Image.LANCZOS)
+            cur_photo = ImageTk.PhotoImage(cur_wall)
+
+            preview_canvas.create_image(x_comp * 58 + 2, canvas_height - (y_comp + 1) * 58 + 2, anchor=tk.NW, image=cur_photo)
+
+            set_map_canvas.walls.append(cur_photo)
+
+        # Change continue button
+
+    # Starting positions
+    i = 1
+    for tile_num in map_data["playerStart"]:
+        x_comp = tile_num % 6
+        y_comp = tile_num // 6
+
+        preview_canvas.create_rectangle((x_comp * 58 + 2, canvas_height - (y_comp + 1) * 58 + 2, (x_comp + 1) * 58 + 2, canvas_height - (y_comp + 0) * 58 + 2), fill="blue")
+
+        preview_canvas.create_text(x_comp * 58 + 27, canvas_height - (y_comp + 1) * 58 + 20, text=i, anchor=tk.NW, font="Arial 16 bold", fill="yellow")
+        i += 1
+
+    i = 1
+    for tile_num in map_data["enemyStart"]:
+        x_comp = tile_num % 6
+        y_comp = tile_num // 6
+
+        preview_canvas.create_rectangle((x_comp * 58 + 2, canvas_height - (y_comp + 1) * 58 + 2, (x_comp + 1) * 58 + 2, canvas_height - (y_comp + 0) * 58 + 2), fill="red")
+
+        preview_canvas.create_text(x_comp * 58 + 27, canvas_height - (y_comp + 1) * 58 + 20, text=i, anchor=tk.NW, font="Arial 16 bold", fill="yellow")
+        i += 1
+
+    print("I can't lose in my Fire Stingray!")
+
+    next_button.pack()
+    next_button.config(command=partial(map_unit_selection, map_data))
+
+# Add buttons for current arena maps, update when more maps are added
 for i in range(24):
     with open("Maps\\Arena Maps\\Map_Z" + str(i+1).zfill(4) + ".json") as read_file: data = json.load(read_file)
     map_name = data["name"]
@@ -979,7 +1333,17 @@ for i in range(24):
     map_image = map_image.resize((300, 400), Image.LANCZOS)
     curImage = ImageTk.PhotoImage(map_image)
 
-    button = tk.Button(inner_frame, image=curImage, bg=button_color, fg="#ffff24", font=("Arial 20 bold"), activebackground=select_color, height=60, width=300, text=map_name, compound="center")
+    button = tk.Button(master=inner_frame,
+                       command=partial(set_map_canvas, data, curImage),
+                       image=curImage,
+                       bg=button_color,
+                       fg="#ffff24",
+                       font=("Arial 20 bold"),
+                       activebackground=select_color,
+                       height=60,
+                       width=300,
+                       text=map_name,
+                       compound="center")
     button.image = curImage
     button.pack(padx=10, pady=5)
 
@@ -988,6 +1352,17 @@ for i in range(24):
 # Right frame, displays preview of currently selected map
 map_preview_frame = tk.Frame(window, bg='#293240')
 
+pixel = tk.PhotoImage(width=1, height=1)
+
+canvas_width = 345
+canvas_height = 460
+
+preview_canvas = tk.Canvas(map_preview_frame, width=canvas_width, height=canvas_height, bg="#334455", highlightbackground="#111122")
+preview_canvas.pack(pady=10)
+
+preview_canvas.create_text(canvas_width//2, canvas_height//2, text="No Map Selected", font="Arial 18 bold", fill="yellow")
+
+next_button = tk.Button(map_preview_frame, text="Continue", command=remove_elements)
 
 map_top_label = tk.Label(map_frame, text='Arena Maps', font='Arial 18 bold')
 map_top_label.pack(side='top')
@@ -995,7 +1370,143 @@ map_top_label.pack(side='top')
 map_back_button = tk.Button(map_frame, text='<- Back', command=generate_main, width=10)
 map_back_button.pack(side='left', padx=(0, 700))
 
-# UNIT SELECTION ELEMENTS
+# UNIT SELECTION (AFTER MAP SELECTED)
+
+unit_select_top_frame = tk.Frame(window, bg="#797282")
+
+unit_select_label = tk.Label(unit_select_top_frame, text='Unit Selection', font='Arial 18 bold')
+unit_select_label.pack(side='top')
+
+unit_select_back_button = tk.Button(unit_select_top_frame, text='<- Back', command=generate_maps, width=10)
+unit_select_back_button.pack(side='left', padx=(10, 250))
+
+unit_select_chosen_frame = tk.Frame(window, bg="#686171")
+
+def map_unit_selection(map_data):
+    print("Continuing with: " + map_data["name"])
+
+    # Remove whatever's currently placed
+    remove_elements()
+    next_button.pack_forget()
+
+    # Create buttons for unit_select_chosen_frame
+    i = 0
+    num_players = len(map_data["playerStart"])
+
+    selectProxy.set_team_boxes(num_players)
+
+    map_unit_selection.team_buttons = []
+    map_unit_selection.my_unit_buttons = []
+
+    while i < num_players:
+        cur_button = tk.Button(master=unit_select_chosen_frame,
+                               bg="linen",
+                               image=pixel,
+                               text="Empty",
+                               width=85,
+                               height=85,
+                               command=partial(selectProxy.box_clicked, i * -1 - 1),
+                               compound=tk.TOP,
+                               font = 'Helvetica 8'
+                               )
+        cur_button.pack(side='left', pady=10, padx=10)
+
+        current_elements.append(cur_button)
+
+        map_unit_selection.team_buttons.append(cur_button)
+
+        i += 1
+
+    # Create buttons for my_units_inner_frame
+
+    for widget in my_units_inner_frame.winfo_children():
+        widget.grid_remove()
+
+    width = 87
+    height = 87
+
+    pre_button = tk.Button(master=my_units_inner_frame,
+                           bg="linen",
+                           command=partial(selectProxy.box_clicked, 0),
+                           text="Undo",
+                           image=pixel,
+                           compound=tk.TOP,
+                           height=height,
+                           width=width,
+                           font='Helvetica 8')
+    pre_button.image = pixel
+    pre_button.grid(row=0, column=0, padx=4, pady=4)
+
+    row, col = 0, 1
+    unit_read = pd.read_csv("my_units.csv")
+    for i, hrow, in enumerate(unit_read.iterrows()):
+        respString = "-R" if hrow[1]['Resplendent'] == True else ""
+
+        cur_image = Image.open("TestSprites\\" + hrow[1]['IntName'] + respString + ".png")
+        new_width = int(cur_image.width * 0.35)
+        new_height = int(cur_image.height * 0.35)
+
+        cur_image = cur_image.resize((new_width, new_height), Image.LANCZOS)
+        cur_photo = ImageTk.PhotoImage(cur_image)
+
+        build_name = str(hrow[1]['Build Name'])
+
+        tempButton = tk.Button(master=my_units_inner_frame,
+                               bg="linen",
+                               command=partial(selectProxy.box_clicked, i + 1),
+                               image=cur_photo,
+                               text=build_name,
+                               compound=tk.TOP,
+                               height=height,
+                               width=width,
+                               font='Helvetica 8')
+        tempButton.image = cur_photo
+        tempButton.text = build_name
+        tempButton.grid(row=row, column=col, padx=4, pady=4)
+
+        map_unit_selection.my_unit_buttons.append(tempButton)
+
+        col += 1
+        if col % 7 == 0:
+            row += 1
+            col = 0
+
+    my_units_frame.update_idletasks()
+    my_units_canvas.configure(scrollregion=my_units_canvas.bbox("all"))
+    window.bind_all("<MouseWheel>", my_canvas_on_mousewheel)
+
+    unit_select_top_frame.pack(pady=10, fill=tk.X)
+    unit_select_chosen_frame.pack(pady=5)
+    my_units_frame.pack(expand=True, fill=tk.BOTH, padx=30, pady=(5, 15))
+
+    current_elements.append(unit_select_top_frame)
+    current_elements.append(unit_select_chosen_frame)
+    current_elements.append(my_units_frame)
+
+map_unit_selection.team_buttons = []
+map_unit_selection.my_unit_buttons = []
+
+my_units_frame = tk.Frame(window, bg="#796171")
+
+my_units_canvas = tk.Canvas(my_units_frame, bg="#686171", borderwidth=0, highlightthickness=0)
+my_units_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+
+my_units_scrollbar = tk.Scrollbar(my_units_frame, bg="black", orient='vertical', command=my_units_canvas.yview)
+my_units_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+my_units_canvas.configure(yscrollcommand=my_units_scrollbar.set)
+my_units_canvas.bind('<Configure>', lambda e: my_units_canvas.configure(scrollregion=my_units_canvas.bbox("all")))
+
+
+my_units_inner_frame = tk.Frame(my_units_canvas, bg="#687271")
+
+my_units_canvas.create_window((0, 0), window=my_units_inner_frame, anchor="nw")
+
+temp_button = tk.Button(master=my_units_inner_frame, text="Undo")
+temp_button2 = tk.Button(master=my_units_inner_frame, text="Second one")
+
+
+# UNIT CREATION/EDITING ELEMENTS
 
 search_frame = tk.Frame(window, bg='#797282')
 back_button = tk.Button(search_frame, text='<- Back', command=generate_main, width=10)
@@ -1062,7 +1573,7 @@ error_text = tk.Label(bottom_frame, text='Error: No Unit Selected or Build Name 
 error_text.pack(side=tk.RIGHT, anchor='nw', padx=10, pady=10)
 
 
-pixel = tk.PhotoImage(width=1, height=1)
+
 
 unit_picked = tk.StringVar()
 unit_picked.set("No Hero Selected")
@@ -1120,7 +1631,7 @@ def handle_selection_change_name(event=None):
 
     cur_intName = intName_dict[selected_value]
 
-    curProxy.full_name = selected_value
+    heroProxy.full_name = selected_value
 
 
     cur_image = Image.open("TestSprites\\" + cur_intName + ".png")
@@ -1137,22 +1648,22 @@ def handle_selection_change_name(event=None):
     # Set default value in ComboBoxes upon first Hero selection
     if handle_selection_change_name.created_hero is None:
         # Set default rarity
-        creation_str_vars[1].set(min(5, curProxy.rarity))
+        creation_str_vars[1].set(min(5, heroProxy.rarity))
 
         # Set default merge
-        creation_str_vars[2].set(max(0, curProxy.merge))
+        creation_str_vars[2].set(max(0, heroProxy.merge))
 
         # Set default Asset
-        creation_str_vars[3].set(STAT_STR[curProxy.asset])
+        creation_str_vars[3].set(STAT_STR[heroProxy.asset])
 
         # Set default Flaw
-        creation_str_vars[15].set(STAT_STR[curProxy.flaw])
+        creation_str_vars[15].set(STAT_STR[heroProxy.flaw])
 
         # Set default Asc Asset
         #creation_str_vars[16].set(STAT_STR[curProxy.asc_asset])
 
         # Set default level
-        creation_str_vars[13].set(min(40, curProxy.level))
+        creation_str_vars[13].set(min(40, heroProxy.level))
 
 
     # Generate all possible weapons for selected Hero
@@ -1161,7 +1672,7 @@ def handle_selection_change_name(event=None):
     # If newly selected character can't wield what's currently in the box, remove it
     if creation_str_vars[6].get() not in weapons:
         # This should be no weapon by default
-        curProxy.weapon = None
+        heroProxy.weapon = None
         creation_str_vars[6].set("None")
 
         # Reset what refines should be available too
@@ -1175,7 +1686,7 @@ def handle_selection_change_name(event=None):
     assists = get_valid_assists(madeHero)
 
     if creation_str_vars[8].get() not in assists:
-        curProxy.assist = None
+        heroProxy.assist = None
         creation_str_vars[8].set("None")
 
     # Set allowed assists
@@ -1185,7 +1696,7 @@ def handle_selection_change_name(event=None):
     specials = get_valid_specials(madeHero)
 
     if creation_str_vars[9].get() not in specials:
-        curProxy.special = None
+        heroProxy.special = None
         creation_str_vars[9].set("None")
 
     # Set allowed assists
@@ -1195,21 +1706,21 @@ def handle_selection_change_name(event=None):
     a_sk, b_sk, c_sk = get_valid_abc_skills(madeHero)
 
     if creation_str_vars[18].get() not in a_sk:
-        curProxy.askill = None
+        heroProxy.askill = None
         creation_str_vars[18].set("None")
 
     # Set allowed assists
     creation_comboboxes[18]['values'] = a_sk
 
     if creation_str_vars[19].get() not in b_sk:
-        curProxy.bskill = None
+        heroProxy.bskill = None
         creation_str_vars[19].set("None")
 
     # Set allowed assists
     creation_comboboxes[19]['values'] = b_sk
 
     if creation_str_vars[20].get() not in c_sk:
-        curProxy.cskill = None
+        heroProxy.cskill = None
         creation_str_vars[20].set("None")
 
     # Set allowed assists
@@ -1218,18 +1729,18 @@ def handle_selection_change_name(event=None):
 
 
     handle_selection_change_name.created_hero = madeHero
-    curProxy.apply_proxy(madeHero)
+    heroProxy.apply_proxy(madeHero)
 
     unit_picked.set("")
 
-    star_var = "✰" * curProxy.rarity
+    star_var = "✰" * heroProxy.rarity
     unit_name.set(f"{selected_value}\n{star_var}")
 
     merge_str = ""
-    if curProxy.merge > 0:
-        merge_str = "+" + str(curProxy.merge)
+    if heroProxy.merge > 0:
+        merge_str = "+" + str(heroProxy.merge)
 
-    unit_stats.set(f"Lv. {curProxy.level}{merge_str}\n+0 Flowers")
+    unit_stats.set(f"Lv. {heroProxy.level}{merge_str}\n+0 Flowers")
 
     #unit_stats.set(f"Lv. {curProxy.level}\n+0 Flowers")
 
@@ -1242,13 +1753,13 @@ def handle_selection_change_rarity(event=None):
     selected_value = creation_str_vars[1].get()
     print(f"You selected: {selected_value}")
 
-    curProxy.rarity = int(selected_value)
+    heroProxy.rarity = int(selected_value)
 
     if handle_selection_change_name.created_hero is not None:
         star_var = "✰" * int(selected_value)
-        unit_name.set(f"{curProxy.full_name}\n{star_var}")
+        unit_name.set(f"{heroProxy.full_name}\n{star_var}")
 
-        curProxy.apply_proxy(handle_selection_change_name.created_hero)
+        heroProxy.apply_proxy(handle_selection_change_name.created_hero)
 
         i = 0
         while i < 5:
@@ -1259,16 +1770,16 @@ def handle_selection_change_level(event=None):
     selected_value = creation_str_vars[13].get()
     print(f"You selected: {selected_value}")
 
-    curProxy.level = int(selected_value)
+    heroProxy.level = int(selected_value)
 
     if handle_selection_change_name.created_hero is not None:
         merge_str = ""
-        if curProxy.merge > 0:
-            merge_str = "+" + str(curProxy.merge)
+        if heroProxy.merge > 0:
+            merge_str = "+" + str(heroProxy.merge)
 
         unit_stats.set(f"Lv. {selected_value}{merge_str}\n+0 Flowers")
 
-        curProxy.apply_proxy(handle_selection_change_name.created_hero)
+        heroProxy.apply_proxy(handle_selection_change_name.created_hero)
 
         i = 0
         while i < 5:
@@ -1279,13 +1790,13 @@ def handle_selection_change_merge(event=None):
     selected_value = creation_str_vars[2].get()
     print(f"You selected: {selected_value}")
 
-    curProxy.merge = int(selected_value)
+    heroProxy.merge = int(selected_value)
 
     if handle_selection_change_name.created_hero is not None:
 
-        unit_stats.set(f"Lv. {curProxy.level}+{selected_value}\n+{curProxy.dflowers} Flowers")
+        unit_stats.set(f"Lv. {heroProxy.level}+{selected_value}\n+{heroProxy.dflowers} Flowers")
 
-        curProxy.apply_proxy(handle_selection_change_name.created_hero)
+        heroProxy.apply_proxy(handle_selection_change_name.created_hero)
 
         i = 0
         while i < 5:
@@ -1299,24 +1810,24 @@ def handle_selection_change_asset(event=None):
     stat_int = STATS[selected_value]
 
     # Set asc asset to new value if not present (asset same as asc_asset)
-    if curProxy.asset == curProxy.asc_asset:
-        curProxy.asc_asset = stat_int
+    if heroProxy.asset == heroProxy.asc_asset:
+        heroProxy.asc_asset = stat_int
 
     # Set new asset value
-    curProxy.asset = stat_int
+    heroProxy.asset = stat_int
 
     # If this overlaps with the current flaw value
-    if curProxy.flaw == curProxy.asset or curProxy.flaw == -1:
+    if heroProxy.flaw == heroProxy.asset or heroProxy.flaw == -1:
         # Move flaw to next possible stat
-        curProxy.flaw = (STATS[selected_value] + 1) % 5
+        heroProxy.flaw = (STATS[selected_value] + 1) % 5
 
-    if curProxy.asset == -1:
-        curProxy.flaw = -1
+    if heroProxy.asset == -1:
+        heroProxy.flaw = -1
 
-    creation_str_vars[15].set(STAT_STR[curProxy.flaw])
+    creation_str_vars[15].set(STAT_STR[heroProxy.flaw])
 
     if handle_selection_change_name.created_hero is not None:
-        curProxy.apply_proxy(handle_selection_change_name.created_hero)
+        heroProxy.apply_proxy(handle_selection_change_name.created_hero)
 
         i = 0
         while i < 5:
@@ -1329,21 +1840,21 @@ def handle_selection_change_flaw(event=None):
 
     stat_int = STATS[selected_value]
 
-    curProxy.flaw = stat_int
+    heroProxy.flaw = stat_int
 
-    if curProxy.asset == curProxy.flaw or curProxy.asset == -1:
+    if heroProxy.asset == heroProxy.flaw or heroProxy.asset == -1:
         print("homer")
 
-        curProxy.asset = (stat_int + 1) % 5
-        curProxy.asc_asset = (stat_int + 1) % 5
+        heroProxy.asset = (stat_int + 1) % 5
+        heroProxy.asc_asset = (stat_int + 1) % 5
 
-    if curProxy.flaw == -1:
-        curProxy.asset = -1
+    if heroProxy.flaw == -1:
+        heroProxy.asset = -1
 
-    creation_str_vars[3].set(STAT_STR[curProxy.asset])
+    creation_str_vars[3].set(STAT_STR[heroProxy.asset])
 
     if handle_selection_change_name.created_hero is not None:
-        curProxy.apply_proxy(handle_selection_change_name.created_hero)
+        heroProxy.apply_proxy(handle_selection_change_name.created_hero)
 
         i = 0
         while i < 5:
@@ -1356,11 +1867,11 @@ def handle_selection_change_weapon(event=None):
 
     # Set proxy value
     if selected_value != "None":
-        curProxy.weapon = hero.makeWeapon(selected_value)
+        heroProxy.weapon = hero.makeWeapon(selected_value)
     else:
-        curProxy.weapon = None
+        heroProxy.weapon = None
 
-    curProxy.refine = ""
+    heroProxy.refine = ""
 
     # Set valid refines for this given weapon
     refines_arr = get_valid_refines(selected_value)
@@ -1368,7 +1879,7 @@ def handle_selection_change_weapon(event=None):
     creation_comboboxes[7]['values'] = refines_arr
 
     if handle_selection_change_name.created_hero is not None:
-        curProxy.apply_proxy(handle_selection_change_name.created_hero)
+        heroProxy.apply_proxy(handle_selection_change_name.created_hero)
 
         i = 0
         while i < 5:
@@ -1380,12 +1891,12 @@ def handle_selection_change_refine(event=None):
     print(f"You selected: {selected_value}")
 
     if selected_value != "None":
-        curProxy.refine = selected_value
+        heroProxy.refine = selected_value
     else:
-        curProxy.refine = ""
+        heroProxy.refine = ""
 
     if handle_selection_change_name.created_hero is not None:
-        curProxy.apply_proxy(handle_selection_change_name.created_hero)
+        heroProxy.apply_proxy(handle_selection_change_name.created_hero)
 
         i = 0
         while i < 5:
@@ -1398,12 +1909,12 @@ def handle_selection_change_assist(event=None):
 
     # Set proxy value
     if selected_value != "None":
-        curProxy.assist = hero.makeAssist(selected_value)
+        heroProxy.assist = hero.makeAssist(selected_value)
     else:
-        curProxy.assist = None
+        heroProxy.assist = None
 
     if handle_selection_change_name.created_hero is not None:
-        curProxy.apply_proxy(handle_selection_change_name.created_hero)
+        heroProxy.apply_proxy(handle_selection_change_name.created_hero)
 
         i = 0
         while i < 5:
@@ -1416,12 +1927,12 @@ def handle_selection_change_special(event=None):
 
     # Set proxy value
     if selected_value != "None":
-        curProxy.special = hero.makeSpecial(selected_value)
+        heroProxy.special = hero.makeSpecial(selected_value)
     else:
-        curProxy.special = None
+        heroProxy.special = None
 
     if handle_selection_change_name.created_hero is not None:
-        curProxy.apply_proxy(handle_selection_change_name.created_hero)
+        heroProxy.apply_proxy(handle_selection_change_name.created_hero)
 
         i = 0
         while i < 5:
@@ -1434,12 +1945,12 @@ def handle_selection_change_askill(event=None):
 
     # Set proxy value
     if selected_value != "None":
-        curProxy.askill = hero.makeSkill(selected_value)
+        heroProxy.askill = hero.makeSkill(selected_value)
     else:
-        curProxy.askill = None
+        heroProxy.askill = None
 
     if handle_selection_change_name.created_hero is not None:
-        curProxy.apply_proxy(handle_selection_change_name.created_hero)
+        heroProxy.apply_proxy(handle_selection_change_name.created_hero)
 
         i = 0
         while i < 5:
@@ -1452,12 +1963,12 @@ def handle_selection_change_bskill(event=None):
 
     # Set proxy value
     if selected_value != "None":
-        curProxy.bskill = hero.makeSkill(selected_value)
+        heroProxy.bskill = hero.makeSkill(selected_value)
     else:
-        curProxy.bskill = None
+        heroProxy.bskill = None
 
     if handle_selection_change_name.created_hero is not None:
-        curProxy.apply_proxy(handle_selection_change_name.created_hero)
+        heroProxy.apply_proxy(handle_selection_change_name.created_hero)
 
         i = 0
         while i < 5:
@@ -1470,12 +1981,12 @@ def handle_selection_change_cskill(event=None):
 
     # Set proxy value
     if selected_value != "None":
-        curProxy.cskill = hero.makeSkill(selected_value)
+        heroProxy.cskill = hero.makeSkill(selected_value)
     else:
-        curProxy.cskill = None
+        heroProxy.cskill = None
 
     if handle_selection_change_name.created_hero is not None:
-        curProxy.apply_proxy(handle_selection_change_name.created_hero)
+        heroProxy.apply_proxy(handle_selection_change_name.created_hero)
 
         i = 0
         while i < 5:
@@ -1597,7 +2108,11 @@ cur_unit_selected = tk.StringVar()
 
 handle_selection_change_name.created_hero: hero.Hero = None
 
-curProxy = HeroProxy()
+# Handles unit creation
+heroProxy = HeroProxy()
+
+# Handles team creation
+selectProxy = SelectProxy()
 
 unit_select = ttk.Combobox(window, width=25, textvariable=cur_unit_selected)
 

@@ -976,8 +976,12 @@ def start_sim(player_units, enemy_units, chosen_map):
                     set_banner.status_texts.append(status_text)
 
                 canvas.bind("<Motion>", on_motion)
+                canvas.bind("<B1-Motion>", on_drag_status)
+
+                on_motion(event)
 
         def on_motion(event):
+
             if set_banner.base_rect is not None:
 
                 has_stat_bonuses = sum(hero.buffs) > 0
@@ -999,7 +1003,11 @@ def start_sim(player_units, enemy_units, chosen_map):
                     canvas.moveto(set_banner.status_texts[i], event.x + 20, event.y + 4 + (25 * i) + 20)
                     i += 1
 
+        def on_drag_status(event):
+            on_motion(event)
+
         def on_leave(event):
+
             if set_banner.base_rect is not None:
                 canvas.delete(set_banner.base_rect)
 
@@ -1016,6 +1024,8 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         canvas.tag_bind("status", "<Enter>", on_enter)
         canvas.tag_bind("status", "<Leave>", on_leave)
+
+        canvas.bind("<B1-Motion>", on_drag)
 
 
 
@@ -2025,7 +2035,7 @@ def start_sim(player_units, enemy_units, chosen_map):
             # and there existed a target on previous tile
 
             # previously targeting something, but now not targeting anyone
-            if (cur_tile_Obj.hero_on is None or cur_tile_Obj.hero_on == cur_hero) and (cur_tile_Obj.structure_on is None or cur_tile_Obj.structure_on.health == 0) and canvas.drag_data['target'] is not None:
+            if (cur_tile_Obj.hero_on is None or cur_tile_Obj.hero_on == cur_hero) and (cur_tile_Obj.structure_on is None or cur_tile_Obj.structure_on.health <= 0) and canvas.drag_data['target'] is not None:
 
                 set_banner(cur_hero)
 
@@ -2290,7 +2300,7 @@ def start_sim(player_units, enemy_units, chosen_map):
 
             elif cur_tile_Obj.structure_on is not None and cur_tile_Obj.structure_on != canvas.drag_data['target']:
 
-                if cur_tile_Obj.structure_on.health != 0:
+                if cur_tile_Obj.structure_on.health > 0 and cur_tile_int in canvas.drag_data['attack_range']:
                     canvas.drag_data['target'] = chosen_map.tiles[cur_tile_int].structure_on
 
                     set_struct_forecast(cur_hero, chosen_map.tiles[cur_tile_int].structure_on)
