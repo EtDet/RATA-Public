@@ -2,7 +2,6 @@ from combat import *
 from field_helpers import start_of_turn, end_of_combat, create_combat_fields, get_warp_moves, allies_within_n
 from map import Map, Structure
 import tkinter as tk
-import ttkbootstrap as ttk
 from PIL import Image, ImageTk
 import os
 import json
@@ -43,7 +42,7 @@ class Move():
 # Create blank to be played upon
 map0 = Map(0)
 
-map_num = "Z0033"
+map_num = "Z0003"
 
 # Read JSON data associated with loaded map
 #with open(__location__ + "\\Maps\\Story Maps\\Book 1\\Preface\\story0-0-1.json") as read_file: data = json.load(read_file)
@@ -147,15 +146,16 @@ tested_unit.set_skill(tested_cskill, CSKILL)
 
 #tested_unit.resp = True
 
-player_units_all = [celica, sharena, xander, tested_unit]
-enemy_units_all = []
+#player_units_all = [celica, sharena, xander, tested_unit]
+#enemy_units_all = []
 
-player_units = player_units_all[:]
-enemy_units = []
+#player_units = player_units_all[:]
+#enemy_units = []
 
 i = 0
 
 # Load enemies from JSON data
+'''
 while i < len(data["enemyData"]):
     curEnemy = makeHero(data["enemyData"][i]["name"])
 
@@ -201,7 +201,7 @@ while i < len(data["enemyData"]):
     enemy_units_all.append(curEnemy)
     enemy_units.append(curEnemy)
     i += 1
-
+'''
 # METHODS
 
 def allowed_movement(hero):
@@ -574,6 +574,10 @@ def get_arrow_offsets(arrow_num):
 
 
 def start_sim(player_units, enemy_units, chosen_map):
+
+    player_units_all = player_units
+    enemy_units_all = enemy_units
+
     if not chosen_map.player_start_spaces or not chosen_map.enemy_start_spaces:
         print("Error 100: No starting tiles")
         return -1
@@ -742,7 +746,7 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         set_banner.label_array = []
 
-        unit_info_label = tk.Label(canvas, text=name, bg=banner_color, font="nintendoP_Skip-D_003 10", relief="raised", width=13)
+        unit_info_label = tk.Label(canvas, text=name, bg="gray14", font="nintendoP_Skip-D_003 10", fg="white", relief="raised", width=13)
         unit_info_label.place(x=10, y=5)
 
         set_banner.label_array.append(unit_info_label)
@@ -757,7 +761,7 @@ def start_sim(player_units, enemy_units, chosen_map):
         merge_var = ""
         if hero.merges > 0: merge_var = " + " + str(hero.merges)
 
-        unit_level_label = tk.Label(canvas, text=text_var + merge_var, bg=banner_color, font="nintendoP_Skip-D_003 10", relief="raised", width=11)
+        unit_level_label = tk.Label(canvas, text=text_var + merge_var, bg="gray14", font="nintendoP_Skip-D_003 10", fg="white", relief="raised", width=11)
         unit_level_label.place(x=187, y=5)
 
         set_banner.label_array.append(unit_level_label)
@@ -1113,10 +1117,10 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         # Names
 
-        player_name_label = tk.Label(canvas, text=player_name, bg='black', font="nintendoP_Skip-D_003 10", relief="raised", width=13)
+        player_name_label = tk.Label(canvas, text=player_name, bg="gray14", font="nintendoP_Skip-D_003 10", fg="white", relief="raised", width=13)
         player_name_label.place(x=10, y=5)
 
-        enemy_name_label = tk.Label(canvas, text=enemy_name, bg='black', font="nintendoP_Skip-D_003 10", relief="raised", width=13)
+        enemy_name_label = tk.Label(canvas, text=enemy_name, bg="gray14", font="nintendoP_Skip-D_003 10", fg="white", relief="raised", width=13)
         enemy_name_label.place(x=540-10-120, y=5)
 
         set_banner.label_array.append(player_name_label)
@@ -1283,11 +1287,11 @@ def start_sim(player_units, enemy_units, chosen_map):
         set_banner.rect_array.append(canvas.create_rectangle(0, 0, 539 / 2, 90, fill=player_color, outline=RARITY_COLORS[attacker.rarity - 1]))
         set_banner.rect_array.append(canvas.create_rectangle(539 / 2 + 1, 0, 539, 90, fill=enemy_color, outline=RARITY_COLORS[ally.rarity - 1]))
 
-        player_name_label = tk.Label(canvas, text=attacker.name, bg='black', font="nintendoP_Skip-D_003 10",
+        player_name_label = tk.Label(canvas, text=attacker.name, bg="gray14", fg="white", font="nintendoP_Skip-D_003 10",
                                      relief="raised", width=13)
         player_name_label.place(x=10, y=5)
 
-        ally_name_label = tk.Label(canvas, text=ally.name, bg='black', font="nintendoP_Skip-D_003 10",
+        ally_name_label = tk.Label(canvas, text=ally.name, bg="gray14", fg="white", font="nintendoP_Skip-D_003 10",
                                     relief="raised", width=13)
         ally_name_label.place(x=540 - 10 - 120, y=5)
 
@@ -1406,12 +1410,12 @@ def start_sim(player_units, enemy_units, chosen_map):
         set_banner.rect_array.append(canvas.create_rectangle(539 / 2 + 1, 0, 539, 90, fill=struct_color, outline=struct_border))
 
         # Name Labels
-        player_name_label = tk.Label(canvas, text=attacker.name, bg='black', font="nintendoP_Skip-D_003 10", relief="raised", width=13)
+        player_name_label = tk.Label(canvas, text=attacker.name, bg="gray14", fg="white", font="nintendoP_Skip-D_003 10", relief="raised", width=13)
         player_name_label.place(x=10, y=5)
 
         struct_name = "Obstacle"
 
-        enemy_name_label = tk.Label(canvas, text=struct_name, bg='black', font="nintendoP_Skip-D_003 10", relief="raised", width=13)
+        enemy_name_label = tk.Label(canvas, text=struct_name, bg="gray14", fg="white", font="nintendoP_Skip-D_003 10", relief="raised", width=13)
         enemy_name_label.place(x=540 - 10 - 120, y=5)
 
         set_banner.label_array.append(player_name_label)
@@ -3261,15 +3265,15 @@ def start_sim(player_units, enemy_units, chosen_map):
 
 
 
-    window = ttk.Window(themename='darkly')
+    window = tk.Tk()
     window.title('FEH Sim')
     window.geometry('540x900') #tile size: 90x90
     #window.iconbitmap(__location__ + "\\Sprites\\Marth.ico")
 
-    frame = ttk.Frame(window)
+    frame = tk.Frame(window, bg="#282424")
     frame.pack(fill=tk.BOTH, expand=True)
 
-    canvas = tk.Canvas(frame, width=540, height=890)
+    canvas = tk.Canvas(frame, width=540, height=890, bg="#282424", highlightthickness=0)
     canvas.drag_data = None
     canvas.pack()
 
@@ -3525,6 +3529,8 @@ def start_sim(player_units, enemy_units, chosen_map):
     hp_bar_fgs = [player_hp_bar_fg, enemy_hp_bar_fg]
 
     for x in player_units_all:
+        if x is None: continue
+
         respString = "-R" if x.resp else ""
         curImage = Image.open(__location__ + "\\TestSprites\\" + x.intName + respString + ".png")
         #modifier = curImage.height/85
@@ -3548,6 +3554,8 @@ def start_sim(player_units, enemy_units, chosen_map):
         player_tags.append(tag)
 
     for x in enemy_units_all:
+        if x is None: continue
+
         respString = "-R" if x.resp else ""
         curImage = Image.open(__location__ + "\\TestSprites\\" + x.intName + respString + ".png")
         curImage = curImage.transpose(Image.FLIP_LEFT_RIGHT)
@@ -3590,6 +3598,8 @@ def start_sim(player_units, enemy_units, chosen_map):
         grayscale_enemy_sprite_IDs.append(item_id)
 
     for i, player in enumerate(player_units_all):
+        if player is None: continue
+
         w_image = weapon_icons[weapons[player.wpnType][0]]
         weapon_icon = canvas.create_image(160, 50 * (i + 2), anchor=tk.NW, image=w_image, tags=player_tags[i])
         player_weapon_icons.append(weapon_icon)
@@ -3611,6 +3621,8 @@ def start_sim(player_units, enemy_units, chosen_map):
 
 
     for i, enemy in enumerate(enemy_units_all):
+        if enemy is None: continue
+
         w_image = weapon_icons[weapons[enemy.wpnType][0]]
         weapon_icon = canvas.create_image(160, 50 * (i + 2), anchor=tk.NW, image=w_image, tags=enemy_tags[i])
         enemy_weapon_icons.append(weapon_icon)
@@ -3712,4 +3724,4 @@ def start_sim(player_units, enemy_units, chosen_map):
     window.mainloop()
     return 0
 
-start_sim(player_units,enemy_units, map0)
+#start_sim(player_units,enemy_units, map0)

@@ -1,5 +1,6 @@
 import hero
-from map import wall_crops
+from map import wall_crops, Map
+from game import start_sim
 
 import pandas as pd
 from csv import reader, writer
@@ -23,7 +24,7 @@ XSKILL = 7
 STATS = {"None": -1, "HP": 0, "Atk": 1, "Spd": 2, "Def": 3, "Res": 4}
 STAT_STR = ["HP", "Atk", "Spd", "Def", "Res", "None"]
 
-class HeroProxy():
+class HeroProxy:
     def __init__(self):
         self.full_name = ""
 
@@ -141,6 +142,8 @@ class SelectProxy:
         self.team_buttons = [0] * num_boxes
         self.highlighted_box = 0
 
+        my_units_continue.pack_forget()
+
     def clear_highlighted_box(self):
         if self.highlighted_box > 0:
             map_unit_selection.my_unit_buttons[self.highlighted_box - 1].configure(bg="linen")
@@ -165,6 +168,11 @@ class SelectProxy:
                 map_unit_selection.team_buttons[i].configure(image=img, text=txt)
 
             i += 1
+
+        if sum(self.team_buttons) > 0:
+            my_units_continue.pack(padx=10, side=tk.RIGHT)
+        else:
+            my_units_continue.pack_forget()
 
     def box_clicked(self, box_id):
         self.clear_highlighted_box()
@@ -263,6 +271,16 @@ class SelectProxy:
         print(self.highlighted_box)
         print(self.team_buttons)
 
+class SelectedOptions:
+
+    def __init__(self):
+        # Line numbers from my_units.csv
+        self.player_units = []
+        # Hero objects
+        self.enemy_units = []
+
+        # Json data
+        self.map_data = None
 
 def about():
     webbrowser.open("https://github.com/EtDet/RATA-Public", new=0, autoraise=True)
@@ -334,7 +352,11 @@ def generate_units():
 
     row, col = 0, 1
 
-    unit_read = pd.read_csv("my_units.csv")
+    #with open("my_units.csv") as f:
+    #    print(f)
+
+    unit_read = pd.read_csv("my_units.csv", encoding='cp1252')
+
     for i, hrow in enumerate(unit_read.iterrows()):
 
         respString = "-R" if hrow[1]['Resplendent'] == True else ""
@@ -396,6 +418,11 @@ def generate_creation():
     unit_stat_frame.pack(side=tk.LEFT, expand=False, fill=tk.BOTH)
     dropbox_frame.pack(side=tk.LEFT, expand=True, fill=tk.X)
 
+    creation_build_field.pack(side=tk.RIGHT, anchor='nw', padx=10, pady=10)
+    creation_make_text.pack(side=tk.RIGHT, anchor='nw', padx=10, pady=10)
+    error_text.pack(side=tk.LEFT, anchor='nw', padx=10, pady=10)
+
+    creation_back_button.config(command=generate_units)
 
     current_elements.append(unit_stat_frame)
     current_elements.append(dropbox_frame)
@@ -406,14 +433,13 @@ def generate_creation_edit(num):
     # Move to creation screen
     generate_creation()
 
-    my_units = pd.read_csv("my_units.csv")
+    my_units = pd.read_csv("my_units.csv", encoding='cp1252')
 
     row = my_units.loc[num]
 
     # Internal name from sheet
     int_name = row["IntName"]
     curHero = hero.makeHero(int_name)
-
 
     # Name
     title_name = curHero.name + ": " + curHero.epithet
@@ -530,9 +556,133 @@ def generate_creation_edit(num):
     # WHEN CLICKED, REPLACE ROW
     creation_make_button.config(text="Save", command=partial(edit_unit_in_list, num))
 
+def generate_creation_enemy(num):
+    generate_creation()
+
+    clear_creation_fields()
+
+    if selectedOptions.enemy_units[num] is not None:
+
+        curHero = selectedOptions.enemy_units[num]
+
+        title_name = curHero.name + ": " + curHero.epithet
+        creation_comboboxes[0].set(title_name)
+        handle_selection_change_name()
+
+        rarity = curHero.rarity
+        creation_comboboxes[1].set(rarity)
+        handle_selection_change_rarity()
+
+        level = curHero.level
+        creation_comboboxes[13].set(level)
+        handle_selection_change_level()
+
+        merges = curHero.merges
+        creation_comboboxes[2].set(merges)
+        handle_selection_change_merge()
+
+        asset = STAT_STR[curHero.asset]
+        flaw = STAT_STR[curHero.flaw]
+
+        if asset == flaw:
+            creation_comboboxes[3].set("None")
+            handle_selection_change_asset()
+        # Not Neutral
+        else:
+            creation_comboboxes[3].set(asset)
+            handle_selection_change_asset()
+
+            creation_comboboxes[15].set(flaw)
+            handle_selection_change_flaw()
+
+        weapon = curHero.weapon
+
+        # Weapon & Refine
+        weapon_name = "None"
+        refine_name = "None"
+
+        if weapon is not None:
+            refine_substrings = ["Eff", "Atk", "Spd", "Def", "Res", "Wra", "Daz"]
+            if weapon.intName[-3:] in refine_substrings:
+                weapon_name = weapon.intName[:-3]
+                refine_name = weapon.intName[-3:]
+
+        creation_comboboxes[6].set(weapon_name)
+        handle_selection_change_weapon()
+
+        creation_comboboxes[7].set(refine_name)
+        handle_selection_change_refine()
+
+        # Assist
+        assist = curHero.assist
+        assist_name = "None"
+
+        if assist is not None:
+            assist_name = assist.name
+
+        creation_comboboxes[8].set(assist_name)
+        handle_selection_change_assist()
+
+        # Special
+        special = curHero.special
+        special_name = "None"
+
+        if special is not None:
+            special_name = special.name
+
+        creation_comboboxes[9].set(special_name)
+        handle_selection_change_special()
+
+        # A Skill
+        askill = curHero.askill
+        askill_name = "None"
+
+        if askill is not None:
+            askill_name = askill.name
+
+        creation_comboboxes[18].set(askill_name)
+        handle_selection_change_askill()
+
+        # B Skill
+
+        bskill = curHero.bskill
+        bskill_name = "None"
+
+        if bskill is not None:
+            bskill_name = bskill.name
+
+        creation_comboboxes[19].set(bskill_name)
+        handle_selection_change_bskill()
+
+        # C Skill
+
+        cskill = curHero.cskill
+        cskill_name = "None"
+
+        if cskill is not None:
+            cskill_name = cskill.name
+
+        creation_comboboxes[20].set(cskill_name)
+        handle_selection_change_cskill()
+
+    # We don't need these things when making enemy units
+    build_name.set("ENEMY")
+    creation_build_field.pack_forget()
+    creation_make_text.pack_forget()
+
+    creation_back_button.config(command=generate_enemy_building)
+
+    creation_make_button.config(command=partial(set_enemy_unit, num))
+
+def set_enemy_unit(num):
+    selectedOptions.enemy_units[num] = handle_selection_change_name.created_hero
+    selectedOptions.enemy_units[num].side = 1
+
+    generate_enemy_building()
+
 def delete_unit(num):
 
-    data = pd.read_csv("my_units.csv")
+    data = pd.read_csv("my_units.csv", encoding='cp1252')
     data = data.drop(num)
     data.to_csv("my_units.csv", index=False)
 
@@ -986,7 +1136,7 @@ def add_unit_to_list():
         try:
             my_units_file = "my_units.csv"
 
-            with open(my_units_file, mode="a", newline='') as file:
+            with open(my_units_file, mode="a", newline='', encoding="cp1252") as file:
                 f_writer = writer(file)
                 f_writer.writerow(data)
 
@@ -1045,7 +1195,7 @@ def edit_unit_in_list(num):
 
             read_data[num + 1] = data
 
-            with open(my_units_file, mode="w", newline='') as file:
+            with open(my_units_file, mode="w", newline='', encoding="cp1252") as file:
                 f_writer = writer(file)
                 f_writer.writerows(read_data)
 
@@ -1086,6 +1236,56 @@ def my_canvas_on_mousewheel(event):
         top, bottom = canvas.yview()
         if top <= 0:
             canvas.yview_moveto(0)
+
+# BEGIN SIMULATION HERE, WITH GIVEN OPTION VALUES
+def begin_simulation():
+    player_ints = selectedOptions.player_units
+
+    # Prepare player team
+    my_units_file = pd.read_csv("my_units.csv", encoding="cp1252")
+
+    player_units = []
+
+    i = 0
+    while i < len(player_ints):
+        row = my_units_file.loc[player_ints[i] - 1]
+
+        cur_hero = hero.makeHero(row["IntName"])
+
+        cur_hero.set_rarity(row["Rarity"])
+        cur_hero.set_IVs(row["Asset"], row["Flaw"], row["Ascended"])
+        cur_hero.set_merges(row["Merges"])
+        cur_hero.set_dragonflowers(row["Dragonflowers"])
+
+        cur_hero.set_level(row["Level"])
+
+        print(row["Weapon"])
+
+        if not pd.isnull(row["Weapon"]): cur_hero.weapon = hero.makeWeapon(row["Weapon"])
+        if not pd.isnull(row["Assist"]): cur_hero.assist = hero.makeAssist(row["Assist"])
+        if not pd.isnull(row["Special"]): cur_hero.special = hero.makeSpecial(row["Special"])
+        if not pd.isnull(row["ASkill"]): cur_hero.askill = hero.makeSkill(row["ASkill"])
+        if not pd.isnull(row["BSkill"]): cur_hero.bskill = hero.makeSkill(row["BSkill"])
+        if not pd.isnull(row["CSkill"]): cur_hero.cskill = hero.makeSkill(row["CSkill"])
+
+        player_units.append(cur_hero)
+
+        i += 1
+
+
+    enemy_units = selectedOptions.enemy_units
+    cleaned_enemy_units = []
+
+    for unit in enemy_units:
+        if unit is not None:
+            cleaned_enemy_units.append(unit)
+
+    map = Map(0)
+    map.define_map(selectedOptions.map_data)
+
+    window.destroy()
+
+    start_sim(player_units, cleaned_enemy_units, map)
 
 # window
 window = tk.Tk()
@@ -1315,8 +1515,10 @@ def set_map_canvas(map_data, curImage):
 
     print("I can't lose in my Fire Stingray!")
 
+    selectedOptions.map_data = map_data
+
     next_button.pack()
-    next_button.config(command=partial(map_unit_selection, map_data))
+    next_button.config(command=map_unit_selection)
 
 # Add buttons for current arena maps, update when more maps are added
 for i in range(24):
@@ -1378,12 +1580,15 @@ unit_select_label = tk.Label(unit_select_top_frame, text='Unit Selection', font=
 unit_select_label.pack(side='top')
 
 unit_select_back_button = tk.Button(unit_select_top_frame, text='<- Back', command=generate_maps, width=10)
-unit_select_back_button.pack(side='left', padx=(10, 250))
+unit_select_back_button.pack(side='left', padx=(10, 200))
 
 unit_select_chosen_frame = tk.Frame(window, bg="#686171")
 
-def map_unit_selection(map_data):
-    print("Continuing with: " + map_data["name"])
+def map_unit_selection():
+
+    map_data = selectedOptions.map_data
+
+    #print("Continuing with: " + map_data["name"])
 
     # Remove whatever's currently placed
     remove_elements()
@@ -1438,7 +1643,7 @@ def map_unit_selection(map_data):
     pre_button.grid(row=0, column=0, padx=4, pady=4)
 
     row, col = 0, 1
-    unit_read = pd.read_csv("my_units.csv")
+    unit_read = pd.read_csv("my_units.csv", encoding='cp1252')
     for i, hrow, in enumerate(unit_read.iterrows()):
         respString = "-R" if hrow[1]['Resplendent'] == True else ""
 
@@ -1483,6 +1688,14 @@ def map_unit_selection(map_data):
     current_elements.append(unit_select_chosen_frame)
     current_elements.append(my_units_frame)
 
+    # I remember...
+
+    if sum(selectedOptions.player_units) > 0:
+        selectProxy.team_buttons = selectedOptions.player_units[:]
+
+        selectProxy.update_button_appearance()
+
+
 map_unit_selection.team_buttons = []
 map_unit_selection.my_unit_buttons = []
 
@@ -1497,14 +1710,117 @@ my_units_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 my_units_canvas.configure(yscrollcommand=my_units_scrollbar.set)
 my_units_canvas.bind('<Configure>', lambda e: my_units_canvas.configure(scrollregion=my_units_canvas.bbox("all")))
 
-
 my_units_inner_frame = tk.Frame(my_units_canvas, bg="#687271")
-
 my_units_canvas.create_window((0, 0), window=my_units_inner_frame, anchor="nw")
 
-temp_button = tk.Button(master=my_units_inner_frame, text="Undo")
-temp_button2 = tk.Button(master=my_units_inner_frame, text="Second one")
+# Build the individual enemy units from here
+def generate_enemy_building():
+    remove_elements()
 
+    #print("Selected Units: ", selectProxy.team_buttons)
+
+    print(selectedOptions.enemy_units)
+
+    selectedOptions.player_units = selectProxy.team_buttons[:]
+
+    # If enemy team is ready, allow for the simulation to begin
+    if any(value is not None for value in selectedOptions.enemy_units):
+        proceed_button.pack(side='right', padx=10)
+    else:
+        proceed_button.pack_forget()
+
+    enemy_top.pack(pady=10, fill=tk.X)
+    enemy_main_frame.pack(pady=(150, 10))
+    enemy_remove_frame.pack(pady=(0, 0))
+
+    current_elements.append(enemy_top)
+    current_elements.append(enemy_main_frame)
+    current_elements.append(enemy_remove_frame)
+
+    i = 0
+    num_enemies = len(selectedOptions.map_data["playerStart"])
+
+    # Get enemy unit slots prepared
+    enemy_units = []
+    while i < num_enemies:
+        # Move over whatever can fit within the length
+        if i < len(selectedOptions.enemy_units):
+            enemy_units.append(selectedOptions.enemy_units[i])
+        else:
+            enemy_units.append(None)
+        i += 1
+
+    selectedOptions.enemy_units = enemy_units
+
+    i = 0
+    while i < num_enemies:
+        if selectedOptions.enemy_units[i] is not None:
+            respString = "-R" if selectedOptions.enemy_units[i].resp else ""
+
+            cur_image = Image.open("TestSprites\\" + selectedOptions.enemy_units[i].intName + respString + ".png")
+            new_width = int(cur_image.width * 0.35)
+            new_height = int(cur_image.height * 0.35)
+
+            cur_image = cur_image.resize((new_width, new_height), Image.LANCZOS)
+            cur_photo = ImageTk.PhotoImage(cur_image)
+
+            cur_name = selectedOptions.enemy_units[i].name
+        else:
+            cur_photo = pixel
+            cur_name = "Empty"
+
+        temp_button = tk.Button(enemy_main_frame,
+                                command=partial(generate_creation_enemy, i),
+                                image=cur_photo,
+                                width=85,
+                                height=85,
+                                text=cur_name,
+                                compound=tk.TOP)
+        temp_button.image = cur_photo
+        temp_button.pack(padx=7, pady=7, side=tk.LEFT)
+
+        current_elements.append(temp_button)
+
+        i += 1
+
+    i = 0
+    while i < num_enemies:
+        temp_button = tk.Button(enemy_remove_frame,
+                                command=partial(remove_enemy, i),
+                                image=pixel,
+                                width=85,
+                                height=40,
+                                text="Remove",
+                                compound=tk.TOP)
+        temp_button.pack(padx=7, pady=7, side=tk.LEFT)
+
+        current_elements.append(temp_button)
+
+        i += 1
+
+def remove_enemy(num):
+    selectedOptions.enemy_units[num] = None
+
+    generate_enemy_building()
+    # update buttons
+
+my_units_continue = tk.Button(unit_select_top_frame, command=generate_enemy_building, text="Continue ->", width=10)
+
+# ENEMY SETTING
+
+enemy_top = tk.Frame(window, bg="#797282")
+
+enemy_select_label = tk.Label(enemy_top, text='Enemy Building', font='Arial 18 bold')
+enemy_select_label.pack(side='top')
+
+enemy_back_button = tk.Button(enemy_top, text='<- Back', command=map_unit_selection, width=10)
+enemy_back_button.pack(side='left', padx=10)
+
+enemy_main_frame = tk.Frame(window, bg="#686171")
+
+enemy_remove_frame = tk.Frame(window, bg="firebrick3")
+
+proceed_button = tk.Button(enemy_top, command=begin_simulation, text='Proceed', bg='chartreuse2', width=10)
 
 # UNIT CREATION/EDITING ELEMENTS
 
@@ -1516,7 +1832,7 @@ name_search_label = ttk.Label(master=search_frame, text='Name Search:')
 name_search_label.pack(side='left', padx=(25, 5))
 
 search_string = tk.StringVar()
-search_bar = ttk.Entry(search_frame, textvariable=search_string, width=30)
+search_bar = tk.Entry(search_frame, textvariable=search_string, width=30)
 search_bar.pack(side='left', padx=(5,20))
 
 search_button = tk.Button(search_frame, text='Search', width=15)
@@ -1564,13 +1880,13 @@ creation_make_button.pack(side=tk.RIGHT, anchor='nw', padx=10, pady=10)
 
 build_name = tk.StringVar()
 creation_build_field = tk.Entry(bottom_frame, width=30, font="Helvetica", textvariable=build_name)
-creation_build_field.pack(side=tk.RIGHT, anchor='nw', padx=10, pady=10)
+
 
 creation_make_text = tk.Label(bottom_frame, text='Build Name: ', width=10)
-creation_make_text.pack(side=tk.RIGHT, anchor='nw', padx=10, pady=10)
+
 
 error_text = tk.Label(bottom_frame, text='Error: No Unit Selected or Build Name Empty', bg='#292e36', fg='#292e36', font="Helvetica 10 bold")
-error_text.pack(side=tk.RIGHT, anchor='nw', padx=10, pady=10)
+
 
 
 
@@ -2113,6 +2429,9 @@ heroProxy = HeroProxy()
 
 # Handles team creation
 selectProxy = SelectProxy()
+
+# Handles which options are chosen
+selectedOptions = SelectedOptions()
 
 unit_select = ttk.Combobox(window, width=25, textvariable=cur_unit_selected)
 
