@@ -36,6 +36,9 @@ $ git clone https://github.com/EtDet/RATA-Public
 
 2. Run sprites.py to download all unit sprites and map backgrounds.
 ```
+$ cd RATA-Public\FEHSimulation
+```
+```
 $ python3 sprites.py
 ```
 
