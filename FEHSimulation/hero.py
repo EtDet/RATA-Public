@@ -82,8 +82,8 @@ class Hero:
 
         # FE Game of Origin
         # 0 - Heroes
-        # 1/3/11/12 - Shadow Dragon/(New) Mystery
-        # 2/15 - Gaiden/Echoes
+        # 1 - Shadow Dragon/(New) Mystery
+        # 15 - Gaiden/Echoes
         # 4 - Genealogy of the Holy War
         # 5 - Thracia 776
         # 6 - Binding Blade
@@ -97,9 +97,6 @@ class Hero:
         # 17 - Engage
         # 69 - Tokyo Mirage Sessions ♯FE
         # 99 - Other
-        # 117 - E!Marth (FE1 & 17)
-        # 313 - Naga & H!Naga (FE3 & FE13)
-        # 776 - A!Ced & L!Lief (FE4 & FE5)
         self.game: int = game
 
         # Rarity of hero, 1-5 Stars. Affects base stats.
@@ -137,9 +134,15 @@ class Hero:
         self.buffs: list[int] = [0, 0, 0, 0, 0]
 
         # field debuffs for different stats, can only be negative
-        # HC converts into buff, removes debuff values from units
+        # Harsh Command converts into buff, removes debuff values from units
 
         self.debuffs: list[int] = [0, 0, 0, 0, 0]
+
+        # Additional stats that are granted by a skill.
+        # They can build over time and are capped by whatever skill is present granting them.
+        self.great_talent: list[int] = [0, 0, 0, 0, 0]
+
+        # dictionary of skill strings held by this unit with the skills they have currently equipped
 
         self.skill_effects: dict[str:int] = {}
 
@@ -147,14 +150,14 @@ class Hero:
         self.statusNeg: list[Status] = []  # array of negative status effects currently held, cleared upon end of unit's next action
 
         # specific unit skills
-        self.weapon = None
-        self.assist = None
-        self.special = None
-        self.askill = None
-        self.bskill = None
-        self.cskill = None
-        self.sSeal = None
-        self.xskill = None
+        self.weapon: Weapon = None
+        self.assist: Assist = None
+        self.special: Special = None
+        self.askill: Skill = None
+        self.bskill: Skill = None
+        self.cskill: Skill = None
+        self.sSeal: Skill = None
+        self.xskill: Skill = None
 
         self.wpnType = wpnType
         self.color = self.getColor()
@@ -887,10 +890,11 @@ class Status(Enum):
     Incited = 157 # 🔴 If initiating combat, grants Atk/Spd/Def/Res = num spaces moved, max 3
     FirstReduce40 = 158 # 🔴 If initiating combat, reduce damage of first attack received by 40%
     HalfDamageReduction = 159 # 🔴 Cuts foe's damage reduction skill efficacy in half
-    EssenceDrain = 163
+    EssenceDrain = 163 # 🔴 If unit attacks, steals positive statuses from foes within 2 spaces of target and gives to all allies with this status. If foe defeated, restores 10HP to allies with this status.
     Bonded = 164 # 🔴 Activates different effects depending on skills present in battle
-    Bulwark = 165
-
+    Bulwark = 165 # 🔵 Foes cannot move through spaces within X spaces of unit, X = foe's range
+    DivineNectar = 166 # 🔴 Neutralizes Deep Wounds, restores 20HP as combat begins, and reduces damage by 10
+    Paranoia = 167
 
 
 print("Reading Unit & Skill Data...")
@@ -1029,7 +1033,7 @@ def makeSkill(name):
 
     return Skill(name, desc, letter, tier, effects, users)
 
-veyle = makeHero("Veyle")
+#veyle = makeHero("Veyle")
 #obscurité = Weapon("Obscurité", "idk", 14, 2, {"stuff":10})
 
 #print(veyle.stats)
@@ -1050,3 +1054,14 @@ veyle = makeHero("Veyle")
 #veyle.set_skill(obscurité, 0)
 
 #print(veyle.visible_stats)
+
+# Heroes added so far
+implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "Barst", "Bartre", "Beruka", "Caeda",
+                          "Cain", "Camilla", "Catria", "Cecilia", "Cherche", "chrom", "Clarine", "Cordelia", "M!Corrin", "F!Corrin",
+                          "Donnel", "Draug", "Effie", "Elise", "Eliwood", "Est", "Fae", "Felicia", "Fir", "Florina",
+                          "Frederick", "Gaius", "Gordin", "Gunter", "Gwendolyn", "Hana", "Hawkeye", "Hector", "Henry", "Hinata",
+                          "Hinoka", "Jagen", "Jakob", "Jeorge", "Kagero", "Laslow", "Leo", "Lilina", "Linde", "Lissa",
+                          "Lon'qu", "Lucina", "Lyn", "Maria", "Marth", "Matthew", "Merric", "Minerva", "Niles", "Nino",
+                          "Nowi", "Oboro", "Odin", "Ogma", "Olivia", "Palla", "Raigh", "Raven", "Peri", "M!Robin",
+                          "Roy", "Ryoma", "Saizo", "Sakura", "F!Selena", "Serra", "Setsuna", "Shanna", "Sharena", "Sheena",
+                          "Sophia", "Stahl", "Subaki", "Sully", "Takumi", "Tharja", "Y!Tiki", "A!Tiki", "Virion", "Wrys"]

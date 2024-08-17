@@ -469,6 +469,17 @@ def start_of_turn(starting_team, waiting_team, turn):
                 ally.inflictStat(DEF, 5)
                 ally.inflictStat(RES, 5)
 
+        # Sisterly Axe - X!Eirika
+        if "sisterlyBoost" in unitSkills and allies_within_n_spaces[2]:
+            unit.inflictStat(ATK, 6)
+            unit.inflictStat(SPD, 6)
+            unit.inflictStatus(Status.Dodge)
+
+            for ally in allies_within_n_spaces[2]:
+                ally.inflictStat(ATK, 6)
+                ally.inflictStat(SPD, 6)
+                ally.inflictStatus(Status.Dodge)
+
         # Tactical Bolt/Gale (M!/F!Robin)
         if "spectrumTactic" in unitSkills:
             move_arrs = [[], [], [], []]

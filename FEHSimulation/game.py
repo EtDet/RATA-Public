@@ -42,11 +42,11 @@ class Move():
 # Create blank to be played upon
 map0 = Map(0)
 
-map_num = "Z0003"
+map_num = "Map_Z0003"
 
 # Read JSON data associated with loaded map
 #with open(__location__ + "\\Maps\\Story Maps\\Book 1\\Preface\\story0-0-1.json") as read_file: data = json.load(read_file)
-with open(__location__ + "\\Maps\\Arena Maps\\Map_" + map_num + ".json") as read_file: data = json.load(read_file)
+with open(__location__ + "\\Maps\\Arena Maps\\" + map_num + ".json") as read_file: data = json.load(read_file)
 
 # Fill in terrain, starting tiles, enemy units, etc. into map
 map0.define_map(data)
@@ -100,6 +100,11 @@ no_quarter = makeSpecial("No Quarter")
 atkspd_excel = makeSkill("Atk/Spd Excel")
 potent4 = makeSkill("Potent 4")
 
+sisterly_axe = makeWeapon("Sisterly Axe")
+gust = makeSpecial("Gust")
+d_bonus_doubler = makeSkill("D Bonus Doubler")
+moonlit_bangle_q = makeSkill("Moonlit Bangle Q")
+times_pulse_4 = makeSkill("Time's Pulse 4")
 
 
 xander = makeHero("Lilina")
@@ -110,15 +115,15 @@ xander.set_skill(makeSkill("Distant Counter"), ASKILL)
 xander.set_skill(makeSkill("Quick Riposte 3"), BSKILL)
 xander.set_skill(makeSkill("Odd Def Wave 3"), CSKILL)
 
-sharena = Hero("Sharena", "BR!Sharena", "Pillars of Peace", 0, "Lance", 1, [40, 44, 47, 32, 21], [50, 70, 90, 50, 35], 5, 24, 0)
+sharena = Hero("Eirika", "X!Eirika", "Resolute Princess ", 8, "Axe", 0, [50, 43, 47, 32, 25], [50, 70, 90, 50, 35], 5, 24, 0)
 
-sharena.set_skill(united_bouquet, WEAPON)
-sharena.set_skill(no_quarter, SPECIAL)
-sharena.set_skill(atkspd_excel, ASKILL)
-sharena.set_skill(potent4, BSKILL)
-sharena.set_skill(forever_yours, CSKILL)
+sharena.set_skill(sisterly_axe, WEAPON)
+sharena.set_skill(gust, SPECIAL)
+sharena.set_skill(d_bonus_doubler, ASKILL)
+sharena.set_skill(moonlit_bangle_q, BSKILL)
+sharena.set_skill(times_pulse_4, CSKILL)
 
-sharena.set_IVs(SPD,DEF,ATK)
+sharena.set_IVs(SPD,DEF,SPD)
 sharena.set_level(40)
 
 
@@ -573,10 +578,10 @@ def get_arrow_offsets(arrow_num):
     return (0,0)
 
 
-def start_sim(player_units, enemy_units, chosen_map):
+def start_sim(player_units, enemy_units, chosen_map, map_str):
 
-    player_units_all = player_units
-    enemy_units_all = enemy_units
+    player_units_all = player_units[:]
+    enemy_units_all = enemy_units[:]
 
     if not chosen_map.player_start_spaces or not chosen_map.enemy_start_spaces:
         print("Error 100: No starting tiles")
@@ -746,7 +751,7 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         set_banner.label_array = []
 
-        unit_info_label = tk.Label(canvas, text=name, bg="gray14", font="nintendoP_Skip-D_003 10", fg="white", relief="raised", width=13)
+        unit_info_label = tk.Label(canvas, text=name, bg="gray14", font="Helvetica 12", fg="white", relief="raised", width=13)
         unit_info_label.place(x=10, y=5)
 
         set_banner.label_array.append(unit_info_label)
@@ -761,7 +766,7 @@ def start_sim(player_units, enemy_units, chosen_map):
         merge_var = ""
         if hero.merges > 0: merge_var = " + " + str(hero.merges)
 
-        unit_level_label = tk.Label(canvas, text=text_var + merge_var, bg="gray14", font="nintendoP_Skip-D_003 10", fg="white", relief="raised", width=11)
+        unit_level_label = tk.Label(canvas, text=text_var + merge_var, bg="gray14", font="Helvetica 12", fg="white", relief="raised", width=11)
         unit_level_label.place(x=187, y=5)
 
         set_banner.label_array.append(unit_level_label)
@@ -1117,10 +1122,10 @@ def start_sim(player_units, enemy_units, chosen_map):
 
         # Names
 
-        player_name_label = tk.Label(canvas, text=player_name, bg="gray14", font="nintendoP_Skip-D_003 10", fg="white", relief="raised", width=13)
+        player_name_label = tk.Label(canvas, text=player_name, bg="gray14", font="Helvetica 12", fg="white", relief="raised", width=13)
         player_name_label.place(x=10, y=5)
 
-        enemy_name_label = tk.Label(canvas, text=enemy_name, bg="gray14", font="nintendoP_Skip-D_003 10", fg="white", relief="raised", width=13)
+        enemy_name_label = tk.Label(canvas, text=enemy_name, bg="gray14", font="Helvetica 12", fg="white", relief="raised", width=13)
         enemy_name_label.place(x=540-10-120, y=5)
 
         set_banner.label_array.append(player_name_label)
@@ -1185,10 +1190,10 @@ def start_sim(player_units, enemy_units, chosen_map):
         feh_math_text = canvas.create_text((270, 35), text="FEH Math", fill='#dae6e2', font=("Helvetica", 11, 'bold'), anchor='center')
         set_banner.rect_array.append(feh_math_text)
 
-        atk_feh_math_text = canvas.create_text((270-85, 35), text=atk_feh_math, fill='#e8c35d', font=("nintendoP_Skip-D_003", 8), anchor='center')
+        atk_feh_math_text = canvas.create_text((270-85, 35), text=atk_feh_math, fill='#e8c35d', font=("Helvetica", 12), anchor='center')
         set_banner.rect_array.append(atk_feh_math_text)
 
-        def_feh_math_text = canvas.create_text((270+85, 35), text=def_feh_math, fill='#e8c35d', font=("nintendoP_Skip-D_003", 8), anchor='center')
+        def_feh_math_text = canvas.create_text((270+85, 35), text=def_feh_math, fill='#e8c35d', font=("Helvetica", 12), anchor='center')
         set_banner.rect_array.append(def_feh_math_text)
 
         # Special Count
@@ -1235,7 +1240,7 @@ def start_sim(player_units, enemy_units, chosen_map):
             box_color = "#6e2a9c"
             set_banner.rect_array.append(canvas.create_rectangle(cur_box_pos - 15, 50, cur_box_pos + 15, 80, fill=box_color, outline='#dae6e2'))
 
-            set_banner.rect_array.append(canvas.create_text((cur_box_pos, 65), text=aoe_damage, fill='#e8c35d', font=("nintendoP_Skip-D_003", 10), anchor='center'))
+            set_banner.rect_array.append(canvas.create_text((cur_box_pos, 65), text=aoe_damage, fill='#e8c35d', font=("Helvetica", 12), anchor='center'))
 
             cur_box_pos += int(box_size + gap_size)
 
@@ -1248,10 +1253,10 @@ def start_sim(player_units, enemy_units, chosen_map):
 
 
             set_banner.rect_array.append(canvas.create_rectangle(cur_box_pos - 15, 50, cur_box_pos + 15, 65, fill=atk_color, outline='#c9692c'))
-            set_banner.rect_array.append(canvas.create_text((cur_box_pos, 57), text=atk_burn_txt, fill='#e8c35d', font=("nintendoP_Skip-D_003", 10), anchor='center'))
+            set_banner.rect_array.append(canvas.create_text((cur_box_pos, 57), text=atk_burn_txt, fill='#e8c35d', font=("Helvetica", 12), anchor='center'))
 
             set_banner.rect_array.append(canvas.create_rectangle(cur_box_pos - 15, 65, cur_box_pos + 15, 80, fill=def_color, outline='#c9692c'))
-            set_banner.rect_array.append(canvas.create_text((cur_box_pos, 72), text=def_burn_txt, fill='#e8c35d', font=("nintendoP_Skip-D_003", 10), anchor='center'))
+            set_banner.rect_array.append(canvas.create_text((cur_box_pos, 72), text=def_burn_txt, fill='#e8c35d', font=("Helvetica", 12), anchor='center'))
 
             cur_box_pos += int(box_size + gap_size)
 
@@ -1268,7 +1273,7 @@ def start_sim(player_units, enemy_units, chosen_map):
             if x.attackOwner == 1 and def_eff:
                 dmg_fill = '#46eb34'
 
-            set_banner.rect_array.append(canvas.create_text((cur_box_pos, 65), text=x.damage, fill=dmg_fill, font=("nintendoP_Skip-D_003", 10), anchor='center'))
+            set_banner.rect_array.append(canvas.create_text((cur_box_pos, 65), text=x.damage, fill=dmg_fill, font=("Helvetica", 12), anchor='center'))
 
             cur_box_pos += int(box_size + gap_size)
 
@@ -1287,11 +1292,11 @@ def start_sim(player_units, enemy_units, chosen_map):
         set_banner.rect_array.append(canvas.create_rectangle(0, 0, 539 / 2, 90, fill=player_color, outline=RARITY_COLORS[attacker.rarity - 1]))
         set_banner.rect_array.append(canvas.create_rectangle(539 / 2 + 1, 0, 539, 90, fill=enemy_color, outline=RARITY_COLORS[ally.rarity - 1]))
 
-        player_name_label = tk.Label(canvas, text=attacker.name, bg="gray14", fg="white", font="nintendoP_Skip-D_003 10",
+        player_name_label = tk.Label(canvas, text=attacker.name, bg="gray14", fg="white", font="Helvetica 12",
                                      relief="raised", width=13)
         player_name_label.place(x=10, y=5)
 
-        ally_name_label = tk.Label(canvas, text=ally.name, bg="gray14", fg="white", font="nintendoP_Skip-D_003 10",
+        ally_name_label = tk.Label(canvas, text=ally.name, bg="gray14", fg="white", font="Helvetica 12",
                                     relief="raised", width=13)
         ally_name_label.place(x=540 - 10 - 120, y=5)
 
@@ -1410,12 +1415,12 @@ def start_sim(player_units, enemy_units, chosen_map):
         set_banner.rect_array.append(canvas.create_rectangle(539 / 2 + 1, 0, 539, 90, fill=struct_color, outline=struct_border))
 
         # Name Labels
-        player_name_label = tk.Label(canvas, text=attacker.name, bg="gray14", fg="white", font="nintendoP_Skip-D_003 10", relief="raised", width=13)
+        player_name_label = tk.Label(canvas, text=attacker.name, bg="gray14", fg="white", font="Helvetica 12", relief="raised", width=13)
         player_name_label.place(x=10, y=5)
 
         struct_name = "Obstacle"
 
-        enemy_name_label = tk.Label(canvas, text=struct_name, bg="gray14", fg="white", font="nintendoP_Skip-D_003 10", relief="raised", width=13)
+        enemy_name_label = tk.Label(canvas, text=struct_name, bg="gray14", fg="white", font="Helvetica 12", relief="raised", width=13)
         enemy_name_label.place(x=540 - 10 - 120, y=5)
 
         set_banner.label_array.append(player_name_label)
@@ -1434,10 +1439,10 @@ def start_sim(player_units, enemy_units, chosen_map):
         set_banner.rect_array.append(player_hp_calc)
         set_banner.rect_array.append(enemy_hp_calc)
 
-        atk_feh_math_text = canvas.create_text((270 - 85, 35), text="1", fill='#e8c35d', font=("nintendoP_Skip-D_003", 8), anchor='center')
+        atk_feh_math_text = canvas.create_text((270 - 85, 35), text="1", fill='#e8c35d', font=("Helvetica", 12), anchor='center')
         set_banner.rect_array.append(atk_feh_math_text)
 
-        def_feh_math_text = canvas.create_text((270 + 85, 35), text="-", fill='#e8c35d', font=("nintendoP_Skip-D_003", 8), anchor='center')
+        def_feh_math_text = canvas.create_text((270 + 85, 35), text="-", fill='#e8c35d', font=("Helvetica", 12), anchor='center')
         set_banner.rect_array.append(def_feh_math_text)
 
         # Icons
@@ -2034,6 +2039,11 @@ def start_sim(player_units, enemy_units, chosen_map):
                     canvas.delete(x)
                 aoe_special_icons_active.clear()
 
+            else:
+                canvas.drag_data['target'] = None
+                set_banner(cur_hero)
+                canvas.drag_data['target_path'] = "NONE"
+
             # IF
             # new tile has no hero on it or this hero on it
             # and there existed a target on previous tile
@@ -2250,8 +2260,6 @@ def start_sim(player_units, enemy_units, chosen_map):
 
             if cur_tile_Obj.hero_on is not None and cur_tile_Obj.hero_on != cur_hero and cur_tile_Obj.hero_on != canvas.drag_data['target']:
 
-                print("I go here")
-
                 # set new target
                 canvas.drag_data['target'] = chosen_map.tiles[cur_tile_int].hero_on
 
@@ -2302,9 +2310,9 @@ def start_sim(player_units, enemy_units, chosen_map):
                         canvas.delete(x)
                     aoe_special_icons_active.clear()
 
-            elif cur_tile_Obj.structure_on is not None and cur_tile_Obj.structure_on != canvas.drag_data['target']:
+            elif cur_tile_Obj.structure_on is not None and cur_tile_Obj.structure_on != canvas.drag_data['target'] \
+                and cur_tile_Obj.structure_on.health > 0 and cur_tile_int in canvas.drag_data['attack_range']:
 
-                if cur_tile_Obj.structure_on.health > 0 and cur_tile_int in canvas.drag_data['attack_range']:
                     canvas.drag_data['target'] = chosen_map.tiles[cur_tile_int].structure_on
 
                     set_struct_forecast(cur_hero, chosen_map.tiles[cur_tile_int].structure_on)
@@ -2742,7 +2750,6 @@ def start_sim(player_units, enemy_units, chosen_map):
 
                     if enemy.side == 1 and not enemy_units:
                         canvas.after(finish_time + 700, window.destroy)
-
 
                 canvas.after(finish_time, animation_done)
 
@@ -3264,6 +3271,7 @@ def start_sim(player_units, enemy_units, chosen_map):
         set_hp_bar_length(unit_hp_bar, hp_percentage)
 
 
+    # Window packing
 
     window = tk.Tk()
     window.title('FEH Sim')
@@ -3286,8 +3294,8 @@ def start_sim(player_units, enemy_units, chosen_map):
     canvas.create_image(0, 90*3, anchor=tk.NW, image=liquid_photo)
 
     # map
-    #map_image = Image.open(__location__ + "\\Maps\\Story Maps\\Book 1\\Preface\\" + "story0_0_1" + ".png")
-    map_image = Image.open(__location__ + "\\Maps\\Arena Maps\\" + "Map_" + map_num + ".png")
+
+    map_image = Image.open("Maps\\Arena Maps\\" + map_str + ".png")
     map_photo = ImageTk.PhotoImage(map_image)
     canvas.create_image(0, 90, anchor=tk.NW, image=map_photo)
 
@@ -3529,7 +3537,6 @@ def start_sim(player_units, enemy_units, chosen_map):
     hp_bar_fgs = [player_hp_bar_fg, enemy_hp_bar_fg]
 
     for x in player_units_all:
-        if x is None: continue
 
         respString = "-R" if x.resp else ""
         curImage = Image.open(__location__ + "\\TestSprites\\" + x.intName + respString + ".png")
@@ -3554,7 +3561,6 @@ def start_sim(player_units, enemy_units, chosen_map):
         player_tags.append(tag)
 
     for x in enemy_units_all:
-        if x is None: continue
 
         respString = "-R" if x.resp else ""
         curImage = Image.open(__location__ + "\\TestSprites\\" + x.intName + respString + ".png")
@@ -3598,7 +3604,6 @@ def start_sim(player_units, enemy_units, chosen_map):
         grayscale_enemy_sprite_IDs.append(item_id)
 
     for i, player in enumerate(player_units_all):
-        if player is None: continue
 
         w_image = weapon_icons[weapons[player.wpnType][0]]
         weapon_icon = canvas.create_image(160, 50 * (i + 2), anchor=tk.NW, image=w_image, tags=player_tags[i])
@@ -3621,7 +3626,6 @@ def start_sim(player_units, enemy_units, chosen_map):
 
 
     for i, enemy in enumerate(enemy_units_all):
-        if enemy is None: continue
 
         w_image = weapon_icons[weapons[enemy.wpnType][0]]
         weapon_icon = canvas.create_image(160, 50 * (i + 2), anchor=tk.NW, image=w_image, tags=enemy_tags[i])
@@ -3724,4 +3728,59 @@ def start_sim(player_units, enemy_units, chosen_map):
     window.mainloop()
     return 0
 
-#start_sim(player_units,enemy_units, map0)
+
+player_units = [celica, sharena, xander, tested_unit]
+enemy_units = []
+
+i = 0
+
+# Load enemies from JSON data
+
+while i < len(data["enemyData"]):
+    curEnemy = makeHero(data["enemyData"][i]["name"])
+
+    curEnemy.side = 1
+    curEnemy.set_rarity(data["enemyData"][i]["rarity"])
+    curEnemy.set_level(data["enemyData"][i]["level"])
+
+    if "weapon" in data["enemyData"][i]:
+        curWpn = makeWeapon(data["enemyData"][i]["weapon"])
+        curEnemy.set_skill(curWpn, WEAPON)
+
+    if "assist" in data["enemyData"][i]:
+        curAssist = makeAssist(data["enemyData"][i]["assist"])
+        curEnemy.set_skill(curAssist, ASSIST)
+
+    if "special" in data["enemyData"][i]:
+        curSpecial = makeSpecial(data["enemyData"][i]["special"])
+        curEnemy.set_skill(curSpecial, SPECIAL)
+
+    if "askill" in data["enemyData"][i]:
+        curASkill = makeSkill(data["enemyData"][i]["askill"])
+        curEnemy.set_skill(curASkill, ASKILL)
+
+    if "bskill" in data["enemyData"][i]:
+        curBSkill = makeSkill(data["enemyData"][i]["bskill"])
+        curEnemy.set_skill(curBSkill, BSKILL)
+
+    if "cskill" in data["enemyData"][i]:
+        curCSkill = makeSkill(data["enemyData"][i]["cskill"])
+        curEnemy.set_skill(curCSkill, CSKILL)
+
+    if "alt_stats" in data["enemyData"][i]:
+        curEnemy.visible_stats = data["enemyData"][i]["alt_stats"]
+        j = 0
+        while j < 5:
+            curEnemy.visible_stats[j] += curEnemy.skill_stat_mods[j]
+            curEnemy.visible_stats[j] = max(min(curEnemy.visible_stats[j], 99), 0)
+            j += 1
+        curEnemy.HPcur = curEnemy.visible_stats[HP]
+
+
+    curEnemy.tile = map0.enemy_start_spaces[i]
+    enemy_units.append(curEnemy)
+    i += 1
+
+# Test Map
+if __name__ == "__main__":
+    start_sim(player_units, enemy_units, map0, map_num)

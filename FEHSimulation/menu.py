@@ -268,8 +268,8 @@ class SelectProxy:
 
         self.update_button_appearance()
 
-        print(self.highlighted_box)
-        print(self.team_buttons)
+        #print(self.highlighted_box)
+        #print(self.team_buttons)
 
 class SelectedOptions:
 
@@ -281,6 +281,8 @@ class SelectedOptions:
 
         # Json data
         self.map_data = None
+
+        self.map_str = None
 
 def about():
     webbrowser.open("https://github.com/EtDet/RATA-Public", new=0, autoraise=True)
@@ -408,7 +410,7 @@ def show_edit_prompt(num, build_name):
     edit_button.pack(side='left', padx=20)
     delete_button.pack(side='left')
 
-    print(num, build_name)
+    #print(num, build_name)
 
 def generate_creation():
     remove_elements()
@@ -684,7 +686,7 @@ def delete_unit(num):
 
     data = pd.read_csv("my_units.csv", encoding='cp1252')
     data = data.drop(num)
-    data.to_csv("my_units.csv", index=False)
+    data.to_csv("my_units.csv", index=False, encoding='cp1252')
 
     generate_units()
 
@@ -732,22 +734,13 @@ def generate_all_units_option():
     epithets = hero.hero_sheet['Epithet']
 
     # Units currently allowed for this build of the sim, what's implemented so far
-    implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "Barst", "Bartre", "Beruka", "Caeda",
-                          "Cain", "Camilla", "Catria", "Cecilia", "Cherche", "chrom", "Clarine", "Cordelia", "M!Corrin", "F!Corrin",
-                          "Donnel", "Draug", "Effie", "Elise", "Eliwood", "Est", "Fae", "Felicia", "Fir", "Florina",
-                          "Frederick", "Gaius", "Gordin", "Gunter", "Gwendolyn", "Hana", "Hawkeye", "Hector", "Henry", "Hinata",
-                          "Hinoka", "Jagen", "Jakob", "Jeorge", "Kagero", "Laslow", "Leo", "Lilina", "Linde", "Lissa",
-                          "Lon'qu", "Lucina", "Lyn", "Maria", "Marth", "Matthew", "Merric", "Minerva", "Niles", "Nino",
-                          "Nowi", "Oboro", "Odin", "Ogma", "Olivia", "Palla", "Raigh", "Raven", "Peri", "M!Robin",
-                          "Roy", "Ryoma", "Saizo", "Sakura", "F!Selena", "Serra", "Setsuna", "Shanna", "Sharena", "Sheena",
-                          "Sophia", "Stahl", "Subaki", "Sully", "Takumi", "Tharja", "Y!Tiki", "A!Tiki", "Virion", "Wrys"]
 
     options = []
     intName_dict = {}
 
     i = 0
     while i < len(names):
-        if int_names[i] in implemented_heroes:
+        if int_names[i] in hero.implemented_heroes:
             cur_string = names[i] + ": " + epithets[i]
             options.append(cur_string)
             intName_dict[cur_string] = int_names[i]
@@ -821,7 +814,7 @@ def get_valid_weapons(cur_hero):
     for string in prf_weapons:
         is_valid = True
         for substring in refine_substrings:
-            if substring in string:
+            if substring in string[-3:]:
                 is_valid = False
 
         if is_valid:
@@ -1102,7 +1095,7 @@ def add_unit_to_list():
 
     cur_build_name = build_name.get()
 
-    print(creation_str_vars[0].get(), cur_build_name)
+    #print(creation_str_vars[0].get(), cur_build_name)
     if creation_str_vars[0].get() != "" and build_name.get() != "":
 
         name = hero_to_add.intName
@@ -1259,14 +1252,13 @@ def begin_simulation():
 
         cur_hero.set_level(row["Level"])
 
-        print(row["Weapon"])
+        if not pd.isnull(row["Weapon"]): cur_hero.set_skill(hero.makeWeapon(row["Weapon"]), WEAPON)
+        if not pd.isnull(row["Assist"]): cur_hero.set_skill(hero.makeAssist(row["Assist"]), ASSIST)
+        if not pd.isnull(row["Special"]): cur_hero.set_skill(hero.makeSpecial(row["Special"]), SPECIAL)
+        if not pd.isnull(row["ASkill"]): cur_hero.set_skill(hero.makeSkill(row["ASkill"]), ASKILL)
+        if not pd.isnull(row["BSkill"]): cur_hero.set_skill(hero.makeSkill(row["BSkill"]), BSKILL)
+        if not pd.isnull(row["CSkill"]): cur_hero.set_skill(hero.makeSkill(row["CSkill"]), CSKILL)
 
-        if not pd.isnull(row["Weapon"]): cur_hero.weapon = hero.makeWeapon(row["Weapon"])
-        if not pd.isnull(row["Assist"]): cur_hero.assist = hero.makeAssist(row["Assist"])
-        if not pd.isnull(row["Special"]): cur_hero.special = hero.makeSpecial(row["Special"])
-        if not pd.isnull(row["ASkill"]): cur_hero.askill = hero.makeSkill(row["ASkill"])
-        if not pd.isnull(row["BSkill"]): cur_hero.bskill = hero.makeSkill(row["BSkill"])
-        if not pd.isnull(row["CSkill"]): cur_hero.cskill = hero.makeSkill(row["CSkill"])
 
         player_units.append(cur_hero)
 
@@ -1285,7 +1277,7 @@ def begin_simulation():
 
     window.destroy()
 
-    start_sim(player_units, cleaned_enemy_units, map)
+    start_sim(player_units, cleaned_enemy_units, map, selectedOptions.map_str)
 
 # window
 window = tk.Tk()
@@ -1296,16 +1288,16 @@ window.configure(background='#797282')
 #window.iconbitmap("Sprites\\Marth.ico")
 
 # MAIN MENU ELEMENTS
-title_label = tk.Label(master=window, text='RATA - An FE: Heroes Simulator', font='nintendoP_Skip-D_003 24')
-subtitle_label = tk.Label(master=window, text='By CloudX (2024)', font='nintendoP_Skip-D_003 12')
+title_label = tk.Label(master=window, text='RATA - An FE: Heroes Simulator', font='Helvetica 24', relief="raised")
+subtitle_label = tk.Label(master=window, text='By CloudX (2024)', font='Helvetica 18', relief="raised")
+version_label = tk.Label(master=window, text='Ver 1.0 - Day 1 Units', font='Helvetica 12', relief="raised")
 start_button = tk.Button(window, command=generate_maps, width=30, text="Level Select", font="Helvetica", cursor="hand2", overrelief="raised", bg='blue', fg='white')
 units_button = tk.Button(window, command=generate_units, width=30, text="My Units", font="Helvetica", cursor="hand2", overrelief="raised", bg='blue', fg='white')
-help_button = tk.Button(window, command=about,width=30, text="User Guide", font="Helvetica", cursor="hand2", overrelief="raised", bg='blue', fg='white')
-dev_button = tk.Button(window, command=about,width=30, text="Developer Guide", font="Helvetica", cursor="hand2", overrelief="raised", bg='blue', fg='white')
+help_button = tk.Button(window, command=about,width=30, text="GitHub Page", font="Helvetica", cursor="hand2", overrelief="raised", bg='blue', fg='white')
 quit_button = tk.Button(window, command=window.destroy, width=30, text="Close", font="Helvetica", cursor="hand2", overrelief="raised", bg='red', fg='white')
 
-front_page_elements = [title_label, subtitle_label, start_button, units_button, help_button, dev_button, quit_button]
-front_page_paddings = [(100, 20), (10, 20), (20, 20), (0, 20), (0, 20), (0, 20), (0, 20)]
+front_page_elements = [title_label, subtitle_label, version_label, start_button, units_button, help_button, quit_button]
+front_page_paddings = [(80, 5), (10, 5), (5, 5), (20, 20), (0, 20), (0, 20), (0, 20)]
 
 # MAP SELECTION ELEMENTS
 
@@ -1330,8 +1322,8 @@ inner_frame = tk.Frame(map_listing_canvas, bg="#10141c")
 map_listing_canvas.create_window((0, 0), window=inner_frame, anchor="nw")
 
 # Set current map looked at in the preview canvas
-def set_map_canvas(map_data, curImage):
-    print(map_data["name"])
+def set_map_canvas(map_data, curImage, map_str):
+    #print(map_data["name"])
 
     preview_canvas.delete('all')
 
@@ -1513,9 +1505,11 @@ def set_map_canvas(map_data, curImage):
         preview_canvas.create_text(x_comp * 58 + 27, canvas_height - (y_comp + 1) * 58 + 20, text=i, anchor=tk.NW, font="Arial 16 bold", fill="yellow")
         i += 1
 
-    print("I can't lose in my Fire Stingray!")
+    #print("I can't lose in my Fire Stingray!")
 
     selectedOptions.map_data = map_data
+
+    selectedOptions.map_str = map_str
 
     next_button.pack()
     next_button.config(command=map_unit_selection)
@@ -1531,12 +1525,14 @@ for i in range(24):
         button_color = "#fcba03"
         select_color = "red"
 
-    map_image = Image.open("Maps\\Arena Maps\\Map_Z" + str(i+1).zfill(4) + ".png")
+    map_str = "Map_Z" + str(i+1).zfill(4)
+
+    map_image = Image.open("Maps\\Arena Maps\\" + map_str + ".png")
     map_image = map_image.resize((300, 400), Image.LANCZOS)
     curImage = ImageTk.PhotoImage(map_image)
 
     button = tk.Button(master=inner_frame,
-                       command=partial(set_map_canvas, data, curImage),
+                       command=partial(set_map_canvas, data, curImage, map_str),
                        image=curImage,
                        bg=button_color,
                        fg="#ffff24",
@@ -1719,7 +1715,7 @@ def generate_enemy_building():
 
     #print("Selected Units: ", selectProxy.team_buttons)
 
-    print(selectedOptions.enemy_units)
+    #print(selectedOptions.enemy_units)
 
     selectedOptions.player_units = selectProxy.team_buttons[:]
 
@@ -1943,7 +1939,7 @@ right_dropbox_frame.pack(padx=8, pady=7, side=tk.RIGHT, anchor='ne')
 
 def handle_selection_change_name(event=None):
     selected_value = creation_str_vars[0].get()
-    print(f"You selected: {selected_value}")
+    #print(f"You selected: {selected_value}")
 
     cur_intName = intName_dict[selected_value]
 
@@ -2067,7 +2063,7 @@ def handle_selection_change_name(event=None):
 
 def handle_selection_change_rarity(event=None):
     selected_value = creation_str_vars[1].get()
-    print(f"You selected: {selected_value}")
+    #print(f"You selected: {selected_value}")
 
     heroProxy.rarity = int(selected_value)
 
@@ -2084,7 +2080,7 @@ def handle_selection_change_rarity(event=None):
 
 def handle_selection_change_level(event=None):
     selected_value = creation_str_vars[13].get()
-    print(f"You selected: {selected_value}")
+    #print(f"You selected: {selected_value}")
 
     heroProxy.level = int(selected_value)
 
@@ -2104,13 +2100,17 @@ def handle_selection_change_level(event=None):
 
 def handle_selection_change_merge(event=None):
     selected_value = creation_str_vars[2].get()
-    print(f"You selected: {selected_value}")
+    #print(f"You selected: {selected_value}")
 
     heroProxy.merge = int(selected_value)
 
     if handle_selection_change_name.created_hero is not None:
 
-        unit_stats.set(f"Lv. {heroProxy.level}+{selected_value}\n+{heroProxy.dflowers} Flowers")
+        merge_str = ""
+        if heroProxy.merge > 0:
+            merge_str = "+" + selected_value
+
+        unit_stats.set(f"Lv. {heroProxy.level}{merge_str}\n+{heroProxy.dflowers} Flowers")
 
         heroProxy.apply_proxy(handle_selection_change_name.created_hero)
 
@@ -2121,7 +2121,7 @@ def handle_selection_change_merge(event=None):
 
 def handle_selection_change_asset(event=None):
     selected_value = creation_str_vars[3].get()
-    print(f"You selected: {selected_value}")
+    #print(f"You selected: {selected_value}")
 
     stat_int = STATS[selected_value]
 
@@ -2152,14 +2152,14 @@ def handle_selection_change_asset(event=None):
 
 def handle_selection_change_flaw(event=None):
     selected_value = creation_str_vars[15].get()
-    print(f"You selected: {selected_value}")
+    #print(f"You selected: {selected_value}")
 
     stat_int = STATS[selected_value]
 
     heroProxy.flaw = stat_int
 
     if heroProxy.asset == heroProxy.flaw or heroProxy.asset == -1:
-        print("homer")
+        #print("homer")
 
         heroProxy.asset = (stat_int + 1) % 5
         heroProxy.asc_asset = (stat_int + 1) % 5
@@ -2179,7 +2179,7 @@ def handle_selection_change_flaw(event=None):
 
 def handle_selection_change_weapon(event=None):
     selected_value = creation_str_vars[6].get()
-    print(f"You selected: {selected_value}")
+    #print(f"You selected: {selected_value}")
 
     # Set proxy value
     if selected_value != "None":
@@ -2204,7 +2204,7 @@ def handle_selection_change_weapon(event=None):
 
 def handle_selection_change_refine(event=None):
     selected_value = creation_str_vars[7].get()
-    print(f"You selected: {selected_value}")
+    #print(f"You selected: {selected_value}")
 
     if selected_value != "None":
         heroProxy.refine = selected_value
@@ -2221,7 +2221,7 @@ def handle_selection_change_refine(event=None):
 
 def handle_selection_change_assist(event=None):
     selected_value = creation_str_vars[8].get()
-    print(f"You selected: {selected_value}")
+    #print(f"You selected: {selected_value}")
 
     # Set proxy value
     if selected_value != "None":
@@ -2239,7 +2239,7 @@ def handle_selection_change_assist(event=None):
 
 def handle_selection_change_special(event=None):
     selected_value = creation_str_vars[9].get()
-    print(f"You selected: {selected_value}")
+    #print(f"You selected: {selected_value}")
 
     # Set proxy value
     if selected_value != "None":
@@ -2257,7 +2257,7 @@ def handle_selection_change_special(event=None):
 
 def handle_selection_change_askill(event=None):
     selected_value = creation_str_vars[18].get()
-    print(f"You selected: {selected_value}")
+    #print(f"You selected: {selected_value}")
 
     # Set proxy value
     if selected_value != "None":
@@ -2275,7 +2275,7 @@ def handle_selection_change_askill(event=None):
 
 def handle_selection_change_bskill(event=None):
     selected_value = creation_str_vars[19].get()
-    print(f"You selected: {selected_value}")
+    #print(f"You selected: {selected_value}")
 
     # Set proxy value
     if selected_value != "None":
@@ -2293,7 +2293,7 @@ def handle_selection_change_bskill(event=None):
 
 def handle_selection_change_cskill(event=None):
     selected_value = creation_str_vars[20].get()
-    print(f"You selected: {selected_value}")
+    #print(f"You selected: {selected_value}")
 
     # Set proxy value
     if selected_value != "None":

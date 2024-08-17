@@ -1,6 +1,4 @@
 import math
-import random
-from enum import Enum
 from hero import *
 
 # CONSTANTS
@@ -10,9 +8,8 @@ SPD = 2
 DEF = 3
 RES = 4
 
-
-
 # A set of modifiers that change how combat and attacks work
+# One is held by each unit in combat and keeps track of their effects
 class HeroModifiers:
     def __init__(self):
         self.start_of_combat_HP = -1
@@ -211,10 +208,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     atkr.start_of_combat_special = atkSpCountCur
     defr.start_of_combat_special = defSpCountCur
 
-    if "phantomSpd" in atkSkills: atkPhantomStats[SPD] += max(atkSkills["phantomSpd"] * 3 + 2, 10)
-    if "phantomRes" in atkSkills: atkPhantomStats[RES] += max(atkSkills["phantomRes"] * 3 + 2, 10)
-    if "phantomSpd" in defSkills: defPhantomStats[SPD] += max(defSkills["phantomSpd"] * 3 + 2, 10)
-    if "phantomRes" in defSkills: defPhantomStats[RES] += max(defSkills["phantomRes"] * 3 + 2, 10)
+    if "phantomSpd" in atkSkills: atkPhantomStats[SPD] += atkSkills["phantomSpd"]
+    if "phantomRes" in atkSkills: atkPhantomStats[RES] += atkSkills["phantomRes"]
+    if "phantomSpd" in defSkills: defPhantomStats[SPD] += defSkills["phantomSpd"]
+    if "phantomRes" in defSkills: defPhantomStats[RES] += defSkills["phantomRes"]
 
     # stored combat buffs (essentially everything)
     atkCombatBuffs = [0] * 5
@@ -1471,6 +1468,25 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if "renaisTwins" in defSkills and defAllyWithin2Spaces:
         map(lambda x: x + 4, defCombatBuffs)
+
+    # Sisterly Axe (X!Eirika)
+    if "sisterlyBoost" in atkSkills and atkAllyWithin3Spaces:
+
+        num_ally_3_row_3_col = 0
+
+        tiles_within_3_col = attacker.attacking_tile.tilesWithinNCols(3)
+        tiles_within_3_row = attacker.attacking_tile.tilesWithinNRows(3)
+        tiles_within_3_row_or_column = list(set(tiles_within_3_col) | set(tiles_within_3_row))
+
+        for tile in tiles_within_3_row_or_column:
+            if tile.hero_on != None and tile.hero_on.isAllyOf(attacker):
+                num_ally_3_row_3_col += 1
+
+        boost = min(5 + num_ally_3_row_3_col * 3, 14)
+
+        atkCombatBuffs = [x + boost for x in atkCombatBuffs]
+
+        atkr.damage_reduction_reduction *= 0.5
 
     if "audBoost" in atkSkills and defHPEqual100Percent:
         map(lambda x: x + 4, atkCombatBuffs)
@@ -3007,7 +3023,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if skill_lvl == 4: defStats[ATK] -= 5
 
         if attacker.getMaxSpecialCooldown() >= 3 and attacker.getSpecialType() == "Offense" or attacker.getSpecialType() == "Defense":
-            atkr.damage_reduction_reduction *= 0.5
+            defr.damage_reduction_reduction *= 0.5
             atkr.sp_charge_foe_first += 2
 
     if "laguz_friend" in defSkills:
@@ -3015,7 +3031,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if skill_lvl == 4: atkStats[ATK] -= 5
 
         if defender.getMaxSpecialCooldown() >= 3 and defender.getSpecialType() == "Offense" or defender.getSpecialType() == "Defense":
-            defr.damage_reduction_reduction *= 0.5
+            atkr.damage_reduction_reduction *= 0.5
             defr.sp_charge_foe_first += 2
 
     if "resonance" in atkSkills:
@@ -4240,10 +4256,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             defPostCombatEffs[0] += defPostCombatEffs[2]
             atkPostCombatEffs[0] += atkPostCombatEffs[1]
 
-            print(defr.sp_charge_first)
-
             defSpCountCur = max(0, defSpCountCur - defr.sp_charge_first)
-            print("yeah", defSpCountCur)
             defSpCountCur = min(defSpCountCur, defender.specialMax)
 
             atkSpCountCur = max(0, atkSpCountCur - atkr.sp_charge_foe_first)

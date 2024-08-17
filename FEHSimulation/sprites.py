@@ -1,7 +1,7 @@
 # https://feheroes.fandom.com/wiki/Special:Redirect/file/Alfonse_Prince_of_Askr_Mini_Unit_Ok.png
 
 import requests
-from hero import hero_sheet, Hero
+from hero import hero_sheet, Hero, implemented_heroes
 from PIL import Image
 from io import BytesIO
 import unicodedata
@@ -48,6 +48,7 @@ weapons = hero_sheet['Weapon Type']
 has_resps = hero_sheet['HasResp']
 
 i = 0
+#i = len(names)
 while i < len(names):
     name = normalize_string(names[i])
     int_name = int_names[i]
@@ -59,21 +60,25 @@ while i < len(names):
 
     image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_Mini_Unit_Ok.png"
 
-    #download_and_save_image(image_url, int_name)
+    # If image is currently of a character in this current build
 
-    if has_resp == True:
-        resp_image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_Resplendent_Mini_Unit_Ok.png"
-        save_name = int_name + "-R"
-        #download_and_save_image(resp_image_url, save_name)
+    if int_name in implemented_heroes:
+        download_and_save_image(image_url, int_name)
 
-    if weapon in ["RBeast", "BBeast", "GBeast", "CBeast"]:
-        beast_image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_TransformMap_Mini_Unit_Idle.png"
-        beast_name = int_name + "-Tr"
-        #download_and_save_image(beast_image_url, beast_name)
+        if has_resp == True:
+            resp_image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_Resplendent_Mini_Unit_Ok.png"
+            save_name = int_name + "-R"
+            download_and_save_image(resp_image_url, save_name)
+
+        if weapon in ["RBeast", "BBeast", "GBeast", "CBeast"]:
+            beast_image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_TransformMap_Mini_Unit_Idle.png"
+            beast_name = int_name + "-Tr"
+            download_and_save_image(beast_image_url, beast_name)
 
     i += 1
 
 i = 1
+#i = 96
 while i < 96:
     image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + "Map_Z" + str(i).zfill(4) + ".png"
 
