@@ -899,11 +899,11 @@ class Status(Enum):
 
 print("Reading Unit & Skill Data...")
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-hero_sheet = pd.read_csv(__location__ + '\\FEHstats.csv')
-weapon_sheet = pd.read_csv(__location__ + '\\FEHWeapons.csv')
-assist_sheet = pd.read_csv(__location__ + '\\FEHAssists.csv')
-special_sheet = pd.read_csv(__location__ + '\\FEHSpecials.csv')
-skills_sheet = pd.read_csv(__location__ + '\\FEHABCXSkills.csv')
+hero_sheet = pd.read_csv(__location__ + '/FEHstats.csv')
+weapon_sheet = pd.read_csv(__location__ + '/FEHWeapons.csv')
+assist_sheet = pd.read_csv(__location__ + '/FEHAssists.csv')
+special_sheet = pd.read_csv(__location__ + '/FEHSpecials.csv')
+skills_sheet = pd.read_csv(__location__ + '/FEHABCXSkills.csv')
 
 impl_skills_sheet = pd.read_csv("FEHImplABCXSkills.csv")
 print("Unit & Skill Data Loaded.")
@@ -1057,7 +1057,7 @@ def makeSkill(name):
 
 # Heroes added so far
 implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "Barst", "Bartre", "Beruka", "Caeda",
-                          "Cain", "Camilla", "Catria", "Cecilia", "Cherche", "chrom", "Clarine", "Cordelia", "M!Corrin", "F!Corrin",
+                          "Cain", "Camilla", "Catria", "Cecilia", "Cherche", "Chrom", "Clarine", "Cordelia", "M!Corrin", "F!Corrin",
                           "Donnel", "Draug", "Effie", "Elise", "Eliwood", "Est", "Fae", "Felicia", "Fir", "Florina",
                           "Frederick", "Gaius", "Gordin", "Gunter", "Gwendolyn", "Hana", "Hawkeye", "Hector", "Henry", "Hinata",
                           "Hinoka", "Jagen", "Jakob", "Jeorge", "Kagero", "Laslow", "Leo", "Lilina", "Linde", "Lissa",

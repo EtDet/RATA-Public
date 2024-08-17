@@ -363,7 +363,7 @@ def generate_units():
 
         respString = "-R" if hrow[1]['Resplendent'] == True else ""
 
-        image2 = Image.open("TestSprites\\" + hrow[1]['IntName'] + respString + ".png")
+        image2 = Image.open("TestSprites/" + hrow[1]['IntName'] + respString + ".png")
         new_width = int(image2.width * 0.4)
         new_height = int(image2.height * 0.4)
 
@@ -783,6 +783,8 @@ def get_valid_weapons(cur_hero):
     i = 0
     while i < len(weapons):
 
+        print(weapons[i])
+
         if weapon_types[i] in cur_hero.wpnType:
             if (len(exclusive_all[i]) == 0):
                 weapons_of_type.append(weapons[i])
@@ -954,6 +956,7 @@ def get_valid_specials(cur_hero):
             if restr_wpn[i] == "NotDagger" and cur_hero.wpnType not in hero.DAGGER_WEAPONS: add_cond = False
             if restr_wpn[i] == "NotMagic" and cur_hero.wpnType not in hero.MAGIC_WEAPONS: add_cond = False
             if restr_wpn[i] == "NotBow" and cur_hero.wpnType not in hero.BOW_WEAPONS: add_cond = False
+            if restr_wpn[i] == "NotBeast" and cur_hero.wpnType not in hero.BEAST_WEAPONS: add_cond = False
 
             if "Dragon" in restr_wpn[i] and restr_wpn[i] != "NotDragon" and cur_hero.wpnType in hero.DRAGON_WEAPONS: add_cond = False
             elif "Beast" in restr_wpn[i] and restr_wpn[i] != "NotBeast" and cur_hero.wpnType in hero.BEAST_WEAPONS: add_cond = False
@@ -1023,6 +1026,7 @@ def get_valid_abc_skills(cur_hero):
             if restr_wpn[i] == "NotDagger" and cur_hero.wpnType not in hero.DAGGER_WEAPONS: add_cond = False
             if restr_wpn[i] == "NotMagic" and cur_hero.wpnType not in hero.MAGIC_WEAPONS: add_cond = False
             if restr_wpn[i] == "NotBow" and cur_hero.wpnType not in hero.BOW_WEAPONS: add_cond = False
+            if restr_wpn[i] == "NotBeast" and cur_hero.wpnType not in hero.BEAST_WEAPONS: add_cond = False
 
             if "Dragon" in restr_wpn[i] and restr_wpn[i] != "NotDragon" and cur_hero.wpnType in hero.DRAGON_WEAPONS: add_cond = False
             elif "Beast" in restr_wpn[i] and restr_wpn[i] != "NotBeast" and cur_hero.wpnType in hero.BEAST_WEAPONS:  add_cond = False
@@ -1285,7 +1289,7 @@ window = tk.Tk()
 window.geometry('800x600')
 window.title('FEH Sim')
 window.configure(background='#797282')
-#window.iconbitmap("Sprites\\Marth.ico")
+#window.iconbitmap("Sprites/Marth.ico")
 
 # MAIN MENU ELEMENTS
 title_label = tk.Label(master=window, text='RATA - An FE: Heroes Simulator', font='Helvetica 24', relief="raised")
@@ -1333,7 +1337,7 @@ def set_map_canvas(map_data, curImage, map_str):
     if "liquid" in map_data:
         liquid_texture = map_data["liquid"]
 
-    liquid_image = Image.open("CombatSprites\\" + liquid_texture)
+    liquid_image = Image.open("CombatSprites/" + liquid_texture)
     liquid_photo = ImageTk.PhotoImage(liquid_image)
     preview_canvas.create_image(0, 0, anchor=tk.NW, image=liquid_photo)
 
@@ -1358,7 +1362,7 @@ def set_map_canvas(map_data, curImage, map_str):
         if "wall" in map_data:
             wall_texture = map_data["wall"]
 
-        wall_image = Image.open("CombatSprites\\" + wall_texture)
+        wall_image = Image.open("CombatSprites/" + wall_texture)
 
         all_walls = map_data["struct_walls"]["static"] + map_data["struct_walls"]["oneBreak"] + map_data["struct_walls"]["twoBreak"]
 
@@ -1516,7 +1520,7 @@ def set_map_canvas(map_data, curImage, map_str):
 
 # Add buttons for current arena maps, update when more maps are added
 for i in range(24):
-    with open("Maps\\Arena Maps\\Map_Z" + str(i+1).zfill(4) + ".json") as read_file: data = json.load(read_file)
+    with open("Maps/Arena Maps/Map_Z" + str(i+1).zfill(4) + ".json") as read_file: data = json.load(read_file)
     map_name = data["name"]
 
     button_color = "#224763"
@@ -1527,7 +1531,7 @@ for i in range(24):
 
     map_str = "Map_Z" + str(i+1).zfill(4)
 
-    map_image = Image.open("Maps\\Arena Maps\\" + map_str + ".png")
+    map_image = Image.open("Maps/Arena Maps/" + map_str + ".png")
     map_image = map_image.resize((300, 400), Image.LANCZOS)
     curImage = ImageTk.PhotoImage(map_image)
 
@@ -1643,7 +1647,7 @@ def map_unit_selection():
     for i, hrow, in enumerate(unit_read.iterrows()):
         respString = "-R" if hrow[1]['Resplendent'] == True else ""
 
-        cur_image = Image.open("TestSprites\\" + hrow[1]['IntName'] + respString + ".png")
+        cur_image = Image.open("TestSprites/" + hrow[1]['IntName'] + respString + ".png")
         new_width = int(cur_image.width * 0.35)
         new_height = int(cur_image.height * 0.35)
 
@@ -1753,7 +1757,7 @@ def generate_enemy_building():
         if selectedOptions.enemy_units[i] is not None:
             respString = "-R" if selectedOptions.enemy_units[i].resp else ""
 
-            cur_image = Image.open("TestSprites\\" + selectedOptions.enemy_units[i].intName + respString + ".png")
+            cur_image = Image.open("TestSprites/" + selectedOptions.enemy_units[i].intName + respString + ".png")
             new_width = int(cur_image.width * 0.35)
             new_height = int(cur_image.height * 0.35)
 
@@ -1946,7 +1950,7 @@ def handle_selection_change_name(event=None):
     heroProxy.full_name = selected_value
 
 
-    cur_image = Image.open("TestSprites\\" + cur_intName + ".png")
+    cur_image = Image.open("TestSprites/" + cur_intName + ".png")
 
     resized_image = cur_image.resize((int(cur_image.width / 1.3), int(cur_image.height / 1.3)), Image.LANCZOS)
 

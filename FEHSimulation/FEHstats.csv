@@ -12,6 +12,7 @@ NY!Alfonse,Alfonse,Askran Duo,41,38,17,35,30,0,BTome,0,-1,50,70,25,70,50,30,39,H
 Alfonse,Alfonse,Prince of Askr,43,35,25,32,22,0,Sword,0,-1,55,60,45,55,40,35,23,HERO,FALSE,0
 SP!Alfonse,Alfonse,Spring Prince,41,35,33,30,18,1,Axe,0,-1,50,60,60,55,30,30,233,HERO,FALSE,0
 V!Alfonse,Alfonse,Uplifting Love,43,38,25,37,31,3,GTome,0,-1,50,70,45,65,50,25,13,HERO,FALSE,0
+B!Alfonse,Alfonse,Heir to Openness,41,46,16,47,40,1,Axe,0,-1,50,90,30,75,70,5,-1,HERO,FALSE,0
 Alfred,Alfred,Floral Protector,40,45,25,43,27,1,Lance,17,-1,50,70,50,75,50,15,54,REARM,FALSE,0
 Alm,Alm,Hero of Prophecy,45,33,30,28,22,0,Sword,15,-1,55,55,55,50,40,35,205,HERO,TRUE,0
 B!Alm,Alm,Imperial Ascent,42,38,35,37,20,0,Sword,15,-1,55,70,60,60,35,30,109,HERO,FALSE,0
@@ -82,6 +83,7 @@ FA!Berkut,Berkut,Purgatorial Prince,40,35,17,35,30,1,Lance,15,-1,50,70,30,55,50,
 Bernadetta,Bernadetta,Eternal Loner,38,32,38,22,26,1,CBow,16,-1,50,55,70,40,45,30,119,HERO,FALSE,0
 WI!Bernadetta,Bernadetta,Frosty Shut-In,39,36,40,19,23,1,GTome,16,-1,50,65,70,35,40,25,80,HERO,FALSE,0
 SP!Bernadetta,Bernadetta,Late Hibernator,39,43,47,20,25,1,BBow,16,-1,50,70,90,30,50,15,201,HERO,FALSE,0
+B!Bernadetta,Bernadetta,Sheltered Loner,40,45,48,24,28,1,BBow,16,-1,50,75,90,45,50,5,-1,HERO,FALSE,0
 Bertram,Bertram,Dread Cavalier,45,37,27,38,26,1,Sword,9,-1,60,65,50,65,45,20,2,HERO,FALSE,0
 Beruka,Beruka,Quiet Assassin,46,29,23,37,22,2,Axe,14,-1,60,50,40,65,40,30,207,HERO,FALSE,0
 Black Knight,Black Knight,Sinister General,48,34,34,35,18,3,Sword,9,-1,60,55,60,60,30,30,159,HERO,TRUE,0
@@ -307,20 +309,21 @@ Ethlyn,Ethlyn,Spirited Princess,38,28,34,26,20,1,Staff,4,-1,50,50,55,50,30,30,15
 Etie,Etie,Fitness Fighter,40,45,40,30,28,0,CBow,17,-1,50,75,70,55,50,15,21,0,FALSE,0
 Ewan,Ewan,Eager Student,38,37,33,23,35,0,RTome,8,-1,50,70,60,45,70,30,219,0,FALSE,0
 Eyvel,Eyvel,Mistress of Fiana,41,33,35,38,25,0,Sword,5,-1,55,55,55,70,45,30,138,0,FALSE,0
-L!Fae,Fae,Childlike Dragon,40,42,28,37,41,0,BDragon,6,-1,55,75,50,70,75,20,178,0,FALSE,0
-Fae,Fae,Divine Dragon,46,33,28,25,30,0,GDragon,6,-1,70,65,55,45,50,35,214,0,TRUE,0
-WI!Fae,Fae,Holiday Dear,45,35,26,33,41,3,GDragon,6,-1,65,60,50,55,75,30,47,0,FALSE,0
-NY!Fáfnir,Fáfnir,Fresh Ambition,40,43,39,31,16,1,RDagger,0,-1,50,75,70,55,30,20,223,0,FALSE,0
-Fargus,Fargus,Badon Buccaneer,43,47,31,40,32,0,Axe,7,-1,55,90,50,70,50,10,119,0,FALSE,0
-Farina,Farina,The Great Wing,39,36,38,30,30,2,Lance,7,-1,50,60,65,50,55,25,138,0,FALSE,0
-Faye,Faye,Devoted Heart,42,30,25,26,31,0,CBow,15,-1,60,55,50,50,55,35,128,0,TRUE,0
-V!Faye,Faye,Drawn Heartstring,43,40,23,35,38,3,CBow,15,-1,55,75,45,65,70,30,182,0,FALSE,0
-Febail,Febail,Mercenary Waif,40,46,45,26,31,0,BBow,4,-1,50,80,70,50,60,10,145,0,FALSE,0
-Fee,Fee,Aspiring Knight,37,40,45,26,40,2,Sword,4,-1,50,70,70,45,75,10,212,0,FALSE,0
-Felicia,Felicia,Maid Mayhem,34,23,37,18,35,0,CDagger,14,-1,45,40,60,35,60,35,31,0,FALSE,0
-SP!Felicia,Felicia,Off the Menu,43,30,37,30,35,3,Axe,14,-1,50,50,60,50,65,30,40,0,FALSE,0
-Felix,Felix,Lone-Wolf Blade,40,46,46,31,25,0,Sword,16,-1,50,80,70,55,50,15,110,0,FALSE,0
-WI!Felix,Felix,Icy Gift Giver,44,38,37,32,29,3,BBow,16,-1,55,65,65,55,50,25,71,0,FALSE,0
+L!Fae,Fae,Childlike Dragon,40,42,28,37,41,0,BDragon,6,-1,55,75,50,70,75,20,178,LEGEND,FALSE,0
+Fae,Fae,Divine Dragon,46,33,28,25,30,0,GDragon,6,-1,70,65,55,45,50,35,214,HERO,TRUE,0
+WI!Fae,Fae,Holiday Dear,45,35,26,33,41,3,GDragon,6,-1,65,60,50,55,75,30,47,HERO,FALSE,0
+NY!Fáfnir,Fáfnir,Fresh Ambition,40,43,39,31,16,1,RDagger,0,-1,50,75,70,55,30,20,223,HERO,FALSE,0
+Fargus,Fargus,Badon Buccaneer,43,47,31,40,32,0,Axe,7,-1,55,90,50,70,50,10,119,HERO,FALSE,0
+Farina,Farina,The Great Wing,39,36,38,30,30,2,Lance,7,-1,50,60,65,50,55,25,138,HERO,FALSE,0
+Faye,Faye,Devoted Heart,42,30,25,26,31,0,CBow,15,-1,60,55,50,50,55,35,128,HERO,TRUE,0
+V!Faye,Faye,Drawn Heartstring,43,40,23,35,38,3,CBow,15,-1,55,75,45,65,70,30,182,HERO,FALSE,0
+Febail,Febail,Mercenary Waif,40,46,45,26,31,0,BBow,4,-1,50,80,70,50,60,10,145,HERO,FALSE,0
+Fee,Fee,Aspiring Knight,37,40,45,26,40,2,Sword,4,-1,50,70,70,45,75,10,212,HERO,FALSE,0
+Felicia,Felicia,Maid Mayhem,34,23,37,18,35,0,CDagger,14,-1,45,40,60,35,60,35,31,HERO,FALSE,0
+SP!Felicia,Felicia,Off the Menu,43,30,37,30,35,3,Axe,14,-1,50,50,60,50,65,30,40,HERO,FALSE,0
+Felix,Felix,Lone-Wolf Blade,40,46,46,31,25,0,Sword,16,-1,50,80,70,55,50,15,110,HERO,FALSE,0
+WI!Felix,Felix,Icy Gift Giver,44,38,37,32,29,3,BBow,16,-1,55,65,65,55,50,25,71,HERO,FALSE,0
+B!Felix,Felix,Sword Savant,40,47,48,35,29,0,Sword,16,-1,50,75,90,60,50,5,-1,HERO,FALSE,0
 Ferdinand,Ferdinand,Noblest of Nobles,41,32,35,30,24,1,Lance,16,-1,50,55,60,55,45,30,246,0,FALSE,0
 T!Ferdinand,Ferdinand,Highborn Sipper,40,42,45,21,25,2,GTome,16,-1,50,70,75,40,50,15,203,0,FALSE,0
 Fernand,Fernand,Traitorous Knight,45,41,26,32,23,1,Lance,15,-1,60,70,45,55,45,25,132,0,FALSE,0
@@ -824,6 +827,7 @@ SP!Palla,Palla,Eldest Bun-Bun,38,37,34,17,29,2,RDagger,1,-1,45,70,55,30,55,30,86
 Palla,Palla,Eldest Whitewing,42,31,31,28,26,2,Sword,1,-1,55,55,50,50,45,30,196,0,TRUE,0
 P!Palla,Palla,Kind Eldest Sister,41,42,21,41,28,2,Sword,15,-1,50,70,35,75,50,25,55,0,FALSE,0
 CH!Palla,Palla,Sisterly Trio,40,39,31,33,24,2,Lance,1,-1,50,70,50,60,40,30,148,0,FALSE,0
+Panette,Panette,Classy Brawler,49,48,41,35,24,0,Axe,17,-1,65,90,70,55,45,5,-1,HERO,FALSE,0
 Panne,Panne,Proud Taguel,41,29,34,30,23,1,BBeast,7,-1,55,50,55,50,45,30,136,0,FALSE,0
 NY!Panne,Panne,Welcoming Dawn,40,41,44,32,21,1,RBeast,7,-1,50,70,70,65,40,15,10,0,FALSE,0
 Patty,Patty,Youthful Thief,40,41,45,37,24,4,CDagger,4,-1,50,75,70,70,45,10,154,0,FALSE,0
@@ -882,6 +886,7 @@ F!Robin,Robin,Mystery Tactician,40,29,29,29,22,0,GTome,13,-1,50,50,50,50,40,35,1
 SU!F!Robin,Robin,Seaside Tactician,35,32,34,28,29,0,Lance,13,-1,40,55,60,50,50,35,51,0,FALSE,0
 V!F!Robin,Robin,Tactful Deliverer,42,41,16,39,42,3,CTome,13,-1,50,70,30,65,75,20,181,0,FALSE,0
 CH!F!Robin,Robin,Vessels of Fate,40,45,46,30,22,0,BTome,13,-1,50,75,90,50,35,10,79,DUO,FALSE,0
+B!F!Robin,Robin,Exalt's Right Hand,40,45,47,30,26,0,CTome,13,-1,50,75,90,50,45,5,-1,HERO,FALSE,0
 M!Robin,Robin,High Deliverer,40,29,29,29,22,0,BTome,13,-1,50,50,50,50,40,35,67,0,TRUE,0
 WI!M!Robin,Robin,Festive Tactician,45,35,34,35,25,3,Lance,13,-1,50,60,60,60,45,30,92,0,FALSE,0
 L!M!Robin,Robin,Exalt's Other Half,40,45,30,31,31,0,GTome,13,-1,50,70,55,60,55,15,223,0,FALSE,0

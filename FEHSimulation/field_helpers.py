@@ -407,12 +407,21 @@ def start_of_turn(starting_team, waiting_team, turn):
                 foe.inflictStat(DEF, -5)
 
         # SP CHARGE
-        if "wrath" in unitSkills and unitHPCur / unitStats[0] <= unitSkills["wrath"] * 0.25:
+
+        # Wrath
+        if "wrathW" in unitSkills and unitHPCur / unitStats[0] <= unitSkills["wrathW"] * 0.25:
+            sp_charges[unit] += 1
+
+        if "wrathSk" in unitSkills and unitHPCur / unitStats[0] <= unitSkills["wrathSk"] * 0.25:
             sp_charges[unit] += 1
 
         # Time's Pulse
         if "timesPulseSp" in unitSkills and unit.specialCount == unit.specialMax:
             sp_charges[unit] += 1
+
+        # Turn 1 Pulse
+        if "turn1Pulse" in unitSkills and turn == 1:
+            sp_charges[unit] += unitSkills["turn1Pulse"]
 
         # WAVE SKILLS
 
@@ -454,6 +463,12 @@ def start_of_turn(starting_team, waiting_team, turn):
         if "lindeAtkBuff" in unitSkills:
             for ally in allies_within_n_spaces[1]:
                 if ally.wpnType in MAGIC_WEAPONS or ally.wpnType == "Staff":
+                    ally.inflictStat(ATK, 6)
+
+        # Dark Aura - Linde/Delthea
+        if "darkAuraBuff" in unitSkills:
+            for ally in allies_within_n_spaces[1]:
+                if ally.wpnType in MELEE_WEAPONS:
                     ally.inflictStat(ATK, 6)
 
         # Eternal Breath - Fae
@@ -609,7 +624,7 @@ def start_of_turn(starting_team, waiting_team, turn):
             if Status.Panic in unit.statusNeg:
                 unit.statusNeg.remove(Status.Panic)
 
-    # LOOP 4: AFTER START OF TURN SKILLS, ENEMY PHASE
+    # LOOP 4: AFTER START OF TURN SKILLS, ENEMY SKILLS
     for unit in waiting_team:
         unitSkills = unit.getSkills()
         unitStats = unit.getStats()

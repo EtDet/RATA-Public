@@ -859,6 +859,40 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             atkCombatBuffs[ATK] += 5
             atkCombatBuffs[SPD] += 5
 
+    if "lindeBoost" in defSkills:
+        magic_cond = False
+
+        for ally in defAllyWithin2Spaces:
+            if ally.wpnType in MAGIC_WEAPONS or ally.wpnType == "Staff":
+                magic_cond = True
+
+        if magic_cond:
+            defCombatBuffs[ATK] += 5
+            defCombatBuffs[SPD] += 5
+
+    # Dark Aura (Linde/Delthea)
+    if "darkAuraBoost" in atkSkills:
+        melee_cond = False
+
+        for ally in atkAllyWithin2Spaces:
+            if ally.wpnType in MELEE_WEAPONS:
+                melee_cond = True
+
+        if melee_cond:
+            atkCombatBuffs[ATK] += 5
+            atkCombatBuffs[SPD] += 5
+
+    if "darkAuraBoost" in defSkills:
+        melee_cond = False
+
+        for ally in defAllyWithin2Spaces:
+            if ally.wpnType in MELEE_WEAPONS:
+                melee_cond = True
+
+        if melee_cond:
+            defCombatBuffs[ATK] += 5
+            defCombatBuffs[SPD] += 5
+
     # Pegasus Sisters (Palla, Catria, Est)
 
     if "triangleAtk" in atkSkills and atkFlyAlliesWithin2Spaces >= 2:
@@ -1381,6 +1415,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[ATK] += 5
         defCombatBuffs[SPD] += 5
 
+    # L!Eliwood
+
     if "elistats" in atkSkills and atkHPGreaterEqual25Percent:
         map(lambda x: x + 4, atkCombatBuffs)
 
@@ -1397,6 +1433,21 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "hamburger" in defSkills and defAllyWithin2Spaces:
         map(lambda x: x + 4, defCombatBuffs)
         atkBonusesNeutralized = [True] * 5
+
+    # Berserk Armads
+
+    if "oho ono" in atkSkills and defHPEqual100Percent:
+        defCombatBuffs[ATK] -= 5
+        defCombatBuffs[DEF] -= 5
+        atkr.surge_heal += trunc(atkStats[HP] * 0.30)
+
+    if "oho ono" in defSkills:
+        atkCombatBuffs[ATK] -= 5
+        atkCombatBuffs[DEF] -= 5
+        defr.surge_heal += trunc(defStats[HP] * 0.30)
+
+
+    # H!Hector
 
     if ("curiosBoost" in atkSkills or "reduFU" in atkSkills) and turn % 2 == 1 or not defHPEqual100Percent:
         map(lambda x: x + 4, atkCombatBuffs)
@@ -1598,6 +1649,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "spectrumBond" in defSkills and defAdjacentToAlly:
         defCombatBuffs = [x + 4 for x in defCombatBuffs]
 
+    # Sealed Falchion (Awakening Falchion users + P!Chrom)
     if "sealedFalchion" in atkSkills and not atkHPEqual100Percent:
         map(lambda x: x + 5, atkCombatBuffs)
 
@@ -1608,9 +1660,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         map(lambda x: x + 5, atkCombatBuffs)
         defr.follow_up_denials -= 1
 
-    if "refineExtra" in atkSkills and defHPGreaterEqual50Percent:
+    # Missiletainn (Owain)
+    if "average" in atkSkills and defHPGreaterEqual50Percent:
         atkCombatBuffs[1] += 5
         atkCombatBuffs[2] += 5
+
+    if "average" in defSkills and atkHPGreaterEqual50Percent:
+        defCombatBuffs[1] += 5
+        defCombatBuffs[2] += 5
 
     # Cordelia's Lance
     if "cordeliaLance" in atkSkills and atkHPCur/atkStats[HP] >= 0.70:
@@ -2794,7 +2851,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if key == "miracleSP": atkSpEffects.update({"distantShield": atkSkills[key]})
         if key == "numFoeAtkBoostSp": atkSpEffects.update({"NumAtkBoost": atkSkills[key]})
         if key == "atkBoostSpArmor": atkSpEffects.update({"atkBoostArmor": atkSkills[key]})
-        if key == "wrath": atkSpEffects.update({"wrathBoost": atkSkills[key]})
+        if key == "wrathW": atkSpEffects.update({"wrathBoostW": atkSkills[key]})
+        if key == "wrathSk": atkSpEffects.update({"wrathBoostSk": atkSkills[key]})
         if key == "retaliatoryBoost": atkSpEffects.update({"retaliatoryBoost": atkSkills[key]})
 
     defSpEffects = {}
@@ -2811,7 +2869,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if key == "miracleSP": defSpEffects.update({"miracleSP": defSkills[key]})
         if key == "numFoeAtkBoostSp": defSpEffects.update({"NumAtkBoost": defSkills[key]})
         if key == "atkBoostSpArmor": defSpEffects.update({"atkBoostArmor": defSkills[key]})
-        if key == "wrath": defSpEffects.update({"wrathBoost": defSkills[key]})
+        if key == "wrathW": defSpEffects.update({"wrathBoostW": defSkills[key]})
+        if key == "wrathSk": atkSpEffects.update({"wrathBoostSk": atkSkills[key]})
         if key == "retaliatoryBoost": defSpEffects.update({"retaliatoryBoost": defSkills[key]})
 
     if "atkStance" in defSkills: defCombatBuffs[1] += defSkills["atkStance"] * 2
@@ -2924,9 +2983,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         map(lambda x: x + 5, defCombatBuffs)
         atkr.follow_up_denials -= 1
 
-    if "refineExtra" in defSkills and atkHPGreaterEqual50Percent:
-        defCombatBuffs[1] += 5
-        defCombatBuffs[2] += 5
+
 
     if "Sacred Stones Strike!" in defSkills and defAllyWithin3Spaces:
         defCombatBuffs[1] += 5
@@ -3309,17 +3366,23 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if ("royalSword" in defSkills or "royalSword2" in defSkills) and defAllyWithin2Spaces:
         defr.spGainOnAtk += 1
 
+    # Blazing Durandal
     if "ourBoyBlade" in atkSkills:
         atkr.spGainOnAtk += 1
         atkr.spGainWhenAtkd += 1
         defr.spLossWhenAtkd -= 1
         defr.spLossOnAtk -= 1
 
-    if "wanderer" in atkSkills and defHPGreaterEqual75Percent and atkPhantomStats[SPD] > defPhantomStats[SPD]:
+    if "roys" in atkSkills:
+        atkCombatBuffs[SPD] += 7
+        atkCombatBuffs[DEF] += 10
+        defr.follow_up_denials -= 1
+
+    if "wandererer" in atkSkills and defHPGreaterEqual75Percent and atkPhantomStats[SPD] > defPhantomStats[SPD]:
         atkr.spGainOnAtk += 1
         atkr.spGainWhenAtkd += 1
 
-    if "wanderer" in defSkills and atkHPGreaterEqual75Percent and defPhantomStats[SPD] > atkPhantomStats[SPD]:
+    if "wandererer" in defSkills and atkHPGreaterEqual75Percent and defPhantomStats[SPD] > atkPhantomStats[SPD]:
         defr.spGainOnAtk += 1
         defr.spGainWhenAtkd += 1
 
@@ -3799,8 +3862,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if "NumAtkBoost" in effs:
             total += math.trunc((effs["NumAtkBoost"] + num_foe_atks) * 0.10 * selfPreTriAtk)
 
-        if "wrathBoost" in effs:
-            if trunc(initHP/initStats[HP]) <= effs["wrathBoost"] * 0.25:
+        if "wrathBoostW" in effs:
+            if trunc(initHP/initStats[HP]) <= effs["wrathBoostW"] * 0.25:
+                total += 10
+
+        if "wrathBoostSk" in effs:
+            if trunc(initHP/initStats[HP]) <= effs["wrathBoostSk"] * 0.25:
                 total += 10
 
         return total
@@ -4177,11 +4244,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if curAttack.isFollowUp:
             totalHealedAmount += I_stkr.follow_up_heal
 
+        # Absorb staff
         if "absorb" in striker.getSkills():
             totalHealedAmount += math.trunc(attack * 0.5)
+
+        # Surge heal
         if stkr_sp_triggered:
             totalHealedAmount += surge_heal
 
+            # Specials that heal (Daylight, Sol, etc.)
             if "healSelf" in stkSpEffects:
                 totalHealedAmount += math.trunc(attack * 0.1 * stkSpEffects["healSelf"])
 

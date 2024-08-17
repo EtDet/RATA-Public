@@ -42,11 +42,11 @@ class Move():
 # Create blank to be played upon
 map0 = Map(0)
 
-map_num = "Map_Z0003"
+map_num = "Map_Z0007"
 
 # Read JSON data associated with loaded map
 #with open(__location__ + "\\Maps\\Story Maps\\Book 1\\Preface\\story0-0-1.json") as read_file: data = json.load(read_file)
-with open(__location__ + "\\Maps\\Arena Maps\\" + map_num + ".json") as read_file: data = json.load(read_file)
+with open(__location__ + "/Maps/Arena Maps/" + map_num + ".json") as read_file: data = json.load(read_file)
 
 # Fill in terrain, starting tiles, enemy units, etc. into map
 map0.define_map(data)
@@ -131,13 +131,13 @@ sharena.set_level(40)
 
 #robin.tile = map0.tiles[18]
 
-tested_unit = makeHero("SU!F!Alear")
-tested_weapon = makeWeapon("Maritime Arts")
+tested_unit = makeHero("Felix")
+tested_weapon = makeWeapon("New Levin Sword")
 #tested_assist = makeAssist("Pivot")
-tested_special = makeSpecial("Bond Blast")
-tested_askill = makeSkill("Spd/Res Finish 4")
-tested_bskill = makeSkill("Null C-Disrupt 4")
-tested_cskill = makeSkill("Even Res Wave D")
+tested_special = makeSpecial("Galeforce")
+tested_askill = makeSkill("Death Blow 3")
+#tested_bskill = makeSkill("Null C-Disrupt 4")
+tested_cskill = makeSkill("Spur Atk 3")
 
 #xander.allySupport = "M!Corrin"
 #tested_unit.allySupport = "DA!Xander"
@@ -146,7 +146,7 @@ tested_unit.set_skill(tested_weapon, WEAPON)
 #tested_unit.set_skill(tested_assist, ASSIST)
 tested_unit.set_skill(tested_special, SPECIAL)
 tested_unit.set_skill(tested_askill, ASKILL)
-tested_unit.set_skill(tested_bskill, BSKILL)
+#tested_unit.set_skill(tested_bskill, BSKILL)
 tested_unit.set_skill(tested_cskill, CSKILL)
 
 #tested_unit.resp = True
@@ -865,23 +865,23 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
         text_coords = ((310 + 410) / 2, (45 + 62) / 2)
         set_banner.rect_array.append(canvas.create_text(*text_coords, text=special, fill="white", font=("Helvetica", 9), anchor='center'))
 
-        set_banner.rect_array.append(canvas.create_text((305, (65 + 80) / 2), text="S", fill="#ffdd33", font=("Helvetica", 10), anchor='e'))
+        set_banner.rect_array.append(canvas.create_text((305, (65 + 80) / 2), text="S", fill="#ffdd33", font="Helvetica 10 bold", anchor='e'))
         text_coords = ((310 + 410) / 2, (65 + 82) / 2)
         set_banner.rect_array.append(canvas.create_text(*text_coords, text=sSeal, fill="white", font=("Helvetica", 9), anchor='center'))
 
-        set_banner.rect_array.append(canvas.create_text((425, (5 + 22) / 2), text="A", fill="#e6150e", font=("Helvetica", 10), anchor='e'))
+        set_banner.rect_array.append(canvas.create_text((425, (5 + 22) / 2), text="A", fill="#e6150e", font="Helvetica 10 bold", anchor='e'))
         text_coords = ((430 + 530) / 2, (5 + 22) / 2)
         set_banner.rect_array.append(canvas.create_text(*text_coords, text=askill, fill="white", font=("Helvetica", 9), anchor='center'))
 
-        set_banner.rect_array.append(canvas.create_text((425, (25 + 42) / 2), text="B", fill="#0d68bd", font=("Helvetica", 10), anchor='e'))
+        set_banner.rect_array.append(canvas.create_text((425, (25 + 42) / 2), text="B", fill="#5d68dd", font="Helvetica 10 bold", anchor='e'))
         text_coords = ((430 + 530) / 2, (25 + 42) / 2)
         set_banner.rect_array.append(canvas.create_text(*text_coords, text=bskill, fill="white", font=("Helvetica", 9), anchor='center'))
 
-        set_banner.rect_array.append(canvas.create_text((425, (45 + 62) / 2), text="C", fill="#38e85b", font=("Helvetica", 10), anchor='e'))
+        set_banner.rect_array.append(canvas.create_text((425, (45 + 62) / 2), text="C", fill="#38e85b", font="Helvetica 10 bold", anchor='e'))
         text_coords = ((430 + 530) / 2, (45 + 62) / 2)
         set_banner.rect_array.append(canvas.create_text(*text_coords, text=cskill, fill="white", font=("Helvetica", 9), anchor='center'))
 
-        set_banner.rect_array.append(canvas.create_text((424, (65 + 80) / 2), text="X", fill="#a7e838", font=("Helvetica", 10), anchor='e'))
+        set_banner.rect_array.append(canvas.create_text((425, (65 + 80) / 2), text="X", fill="#a7e838", font="Helvetica 10 bold", anchor='e'))
         text_coords = ((430 + 530) / 2, (65 + 82) / 2)
         set_banner.rect_array.append(canvas.create_text(*text_coords, text=xskill, fill="white", font=("Helvetica", 9), anchor='center'))
 
@@ -3288,20 +3288,20 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
     # SPRITE LOADING
 
     # liquid
-    liquid_image = Image.open(__location__ + "\\CombatSprites\\" + chosen_map.liquid_texture)
+    liquid_image = Image.open(__location__ + "/CombatSprites/" + chosen_map.liquid_texture)
     liquid_photo = ImageTk.PhotoImage(liquid_image)
     canvas.create_image(0, 90, anchor=tk.NW, image=liquid_photo)
     canvas.create_image(0, 90*3, anchor=tk.NW, image=liquid_photo)
 
     # map
 
-    map_image = Image.open("Maps\\Arena Maps\\" + map_str + ".png")
+    map_image = Image.open("Maps/Arena Maps/" + map_str + ".png")
     map_photo = ImageTk.PhotoImage(map_image)
     canvas.create_image(0, 90, anchor=tk.NW, image=map_photo)
 
     # walls
 
-    wall_texture = Image.open(__location__ + "\\CombatSprites\\" + chosen_map.wall_texture)
+    wall_texture = Image.open(__location__ + "/CombatSprites/" + chosen_map.wall_texture)
     wall_photos = []
     walls_placed = []
 
@@ -3385,26 +3385,26 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
 
 
     # move tiles
-    blue_tile = Image.open(__location__ + "\\CombatSprites\\" + "tileblue" + ".png")
+    blue_tile = Image.open(__location__ + "/CombatSprites/" + "tileblue" + ".png")
     bt_photo = ImageTk.PhotoImage(blue_tile)
 
-    light_blue_tile = Image.open(__location__ + "\\CombatSprites\\" + "tilelightblue" + ".png")
+    light_blue_tile = Image.open(__location__ + "/CombatSprites/" + "tilelightblue" + ".png")
     lbt_photo = ImageTk.PhotoImage(light_blue_tile)
 
-    red_tile = Image.open(__location__ + "\\CombatSprites\\" + "tilered" + ".png")
+    red_tile = Image.open(__location__ + "/CombatSprites/" + "tilered" + ".png")
     rt_photo = ImageTk.PhotoImage(red_tile)
 
-    pale_red_tile = Image.open(__location__ + "\\CombatSprites\\" + "tilepalered" + ".png")
+    pale_red_tile = Image.open(__location__ + "/CombatSprites/" + "tilepalered" + ".png")
     prt_photo = ImageTk.PhotoImage(pale_red_tile)
 
-    green_tile = Image.open(__location__ +"\\CombatSprites\\" + "tilegreen" + ".png")
+    green_tile = Image.open(__location__ +"/CombatSprites/" + "tilegreen" + ".png")
     gt_photo = ImageTk.PhotoImage(green_tile)
 
-    pale_green_tile = Image.open(__location__ + "\\CombatSprites\\" + "tilepalegreen" + ".png")
+    pale_green_tile = Image.open(__location__ + "/CombatSprites/" + "tilepalegreen" + ".png")
     pgt_photo = ImageTk.PhotoImage(pale_green_tile)
 
     # arrows
-    arrows = Image.open(__location__ + "\\CombatSprites\\" + "Map" + ".png")
+    arrows = Image.open(__location__ + "/CombatSprites/" + "Map" + ".png")
     arrow_photos = []
 
     START_NORTH = 0; START_SOUTH = 1; START_EAST = 2; START_WEST = 3
@@ -3436,7 +3436,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
         arrow_photos.append(ImageTk.PhotoImage(cropped_image))
 
     # hero hud
-    skills1 = Image.open(__location__ + "\\CombatSprites\\" + "Skill_Passive1" + ".png")
+    skills1 = Image.open(__location__ + "/CombatSprites/" + "Skill_Passive1" + ".png")
     skill_photos = []
     i = 0
     j = 0
@@ -3448,7 +3448,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
         i += 1
 
     move_icons = []
-    status_pic = Image.open(__location__ + "\\CombatSprites\\" + "Status" + ".png")
+    status_pic = Image.open(__location__ + "/CombatSprites/" + "Status" + ".png")
 
     inf_icon = status_pic.crop((350, 414, 406, 468))
     inf_icon = inf_icon.resize((23, 23), Image.LANCZOS)
@@ -3539,7 +3539,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
     for x in player_units_all:
 
         respString = "-R" if x.resp else ""
-        curImage = Image.open(__location__ + "\\TestSprites\\" + x.intName + respString + ".png")
+        curImage = Image.open(__location__ + "/TestSprites/" + x.intName + respString + ".png")
         #modifier = curImage.height/85
         #resized_image = curImage.resize((int(curImage.width / modifier), 85), Image.LANCZOS)
         resized_image = curImage.resize((int(curImage.width / 2.1), int(curImage.height/ 2.1)), Image.LANCZOS)
@@ -3563,7 +3563,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
     for x in enemy_units_all:
 
         respString = "-R" if x.resp else ""
-        curImage = Image.open(__location__ + "\\TestSprites\\" + x.intName + respString + ".png")
+        curImage = Image.open(__location__ + "/TestSprites/" + x.intName + respString + ".png")
         curImage = curImage.transpose(Image.FLIP_LEFT_RIGHT)
         #resized_image = curImage.resize((int(curImage.width / modifier), 85), Image.LANCZOS)
         resized_image = curImage.resize((int(curImage.width / 2.1), int(curImage.height / 2.1)), Image.LANCZOS)

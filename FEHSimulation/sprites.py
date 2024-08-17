@@ -14,7 +14,7 @@ def download_and_save_image(url, save_path):
 
         image = Image.open(BytesIO(response.content))
 
-        final_save_path = 'TestSprites\\' + save_path + ".png"
+        final_save_path = 'TestSprites/' + save_path + ".png"
 
         image.save(final_save_path)
 
@@ -62,7 +62,8 @@ while i < len(names):
 
     # If image is currently of a character in this current build
 
-    if int_name in implemented_heroes:
+    #if int_name in implemented_heroes:
+    if True:
         download_and_save_image(image_url, int_name)
 
         if has_resp == True:
@@ -78,11 +79,11 @@ while i < len(names):
     i += 1
 
 i = 1
-#i = 96
-while i < 96:
+#i = 101
+while i < 101:
     image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + "Map_Z" + str(i).zfill(4) + ".png"
 
-    print(image_url)
+    # print(image_url)
 
     response = requests.get(image_url)
 
@@ -90,7 +91,7 @@ while i < 96:
 
         image = Image.open(BytesIO(response.content))
 
-        final_save_path = 'Maps\\Arena Maps\\' + "Map_Z" + str(i).zfill(4) + ".png"
+        final_save_path = 'Maps/Arena Maps/' + "Map_Z" + str(i).zfill(4) + ".png"
 
         image.save(final_save_path)
 
@@ -108,4 +109,4 @@ while i < 96:
 #download_and_save_image(image_url, save_path)
 
 # Importing maps
-# 'https://feheroes.fandom.com/wiki/Special:Redirect/file/Map_Z0095.png'
+# 'https://feheroes.fandom.com/wiki/Special:Redirect/file/Map_Z0096.png'

@@ -1,0 +1,7 @@
+1.0.1 (8/17/24)
+
+Bug Fixes:
+-Chrom will now appear in hero creation menu
+-Several instances of "Silver Bow+" and "Silver Dagger+" no longer display in hero creation menu
+-The refine effect of Blazing Durandal (+Eff) now works properly
+-Fixed issue of file paths not being read properly on Mac devices
