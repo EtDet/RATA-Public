@@ -1,3 +1,14 @@
+1.0.2 (8/21/24)
+New Features:
+-Added the following new heroes: Narcian, Eirika, Ephraim, Seliph, Julia
+-Added functionality to evolved weapons (Dark Aura, Dark Excalibur, Blazing Durandal, Berserk Armads, Sealed Falchion)
+
+Bug Fixes:
+-Button colors will better display on Mac devices
+-Donnel: Village Hero will no longer display as Donnel: Sunny Villager
+-Fixed an issue not allowing under 4 units on a player team
+-Fixed an issue of weapon names containing non-ASCII characters not being saved properly
+
 1.0.1 (8/17/24)
 
 Bug Fixes:

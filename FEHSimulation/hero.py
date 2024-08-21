@@ -560,14 +560,13 @@ class Hero:
 
         self.HPcur = self.visible_stats[0]
 
-    # Getting stats with applied buffs and debuffs
-    def get_visible_stats(self, STAT):
+    # Getting stat with applied buffs and debuffs
+    def get_visible_stat(self, STAT):
         panic_factor = 1
         if Status.Panic in self.statusNeg: panic_factor = -1
         if Status.NullPanic in self.statusPos: panic_factor = 1
         buff_applied_stat = self.visible_stats[STAT] + self.buffs[STAT] * panic_factor + self.debuffs[STAT]
         return buff_applied_stat
-
 
     def inflictStatus(self, status):
         # Positive status
@@ -1064,4 +1063,7 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "Lon'qu", "Lucina", "Lyn", "Maria", "Marth", "Matthew", "Merric", "Minerva", "Niles", "Nino",
                           "Nowi", "Oboro", "Odin", "Ogma", "Olivia", "Palla", "Raigh", "Raven", "Peri", "M!Robin",
                           "Roy", "Ryoma", "Saizo", "Sakura", "F!Selena", "Serra", "Setsuna", "Shanna", "Sharena", "Sheena",
-                          "Sophia", "Stahl", "Subaki", "Sully", "Takumi", "Tharja", "Y!Tiki", "A!Tiki", "Virion", "Wrys"]
+                          "Sophia", "Stahl", "Subaki", "Sully", "Takumi", "Tharja", "Y!Tiki", "A!Tiki", "Virion", "Wrys",
+
+                          "Narcian", "Eirika", "Ephraim", "Seliph", "Julia",
+                    ]

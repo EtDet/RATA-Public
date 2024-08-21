@@ -61,9 +61,10 @@ while i < len(names):
     image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_Mini_Unit_Ok.png"
 
     # If image is currently of a character in this current build
+    if int_name in implemented_heroes:
 
-    #if int_name in implemented_heroes:
-    if True:
+    # Only to be used for getting the most recent units for development, comment back as soon as you're done!
+    #if True:
         download_and_save_image(image_url, int_name)
 
         if has_resp == True:

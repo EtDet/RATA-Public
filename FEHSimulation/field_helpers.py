@@ -297,6 +297,10 @@ def start_of_turn(starting_team, waiting_team, turn):
             for ally in allies_within_n_spaces[1]:
                 ally.inflictStat(ATK, unitSkills["honeAtk"])
 
+        if "honeAtkW" in unitSkills:
+            for ally in allies_within_n_spaces[1]:
+                ally.inflictStat(ATK, unitSkills["honeAtkW"])
+
         if "honeSpd" in unitSkills:
             for ally in allies_within_n_spaces[1]:
                 ally.inflictStat(SPD, unitSkills["honeSpd"])

@@ -228,8 +228,8 @@ L!Dimitri,Dimitri,Savior King,40,41,41,37,18,0,Lance,16,-1,50,70,75,60,30,25,55,
 SU!Dimitri,Dimitri,Sky-Blue Lion,40,42,40,35,17,1,Axe,16,-1,50,75,70,60,30,20,207,0,FALSE,0
 WI!Dimitri,Dimitri,Blessed Protector,41,47,46,32,19,1,Axe,16,-1,50,90,75,55,35,10,180,0,FALSE,0
 Díthorba,Díthorba,Cutting Knight,43,35,38,23,33,2,Lance,4,-1,55,65,65,40,55,25,94,0,FALSE,0
-Donnel,Donnel,Sunny Villager,43,35,29,32,23,0,Lance,13,-1,60,65,55,60,45,30,52,0,FALSE,0
-SU!Donnel,Donnel,Village Hero,46,45,31,40,30,0,Axe,13,-1,70,80,60,70,55,15,168,0,FALSE,0
+Donnel,Donnel,Village Hero,43,35,29,32,23,0,Lance,13,-1,60,65,55,60,45,30,52,0,FALSE,0
+SU!Donnel,Donnel,Sunny Villager,46,45,31,40,30,0,Axe,13,-1,70,80,60,70,55,15,168,0,FALSE,0
 H!Dorcas,Dorcas,Pumpkin Smasher,49,41,25,37,21,3,Axe,7,-1,60,70,45,65,35,30,116,0,FALSE,0
 Dorcas,Dorcas,Serene Warrior,45,35,23,35,24,0,Axe,7,-1,60,60,40,60,45,35,184,0,FALSE,0
 SU!Dorothea,Dorothea,Solar Songstress,38,37,36,16,30,0,CDagger,16,-1,50,70,65,30,55,30,50,0,FALSE,0
@@ -378,7 +378,7 @@ Gerome,Gerome,Masked Rider,45,38,25,34,19,2,Axe,13,-1,60,65,45,60,35,30,136,0,FA
 Gharnef,Gharnef,Dark Pontifex,38,30,34,27,23,0,RTome,1,-1,50,50,55,50,40,35,234,0,FALSE,0
 Gilliam,Gilliam,Wall of Silence,47,44,21,48,35,3,Lance,8,-1,60,70,40,80,65,15,186,0,FALSE,0
 Ginnungagap,Ginnungagap,Ruler of Nihility,40,47,31,30,32,1,CDagger,0,-1,50,90,50,50,60,10,232,0,FALSE,0
-Glen,Glen,idk,-1,-1,-1,-1,-1,-1,Sword,8,-1,-1,-1,-1,-1,-1,4,-1,0,FALSE,0
+Glen,Glen,Sunstone,-1,-1,-1,-1,-1,-1,Sword,8,-1,-1,-1,-1,-1,-1,4,-1,0,FALSE,0
 SU!Goldmary,Goldmary,Coy Beach Divas,40,44,46,47,16,0,Lance,17,16,50,70,75,90,30,10,-1,,FALSE,0
 Gonzalez,Gonzalez,Kindly Bandit,50,42,35,33,21,0,Axe,6,-1,70,70,60,55,40,20,162,0,FALSE,0
 Gordin,Gordin,Altean Archer,43,31,25,32,17,0,CBow,1,-1,55,55,45,55,30,35,204,0,TRUE,0

@@ -24,6 +24,7 @@
         {"name": "Myrrh",
        "level": 40,
        "rarity": 5,
+        "weapon": "Light Breath+Res",
         "assist": "Reposition",
        "startMove": 1,
        "wallBreak": false
@@ -36,10 +37,10 @@
        "startMove": 1,
        "wallBreak": false
       },
-       {"name": "Soren",
+       {"name": "Linde",
        "level": 40,
        "rarity": 5,
-       "weapon": "Rexcalibur",
+       "weapon": "Aura",
        "startMove": 1,
        "wallBreak": false
       }

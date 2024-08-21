@@ -1,3 +1,5 @@
+import random
+
 from combat import *
 from field_helpers import start_of_turn, end_of_combat, create_combat_fields, get_warp_moves, allies_within_n
 from map import Map, Structure
@@ -126,21 +128,13 @@ sharena.set_skill(times_pulse_4, CSKILL)
 sharena.set_IVs(SPD,DEF,SPD)
 sharena.set_level(40)
 
-
-# PLACE UNITS ONTO MAP
-
-#robin.tile = map0.tiles[18]
-
-tested_unit = makeHero("Felix")
-tested_weapon = makeWeapon("New Levin Sword")
+tested_unit = makeHero("Narcian")
+tested_weapon = makeWeapon("RuneaxeEff")
 #tested_assist = makeAssist("Pivot")
-tested_special = makeSpecial("Galeforce")
+tested_special = makeSpecial("Moonbow")
 tested_askill = makeSkill("Death Blow 3")
 #tested_bskill = makeSkill("Null C-Disrupt 4")
 tested_cskill = makeSkill("Spur Atk 3")
-
-#xander.allySupport = "M!Corrin"
-#tested_unit.allySupport = "DA!Xander"
 
 tested_unit.set_skill(tested_weapon, WEAPON)
 #tested_unit.set_skill(tested_assist, ASSIST)
@@ -1280,9 +1274,6 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
     def set_assist_forecast(attacker: Hero, ally: Hero):
         clear_banner()
 
-        #print(attacker.name, ally.name)
-
-
         player_color = "#18284f" if attacker.side == 0 else "#541616"
         enemy_color = "#18284f" if ally.side == 0 else "#541616"
 
@@ -1468,7 +1459,9 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
 
         # Out of bounds case
         if x < 0 or x > 540 or y <= 90 or y > 810:
-            print("homer simpson")
+            num = random.randint(1, 100)
+            if num == 57:
+                print("homer simpson")
             return
 
         # Get the tile currently hovered over
@@ -3208,7 +3201,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
             return
 
         if x < 0 or x > 540 or y <= 90 or y > 810:
-            print("simpson gamer")
+            #print("simpson gamer")
             return
 
         x_comp = event.x // 90

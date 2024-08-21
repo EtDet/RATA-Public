@@ -5,12 +5,17 @@ from game import start_sim
 import pandas as pd
 from csv import reader, writer
 import webbrowser
-from PIL import Image, ImageTk
-import tkinter as tk
-from tkinter import ttk
 from math import isnan
 from functools import partial
 import json
+
+from PIL import Image, ImageTk
+import tkinter as tk
+from tkinter import ttk
+
+import tkmacosx as tkm
+
+
 
 WEAPON = 0
 ASSIST = 1
@@ -160,12 +165,12 @@ class SelectProxy:
         i = 0
         while i < len(self.team_buttons):
             if self.team_buttons[i] == 0:
-                map_unit_selection.team_buttons[i].configure(image=pixel, text="Empty")
+                map_unit_selection.team_buttons[i].configure(image=pixel, text="Empty", compound=tk.CENTER)
             else:
                 img = map_unit_selection.my_unit_buttons[self.team_buttons[i] - 1].image
                 txt = map_unit_selection.my_unit_buttons[self.team_buttons[i] - 1].text
 
-                map_unit_selection.team_buttons[i].configure(image=img, text=txt)
+                map_unit_selection.team_buttons[i].configure(image=img, text=txt, compound=tk.TOP)
 
             i += 1
 
@@ -783,7 +788,7 @@ def get_valid_weapons(cur_hero):
     i = 0
     while i < len(weapons):
 
-        print(weapons[i])
+        #print(weapon_types[i])
 
         if weapon_types[i] in cur_hero.wpnType:
             if (len(exclusive_all[i]) == 0):
@@ -1186,7 +1191,7 @@ def edit_unit_in_list(num):
         try:
             my_units_file = "my_units.csv"
 
-            with open(my_units_file, 'r', newline='') as file:
+            with open(my_units_file, 'r', newline='', encoding="cp1252") as file:
                 f_reader = reader(file)
                 read_data = list(f_reader)
 
@@ -1244,27 +1249,29 @@ def begin_simulation():
     player_units = []
 
     i = 0
+    #print(player_ints)
     while i < len(player_ints):
-        row = my_units_file.loc[player_ints[i] - 1]
+        if player_ints[i] != 0:
+            row = my_units_file.loc[player_ints[i] - 1]
 
-        cur_hero = hero.makeHero(row["IntName"])
+            cur_hero = hero.makeHero(row["IntName"])
 
-        cur_hero.set_rarity(row["Rarity"])
-        cur_hero.set_IVs(row["Asset"], row["Flaw"], row["Ascended"])
-        cur_hero.set_merges(row["Merges"])
-        cur_hero.set_dragonflowers(row["Dragonflowers"])
+            cur_hero.set_rarity(row["Rarity"])
+            cur_hero.set_IVs(row["Asset"], row["Flaw"], row["Ascended"])
+            cur_hero.set_merges(row["Merges"])
+            cur_hero.set_dragonflowers(row["Dragonflowers"])
 
-        cur_hero.set_level(row["Level"])
+            cur_hero.set_level(row["Level"])
 
-        if not pd.isnull(row["Weapon"]): cur_hero.set_skill(hero.makeWeapon(row["Weapon"]), WEAPON)
-        if not pd.isnull(row["Assist"]): cur_hero.set_skill(hero.makeAssist(row["Assist"]), ASSIST)
-        if not pd.isnull(row["Special"]): cur_hero.set_skill(hero.makeSpecial(row["Special"]), SPECIAL)
-        if not pd.isnull(row["ASkill"]): cur_hero.set_skill(hero.makeSkill(row["ASkill"]), ASKILL)
-        if not pd.isnull(row["BSkill"]): cur_hero.set_skill(hero.makeSkill(row["BSkill"]), BSKILL)
-        if not pd.isnull(row["CSkill"]): cur_hero.set_skill(hero.makeSkill(row["CSkill"]), CSKILL)
+            if not pd.isnull(row["Weapon"]): cur_hero.set_skill(hero.makeWeapon(row["Weapon"]), WEAPON)
+            if not pd.isnull(row["Assist"]): cur_hero.set_skill(hero.makeAssist(row["Assist"]), ASSIST)
+            if not pd.isnull(row["Special"]): cur_hero.set_skill(hero.makeSpecial(row["Special"]), SPECIAL)
+            if not pd.isnull(row["ASkill"]): cur_hero.set_skill(hero.makeSkill(row["ASkill"]), ASKILL)
+            if not pd.isnull(row["BSkill"]): cur_hero.set_skill(hero.makeSkill(row["BSkill"]), BSKILL)
+            if not pd.isnull(row["CSkill"]): cur_hero.set_skill(hero.makeSkill(row["CSkill"]), CSKILL)
 
 
-        player_units.append(cur_hero)
+            player_units.append(cur_hero)
 
         i += 1
 
@@ -1294,11 +1301,11 @@ window.configure(background='#797282')
 # MAIN MENU ELEMENTS
 title_label = tk.Label(master=window, text='RATA - An FE: Heroes Simulator', font='Helvetica 24', relief="raised")
 subtitle_label = tk.Label(master=window, text='By CloudX (2024)', font='Helvetica 18', relief="raised")
-version_label = tk.Label(master=window, text='Ver 1.0 - Day 1 Units', font='Helvetica 12', relief="raised")
-start_button = tk.Button(window, command=generate_maps, width=30, text="Level Select", font="Helvetica", cursor="hand2", overrelief="raised", bg='blue', fg='white')
-units_button = tk.Button(window, command=generate_units, width=30, text="My Units", font="Helvetica", cursor="hand2", overrelief="raised", bg='blue', fg='white')
-help_button = tk.Button(window, command=about,width=30, text="GitHub Page", font="Helvetica", cursor="hand2", overrelief="raised", bg='blue', fg='white')
-quit_button = tk.Button(window, command=window.destroy, width=30, text="Close", font="Helvetica", cursor="hand2", overrelief="raised", bg='red', fg='white')
+version_label = tk.Label(master=window, text='Ver 1.0.2 - Family Bonds', font='Helvetica 12', relief="raised")
+start_button = tkm.Button(window, command=generate_maps, width=255, text="Level Select", font="Helvetica 14", cursor="hand2", bg='blue', fg='white')
+units_button = tkm.Button(window, command=generate_units, width=255, text="My Units", font="Helvetica 14", cursor="hand2", bg='blue', fg='white')
+help_button = tkm.Button(window, command=about,width=255, text="GitHub Page", font="Helvetica 14", cursor="hand2", bg='blue', fg='white')
+quit_button = tkm.Button(window, command=window.destroy, width=255, text="Close", font="Helvetica 14", cursor="hand2", bg='red', fg='white')
 
 front_page_elements = [title_label, subtitle_label, version_label, start_button, units_button, help_button, quit_button]
 front_page_paddings = [(80, 5), (10, 5), (5, 5), (20, 20), (0, 20), (0, 20), (0, 20)]
@@ -1535,17 +1542,20 @@ for i in range(24):
     map_image = map_image.resize((300, 400), Image.LANCZOS)
     curImage = ImageTk.PhotoImage(map_image)
 
-    button = tk.Button(master=inner_frame,
+    button = tkm.Button(master=inner_frame,
                        command=partial(set_map_canvas, data, curImage, map_str),
                        image=curImage,
                        bg=button_color,
-                       fg="#ffff24",
+                       fg="#dff4f5",
                        font=("Arial 20 bold"),
+                       activeforeground="#dedede",
                        activebackground=select_color,
                        height=60,
                        width=300,
                        text=map_name,
-                       compound="center")
+                       bordercolor="LightSteelBlue4"
+                       #compound="center"
+                       )
     button.image = curImage
     button.pack(padx=10, pady=5)
 
@@ -1604,15 +1614,16 @@ def map_unit_selection():
     map_unit_selection.my_unit_buttons = []
 
     while i < num_players:
-        cur_button = tk.Button(master=unit_select_chosen_frame,
+        cur_button = tkm.Button(master=unit_select_chosen_frame,
                                bg="linen",
                                image=pixel,
                                text="Empty",
-                               width=85,
-                               height=85,
+                               width=110,
+                               height=110,
                                command=partial(selectProxy.box_clicked, i * -1 - 1),
-                               compound=tk.TOP,
-                               font = 'Helvetica 8'
+                               #anchor=tk.S,
+                               font = 'Helvetica 10',
+                               borderless=True
                                )
         cur_button.pack(side='left', pady=10, padx=10)
 
