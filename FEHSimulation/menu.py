@@ -1301,7 +1301,7 @@ window.configure(background='#797282')
 # MAIN MENU ELEMENTS
 title_label = tk.Label(master=window, text='RATA - An FE: Heroes Simulator', font='Helvetica 24', relief="raised")
 subtitle_label = tk.Label(master=window, text='By CloudX (2024)', font='Helvetica 18', relief="raised")
-version_label = tk.Label(master=window, text='Ver 1.0.2 - Family Bonds', font='Helvetica 12', relief="raised")
+version_label = tk.Label(master=window, text='Ver 1.0.3 - Blazing Shadows', font='Helvetica 12', relief="raised")
 start_button = tkm.Button(window, command=generate_maps, width=255, text="Level Select", font="Helvetica 14", cursor="hand2", bg='blue', fg='white')
 units_button = tkm.Button(window, command=generate_units, width=255, text="My Units", font="Helvetica 14", cursor="hand2", bg='blue', fg='white')
 help_button = tkm.Button(window, command=about,width=255, text="GitHub Page", font="Helvetica 14", cursor="hand2", bg='blue', fg='white')

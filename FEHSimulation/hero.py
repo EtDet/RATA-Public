@@ -1065,5 +1065,10 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "Roy", "Ryoma", "Saizo", "Sakura", "F!Selena", "Serra", "Setsuna", "Shanna", "Sharena", "Sheena",
                           "Sophia", "Stahl", "Subaki", "Sully", "Takumi", "Tharja", "Y!Tiki", "A!Tiki", "Virion", "Wrys",
 
-                          "Narcian", "Eirika", "Ephraim", "Seliph", "Julia",
+                          "Narcian", "F!Robin", "Ursula", "Michalis",
+
+                          "Eirika", "Ephraim", "Seliph", "Julia",
+                          "Eldigan", "Klein", "Lachesis", "Reinhardt", "Olwen", "Sanaki",
+                          "Jaffar", "Karel", "Lucius", "Ninian", "Priscilla", "Rebecca",
+
                     ]

@@ -109,7 +109,7 @@ moonlit_bangle_q = makeSkill("Moonlit Bangle Q")
 times_pulse_4 = makeSkill("Time's Pulse 4")
 
 
-xander = makeHero("Lilina")
+xander = makeHero("Cordelia")
 xander.set_skill(makeWeapon("ForblazeEff"), WEAPON)
 #xander.set_skill(united_bouquet, WEAPON)
 xander.set_skill(makeAssist("Dance"), ASSIST)
@@ -128,13 +128,13 @@ sharena.set_skill(times_pulse_4, CSKILL)
 sharena.set_IVs(SPD,DEF,SPD)
 sharena.set_level(40)
 
-tested_unit = makeHero("Narcian")
-tested_weapon = makeWeapon("RuneaxeEff")
+tested_unit = makeHero("Rebecca")
+tested_weapon = makeWeapon("Rebecca's BowEff")
 #tested_assist = makeAssist("Pivot")
-tested_special = makeSpecial("Moonbow")
+tested_special = makeSpecial("Growing Thunder")
 tested_askill = makeSkill("Death Blow 3")
 #tested_bskill = makeSkill("Null C-Disrupt 4")
-tested_cskill = makeSkill("Spur Atk 3")
+tested_cskill = makeSkill("Savage Blow 3")
 
 tested_unit.set_skill(tested_weapon, WEAPON)
 #tested_unit.set_skill(tested_assist, ASSIST)
@@ -1047,7 +1047,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
 
             aoe_present = True
 
-        result = simulate_combat(attacker, defender, True, turn_info[0], distance, combat_fields, atkHPCur=atkHP, defHPCur=defHP)
+        result = simulate_combat(attacker, defender, True, turn_info[0], distance, combat_fields, aoe_present, atkHPCur=atkHP, defHPCur=defHP)
 
         atk_burn_damage_present = False
         def_burn_damage_present = False
@@ -2275,10 +2275,11 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                             aoe_special_icons_active.append(cur_special_image)
 
                             player_status_img.append(cur_special_image)
-                            canvas.tag_lower(item_index, cur_special_image)
+                            canvas.tag_raise(tag)
 
-                    # when warping, clash skills use euclidean distance
-                    # when not warping, clash skills use manhattan distance
+                            # current issue, aoe icons display behind movement arrows
+
+                    # use euclidean distance
                     distance = len(canvas.drag_data['target_path'])
                     # if canvas.drag_data['target_path'] == "WARP":
                     #    distance =
@@ -2515,7 +2516,8 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                 distance = len(canvas.drag_data['target_path'])
 
                 # Simulate combat
-                combat_result = simulate_combat(player, enemy, True, turn_info[0], distance, combat_fields)
+                aoe_triggered = bool(aoe_present)
+                combat_result = simulate_combat(player, enemy, True, turn_info[0], distance, combat_fields, aoe_triggered)
                 attacks = combat_result[7]
 
                 player.unitCombatInitiates += 1
@@ -2602,7 +2604,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                 player.statusNeg = []
                 player.debuffs = [0, 0, 0, 0, 0]
 
-                damage_taken, heals_given = end_of_combat(atk_effects, def_effects, player, enemy)
+                damage_taken, heals_given, sp_charges = end_of_combat(atk_effects, def_effects, player, enemy)
 
                 # Post combat special charges go here
 
@@ -2620,15 +2622,20 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                         if hp_change < 0:
                             canvas.after(finish_time, animate_damage_popup, canvas, abs(hp_change), x.tile.tileNum)
 
-                        x_side = x.side
-                        x_index = units_all[x_side].index(x)
-                        x_hp_label = hp_labels[x_side][x_index]
-                        x_hp_bar = hp_bar_fgs[x_side][x_index]
+                    if x in sp_charges:
+                        x.chargeSpecial(sp_charges[x])
 
-                        hp_percentage = x.HPcur / x.visible_stats[HP]
+                    x_side = x.side
+                    x_index = units_all[x_side].index(x)
+                    x_hp_label = hp_labels[x_side][x_index]
+                    x_hp_bar = hp_bar_fgs[x_side][x_index]
+                    x_sp_label = special_labels[x_side][x_index]
 
-                        canvas.after(finish_time, set_text_val, x_hp_label, x.HPcur)
-                        canvas.after(finish_time, set_hp_bar_length, x_hp_bar, hp_percentage)
+                    hp_percentage = x.HPcur / x.visible_stats[HP]
+
+                    canvas.after(finish_time, set_text_val, x_sp_label, x.specialCount)
+                    canvas.after(finish_time, set_text_val, x_hp_label, x.HPcur)
+                    canvas.after(finish_time, set_hp_bar_length, x_hp_bar, hp_percentage)
 
                 # movement-based skills after combat
                 player_tile_number = player.tile.tileNum
@@ -3529,6 +3536,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
     hp_bar_bgs = [player_hp_bar_bg, enemy_hp_bar_bg]
     hp_bar_fgs = [player_hp_bar_fg, enemy_hp_bar_fg]
 
+    i = 0
     for x in player_units_all:
 
         respString = "-R" if x.resp else ""
@@ -3553,6 +3561,9 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
         tag = f"tag_{name.replace('!', '_')}_{i}_{side}"
         player_tags.append(tag)
 
+        i += 1
+
+    i = 0
     for x in enemy_units_all:
 
         respString = "-R" if x.resp else ""
@@ -3576,6 +3587,8 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
         side = 'E'
         tag = f"tag_{name.replace('!', '_')}_{i}_{side}"
         enemy_tags.append(tag)
+
+        i += 1
 
 
     # CREATE IMAGES ON CANVAS

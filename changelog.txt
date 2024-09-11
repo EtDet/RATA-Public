@@ -1,3 +1,10 @@
+1.0.3 (9/11/24)
+New Features:
+-Added the following new heroes: F!Robin, Eldigan, Klein, Lachesis, Olwen, Reinhardt, Sanaki, Ursula, Jaffar, Karel, Lucius, Ninian, Priscilla, Rebecca, Michalis
+
+Bug Fixes:
+-Fixed an issue where multiple of the same ally deployed did not display correctly.
+
 1.0.2 (8/21/24)
 New Features:
 -Added the following new heroes: Narcian, Eirika, Ephraim, Seliph, Julia

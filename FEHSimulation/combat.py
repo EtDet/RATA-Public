@@ -12,97 +12,113 @@ RES = 4
 # One is held by each unit in combat and keeps track of their effects
 class HeroModifiers:
     def __init__(self):
-        self.start_of_combat_HP = -1
-        self.start_of_combat_special = -1
+        # Exact HP and Special counts at start of combat, before burn damage/healing
+        self.start_of_combat_HP: int = -1
+        self.start_of_combat_special: int = -1
 
-        self.preTriangleAtk = 0
+        # Attack stat preserved before being modified by the weapon triangle
+        # Used for calculating special damage
+        self.preTriangleAtk: int = 0
 
-        # attack order
-        self.brave = False
+        # Attack twice per hit
+        self.brave: bool = False
 
-        self.vantage = False
-        self.self_desperation = False
-        self.other_desperation = False
-        self.hardy_bearing = False
+        # Enables defender to attack first
+        self.vantage: bool = False
+        self.self_desperation: bool = False
+        self.other_desperation: bool = False
 
+        # Disable's this unit's skills that change attack ordering (vantage & desperation)
+        self.hardy_bearing: bool = False
+
+        # Perform potent follow up
         self.potent_FU = False
-        self.potent_new_percentage = -1
+        self.potent_new_percentage = -1 # Special-enabled potent percentage increase (Lodestar Rush)
 
-        # follow-ups
-        self.follow_ups_skill = 0
-        self.follow_ups_spd = 0
-        self.follow_up_denials = 0
+        # Follow-ups
+        self.follow_ups_skill = 0 # granted by skills
+        self.follow_ups_spd = 0 # granted by speed
+        self.follow_up_denials = 0 # granted by skills
 
-        # NFU
-        self.prevent_foe_FU = False
-        self.prevent_self_FU_denial = False
+        # Null Follow-Up (NFU)
+        self.prevent_foe_FU = False # Disables skills that guarantee foe's skill-based follow-ups
+        self.prevent_self_FU_denial = False # Disable skills that deny self's skill-based follow-ups
 
-        # special
+        # If special disabled during combat
         self.special_disabled = False
 
-        self.spGainOnAtk = 0
+        # Increased/decreased special charge gain per hit
+        self.spGainOnAtk = 0 # when self attacks
         self.spLossOnAtk = 0
-        self.spGainWhenAtkd = 0
+        self.spGainWhenAtkd = 0 # when self is attacked
         self.spLossWhenAtkd = 0
 
-        self.sp_charge_first = 0
-        self.sp_charge_FU = 0
-        self.sp_charge_foe_first = 0
+        # Pre-hit special jumps
+        self.sp_charge_first = 0      # before this unit's first attack
+        self.sp_charge_FU = 0         # before this unit's first follow-up
+        self.sp_charge_foe_first = 0  # before foe's first attack
 
-        self.disable_foe_fastcharge = False
-        self.disable_foe_guard = False
+        # Disable increased/decreased special charge gain (Tempo)
+        self.disable_foe_fastcharge = False # foe +1 charge per attack
+        self.disable_foe_guard = False      # self -1 charge per attack
 
-        self.double_def_sp_charge = False # negating fang ii
+        # Charge give charge immediately after first defensive special activation (Negating Fang II)
+        self.double_def_sp_charge = False
 
+        # Charge give charge immediately after first offensive special activation (Supreme Astra)
         self.first_sp_charge = 0
 
+        # If special has been triggered any time before or during this combat
         self.special_triggered = False
 
-        # percent damage reduction
-        self.DR_all_hits_NSP = []
-        self.DR_first_hit_NSP = []
-        self.DR_first_strikes_NSP = []
-        self.DR_second_strikes_NSP = []
-        self.DR_consec_strikes_NSP = []
-        self.DR_sp_trigger_next_only_NSP = []
+        # Non-special percentage-based damage reduction
+        self.DR_all_hits_NSP = []              # present on all hits
+        self.DR_first_hit_NSP = []             # present on first hit
+        self.DR_first_strikes_NSP = []         # present on first hit (first two if foe has Brave enabled)
+        self.DR_second_strikes_NSP = []        # present on follow-up and potent hits
+        self.DR_consec_strikes_NSP = []        # present on second hit onwards iff consecutive
+        self.DR_sp_trigger_next_only_NSP = []  # present only after first special activation
 
-        self.DR_all_hits_SP = []
-        self.DR_sp_trigger_next_only_SP = []
-        self.DR_sp_trigger_next_all_SP = []
+        # Special percentage-based damage reduction
+        self.DR_all_hits_SP = []                   # present on all hits
+        self.DR_sp_trigger_next_only_SP = []       # present on next hit once per combat
+        self.DR_sp_trigger_next_all_SP = []        # present on next hit, can trigger multiple times
         self.DR_sp_trigger_next_all_SP_CACHE = []
 
         # Armored Beacon/Floe/Blaze, Supreme Heaven, Emblem Ike Ring, etc.
-        self.DR_sp_trigger_by_any_special_SP = []
+        self.DR_sp_trigger_by_any_special_SP = []  # present after unit or foe's special is ready or triggered
 
         # DR specific to Great Aether
-        self.DR_great_aether_SP = False
+        self.DR_great_aether_SP = False  # based on special count and if hits are consecutive
 
+        # Damage reduction reduction (partial)
         # Multiplies all damage reduction foe has by this number.
         self.damage_reduction_reduction = 1
 
-        self.sp_pierce_DR = False # DR pierce on special
-        self.pierce_DR_FU = False # DR pierce on follow-up
-        self.always_pierce_DR = False # DR pierce on any hit
-
-        self.sp_pierce_after_def_sp = False # DR pierce on next hit after defensive special trigger
+        # Damage reduction piercing (full)
+        self.sp_pierce_DR = False            # DR pierce on offensive special
+        self.pierce_DR_FU = False            # DR pierce on follow-up
+        self.always_pierce_DR = False        # DR pierce on any hit
+        self.sp_pierce_after_def_sp = False  # DR pierce on next hit after defensive special trigger (laguz friend)
         self.sp_pierce_after_def_sp_CACHE = False
 
-        # true damage / true reduction
-        self.true_all_hits = 0
-        self.true_first_hit = 0  # domain of flame
-        self.true_finish = 0 # added after special is currently ready or has triggered
-        self.true_after_foe_first = 0
-        self.true_sp = 0  # added only on special trigger
+        # True damage
+        self.true_all_hits = 0         # damage added to all hits
+        self.true_first_hit = 0        # damage added on only first hit
+        self.true_finish = 0           # added after special is currently ready or has triggered
+        self.true_after_foe_first = 0  # added after foe's first attack
+        self.true_sp = 0               # added only on offensive special trigger
 
-        self.true_sp_next = 0  # divine pulse/negating fang
-        self.true_sp_next_CACHE = 0
+        self.true_sp_next = 0          # damage added after each special trigger (divine pulse/negating fang)
+        self.true_sp_next_CACHE = 0    #
 
-        # An array to easily store true damage given by a particular stat (ex. deals damage = 20% of unit's Res)
+        # An array to easily store true damage given by a particular stat (ex. (20, RES) means "deals damage = 20% of unit's Res")
         self.true_stat_damages = []
 
         # Enables extra true damage and DR piercing based on current HP
         self.resonance = False
 
+        # True damage reduction
         self.TDR_all_hits = 0
         self.TDR_first_strikes = 0
         self.TDR_second_strikes = 0
@@ -165,7 +181,7 @@ def move_letters(s, letter):
 
 
 # Perform a combat between two heroes
-def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, combat_effects, atkHPCur = None, defHPCur = None):
+def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, combat_effects, aoe_triggered, atkHPCur=None, defHPCur=None):
     # Invalid Combat if one unit is dead
     # or if attacker does not have weapon
     if attacker.HPcur <= 0 or defender.HPcur <= 0 or attacker.weapon is None:
@@ -181,7 +197,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     # 0 - attacker
     # 1 - defender
     # -1 - neither
-    wpnAdvHero = -1
+    wpnAdvHero: int = -1
 
     # lists of attacker/defender's skills & stats
     atkSkills = attacker.getSkills()
@@ -196,11 +212,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     atkr = HeroModifiers()
     defr = HeroModifiers()
 
-    if atkHPCur is None:
-        atkHPCur = attacker.HPcur
-
-    if defHPCur is None:
-        defHPCur = defender.HPcur
+    if atkHPCur is None: atkHPCur = attacker.HPcur
+    if defHPCur is None: defHPCur = defender.HPcur
 
     atkr.start_of_combat_HP = atkHPCur
     defr.start_of_combat_HP = defHPCur
@@ -210,6 +223,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     atkr.start_of_combat_special = atkSpCountCur
     defr.start_of_combat_special = defSpCountCur
+
+    atkr.special_triggered = aoe_triggered
 
     if "phantomSpd" in atkSkills: atkPhantomStats[SPD] += atkSkills["phantomSpd"]
     if "phantomRes" in atkSkills: atkPhantomStats[RES] += atkSkills["phantomRes"]
@@ -339,9 +354,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             if ally.intName == defender.allySupport:
                 defWithin2SpaceOfSupportPartner = True
 
-    # Includes opposing unit in combat!
-    atkFoeWithin2Spaces = 0
-    defFoeWithin2Spaces = 0
+    atkFoeWithin2Spaces = 0  # Includes opposing unit in combat!
+    defFoeWithin2Spaces = 0  # Includes opposing unit in combat!
     if is_in_sim:
         atkFoeWithin2Spaces = foes_within_n(attacker, attacker.attacking_tile, 2)
         defFoeWithin2Spaces = foes_within_n(defender, defender.tile, 2)
@@ -1265,10 +1279,16 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "infiniteSpecial" in atkSkills and atkHPGreaterEqual25Percent: map(lambda x: x + 4, atkCombatBuffs)
     if "infiniteSpecial" in defSkills and defHPGreaterEqual25Percent: map(lambda x: x + 4, defCombatBuffs)
 
+    # Dark Mystletainn (+Eff) - Eldigan/Ares
     if "DRINK" in atkSkills and defHPGreaterEqual75Percent:
         atkCombatBuffs[1] += 5
         atkCombatBuffs[3] += 5
         atkr.true_sp += 7
+
+    if "DRINK" in defSkills:
+        defCombatBuffs[1] += 5
+        defCombatBuffs[3] += 5
+        defr.true_sp += 7
 
     # Kempf - Venin Edge
 
@@ -1523,6 +1543,19 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         atkPostCombatHealing += 7
 
+    # Rebecca's Bow (Refine +Eff) - Rebecca
+    if "rebeccaBoost" in atkSkills and sum(attacker.buffs) > 0 and AtkPanicFactor == 1: atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
+    if "rebeccaBoost" in defSkills and sum(defender.buffs) > 0 and DefPanicFactor == 1: defCombatBuffs = [x + 4 for x in defCombatBuffs]
+
+    # Deathly Dagger (Refine) - Jaffar
+    if "jaffarDmg" in atkSkills: atkPostCombatEffs[2].append(("damage", 10, "foe_and_foes_allies", "within_2_spaces_foe"))
+    if "jaffarDmg" in defSkills: defPostCombatEffs[2].append(("damage", 10, "foe_and_foes_allies", "within_2_spaces_foe"))
+
+    # Deathly Dagger (Refine +Eff) - Jaffar
+    if "magicDenial" in atkSkills and defender.wpnType in MAGIC_WEAPONS:
+        cannotCounter = True
+
+    # lloyd
     if "garbageSword" in atkSkills and defHPEqual100Percent:
         atkCombatBuffs[1] += atkSkills["garbageSword"]
         atkCombatBuffs[2] += atkSkills["garbageSword"]
@@ -1686,6 +1719,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "pointySword" in atkSkills: map(lambda x: x + 5, atkCombatBuffs)
     if "pointySword" in defSkills and defAllyWithin2Spaces: map(lambda x: x + 5, atkCombatBuffs)
 
+    if "sanakiBoost" in atkSkills and atkFlyAlliesWithin2Spaces:
+        atkCombatBuffs[ATK] += 5
+        atkCombatBuffs[RES] += 5
+
+    if "sanakiBoost" in defSkills and defFlyAlliesWithin2Spaces:
+        defCombatBuffs[ATK] += 5
+        defCombatBuffs[RES] += 5
+
+    # Ragnell·Alondite (Refine + Eff) - Altina/WI!Altina
     if "TWO?" in atkSkills and defHPGreaterEqual75Percent:
         atkCombatBuffs[1] += 5
         atkCombatBuffs[4] += 5
@@ -2522,6 +2564,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "nullBonuses" in atkSkills: defBonusesNeutralized = [True] * 5
     if "nullBonuses" in defSkills: atkBonusesNeutralized = [True] * 5
 
+    if "nullCavBonuses" in atkSkills and defender.move == 1: defBonusesNeutralized = [True] * 5
+    if "nullCavBonuses" in defSkills and attacker.move == 1: atkBonusesNeutralized = [True] * 5
+
     if "bridal_shenanigans" in atkSkills and atkHPGreaterEqual25Percent:
         local_boost = 0
         valid_area = list(set(attacker.attacking_tile.tilesWithinNCols(3)) | set(attacker.attacking_tile.tilesWithinNRows(3)))
@@ -2741,18 +2786,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "disperseAbsorb" in defSkills:
         defPostCombatEffs[2].append(("heal", defSkills["disperseAbsorb"], "allies", "within_2_spaces_self"))
 
-    # Poison Strike
-    if "poisonStrike" in atkSkills:
-        atkPostCombatEffs[0].append(("damage", atkSkills["poisonStrike"], "foe", "one"))
-
-    # Savage Blow
-    if "savageBlow" in atkSkills:
-        atkPostCombatEffs[0].append(("damage", atkSkills["savageBlow"], "foes_allies", "within_2_spaces_foe"))
-
-    # Breath of Life
-    if "breath_of_life" in atkSkills:
-        atkPostCombatEffs[0].append(("heal", atkSkills["breath_of_life"], "allies", "within_1_spaces_self"))
-
     if "triAdeptS" in atkSkills and atkSkills["triAdeptS"] > triAdept: triAdept = atkSkills["triAdeptS"]
     if "triAdeptW" in atkSkills and atkSkills["triAdeptW"] > triAdept: triAdept = atkSkills["triAdeptW"]
 
@@ -2843,6 +2876,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "dagger_single" in defSkills:
         defPostCombatEffs[2].append(("debuff_def", defSkills["dagger_single"], "foe", "one"))
         defPostCombatEffs[2].append(("debuff_res", defSkills["dagger_single"], "foe", "one"))
+
+
 
     # Dagger 7 (or other magnitudes)
     if "dagger" in atkSkills:
@@ -3037,10 +3072,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
 
 
-    if "DRINK" in defSkills:
-        defCombatBuffs[1] += 5
-        defCombatBuffs[3] += 5
-        defr.true_sp += 7
+
 
     if "leafSword" in defSkills and atkHPEqual100Percent:
         defCombatBuffs[2] += 4
@@ -3241,7 +3273,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkNeutrDebuffsStats[i] += attacker.debuffs[i] * int(not atkPenaltiesNeutralized[i])
         defNeutrDebuffsStats[i] += defender.debuffs[i] * int(not defPenaltiesNeutralized[i])
 
-    # THIS ISN'T WHAT DOMINANCE DOES, FIX!!!!!
     if "dominance" in atkSkills and AtkPanicFactor == 1:
         for i in range(1, 5): atkCombatBuffs[1] += attacker.buffs[i] * atkBonusesNeutralized[i]
 
@@ -3865,16 +3896,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "permHexblade" in defSkills and not atkr.disable_foe_hexblade: defTargetingDefRes = int(atkStats[3] < atkStats[4])
 
     # Defensive terrain
-    if atkDefensiveTerrain:
-        atkr.TDR_all_hits += trunc(0.3 * atkStats[defTargetingDefRes + 3])
+    if atkDefensiveTerrain: atkr.TDR_all_hits += trunc(0.3 * atkStats[defTargetingDefRes + 3])
+    if defDefensiveTerrain: defr.TDR_all_hits += trunc(0.3 * defStats[atkTargetingDefRes + 3])
 
-    if defDefensiveTerrain:
-        defr.TDR_all_hits += trunc(0.3 * defStats[atkTargetingDefRes + 3])
-
-    # additional follow-up granted by outspeeding
+    # Amount of speed required to double the foe
     atkOutspeedFactor = 5
     defOutspeedFactor = 5
 
+    # Which index in the attack array holds the potent attack
     atkPotentIndex = -1
     defPotentIndex = -1
 
@@ -3891,12 +3920,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "wyvernRift" in defSkills and defStats[SPD] + defStats[DEF] >= atkStats[SPD] + atkStats[DEF] - 10:
         atkOutspeedFactor += 20
 
+    # Potent 1-4
     if "potentStrike" in atkSkills and atkStats[SPD] >= defStats[SPD] + (atkOutspeedFactor - 25):
         atkr.potent_FU = True
 
     if "potentStrike" in defSkills and defStats[SPD] >= atkStats[SPD] + (defOutspeedFactor - 25):
         defr.potent_FU = True
 
+    # Lodestar Rush - E!Marth
     if "potentFix" in atkSkills:
         atkr.potent_new_percentage = atkSkills["potentFix"]
 
@@ -4055,9 +4086,11 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             A_Count += 1
             isFollowUp = A_Count == 2 and (followupA or atkr.potent_FU) and not atkr.brave or A_Count in [3, 4, 5]
             isConsecutive = True if A_Count >= 2 and startString2[i - 1] == "A" else False
+
             potentRedu = 100
             if "potentStrike" in atkSkills and i == atkPotentIndex:
                 potentRedu = 10 * atkSkills["potentStrike"] + 40 * int(not (atkr.brave or followupA))
+
             attackList.append(Attack(0, isFollowUp, isConsecutive, A_Count, A_Count + D_Count,
                                      None if A_Count + D_Count == 1 else attackList[i - 1], potentRedu))
         else:
@@ -4065,8 +4098,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             isFollowUp = D_Count == 2 and (followupD or defr.potent_FU) and not defr.brave or D_Count in [3, 4, 5]
             isConsecutive = True if D_Count >= 2 and startString2[i - 1] == "D" else False
             potentRedu = 100
+
             if "potentStrike" in defSkills and i == defPotentIndex:
                 potentRedu = 10 * defSkills["potentStrike"] + 40 * int(not (defr.brave or followupD))
+
             attackList.append(Attack(1, isFollowUp, isConsecutive, D_Count, A_Count + D_Count,
                                      None if A_Count + D_Count == 1 else attackList[i - 1], potentRedu))
         i += 1
@@ -4427,6 +4462,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             defSpCountCur = max(0, defSpCountCur - defr.sp_charge_FU)
             defSpCountCur = min(defSpCountCur, defender.specialMax)
 
+        # If unit has a percentage that changes upon special activation, set to new percentage
+        # i.e. Lodestar Rush
         if (atkr.special_triggered or atkSpCountCur == 0) and atkr.potent_new_percentage != -1 and i == atkPotentIndex:
             curAtk.potentRedu = 100
 
@@ -4582,17 +4619,20 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if defHPCur < 1: defHPCur = 1
         if defHPCur > defStats[0]: defHPCur = defStats[0]
 
-    # post combat special incrementation, again move to seperate process
-    if "specialSpiralW" in atkSkills and atkr.special_triggered:
-        atkPostCombatSpCharge += math.ceil(atkSkills["specialSpiralW"] / 2)
+    # Post Combat Effects (that require the user to survive)
 
-    if "specialSpiralW" in defSkills and defSkills["specialSpiral"] > 1 and defr.special_triggered:
-        defPostCombatSpCharge += math.ceil(defSkills["specialSpiralW"] / 2)
+    if "specialSpiralW" in atkSkills and atkr.special_triggered:
+        spiral_charge = math.ceil(atkSkills["specialSpiralW"] / 2)
+        atkPostCombatEffs[0].append(("sp_charge", spiral_charge, "self", "one"))
+
+    if "specialSpiralW" in defSkills and defSkills["specialSpiralW"] > 1 and defr.special_triggered:
+        spiral_charge = math.ceil(defSkills["specialSpiralW"] / 2)
+        defPostCombatEffs[0].append(("sp_charge", spiral_charge, "self", "one"))
 
     if "specialSpiralS" in atkSkills and atkr.special_triggered:
         atkPostCombatSpCharge += math.ceil(atkSkills["specialSpiralS"] / 2)
 
-    if "specialSpiralS" in defSkills and defSkills["specialSpiral"] > 1 and defr.special_triggered:
+    if "specialSpiralS" in defSkills and defSkills["specialSpiralS"] > 1 and defr.special_triggered:
         defPostCombatSpCharge += math.ceil(defSkills["specialSpiralS"] / 2)
 
     if "infiniteSpecial" and atkHPGreaterEqual25Percent and attacker.specialCount == attacker.specialMax:
@@ -4601,10 +4641,28 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "infiniteSpecial" and defHPGreaterEqual25Percent and defender.specialCount == defender.specialMax:
         defPostCombatSpCharge += 1
 
+    # Cymbeline (Base) - Sanaki
+    # Requires her to be alive
+    if "sanakiBuff" in atkSkills and atkAlive:
+        atkPostCombatEffs[0].append(("buff_atk", 4, "allies", "within_1_spaces_self"))
+
+    # Poison Strike
+    if "poisonStrike" in atkSkills:
+        atkPostCombatEffs[0].append(("damage", atkSkills["poisonStrike"], "foe", "one"))
+
+    # Breath of Life
+    if "breath_of_life" in atkSkills:
+        atkPostCombatEffs[0].append(("heal", atkSkills["breath_of_life"], "allies", "within_1_spaces_self"))
+
+    # Savage Blow
+    if "savageBlow" in atkSkills:
+        atkPostCombatEffs[0].append(("damage", atkSkills["savageBlow"], "foes_allies", "within_2_spaces_foe"))
+
     #if atkAlive: attacker.chargeSpecial(atkPostCombatSpCharge)
     #if defAlive: defender.chargeSpecial(defPostCombatSpCharge)
 
     # here ya go
+    '''
     if atkAlive:
         for m in atkPostCombatStatusesApplied[0]:
             attacker.inflict(m)
@@ -4612,6 +4670,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if defAlive:
         for n in defPostCombatStatusesApplied[0]:
             attacker.inflict(n)
+    '''
 
     atkFehMath = min(max(atkStats[ATK] - defStats[atkTargetingDefRes + 3], 0) + atkr.true_all_hits, 99)
     defFehMath = min(max(defStats[ATK] - atkStats[defTargetingDefRes + 3], 0) + defr.true_all_hits, 99)
@@ -4685,6 +4744,9 @@ def get_AOE_damage(attacker, defender):
     true_damage = 0
 
     if "gaius_damage_ref" in atkSkills and defStats[HP] == defender.HPcur:
+        true_damage += 7
+
+    if "DRINK" in atkSkills and defender.HPcur / defStats[HP] >= 0.75:
         true_damage += 7
 
     if "thraciaMoment" in atkSkills and defStats[DEF] >= defStats[RES] + 5:

@@ -21,6 +21,16 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
 
+        if "driveAtk" in unitSkills:
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = True
+            effects = {"spurAtk_f": unitSkills["driveAtk"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
         if "spurSpd" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 1
             condition = lambda s: lambda o: True
@@ -349,6 +359,18 @@ def start_of_turn(starting_team, waiting_team, turn):
                     ally.inflictStat(DEF, 6)
                     ally.inflictStat(RES, 6)
 
+        if "honedragon" in unitSkills:
+            for ally in allies_within_n_spaces[2]:
+                if ally.wpnType in DRAGON_WEAPONS:
+                    ally.inflictStat(ATK, 6)
+                    ally.inflictStat(SPD, 6)
+
+        if "fortidragon" in unitSkills:
+            for ally in allies_within_n_spaces[2]:
+                if ally.wpnType in DRAGON_WEAPONS:
+                    ally.inflictStat(DEF, 6)
+                    ally.inflictStat(RES, 6)
+
         # THREATEN
 
         if "threatenAtk" in unitSkills:
@@ -398,6 +420,11 @@ def start_of_turn(starting_team, waiting_team, turn):
             unit.inflictStat(RES, 2 * unitSkills["defiantRes"] + 1)
 
         # CHILL SKILLS
+
+        if "chillDefW" in unitSkills:
+            highest_def = units_with_extreme_stat(waiting_team, DEF, find_max=True)
+            for foe in highest_def:
+                foe.inflictStat(DEF, -7)
 
         if "chillResW" in unitSkills:
             highest_res = units_with_extreme_stat(waiting_team, RES, find_max=True)
@@ -858,6 +885,7 @@ def end_of_combat(atk_effects, def_effects, attacker, defender):
 
     damage_taken = {}
     heals_given = {}
+    sp_charges = {}
 
     atkAreas = {}
     atkAreas['one'] = [attacker, defender]
@@ -985,6 +1013,12 @@ def end_of_combat(atk_effects, def_effects, attacker, defender):
             for x in targeted_units:
                 x.inflictStatus(effect[1])
 
+        if effect[0] == "sp_charge":
+            for x in targeted_units:
+                if x not in sp_charges:
+                    sp_charges[x] = 0
+                sp_charges[x] += effect[1]
+
         i += 1
 
-    return damage_taken, heals_given
+    return damage_taken, heals_given, sp_charges
