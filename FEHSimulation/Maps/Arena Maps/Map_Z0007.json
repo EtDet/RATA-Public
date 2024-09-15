@@ -21,7 +21,7 @@
        "startMove": 1,
        "wallBreak": false
        },
-        {"name": "Myrrh",
+        {"name": "Chrom",
        "level": 40,
        "rarity": 5,
         "weapon": "Light Breath+Res",
@@ -29,15 +29,15 @@
        "startMove": 1,
        "wallBreak": false
       },
-       {"name": "B!Lyn",
+       {"name": "Chrom",
        "level": 40,
        "rarity": 5,
-       "weapon": "Iron Bow",
-       "assist": "Smite",
+       "weapon": "Iron Dagger",
+       "assist": "Dance",
        "startMove": 1,
        "wallBreak": false
       },
-       {"name": "Linde",
+       {"name": "Chrom",
        "level": 40,
        "rarity": 5,
        "weapon": "Aura",

@@ -56,7 +56,10 @@ class HeroModifiers:
         # Pre-hit special jumps
         self.sp_charge_first = 0      # before this unit's first attack
         self.sp_charge_FU = 0         # before this unit's first follow-up
+
         self.sp_charge_foe_first = 0  # before foe's first attack
+        self.sp_charge_foe_first_brave = 0 # before foe's first brave attack
+        self.sp_charge_foe_first_FU = 0 # before foe's first follow-up attack
 
         # Disable increased/decreased special charge gain (Tempo)
         self.disable_foe_fastcharge = False # foe +1 charge per attack
@@ -66,7 +69,7 @@ class HeroModifiers:
         self.double_def_sp_charge = False
 
         # Charge give charge immediately after first offensive special activation (Supreme Astra)
-        self.first_sp_charge = 0
+        self.triggered_sp_charge = 0
 
         # If special has been triggered any time before or during this combat
         self.special_triggered = False
@@ -138,6 +141,7 @@ class HeroModifiers:
         self.most_recent_atk = 0  # used in calculating this vvvvv
         self.retaliatory_next = 0  # brash assault/counter roar uses most recent hit's damage
 
+        # no chat, I'm not calling it "precombat damage"
         self.self_burn_damage = 0
         self.foe_burn_damage = 0
         self.capped_foe_burn_damage = 0
@@ -145,12 +149,15 @@ class HeroModifiers:
         # healing
         self.all_hits_heal = 0
         self.follow_up_heal = 0
-        self.finish_mid_combat_heal = 0
+        self.finish_mid_combat_heal = 0 # heal applied to all hits granted that special is ready or triggered
 
+        # reduces the effect of deep wounds
         self.deep_wounds_allowance = 0
         self.disable_foe_healing = False
 
-        self.surge_heal = 0
+        self.surge_heal = 0 # healing when triggering a special
+
+        self.initial_heal = 0 #BoL 4
 
         # miracle
         self.pseudo_miracle = False
@@ -186,12 +193,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     # or if attacker does not have weapon
     if attacker.HPcur <= 0 or defender.HPcur <= 0 or attacker.weapon is None:
         raise Exception("Invalid Combat: One hero is either already dead, or the attacker has no weapon.")
-
-    # OK I gotta do some research on all cases of this
-    # actually wait shouldn't this only get incremented upon the ACTUAL combat?
-    # Known cases: Kvasir/NY!Kvasir, Fell Star, Resonance: Shields
-    #attacker.unitCombatInitiates += 1
-    #defender.enemyCombatInitiates += 1
 
     # who possesses the weapon triangle advantage
     # 0 - attacker
@@ -4335,10 +4336,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         if stkr_sp_triggered:
             stkSpCount = striker.specialMax
-            if I_stkr.first_sp_charge != 0:
-                stkSpCount -= I_stkr.first_sp_charge
+            if I_stkr.triggered_sp_charge != 0:
+                stkSpCount -= I_stkr.triggered_sp_charge
                 stkSpCount = max(stkSpCount, 0)
-                I_stkr.first_sp_charge = 0
+                I_stkr.triggered_sp_charge = 0
 
             I_stkr.true_sp_next_CACHE = I_stkr.true_sp_next
 
@@ -4347,10 +4348,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         if ster_sp_triggered:
             steSpCount = strikee.specialMax
-            if I_ster.first_sp_charge != 0:
-                steSpCount -= I_ster.first_sp_charge
+            if I_ster.triggered_sp_charge != 0:
+                steSpCount -= I_ster.triggered_sp_charge
                 steSpCount = max(steSpCount, 0)
-                I_ster.first_sp_charge = 0
+                I_ster.triggered_sp_charge = 0
 
             I_ster.true_sp_next_CACHE = I_ster.true_sp_next
 

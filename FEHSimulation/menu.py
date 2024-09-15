@@ -15,8 +15,6 @@ from tkinter import ttk
 
 import tkmacosx as tkm
 
-
-
 WEAPON = 0
 ASSIST = 1
 SPECIAL = 2

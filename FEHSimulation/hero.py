@@ -42,7 +42,7 @@ COLORLESS_WEAPONS = ["Staff", "CTome", "CDagger", "CBow", "CDragon", "CBeast"]
 
 MAGIC_WEAPONS = RANGED_WEAPONS[0:4]
 
-# return stat increase needed for level 1 -> 40
+# return stat increase needed for level 1 -> 40 based on growth and rarity
 def growth_to_increase(value, rarity):
     return trunc(0.39 * (trunc(value * (0.79 + (0.07 * rarity)))))
 
@@ -65,7 +65,7 @@ def change_highest_two(array, opp):
     array[greatest_index1] += 1 * opp
     array[greatest_index2] += 1 * opp
 
-
+# Hero object
 class Hero:
     def __init__(self, name, intName, epithet, game, wpnType, move, stats, growths, flower_limit, BVID, refresh_type):
         # Unit's name (Julia, Corrin, Ratatoskr, etc.)
@@ -74,6 +74,7 @@ class Hero:
         # Unit's unique name (M!Shez, A!Mareeta, HA!F!Grima, etc.)
         self.intName: str = intName
 
+        # Title for this version of a hero, mainly used for retrieving images
         self.epithet: str = epithet
 
         # Unit's side on the map
@@ -108,19 +109,25 @@ class Hero:
         # 8-bit integer used for determining level-ups.
         self.BVID: int = BVID
 
-        # Internal stats, change often
+        # Internal stats
         self.stats: list[int] = stats[:]
 
         # Stats changed by skills
         self.skill_stat_mods: list[int] = [0] * 5
 
-        # visible stats, what is shown in-game
+        # Stats changed by:
+        # - Legendary/Mythic Blessings
+        # - Bonus unit stats (Arena, TT, etc.)
+        # Usually not present until unit enters map
+        self.map_stat_mods: list[int] = [0] * 5
+
+        # Visible stats, what is shown in-game
         self.visible_stats: list[int] = stats[:]
 
         # Current health
         self.HPcur: int = self.visible_stats[HP]
 
-        # percentage growths for each stat
+        # Percentage growths for each stat, constant
         self.growths: list[int] = growths
 
         # level 1 5★ base stats, constant
@@ -129,8 +136,8 @@ class Hero:
         for i in range(0, 5):
             self.BASE_STATS[i] -= growth_to_increase(self.growths[i], self.rarity)
 
-        # field buffs for different stats, will not change if
-        # hero has Panic effect
+        # field buffs for different stats
+        # will not change if hero has Panic effect
         self.buffs: list[int] = [0, 0, 0, 0, 0]
 
         # field debuffs for different stats, can only be negative
@@ -143,7 +150,6 @@ class Hero:
         self.great_talent: list[int] = [0, 0, 0, 0, 0]
 
         # dictionary of skill strings held by this unit with the skills they have currently equipped
-
         self.skill_effects: dict[str:int] = {}
 
         self.statusPos: list[Status] = []  # array of positive status effects currently held, cleared upon start of unit's turn
@@ -162,31 +168,45 @@ class Hero:
         self.wpnType = wpnType
         self.color = self.getColor()
 
+        # Move type
+        # 0 - Infantry, 2 tiles, slowed by forests
+        # 1 - Cavalry, 3 tiles, cannot pass forests, slowed by trenches
+        # 2 - Flying, 2 tiles, can traverse mountains and water
+        # 3 - Armored, 1 tile
         self.move = int(move)
+
+        # Number of tiles allowed to move by move type
         self.moveTiles = -(abs(int(move) - 1)) + 3
 
-        self.refresh_type = refresh_type
+        # 0 - No refresh moves
+        # 1 - Sing
+        # 2 - Dance
+        # 3 - Play
+        self.refresh_type: int = refresh_type
 
-        self.specialCount = -1
-        self.specialMax = -1
+        # Current special count
+        self.specialCount: int = -1
 
-        # Interval IV Guide
+        # Max special count, includes Slaying effects
+        self.specialMax: int = -1
+
+        # IV Guide
         # A A A, neutral, no asc asset
         # A A B, neutral, asc asset B
         # A B A, asset A, flaw B, no asc asset
         # A B B, asset A, flaw and asc asset cancel out
         # A B C, asset A, flaw B, asc asset C
-        self.asset = ATK
-        self.flaw = ATK
-        self.asc_asset = ATK
+        self.asset: int = ATK
+        self.flaw: int = ATK
+        self.asc_asset: int = ATK
 
-        self.merges = 0
-        self.flowers = 0
-        self.flower_limit = flower_limit
+        self.merges: int = 0
+        self.flowers: int = 0
+        self.flower_limit: int = flower_limit
         self.flower_order = []
 
         self.emblem = None
-        self.emblem_merges = 0
+        self.emblem_merges: int = 0
 
         self.allySupport = None
         self.summonerSupport = None
@@ -198,8 +218,7 @@ class Hero:
         self.resp = False
         self.has_resp = False
 
-        self.combatsThisTurnUnity = 0
-        self.combatsThurTurnEnemy = 0
+        # Number of times this unit has entered combat in this phase
         self.unitCombatInitiates = 0
 
         self.special_galeforce_triggered = False
@@ -713,6 +732,10 @@ class Hero:
         if other is None: return False
         return other.side != self.side
 
+    def isSupportOf(self, other):
+        if other is None: return False
+        return other.allySupport == self.intName
+
     def __str__(self):
         return self.intName
 
@@ -820,7 +843,7 @@ class HarmonicSkill(DuoSkill):
 # 🟢 - other
 
 class Status(Enum):
-    # negative
+    # negative, sorted
 
     CantoControl = 0  # 🔵 If range = 1 Canto skill becomes Canto 1, if range = 2, turn ends when canto triggers
     Panic = 1  # 🔴 Buffs are negated & treated as penalties
@@ -846,7 +869,7 @@ class Status(Enum):
     TriAdept = 21  # 🔴 Triangle Adept 3, weapon tri adv/disadv affected by 20%
     CancelAction = 22  # 🟢 After start of turn skills trigger, unit's action ends immediately (cancels active units in Summoner Duels)
 
-    # positive
+    # positive, unsorted
     MobilityUp = 103  # 🔵 Movement increased by 1, cancelled by Gravity
     Orders = 106  # 🔵 Unit can move to space adjacent to ally within 2 spaces
     EffDragons = 107  # 🔴 Gain effectiveness against dragons
@@ -871,29 +894,29 @@ class Status(Enum):
     NullBonuses = 130  # 🔴 Neutralizes foe's bonuses in combat
     GrandStrategy = 131  # 🔴 If negative penalty is present on self, grants atk/spd/def/res during combat equal to penalty * 2 for each stat
     EnGarde = 133  # 🔴 Neutralizes damage outside of combat, minus AoE damage
-    SpecialCharge = 134  # 🔴 Special charge +1 during combat
+    SpecialCharge = 134  # 🔴 Special charge +1 per hit during combat
     Treachery = 135  # 🔴 Deal true damage = number of stat bonuses on unit (not including Panic + Bonus)
     WarpBubble = 136  # 🔵 Foes cannot warp onto spaces within 4 spaces of unit (does not affect pass skills)
     Charge = 137  # 🔵 Unit can move to any space up to 3 spaces away in cardinal direction, terrain/skills that halt (not slow) movement still apply, treated as warp movement
     Canto1 = 139  # 🔵 Can move 1 space after combat (not writing all the canto jargon here)
     FoePenaltyDoubler = 140  # 🔴 Inflicts atk/spd/def/res -X on foe equal to current penalty on each stat
     DualStrike = 143  # 🔴 If unit initiates combat and is adjacent to unit with DualStrike, unit attacks twice
-    TraverseTerrain = 144  # 🔵 Ignores slow terrain (bushes/trenches)
+    TraverseTerrain = 144  # 🔵 Ignores terrain which slows unit (bushes/trenches)
     ReduceAreaOfEffect = 145  # 🔴 Reduces non-Røkkr AoE damage taken by 80%
     NullPenalties = 146  # 🔴 Neutralizes unit's penalties in combat
     Hexblade = 147  # 🔴 Damage inflicted using lower of foe's def or res (applies to AoE skills)
-    RallySpectrum = 150 # 🔴 Grants atk/spd/def/res +5 and grants -1 cooldown at start of combat to allies with brave (currently enabled) or slaying effects, otherwise grants -2 cooldown
-    AssignDecoy = 151 # 🔴 Unit is granted savior effect for whatever default range their weapon is, fails if unit currently has savior skill
-    DeepStar = 152 # 🔴 In unit's first combat where foe initiates combat, reduces first hit (if Brave eff., first two hits) by 80%
+    RallySpectrum = 150 # 🔴 Grants Atk/Spd/Def/Res+5 and grants special -X before unit's first hit (X = 1 if unit has brave or slaying, 2 otherwise)
+    AssignDecoy = 151 # 🔴 Unit is granted Savior effect for their range, fails if unit currently has savior skill
+    DeepStar = 152 # 🔴 In unit's first combat where foe initiates combat, reduces first hit(s) by 80%
     TimesGate = 156 # 🔵 Allies within 4 spaces can warp to a space adjacent to unit
     Incited = 157 # 🔴 If initiating combat, grants Atk/Spd/Def/Res = num spaces moved, max 3
-    FirstReduce40 = 158 # 🔴 If initiating combat, reduce damage of first attack received by 40%
+    FirstReduce40 = 158 # 🔴 If initiating combat, reduces damage from first attack received by 40%
     HalfDamageReduction = 159 # 🔴 Cuts foe's damage reduction skill efficacy in half
     EssenceDrain = 163 # 🔴 If unit attacks, steals positive statuses from foes within 2 spaces of target and gives to all allies with this status. If foe defeated, restores 10HP to allies with this status.
     Bonded = 164 # 🔴 Activates different effects depending on skills present in battle
     Bulwark = 165 # 🔵 Foes cannot move through spaces within X spaces of unit, X = foe's range
     DivineNectar = 166 # 🔴 Neutralizes Deep Wounds, restores 20HP as combat begins, and reduces damage by 10
-    Paranoia = 167
+    Paranoia = 167 # 🔴 If unit's HP >= 99%, grants Atk+5, Desperation, and if either # foe negative statuses >= 3 or foe is of same range, grants Vantage
 
 
 print("Reading Unit & Skill Data...")
@@ -991,8 +1014,6 @@ def makeSpecial(name):
     desc = row.loc[n, 'Description']
     cooldown = row.loc[n, 'Cooldown']
     spType = row.loc[n, 'Type']
-    restrict_move = row.loc[n, 'RestrictedWeapons']
-    restrict_weapon = row.loc[n, 'RestrictedMovement']
     effects = {}
     users = []
 
@@ -1015,8 +1036,6 @@ def makeSkill(name):
     desc = row.loc[n, 'Description']
     letter = row.loc[n, 'Letter']
     tier = row.loc[n, 'Tier']
-    restrict_move = row.loc[n, 'RestrictedWeapons']
-    restrict_weapon = row.loc[n, 'RestrictedMovement']
     effects = {}
     users = []
 
