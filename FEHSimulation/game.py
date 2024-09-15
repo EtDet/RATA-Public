@@ -39,12 +39,33 @@ class Move():
         self.is_warp = is_warp      # does this move use a warp space?
         self.trav_string = trav_str # traversal string, holds default optimal path
 
+# Saves the state of a singular unit
+class UnitState:
+    def __init__(self, cur_hp, cur_sp, cur_position, cur_buffs, cur_debuffs, cur_status_pos, cur_status_neg):
+        self.cur_hp = cur_hp
+        self.cur_sp = cur_sp
+
+        self.cur_position = cur_position
+
+        self.cur_buffs = cur_buffs
+        self.cur_debuffs = cur_debuffs
+        self.cur_status_pos = cur_status_pos
+        self.cur_status_neg = cur_status_neg
+
+# One state of the game
+class MapState:
+    def __init__(self, unit_states, struct_states, units_to_move):
+        self.unit_states = unit_states
+        self.struct_states = struct_states
+        self.units_to_move = units_to_move
+
+    def print_state(self):
+        print("simpsone")
 
 
 # Create blank to be played upon
 map0 = Map(0)
-
-map_num = "Map_Z0007"
+map_num = "Map_Z0003"
 
 # Read JSON data associated with loaded map
 #with open(__location__ + "\\Maps\\Story Maps\\Book 1\\Preface\\story0-0-1.json") as read_file: data = json.load(read_file)
@@ -117,8 +138,7 @@ xander.set_skill(makeSkill("Distant Counter"), ASKILL)
 xander.set_skill(makeSkill("Quick Riposte 3"), BSKILL)
 xander.set_skill(makeSkill("Odd Def Wave 3"), CSKILL)
 
-#sharena = Hero("Eirika", "X!Eirika", "Resolute Princess ", 8, "Axe", 0, [50, 43, 47, 32, 25], [50, 70, 90, 50, 35], 5, 24, 0)
-sharena = makeHero("Wrys")
+sharena = makeHero("X!Eirika")
 
 sharena.set_skill(sisterly_axe, WEAPON)
 sharena.set_skill(gust, SPECIAL)
@@ -131,14 +151,15 @@ sharena.set_level(40)
 
 tested_unit = makeHero("Narcian")
 tested_weapon = makeWeapon("RuneaxeEff")
-#tested_assist = makeAssist("Pivot")
-tested_special = makeSpecial("Moonbow")
+tested_assist = makeAssist("Reposition")
+tested_special = makeSpecial("Blazing Flame")
 tested_askill = makeSkill("Death Blow 3")
 #tested_bskill = makeSkill("Null C-Disrupt 4")
 tested_cskill = makeSkill("Spur Atk 3")
 
+
 tested_unit.set_skill(tested_weapon, WEAPON)
-#tested_unit.set_skill(tested_assist, ASSIST)
+tested_unit.set_skill(tested_assist, ASSIST)
 tested_unit.set_skill(tested_special, SPECIAL)
 tested_unit.set_skill(tested_askill, ASKILL)
 #tested_unit.set_skill(tested_bskill, BSKILL)
@@ -152,56 +173,6 @@ tested_unit.set_skill(tested_cskill, CSKILL)
 #player_units = player_units_all[:]
 #enemy_units = []
 
-i = 0
-
-# Load enemies from JSON data
-'''
-while i < len(data["enemyData"]):
-    curEnemy = makeHero(data["enemyData"][i]["name"])
-
-    curEnemy.side = 1
-    curEnemy.set_rarity(data["enemyData"][i]["rarity"])
-    curEnemy.set_level(data["enemyData"][i]["level"])
-
-    if "weapon" in data["enemyData"][i]:
-        curWpn = makeWeapon(data["enemyData"][i]["weapon"])
-        curEnemy.set_skill(curWpn, WEAPON)
-
-    if "assist" in data["enemyData"][i]:
-        curAssist = makeAssist(data["enemyData"][i]["assist"])
-        curEnemy.set_skill(curAssist, ASSIST)
-
-    if "special" in data["enemyData"][i]:
-        curSpecial = makeSpecial(data["enemyData"][i]["special"])
-        curEnemy.set_skill(curSpecial, SPECIAL)
-
-    if "askill" in data["enemyData"][i]:
-        curASkill = makeSkill(data["enemyData"][i]["askill"])
-        curEnemy.set_skill(curASkill, ASKILL)
-
-    if "bskill" in data["enemyData"][i]:
-        curBSkill = makeSkill(data["enemyData"][i]["bskill"])
-        curEnemy.set_skill(curBSkill, BSKILL)
-
-    if "cskill" in data["enemyData"][i]:
-        curCSkill = makeSkill(data["enemyData"][i]["cskill"])
-        curEnemy.set_skill(curCSkill, CSKILL)
-
-    if "alt_stats" in data["enemyData"][i]:
-        curEnemy.visible_stats = data["enemyData"][i]["alt_stats"]
-        j = 0
-        while j < 5:
-            curEnemy.visible_stats[j] += curEnemy.skill_stat_mods[j]
-            curEnemy.visible_stats[j] = max(min(curEnemy.visible_stats[j], 99), 0)
-            j += 1
-        curEnemy.HPcur = curEnemy.visible_stats[HP]
-
-
-    curEnemy.tile = map0.enemy_start_spaces[i]
-    enemy_units_all.append(curEnemy)
-    enemy_units.append(curEnemy)
-    i += 1
-'''
 # METHODS
 
 def allowed_movement(hero):
@@ -575,6 +546,26 @@ def get_arrow_offsets(arrow_num):
 
     return (0,0)
 
+def create_mapstate(p_units, e_units, c_map, units_to_move):
+
+    unit_states = {}
+
+    for unit in p_units + e_units:
+        cur_unit_state = UnitState(unit.HPcur, unit.specialCount, unit.tile.tileNum, unit.buffs[:], unit.debuffs[:], unit.statusPos[:], unit.statusNeg[:])
+        unit_states[unit] = cur_unit_state
+
+    struct_states = {}
+
+    for tile in c_map.tiles:
+        if tile.structure_on is not None:
+            cur_struct = tile.structure_on
+
+            struct_states[cur_struct] = cur_struct.health
+
+    return MapState(unit_states, struct_states, units_to_move[:])
+
+def apply_mapstate(mapstate):
+    print("SET")
 
 def start_sim(player_units, enemy_units, chosen_map, map_str):
 
@@ -1051,7 +1042,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
 
             aoe_present = True
 
-        result = simulate_combat(attacker, defender, True, turn_info[0], distance, combat_fields, atkHPCur=atkHP, defHPCur=defHP)
+        result = simulate_combat(attacker, defender, True, turn_info[0], distance, combat_fields, aoe_present, atkHPCur=atkHP, defHPCur=defHP)
 
         atk_burn_damage_present = False
         def_burn_damage_present = False
@@ -1262,8 +1253,9 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
 
         for x in attacks:
             box_color = "#18284f" if x.attackOwner == attacker.side else "#541616"
+            border_color = "#dae6e2" if not x.isSpecial else "#6e2a9c"
 
-            set_banner.rect_array.append(canvas.create_rectangle(cur_box_pos - 15, 50, cur_box_pos + 15, 80, fill=box_color, outline='#dae6e2'))
+            set_banner.rect_array.append(canvas.create_rectangle(cur_box_pos - 15, 50, cur_box_pos + 15, 80, fill=box_color, outline=border_color))
 
             dmg_fill = '#e8c35d'
             if x.attackOwner == 0 and atk_eff:
@@ -1975,8 +1967,12 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
         # On drag, things should only update upon visiting a new tile
         if moved_to_different_tile:
 
+            for x in aoe_special_icons_active:
+                canvas.delete(x)
+            aoe_special_icons_active.clear()
+
             # If moving onto a space with a Hero
-            if cur_tile_Obj.hero_on is not None and cur_tile_Obj.hero_on != cur_hero and canvas.drag_data['target'] != cur_tile_Obj.hero_on:
+            if cur_tile_Obj.hero_on is not None and cur_tile_Obj.hero_on != cur_hero:
 
                 # Target is a foe within range
                 if cur_tile_int in cdd['attack_range'] and cur_tile_Obj.hero_on.side != cur_hero.side:
@@ -1985,16 +1981,36 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                     target_tile = cdd['targets_and_tiles'][cur_tile_Obj.hero_on][0]
 
                     # If a different tile has been visited that allows attack on target, set target from that tile instead
-                    if cur_tile_Obj.hero_on in canvas.drag_data['targets_most_recent_tile']:
-                        target_tile = canvas.drag_data['targets_most_recent_tile'][cur_tile_Obj.hero_on]
+                    if cur_tile_Obj.hero_on in cdd['targets_most_recent_tile']:
+                        target_tile = cdd['targets_most_recent_tile'][cur_tile_Obj.hero_on]
 
                     # Set the default path for visiting the target tile
-                    canvas.drag_data['target_path'] = canvas.drag_data['paths'][canvas.drag_data['moves'].index(target_tile)]
-                    canvas.drag_data['target_dest'] = target_tile
+                    cdd['target_path'] = cdd['paths'][cdd['moves'].index(target_tile)]
+                    cdd['target_dest'] = target_tile
+
+                    cdd['target'] = cur_tile_Obj.hero_on
+
+                    if cur_hero.special is not None and cur_hero.special.type == "AOE" and cur_hero.specialCount == 0:
+                        formation = cur_hero.special.effects["aoe_area"]
+                        aoe_special_targets = aoe_tiles(cur_tile_int, formation)
+
+                        for num in aoe_special_targets:
+                            cur_special_image = canvas.create_image((0, 90), image=aoe_special_icon_photo, anchor="center")
+                            move_to_tile(canvas, cur_special_image, num)
+                            aoe_special_icons_active.append(cur_special_image)
+
+                            player_status_img.append(cur_special_image)
+                            canvas.tag_raise(tag)
+
+                    cur_hero.attacking_tile = chosen_map.tiles[target_tile]
+
+                    distance = abs(target_tile % 6 - cdd["start_x_comp"]) + abs(target_tile // 6 - cdd["start_y_comp"])
+
+                    set_attack_forecast(cur_hero, cur_tile_Obj.hero_on, distance)
 
 
                 # Target is an ally
-                elif cur_tile_int in canvas.drag_data['assist_range'] and cur_tile_Obj.hero_on.side == cur_hero.side:
+                elif cur_tile_int in cdd['assist_range'] and cur_tile_Obj.hero_on.side == cur_hero.side:
 
                     # Default target
                     target_tile = canvas.drag_data['targets_and_tiles'][chosen_map.tiles[cur_tile_int].hero_on][0]
@@ -2004,25 +2020,23 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                         target_tile = canvas.drag_data['targets_most_recent_tile'][chosen_map.tiles[cur_tile_int].hero_on]
 
                     # Get the default path for visiting the target tile
-                    canvas.drag_data['target_path'] = canvas.drag_data['paths'][canvas.drag_data['moves'].index(target_tile)]
-                    canvas.drag_data['target_dest'] = target_tile
+                    cdd['target_path'] = canvas.drag_data['paths'][canvas.drag_data['moves'].index(target_tile)]
+                    cdd['target_dest'] = target_tile
 
-                    # Clear AOE icons
-                    for x in aoe_special_icons_active:
-                        canvas.delete(x)
-                    aoe_special_icons_active.clear()
+                    cdd['target'] = cur_tile_Obj.hero_on
+
+                    set_assist_forecast(cur_hero, chosen_map.tiles[cur_tile_int].hero_on)
 
                 # Target is invalid (hero out of reach/no weapon/no assist)
                 else:
-                    canvas.drag_data['target'] = None
-                    set_banner(cur_hero)
                     canvas.drag_data['target_path'] = "NONE"
+                    canvas.drag_data['target_dest'] = cur_tile_Obj
 
-                    for x in aoe_special_icons_active:
-                        canvas.delete(x)
-                    aoe_special_icons_active.clear()
+                    canvas.drag_data['target'] = None
 
-            # Targeting a destroyable structure
+                    set_banner(chosen_map.tiles[cur_tile_int].hero_on)
+
+            # If moving onto a space with a destroyable structure
             elif cur_tile_Obj.structure_on is not None and cur_tile_Obj.structure_on.health > 0 and cur_tile_int in canvas.drag_data['attack_range']:
 
                 target_tile = canvas.drag_data['targets_and_tiles'][chosen_map.tiles[cur_tile_int].structure_on][0]
@@ -2035,35 +2049,19 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                 canvas.drag_data['target_path'] = canvas.drag_data['paths'][canvas.drag_data['moves'].index(target_tile)]
                 canvas.drag_data['target_dest'] = target_tile
 
-            # Edge case of moving away from a foe adjacent to unit with an AOE attack
-            # Recheck this case
-            elif cur_tile_Obj.hero_on is not None and cur_tile_Obj.hero_on == cur_hero:
-                for x in aoe_special_icons_active:
-                    canvas.delete(x)
-                aoe_special_icons_active.clear()
+                canvas.drag_data['target'] = chosen_map.tiles[cur_tile_int].structure_on
 
+                set_struct_forecast(cur_hero, chosen_map.tiles[cur_tile_int].structure_on)
+
+            # If moving onto a space with nothing
             else:
                 set_banner(cur_hero)
                 canvas.drag_data['target'] = None
                 canvas.drag_data['target_path'] = "NONE"
 
-            # IF
-            # new tile has no hero on it or this hero on it
-            # and there existed a target on previous tile
-
-            # previously targeting something, but now not targeting anyone
-            # wait why do we need this
-            if (cur_tile_Obj.hero_on is None or cur_tile_Obj.hero_on == cur_hero) and (cur_tile_Obj.structure_on is None or cur_tile_Obj.structure_on.health <= 0) and canvas.drag_data['target'] is not None:
-
-                set_banner(cur_hero)
-
-                canvas.drag_data['target'] = None
-                canvas.drag_data['target_path'] = "NONE"
-
-
             # Create the string which represents the path
 
-            # Check the differences between the two cases here
+            # Valid position to valid position
             if cur_tile_int in canvas.drag_data['moves'] and prev_tile_int in canvas.drag_data['moves']:
                 # Build from existing path
 
@@ -2124,6 +2122,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
 
                     canvas.drag_data['cost'] = new_cost
 
+            # Invalid position to valid position
             elif cur_tile_int in canvas.drag_data['moves'] and prev_tile_int not in canvas.drag_data['moves']:
                 # Valid path removed, remake with default path
 
@@ -2239,7 +2238,6 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                     canvas.drag_data['arrow_path'].append(last_arrow)
                     canvas.tag_lower(last_arrow, canvas.drag_data['item'])
 
-
             # draw move_star at start only if out of bounds
             elif cur_tile_int not in canvas.drag_data['moves']:
                 if len(canvas.drag_data['arrow_path']) != 1:
@@ -2251,89 +2249,13 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                 canvas.drag_data['arrow_path'].append(star)
                 canvas.tag_lower(star, canvas.drag_data['item'])
 
-                for x in aoe_special_icons_active:
-                    canvas.delete(x)
-                aoe_special_icons_active.clear()
-
-            cur_hero = units_all[canvas.drag_data['side']][canvas.drag_data['index']]
-
             # For each potential target in range, set current tile as the most recent tile visited that the dragged unit can attack from
             for x in canvas.drag_data['targets_and_tiles']:
                 if cur_tile_int in canvas.drag_data['targets_and_tiles'][x]:
                     canvas.drag_data['targets_most_recent_tile'][x] = cur_tile_int
 
-            # if
-            # there is a hero on new tile,
-            # current target isn't new tile hero,
-            # and new tile hero isn't dragged unit,
-
-            # managing hovering over a target
-            # i think this should be handled higher up
-            if cur_tile_Obj.hero_on is not None and cur_tile_Obj.hero_on != cur_hero and cur_tile_Obj.hero_on != canvas.drag_data['target']:
-
-                # set new target
-                canvas.drag_data['target'] = chosen_map.tiles[cur_tile_int].hero_on
-
-                # if new tile in attacking range
-                if cur_tile_int in canvas.drag_data['attack_range'] and cur_hero.side != chosen_map.tiles[cur_tile_int].hero_on.side:
-                    cur_hero.attacking_tile = chosen_map.tiles[target_tile]
-
-                    # If moving onto a foe with an AOE special ready
-                    for x in aoe_special_icons_active:
-                        canvas.delete(x)
-                    aoe_special_icons_active.clear()
-
-                    if cur_hero.special is not None and cur_hero.special.type == "AOE" and cur_hero.specialCount == 0:
-                        formation = cur_hero.special.effects["aoe_area"]
-                        aoe_special_targets = aoe_tiles(cur_tile_int, formation)
-
-                        for num in aoe_special_targets:
-                            cur_special_image = canvas.create_image((0, 90), image=aoe_special_icon_photo, anchor="center")
-                            move_to_tile(canvas, cur_special_image, num)
-                            aoe_special_icons_active.append(cur_special_image)
-
-                            player_status_img.append(cur_special_image)
-                            canvas.tag_lower(item_index, cur_special_image)
-
-                    # all skills use euclidean distance change this!!!!!
-                    distance = len(canvas.drag_data['target_path'])
-                    # if canvas.drag_data['target_path'] == "WARP":
-                    #    distance =
-
-                    set_attack_forecast(cur_hero, chosen_map.tiles[cur_tile_int].hero_on, distance)
-
-                elif cur_tile_int in canvas.drag_data['assist_range'] and cur_hero.side == chosen_map.tiles[cur_tile_int].hero_on.side \
-                        and chosen_map.tiles[cur_tile_int].hero_on in canvas.drag_data['targets_and_tiles']:
-
-                    set_assist_forecast(cur_hero, chosen_map.tiles[cur_tile_int].hero_on)
-
-                    for x in aoe_special_icons_active:
-                        canvas.delete(x)
-                    aoe_special_icons_active.clear()
-
-                # new tile isn't in attacking range
-                else:
-                    cur_hero.attacking_tile = None
-                    set_banner(chosen_map.tiles[cur_tile_int].hero_on)
-
-                    for x in aoe_special_icons_active:
-                        canvas.delete(x)
-                    aoe_special_icons_active.clear()
-
-            elif cur_tile_Obj.structure_on is not None and cur_tile_Obj.structure_on != canvas.drag_data['target'] \
-                and cur_tile_Obj.structure_on.health > 0 and cur_tile_int in canvas.drag_data['attack_range']:
-
-                    canvas.drag_data['target'] = chosen_map.tiles[cur_tile_int].structure_on
-
-                    set_struct_forecast(cur_hero, chosen_map.tiles[cur_tile_int].structure_on)
-
-            elif cur_tile_Obj.hero_on is None and cur_tile_Obj.structure_on is None:
-                for x in aoe_special_icons_active:
-                    canvas.delete(x)
-                aoe_special_icons_active.clear()
-
             for t in canvas.drag_data['arrow_path']:
-                canvas.tag_lower(t, canvas.drag_data['item'])
+                canvas.tag_lower(t, cdd['item'])
 
             # End of function, set cur_tile stored in drag data to new tile
             canvas.drag_data['cur_tile'] = cur_tile_int
@@ -2534,7 +2456,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                 distance = len(canvas.drag_data['target_path'])
 
                 # Simulate combat
-                combat_result = simulate_combat(player, enemy, True, turn_info[0], distance, combat_fields)
+                combat_result = simulate_combat(player, enemy, True, turn_info[0], distance, combat_fields, aoe_present)
                 attacks = combat_result[7]
 
                 player.unitCombatInitiates += 1
@@ -2621,7 +2543,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                 player.statusNeg = []
                 player.debuffs = [0, 0, 0, 0, 0]
 
-                damage_taken, heals_given = end_of_combat(atk_effects, def_effects, player, enemy)
+                damage_taken, heals_given, sp_charges = end_of_combat(atk_effects, def_effects, player, enemy)
 
                 # Post combat special charges go here
 
@@ -2639,15 +2561,22 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                         if hp_change < 0:
                             canvas.after(finish_time, animate_damage_popup, canvas, abs(hp_change), x.tile.tileNum)
 
-                        x_side = x.side
-                        x_index = units_all[x_side].index(x)
-                        x_hp_label = hp_labels[x_side][x_index]
-                        x_hp_bar = hp_bar_fgs[x_side][x_index]
+                    if x in sp_charges:
+                        x.chargeSpecial(sp_charges[x])
 
-                        hp_percentage = x.HPcur / x.visible_stats[HP]
+                    x_side = x.side
+                    x_index = units_all[x_side].index(x)
+                    x_hp_label = hp_labels[x_side][x_index]
+                    x_hp_bar = hp_bar_fgs[x_side][x_index]
+                    x_sp_label = special_labels[x_side][x_index]
 
-                        canvas.after(finish_time, set_text_val, x_hp_label, x.HPcur)
-                        canvas.after(finish_time, set_hp_bar_length, x_hp_bar, hp_percentage)
+                    hp_percentage = x.HPcur / x.visible_stats[HP]
+
+                    if x.specialCount != -1:
+                        canvas.after(finish_time, set_text_val, x_sp_label, x.specialCount)
+
+                    canvas.after(finish_time, set_text_val, x_hp_label, x.HPcur)
+                    canvas.after(finish_time, set_hp_bar_length, x_hp_bar, hp_percentage)
 
                 # movement-based skills after combat
                 player_tile_number = player.tile.tileNum
@@ -3183,6 +3112,11 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
             cur_hero = player_original
             units_all[S][item_index].attacking_tile = None
 
+            # Add current move to mapstate history
+            if successful_move and cur_hero in units_to_move:
+                mapstate = create_mapstate(player_units_all, enemy_units_all, chosen_map, units_to_move)
+                map_states.append(mapstate)
+
             if successful_move and cur_hero in units_to_move and not galeforce_triggered:
                 units_to_move.remove(cur_hero)
 
@@ -3229,8 +3163,11 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
         cur_hero = chosen_map.tiles[selected_tile].hero_on
 
         if cur_hero is not None:
-            if cur_hero.side == 0 and turn_info[1] == PLAYER:
-                item_index = player_units_all.index(cur_hero)
+
+            S = cur_hero.side
+
+            if S == turn_info[1]:
+                item_index = units_all[S].index(cur_hero)
                 if cur_hero in units_to_move:
                     units_to_move.remove(cur_hero)
 
@@ -3238,24 +3175,18 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                     cur_hero.debuffs = [0, 0, 0, 0, 0]
                     set_banner(cur_hero)
 
-                    canvas.itemconfig(grayscale_player_sprite_IDs[item_index], state='normal')
-                    canvas.itemconfig(player_sprite_IDs[item_index], state='hidden')
+                    if S == PLAYER:
+                        canvas.itemconfig(grayscale_player_sprite_IDs[item_index], state='normal')
+                        canvas.itemconfig(player_sprite_IDs[item_index], state='hidden')
+                    if S == ENEMY:
+                        canvas.itemconfig(grayscale_enemy_sprite_IDs[item_index], state='normal')
+                        canvas.itemconfig(enemy_sprite_IDs[item_index], state='hidden')
+
                     if not units_to_move:
                         next_phase()
 
-            if cur_hero.side == 1 and turn_info[1] == ENEMY:
-                item_index = enemy_units_all.index(cur_hero)
-                if cur_hero in units_to_move:
-                    units_to_move.remove(cur_hero)
-
-                    cur_hero.statusNeg = []
-                    cur_hero.debuffs = [0, 0, 0, 0, 0]
-                    set_banner(cur_hero)
-
-                    canvas.itemconfig(grayscale_enemy_sprite_IDs[item_index], state='normal')
-                    canvas.itemconfig(enemy_sprite_IDs[item_index], state='hidden')
-                    if not units_to_move:
-                        next_phase()
+                    mapstate = create_mapstate(player_units_all, enemy_units_all, chosen_map, units_to_move)
+                    map_states.append(mapstate)
 
     def set_text_val(label, value):
         canvas.itemconfig(label, text=value)
@@ -3500,6 +3431,9 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
     turn_info = [1, PLAYER, 50]
     units_to_move = player_units[:]
 
+    # map history, memory of all moves in map states
+    map_states = []
+
     phase_label = canvas.create_text((540 / 2, 830), text="PLAYER PHASE", fill="#038cfc", font=("Helvetica", 20), anchor='center')
     next_phase.phase_txt = phase_label
 
@@ -3711,6 +3645,9 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
     duo_skill = canvas.create_rectangle((460, 820, 530, 900), fill='#75f216', width=0)
     end_turn_text = canvas.create_text(495, 855, text="Duo Skill", fill="#5e5b03")
 
+    undo_action = canvas.create_rectangle((10, 820, 80, 900), fill='blue', width=0)
+    undo_action_text = canvas.create_text(45, 855, text="Prev. Action", fill="#5e5b03")
+
     print("---- PLAYER PHASE ----")
     damage, heals = start_of_turn(player_units, enemy_units, 1)
 
@@ -3733,8 +3670,12 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
             canvas.itemconfig(enemy_special_count_labels[i], text=enemy_units[i].specialCount)
         i += 1
 
+    # Create all combat fields
     combat_fields = []
     combat_fields = create_combat_fields(player_units, enemy_units)
+
+    # Create initial MapState, cannot be popped from history
+    map_states.append(create_mapstate(player_units_all, enemy_units_all, chosen_map, units_to_move))
 
     # Function Assignment
     canvas.bind("<Button-1>", on_click)

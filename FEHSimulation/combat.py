@@ -269,10 +269,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                 updated_skills = defSkills
                 afflicted = defender
 
-            # False False False - Sharena out of range, do not allow
-            # False True True   - Alfonse, do not allow
-            # False False True  - Sharena in range, allow
-
             condition = e.condition(afflicted)
 
             in_range = e.range(coords)(owner_coords)
@@ -1291,7 +1287,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[3] += 5
         defr.true_sp += 7
 
-    # Kempf - Venin Edge
+    # Venin Edge - (Kempf)
 
     if "AMERICA" in atkSkills:
         NEWatkOtherDmg += 10
@@ -4394,7 +4390,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         if stkHPCur > stkStats[0]: stkHPCur = stkStats[0]
 
-        return stkHPCur, steHPCur, stkSpCount, steSpCount, presented_attack, totalHealedAmount
+        return stkHPCur, steHPCur, stkSpCount, steSpCount, presented_attack, totalHealedAmount, stkr_sp_triggered
 
     # burn damage
 
@@ -4580,7 +4576,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         damageDealt = strikeResult[4]
         healthHealed = strikeResult[5]
 
-        curAtk.impl_atk(damageDealt, healthHealed, (atkSpCountCur, defSpCountCur), (atkHPCur, defHPCur))
+        stkSpecialTriggered = strikeResult[6]
+
+        curAtk.impl_atk(stkSpecialTriggered, damageDealt, healthHealed, (atkSpCountCur, defSpCountCur), (atkHPCur, defHPCur))
 
         # I am dead
         if atkHPCur <= 0:
@@ -4779,6 +4777,7 @@ class Attack():
         self.attackNumAll = attackNumAll
         self.prevAttack = prevAttack
 
+        self.isSpecial = False
         self.damage = -1
         self.spCharges = (-1, -1)
         self.curHPs = (-1, -1)
@@ -4788,7 +4787,8 @@ class Attack():
 
         self.is_finisher = False
 
-    def impl_atk(self, damage, healed, spCharges, curHPs):
+    def impl_atk(self, isSpecial, damage, healed, spCharges, curHPs):
+        self.isSpecial = isSpecial
         self.damage = damage
         self.spCharges = spCharges
         self.curHPs = curHPs

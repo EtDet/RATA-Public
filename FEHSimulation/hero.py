@@ -221,6 +221,12 @@ class Hero:
         # Number of times this unit has entered combat in this phase
         self.unitCombatInitiates = 0
 
+        # Number of times this unit has been targeted for assist skill usage
+        self.assistTargetedSelf = 0
+
+        # Number of times this unit has used their assist skill
+        self.assistTargetedOther = 0
+
         self.special_galeforce_triggered = False
         self.nonspecial_galeforce_triggered = False
 
