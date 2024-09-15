@@ -1,10 +1,9 @@
 IntName,Build Name,Weapon,Assist,Special,ASkill,BSkill,CSkill,SSeal,XSkill,Level,Merges,Rarity,Asset,Flaw,Ascended,SSupport,ASupport,Blessing,Dragonflowers,Resplendent,Emblem,EmblemMerges,Cheats
-Lucina,Sample Lucina,Sealed FalchionEff,Reposition,,Armored Blow 3,Axebreaker 3,Breath of Life 3,,,38,2,3,1,3,1,,0,,0,False,,0,False
-Gaius,Sample Gaius,Candied DaggerEff,,,Armored Blow 3,Axebreaker 3,Breath of Life 3,,,40,0,5,2,3,2,,0,,0,False,,0,False
-A!Tiki,Sample Tiki,Breath of FogEff,,,Death Blow 3,,,,,40,0,5,0,0,0,,0,,0,False,,0,False
-Maria,Sample Maria,Absorb+Wra,Rehabilitate+,Miracle,Defiant Spd 3,Desperation 3,Breath of Life 3,,,40,0,5,0,0,0,,0,,0,False,,0,False
-Sharena,Sample Sharena,FensalirEff,Reposition,Noontime,Darting Blow 3,Vantage 3,Threaten Spd 3,,,40,0,5,0,0,0,,0,,0,False,,0,False
-Roy,Sample Roy,Binding BladeEff,Reposition,Iceberg,Life and Death 3,G Tomebreaker 3,Savage Blow 3,,,40,10,5,1,0,1,,0,,0,False,,0,False
-Subaki,who is this guy again,Golden Naginata,,,,,Breath of Life 2,,,40,0,5,2,0,2,,0,,0,False,,0,False
-Alfonse,Fire Emblem Hero,,,,,,,,,40,0,5,0,0,0,,0,,0,False,,0,False
-Oboro,Oboobies,Oboro's Spear,,,Armored Blow 1,B Tomebreaker 1,Breath of Life 1,,,40,10,1,1,3,1,,0,,0,False,,0,False
+Lucina,Sample Lucina,Sealed FalchionEff,Reposition,,Armored Blow 3,Axebreaker 3,Breath of Life 3,,,38,2,3,1,3,1,,0,,0,FALSE,,0,FALSE
+Gaius,Sample Gaius,Candied DaggerEff,,,Armored Blow 3,Axebreaker 3,Breath of Life 3,,,40,0,5,2,3,2,,0,,0,FALSE,,0,FALSE
+A!Tiki,Sample Tiki,Breath of FogEff,,,Death Blow 3,,,,,40,0,5,0,0,0,,0,,0,FALSE,,0,FALSE
+Maria,Sample Maria,Absorb+Wra,Rehabilitate+,Miracle,Defiant Spd 3,Desperation 3,Breath of Life 3,,,40,0,5,0,0,0,,0,,0,FALSE,,0,FALSE
+Sharena,Sample Sharena,FensalirEff,Reposition,Noontime,Darting Blow 3,Vantage 3,Threaten Spd 3,,,40,0,5,0,0,0,,0,,0,FALSE,,0,FALSE
+Roy,Sample Roy,Binding BladeEff,Reposition,Iceberg,Life and Death 3,G Tomebreaker 3,Savage Blow 3,,,40,10,5,1,0,1,,0,,0,FALSE,,0,FALSE
+Subaki,who is this guy again,Golden Naginata,,,,,Breath of Life 2,,,40,0,5,2,0,2,,0,,0,FALSE,,0,FALSE
+Alfonse,Fire Emblem Hero,,,,,,,,,40,0,5,0,0,0,,0,,0,FALSE,,0,FALSE
