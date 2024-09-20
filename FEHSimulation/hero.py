@@ -3,6 +3,7 @@ from itertools import islice
 import random
 from enum import Enum
 import os
+
 import pandas as pd
 
 # CONSTANTS
@@ -226,6 +227,9 @@ class Hero:
 
         # Number of times this unit has used their assist skill
         self.assistTargetedOther = 0
+
+        # If Canto can be utilized after unit's next action (attacking, breaking, or assisting, etc.)
+        self.canto_ready = False
 
         self.special_galeforce_triggered = False
         self.nonspecial_galeforce_triggered = False

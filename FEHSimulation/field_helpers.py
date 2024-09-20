@@ -223,6 +223,16 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
 
+        if "reginnAccel" in unitSkills:
+            range = lambda s: lambda o: abs(s[0] - o[0]) <= 1 or abs(s[1] - o[1]) <= 1
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = True
+            effects = {"reginnField_f": unitSkills["reginnAccel"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
 
     return combat_fields
 
@@ -807,6 +817,8 @@ def get_warp_moves(unit, unit_team, enemy_team):
             result_warp_moves.append(tile)
 
     return result_warp_moves
+
+
 
 # STRING COLLECTION
 # -- EFFECT TYPES --

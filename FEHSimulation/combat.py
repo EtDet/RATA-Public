@@ -306,10 +306,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     atkAllyWithin2Spaces = 0
     atkAllyWithin3Spaces = 0
     atkAllyWithin4Spaces = 0
+
     defAdjacentToAlly = 0
     defAllyWithin2Spaces = 0
     defAllyWithin3Spaces = 0
     defAllyWithin4Spaces = 0
+
+    atkAllyWithin3RowsCols = []
+    defAllyWithin3RowsCols = []
 
     atkAllAllies = 0
     defAllAllies = 0
@@ -335,6 +339,24 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         defAllAllies = allies_within_n(defender, defender.tile, 25)
 
+        tiles_within_3_col = attacker.attacking_tile.tilesWithinNCols(3)
+        tiles_within_3_row = attacker.attacking_tile.tilesWithinNRows(3)
+        tiles_within_3_row_or_column = list(set(tiles_within_3_col) | set(tiles_within_3_row))
+
+        for tile in tiles_within_3_row_or_column:
+            if tile.hero_on is not None and tile.hero_on.isAllyOf(attacker):
+                atkAllyWithin3RowsCols.append(tile.hero_on)
+
+        tiles_within_3_col = defender.tile.tilesWithinNCols(3)
+        tiles_within_3_row = defender.tile.tilesWithinNRows(3)
+        tiles_within_3_row_or_column = list(set(tiles_within_3_col) | set(tiles_within_3_row))
+
+        for tile in tiles_within_3_row_or_column:
+            if tile.hero_on is not None and tile.hero_on.isAllyOf(defender):
+                defAllyWithin3RowsCols.append(tile.hero_on)
+
+
+        # Support partner
         for ally in atkAdjacentToAlly:
             if ally.intName == attacker.allySupport:
                 atkWithin1SpaceOfSupportPartner = True
@@ -351,8 +373,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             if ally.intName == defender.allySupport:
                 defWithin2SpaceOfSupportPartner = True
 
+
     atkFoeWithin2Spaces = 0  # Includes opposing unit in combat!
     defFoeWithin2Spaces = 0  # Includes opposing unit in combat!
+
     if is_in_sim:
         atkFoeWithin2Spaces = foes_within_n(attacker, attacker.attacking_tile, 2)
         defFoeWithin2Spaces = foes_within_n(defender, defender.tile, 2)
@@ -2277,6 +2301,36 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[ATK] += 6
         atkCombatBuffs[SPD] += 6
         atkr.DR_first_hit_NSP.append(30)
+
+    # Dvergr Wayfinder (Base) - AI!Reginn
+    # ok yeah 3 rows or cols is becoming a more common condition
+    if "reginnAccel" in atkSkills and atkHPGreaterEqual25Percent:
+        boost = min(len(atkAllyWithin3RowsCols) * 3 + 5, 14)
+        atkCombatBuffs = [x + boost for x in atkCombatBuffs]
+
+        atkr.true_stat_damages.append((SPD, 20))
+        atkr.DR_first_strikes_NSP.append(40)
+        atkr.sp_pierce_DR = True
+
+    if "reginnAccel" in defSkills and defHPGreaterEqual25Percent:
+        boost = min(len(defAllyWithin3RowsCols) * 3 + 5, 14)
+        defCombatBuffs = [x + boost for x in defCombatBuffs]
+
+        defr.true_stat_damages.append((SPD, 20))
+        defr.DR_first_strikes_NSP.append(40)
+        defr.sp_pierce_DR = True
+
+    if "reginnField_f" in atkSkills and turn <= 4:
+        atkCombatBuffs[ATK] += 4
+        atkCombatBuffs[SPD] += 4
+        if attacker.special is not None and attacker.special.type == "Offense":
+            atkr.sp_charge_first += 1
+
+    if "reginnField_f" in defSkills and turn <= 4:
+        defCombatBuffs[ATK] += 4
+        defCombatBuffs[SPD] += 4
+        if defender.special is not None and defender.special.type == "Offense":
+            defr.sp_charge_first += 1
 
     # Catherine: Thunderbrand
 
