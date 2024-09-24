@@ -780,13 +780,16 @@ def get_valid_weapons(cur_hero):
                            "Thunder", "Elthunder", "Thoron", "Thoron+", "Blárblade", "Blárblade+", "Blárraven", "Blárraven+",
                            "Wind", "Elwind", "Rexcalibur", "Rexcalibur+", "Gronnblade", "Gronnblade+", "Gronnraven", "Gronnraven+",
                            "Assault", "Absorb", "Absorb+", "Fear", "Fear+", "Slow", "Slow+", "Gravity", "Gravity+", "Panic", "Panic+", "Pain", "Pain+",
-                           "Fire Breath", "Fire Breath+", "Flametongue", "Flametongue+", "Lightning Breath", "Lightning Breath+", "Light Breath", "Light Breath+"]
+                           "Fire Breath", "Fire Breath+", "Flametongue", "Flametongue+", "Lightning Breath", "Lightning Breath+", "Light Breath", "Light Breath+",
+
+                           "Blue Egg", "Blue Egg+", "Green Egg", "Green Egg+", "Carrot Lance", "Carrot Lance+", "Carrot Axe", "Carrot Axe+"]
 
     # Remove of different weapon
     i = 0
     while i < len(weapons):
 
-        #print(weapon_types[i])
+        # encoding issues today?
+        # print(weapons[i])
 
         if weapon_types[i] in cur_hero.wpnType:
             if (len(exclusive_all[i]) == 0):

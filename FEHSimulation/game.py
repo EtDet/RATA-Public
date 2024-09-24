@@ -41,26 +41,34 @@ class Move():
 
 # Saves the state of a singular unit
 class UnitState:
-    def __init__(self, cur_hp, cur_sp, cur_position, cur_buffs, cur_debuffs, cur_status_pos, cur_status_neg):
-        self.cur_hp = cur_hp
-        self.cur_sp = cur_sp
+    def __init__(self, unit: Hero):
+        self.cur_hp = unit.HPcur
+        self.cur_sp = unit.specialCount
 
-        self.cur_position = cur_position
+        self.cur_position = unit.tile.tileNum
 
-        self.cur_buffs = cur_buffs
-        self.cur_debuffs = cur_debuffs
-        self.cur_status_pos = cur_status_pos
-        self.cur_status_neg = cur_status_neg
+        self.cur_buffs = unit.buffs[:]
+        self.cur_debuffs = unit.debuffs[:]
+        self.cur_status_pos = unit.statusPos[:]
+        self.cur_status_neg = unit.statusNeg[:]
+
+        self.sp_galeforce = unit.special_galeforce_triggered
+        self.nsp_galeforce = unit.nonspecial_galeforce_triggered
+
+        self.canto = unit.canto_ready
 
 # One state of the game
 class MapState:
-    def __init__(self, unit_states, struct_states, units_to_move):
+    def __init__(self, unit_states, struct_states, units_to_move, turn_num):
         self.unit_states = unit_states
         self.struct_states = struct_states
         self.units_to_move = units_to_move
 
+        self.turn_num = turn_num
+
     def print_state(self):
         print("simpsone")
+
 
 
 # Create blank to be played upon
@@ -139,14 +147,14 @@ moonlit_bangle_q = makeSkill("Moonlit Bangle Q")
 times_pulse_4 = makeSkill("Time's Pulse 4")
 
 
-xander = makeHero("Lilina")
-xander.set_skill(makeWeapon("ForblazeEff"), WEAPON)
-#xander.set_skill(united_bouquet, WEAPON)
-xander.set_skill(makeAssist("Dance"), ASSIST)
-xander.set_skill(makeSpecial("Moonbow"), SPECIAL)
-xander.set_skill(makeSkill("Close Counter"), ASKILL)
-xander.set_skill(makeSkill("Quick Riposte 3"), BSKILL)
-xander.set_skill(makeSkill("Odd Def Wave 3"), CSKILL)
+xander = makeHero("Navarre")
+# ok why does it go down to 0, should be 1
+xander.set_skill(makeWeapon("Scarlet SwordEff"), WEAPON)
+xander.set_skill(makeAssist("Shove"), ASSIST)
+xander.set_skill(makeSpecial("Dragon Fang"), SPECIAL)
+xander.set_skill(makeSkill("Swift Sparrow 2"), ASKILL)
+xander.set_skill(makeSkill("Live for Honor"), BSKILL)
+xander.set_skill(makeSkill("Hone Spd 3"), CSKILL)
 
 #reginn = makeHero("AI!Reginn")
 reginn = Hero("Reginn", "AI!Reginn", "Dvergr Heir", 0, "Lance", 1, [41, 46, 48, 38, 22], [50, 80, 90, 60, 40], 5, 5, 0)
@@ -662,12 +670,12 @@ def get_arrow_offsets(arrow_num):
 
     return (0,0)
 
-def create_mapstate(p_units, e_units, c_map, units_to_move):
+def create_mapstate(p_units, e_units, c_map, units_to_move, turn_num):
 
     unit_states = {}
 
     for unit in p_units + e_units:
-        cur_unit_state = UnitState(unit.HPcur, unit.specialCount, unit.tile.tileNum, unit.buffs[:], unit.debuffs[:], unit.statusPos[:], unit.statusNeg[:])
+        cur_unit_state = UnitState(unit)
         unit_states[unit] = cur_unit_state
 
     struct_states = {}
@@ -678,10 +686,7 @@ def create_mapstate(p_units, e_units, c_map, units_to_move):
 
             struct_states[cur_struct] = cur_struct.health
 
-    return MapState(unit_states, struct_states, units_to_move[:])
-
-def apply_mapstate(mapstate):
-    print("SET")
+    return MapState(unit_states, struct_states, units_to_move[:], turn_num)
 
 def start_sim(player_units, enemy_units, chosen_map, map_str):
 
@@ -795,6 +800,10 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                 set_hp_visual(unit, unit.HPcur)
 
             unit.unitCombatInitiates = 0
+
+    def apply_mapstate(mapstate):
+        currently = "unusable"
+        #print("simpson")
 
     def clear_banner():
         if hasattr(set_banner, "banner_rectangle") and set_banner.banner_rectangle:
@@ -1570,8 +1579,8 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
         # Get the current mouse coordinates
         x, y = event.x, event.y
 
-        # pressing end turn
-        if x > 380 and y > 820 and x < 450 and y < 900:
+        # End turn button
+        if 380 < x < 450 and y > 820 and y < 900:
             canto = None
 
             for blue_tile_id in canvas.canto_tile_imgs:
@@ -1581,6 +1590,15 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
             next_phase()
 
             return
+
+        # Undo button
+        if 10 < x < 80 and 820 < y < 900:
+            if len(map_states) > 1:
+                apply_mapstate(map_states.pop())
+            else:
+                apply_mapstate(map_states[0])
+
+            #print(len(map_states))
 
         # Out of bounds case
         if x < 0 or x > 540 or y <= 90 or y > 810:
@@ -3273,7 +3291,8 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
 
             # Add current move to mapstate history
             if successful_move and cur_hero in units_to_move:
-                mapstate = create_mapstate(player_units_all, enemy_units_all, chosen_map, units_to_move)
+                mapstate = create_mapstate(player_units_all, enemy_units_all, chosen_map, units_to_move, turn_info[0])
+                #print(mapstate)
                 map_states.append(mapstate)
 
             # remove player unit from units who can act
@@ -3325,6 +3344,15 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
 
             return
 
+        # Undo button
+        if 10 < x < 80 and 820 < y < 900:
+            if len(map_states) > 1:
+                apply_mapstate(map_states.pop())
+            else:
+                apply_mapstate(map_states[0])
+
+            #print(len(map_states))
+
         if x < 0 or x > 540 or y <= 90 or y > 810:
             #print("simpson gamer")
             return
@@ -3364,8 +3392,14 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                     if not units_to_move:
                         next_phase()
 
-                    mapstate = create_mapstate(player_units_all, enemy_units_all, chosen_map, units_to_move)
+                    mapstate = create_mapstate(player_units_all, enemy_units_all, chosen_map, units_to_move, turn_info[0])
+
                     map_states.append(mapstate)
+
+                    #print(mapstate.unit_states)
+
+                    for m in mapstate.unit_states.values():
+                        print(m.cur_hp, m.cur_sp, m.cur_position, m.cur_buffs, m.cur_debuffs, m.cur_status_pos, m.cur_status_neg)
 
     def set_text_val(label, value):
         canvas.itemconfig(label, text=value)
@@ -3830,7 +3864,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
     end_turn_text = canvas.create_text(495, 855, text="Duo Skill", fill="#5e5b03")
 
     undo_action = canvas.create_rectangle((10, 820, 80, 900), fill='blue', width=0)
-    undo_action_text = canvas.create_text(45, 855, text="Prev. Action", fill="#5e5b03")
+    undo_action_text = canvas.create_text(45, 855, text="Prev. Action", fill="#afada4")
 
     print("---- PLAYER PHASE ----")
     damage, heals = start_of_turn(player_units, enemy_units, 1)
@@ -3862,7 +3896,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
     combat_fields = create_combat_fields(player_units, enemy_units)
 
     # Create initial MapState, cannot be popped from history
-    map_states.append(create_mapstate(player_units_all, enemy_units_all, chosen_map, units_to_move))
+    map_states.append(create_mapstate(player_units_all, enemy_units_all, chosen_map, units_to_move, turn_info[0]))
 
     # Function Assignment
     canvas.bind("<Button-1>", on_click)

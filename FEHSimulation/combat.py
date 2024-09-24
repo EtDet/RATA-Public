@@ -1807,6 +1807,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         map(lambda x: x + 5, atkCombatBuffs)
         defr.follow_up_denials -= 1
 
+    # Carrot Lance/Axe+ and Blue/Green Egg+ (Refine)
+    if "easterHealB" in atkSkills:
+        atkPostCombatEffs[2].append(("heal", 4, "self", "one"))
+    if "easterHealB" in defSkills:
+        defPostCombatEffs[2].append(("heal", 4, "self", "one"))
+
     # Missiletainn (Owain)
     if "average" in atkSkills and defHPGreaterEqual50Percent:
         atkCombatBuffs[1] += 5
@@ -2188,6 +2194,16 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if defHPGreaterEqual25Percent:
             map(lambda x: x + 4, defCombatBuffs)
             defr.DR_first_hit_NSP.append(30)
+
+    if "he lives" in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= 6
+        defCombatBuffs[DEF] -= 6
+        defr.follow_up_denials -= 1
+
+    if "he lives" in defSkills and defHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] -= 6
+        atkCombatBuffs[DEF] -= 6
+        atkr.follow_up_denials -= 1
 
     # SU!Edelgard - Regal Sunshade - Base
 
@@ -4649,29 +4665,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         i += 1  # increment buddy!
 
-    # post combat healing/damage, should move to its own process
-    if atkAlive and (atkSelfDmg != 0 or defOtherDmg != 0 or atkPostCombatHealing):
-        resultDmg = ((atkSelfDmg + defOtherDmg) - atkPostCombatHealing * int(
-            not (Status.DeepWounds in attacker.statusNeg)))
-        atkHPCur -= resultDmg
-        if resultDmg > 0:
-            print(attacker.name + " takes " + str(resultDmg) + " damage after combat.")
-        else:
-            print(attacker.name + " heals " + str(resultDmg) + " health after combat.")
-        if atkHPCur < 1: atkHPCur = 1
-        if atkHPCur > atkStats[0]: atkHPCur = atkStats[0]
-
-    if defAlive and (defSelfDmg != 0 or atkOtherDmg != 0 or defPostCombatHealing):
-        resultDmg = ((defSelfDmg + atkOtherDmg) - defPostCombatHealing * int(
-            not (Status.DeepWounds in defender.statusNeg)))
-        defHPCur -= resultDmg
-        if resultDmg > 0:
-            print(defender.name + " takes " + str(defSelfDmg + atkOtherDmg) + " damage after combat.")
-        else:
-            print(defender.name + " heals " + str(defSelfDmg + atkOtherDmg) + " health after combat.")
-        if defHPCur < 1: defHPCur = 1
-        if defHPCur > defStats[0]: defHPCur = defStats[0]
-
     # Post Combat Effects (that require the user to survive)
 
     if "specialSpiralW" in atkSkills and atkr.special_triggered:
@@ -4700,16 +4693,19 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkPostCombatEffs[0].append(("buff_atk", 4, "allies", "within_1_spaces_self"))
 
     # Poison Strike
-    if "poisonStrike" in atkSkills:
+    if "poisonStrike" in atkSkills and atkAlive:
         atkPostCombatEffs[0].append(("damage", atkSkills["poisonStrike"], "foe", "one"))
 
     # Breath of Life
-    if "breath_of_life" in atkSkills:
+    if "breath_of_life" in atkSkills and atkAlive:
         atkPostCombatEffs[0].append(("heal", atkSkills["breath_of_life"], "allies", "within_1_spaces_self"))
 
     # Savage Blow
-    if "savageBlow" in atkSkills:
+    if "savageBlow" in atkSkills and atkAlive:
         atkPostCombatEffs[0].append(("damage", atkSkills["savageBlow"], "foes_allies", "within_2_spaces_foe"))
+
+    if "easterHealA" in atkSkills and atkAlive:
+        atkPostCombatEffs[0].append(("heal", 4, "self", "one"))
 
     #if atkAlive: attacker.chargeSpecial(atkPostCombatSpCharge)
     #if defAlive: defender.chargeSpecial(defPostCombatSpCharge)

@@ -236,7 +236,7 @@ class Hero:
 
         self.beast_trans_condition = False
 
-        self.tile = None
+        self.tile = None # current tile unit is standing on
         self.attacking_tile = None # used for forecasts
 
         self.spLines = [""] * 4
@@ -935,9 +935,9 @@ hero_sheet = pd.read_csv(__location__ + '/FEHstats.csv')
 weapon_sheet = pd.read_csv(__location__ + '/FEHWeapons.csv')
 assist_sheet = pd.read_csv(__location__ + '/FEHAssists.csv')
 special_sheet = pd.read_csv(__location__ + '/FEHSpecials.csv')
-skills_sheet = pd.read_csv(__location__ + '/FEHABCXSkills.csv')
+skills_sheet = pd.read_csv(__location__ + '/FEHABCXSkills.csv', encoding='cp1252')
 
-impl_skills_sheet = pd.read_csv("FEHImplABCXSkills.csv")
+impl_skills_sheet = pd.read_csv("FEHImplABCXSkills.csv", encoding='cp1252')
 print("Unit & Skill Data Loaded.")
 
 def makeHero(name):
@@ -1094,10 +1094,11 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "Roy", "Ryoma", "Saizo", "Sakura", "F!Selena", "Serra", "Setsuna", "Shanna", "Sharena", "Sheena",
                           "Sophia", "Stahl", "Subaki", "Sully", "Takumi", "Tharja", "Y!Tiki", "A!Tiki", "Virion", "Wrys",
 
-                          "Narcian", "F!Robin", "Ursula", "Michalis",
+                          "Narcian", "F!Robin", "Ursula", "Michalis", "Navarre", "Zephiel", "Xander", "Lloyd", "Camus"
 
                           "Eirika", "Ephraim", "Seliph", "Julia",
                           "Eldigan", "Klein", "Lachesis", "Reinhardt", "Olwen", "Sanaki",
                           "Jaffar", "Karel", "Lucius", "Ninian", "Priscilla", "Rebecca",
-
+                          "SP!Chrom", "SP!Lucina", "SP!Xander", "SP!Camilla"
+                          "Alm", "Lukas", "Clair", "Faye"
                     ]
