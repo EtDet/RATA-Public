@@ -1,3 +1,13 @@
+1.0.4 (10/2/24)
+New Features:
+-Added the following new heroes: SP!Chrom, SP!Lucina, SP!Xander, SP!Camilla, Navarre, Zephiel, Xander, Lloyd, Camus, Alm, Lukas, Clair, Faye, Ike, Mist, Soren, Titania, Celica, Mae, Boey, Genny, Masked Marth
+-The new weapons and skills introduced with these heroes have also been added.
+-Added an Undo button to gameplay to undo the last performed action.
+
+Bug Fixes:
+-Fixed an issue involving textures not displaying properly when using an AoE special.
+-Fixed an issue causing Sealed Falchion to not give its effects.
+
 1.0.3 (9/11/24)
 New Features:
 -Added the following new heroes: F!Robin, Eldigan, Klein, Lachesis, Olwen, Reinhardt, Sanaki, Ursula, Jaffar, Karel, Lucius, Ninian, Priscilla, Rebecca, Michalis

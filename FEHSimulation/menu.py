@@ -782,7 +782,9 @@ def get_valid_weapons(cur_hero):
                            "Assault", "Absorb", "Absorb+", "Fear", "Fear+", "Slow", "Slow+", "Gravity", "Gravity+", "Panic", "Panic+", "Pain", "Pain+",
                            "Fire Breath", "Fire Breath+", "Flametongue", "Flametongue+", "Lightning Breath", "Lightning Breath+", "Light Breath", "Light Breath+",
 
-                           "Blue Egg", "Blue Egg+", "Green Egg", "Green Egg+", "Carrot Lance", "Carrot Lance+", "Carrot Axe", "Carrot Axe+"]
+                           "Blue Egg", "Blue Egg+", "Green Egg", "Green Egg+", "Carrot Lance", "Carrot Lance+", "Carrot Axe", "Carrot Axe+",
+
+                           "Firesweep Bow", "Firesweep Bow+", "Gronnowl", "Gronnowl+", "Blárowl", "Blárowl+"]
 
     # Remove of different weapon
     i = 0
@@ -960,7 +962,7 @@ def get_valid_specials(cur_hero):
             if restr_wpn[i] == "NotStaff" and cur_hero.wpnType != "Staff": add_cond = False
             if restr_wpn[i] == "NotDragon" and cur_hero.wpnType not in hero.DRAGON_WEAPONS: add_cond = False
             if restr_wpn[i] == "NotDagger" and cur_hero.wpnType not in hero.DAGGER_WEAPONS: add_cond = False
-            if restr_wpn[i] == "NotMagic" and cur_hero.wpnType not in hero.MAGIC_WEAPONS: add_cond = False
+            if restr_wpn[i] == "NotMagic" and cur_hero.wpnType not in hero.TOME_WEAPONS: add_cond = False
             if restr_wpn[i] == "NotBow" and cur_hero.wpnType not in hero.BOW_WEAPONS: add_cond = False
             if restr_wpn[i] == "NotBeast" and cur_hero.wpnType not in hero.BEAST_WEAPONS: add_cond = False
 
@@ -1030,9 +1032,10 @@ def get_valid_abc_skills(cur_hero):
             if restr_wpn[i] == "NotStaff" and cur_hero.wpnType != "Staff": add_cond = False
             if restr_wpn[i] == "NotDragon" and cur_hero.wpnType not in hero.DRAGON_WEAPONS: add_cond = False
             if restr_wpn[i] == "NotDagger" and cur_hero.wpnType not in hero.DAGGER_WEAPONS: add_cond = False
-            if restr_wpn[i] == "NotMagic" and cur_hero.wpnType not in hero.MAGIC_WEAPONS: add_cond = False
+            if restr_wpn[i] == "NotMagic" and cur_hero.wpnType not in hero.TOME_WEAPONS: add_cond = False
             if restr_wpn[i] == "NotBow" and cur_hero.wpnType not in hero.BOW_WEAPONS: add_cond = False
             if restr_wpn[i] == "NotBeast" and cur_hero.wpnType not in hero.BEAST_WEAPONS: add_cond = False
+            if restr_wpn[i] == "NotBTome" and cur_hero.wpnType != "BTome": add_cond = True
 
             if "Dragon" in restr_wpn[i] and restr_wpn[i] != "NotDragon" and cur_hero.wpnType in hero.DRAGON_WEAPONS: add_cond = False
             elif "Beast" in restr_wpn[i] and restr_wpn[i] != "NotBeast" and cur_hero.wpnType in hero.BEAST_WEAPONS:  add_cond = False
@@ -1302,7 +1305,7 @@ window.configure(background='#797282')
 # MAIN MENU ELEMENTS
 title_label = tk.Label(master=window, text='RATA - An FE: Heroes Simulator', font='Helvetica 24', relief="raised")
 subtitle_label = tk.Label(master=window, text='By CloudX (2024)', font='Helvetica 18', relief="raised")
-version_label = tk.Label(master=window, text='Ver 1.0.3 - Blazing Shadows', font='Helvetica 12', relief="raised")
+version_label = tk.Label(master=window, text="Ver 1.0.4 - Rite of Shadows", font='Helvetica 12', relief="raised")
 start_button = tkm.Button(window, command=generate_maps, width=255, text="Level Select", font="Helvetica 14", cursor="hand2", bg='blue', fg='white')
 units_button = tkm.Button(window, command=generate_units, width=255, text="My Units", font="Helvetica 14", cursor="hand2", bg='blue', fg='white')
 help_button = tkm.Button(window, command=about,width=255, text="GitHub Page", font="Helvetica 14", cursor="hand2", bg='blue', fg='white')

@@ -70,7 +70,7 @@ while i < len(names):
         if has_resp == True:
             resp_image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_Resplendent_Mini_Unit_Ok.png"
             save_name = int_name + "-R"
-            download_and_save_image(resp_image_url, save_name)
+            #download_and_save_image(resp_image_url, save_name)
 
         if weapon in ["RBeast", "BBeast", "GBeast", "CBeast"]:
             beast_image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_TransformMap_Mini_Unit_Idle.png"
@@ -81,7 +81,7 @@ while i < len(names):
 
 i = 1
 #i = 101
-while i < 101:
+while i < 25:
     image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + "Map_Z" + str(i).zfill(4) + ".png"
 
     # print(image_url)

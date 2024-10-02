@@ -41,7 +41,10 @@ BLUE_WEAPONS = ["Lance", "BTome", "BDagger", "BBow", "BDragon", "BBeast"]
 GREEN_WEAPONS = ["Axe", "GTome", "GDagger", "GBow", "GDragon", "GBeast"]
 COLORLESS_WEAPONS = ["Staff", "CTome", "CDagger", "CBow", "CDragon", "CBeast"]
 
-MAGIC_WEAPONS = RANGED_WEAPONS[0:4]
+TOME_WEAPONS = RANGED_WEAPONS[0:4]
+
+PHYSICAL_WEAPONS = ["Sword", "Lance", "Axe"] + BOW_WEAPONS + BEAST_WEAPONS + DRAGON_WEAPONS
+MAGICAL_WEAPONS = ["Staff"] + TOME_WEAPONS + DRAGON_WEAPONS
 
 # return stat increase needed for level 1 -> 40 based on growth and rarity
 def growth_to_increase(value, rarity):
@@ -218,6 +221,11 @@ class Hero:
 
         self.resp = False
         self.has_resp = False
+
+        # --- The following variables are used for simulation ---
+
+        # If unit can currently act this turn
+        self.unit_can_act = True
 
         # Number of times this unit has entered combat in this phase
         self.unitCombatInitiates = 0
@@ -498,6 +506,7 @@ class Hero:
             if self.emblem is not None and self.emblem == "Marth":
                 self.specialCount = max(self.specialCount - self.weapon.effects["slaying"], 1)
                 self.specialMax = max(self.specialMax - self.weapon.effects["slaying"], 1)
+
         else:
             self.specialCount = -1
             self.specialMax = -1
@@ -935,9 +944,10 @@ hero_sheet = pd.read_csv(__location__ + '/FEHstats.csv')
 weapon_sheet = pd.read_csv(__location__ + '/FEHWeapons.csv')
 assist_sheet = pd.read_csv(__location__ + '/FEHAssists.csv')
 special_sheet = pd.read_csv(__location__ + '/FEHSpecials.csv')
-skills_sheet = pd.read_csv(__location__ + '/FEHABCXSkills.csv', encoding='cp1252')
+skills_sheet = pd.read_csv(__location__ + '/FEHABCXSkills.csv')
 
-impl_skills_sheet = pd.read_csv("FEHImplABCXSkills.csv", encoding='cp1252')
+# Skills currently present for use
+impl_skills_sheet = pd.read_csv("FEHImplABCXSkills.csv")
 print("Unit & Skill Data Loaded.")
 
 def makeHero(name):
@@ -1099,6 +1109,10 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "Eirika", "Ephraim", "Seliph", "Julia",
                           "Eldigan", "Klein", "Lachesis", "Reinhardt", "Olwen", "Sanaki",
                           "Jaffar", "Karel", "Lucius", "Ninian", "Priscilla", "Rebecca",
-                          "SP!Chrom", "SP!Lucina", "SP!Xander", "SP!Camilla"
-                          "Alm", "Lukas", "Clair", "Faye"
+                          "SP!Chrom", "SP!Lucina", "SP!Xander", "SP!Camilla",
+                          "Alm", "Lukas", "Clair", "Faye",
+                          "Ike", "Mist", "Soren", "Titania",
+                          "Celica", "Mae", "Boey", "Genny",
+                          "BR!Caeda", "BR!Charlotte", "BR!Lyn", "BR!Cordelia",
+                          "!Marth"
                     ]

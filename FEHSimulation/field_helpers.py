@@ -1,6 +1,9 @@
 from hero import *
 from combat import CombatField
 
+within_1_space = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 1
+within_2_space = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+
 def create_combat_fields(player_team, enemy_team):
     combat_fields = []
 
@@ -12,7 +15,7 @@ def create_combat_fields(player_team, enemy_team):
         owner = unit
 
         if "spurAtk" in unitSkills:
-            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 1
+            range = within_1_space
             condition = lambda s: lambda o: True
             affect_self = False
             affect_other_side = True
@@ -22,7 +25,7 @@ def create_combat_fields(player_team, enemy_team):
             combat_fields.append(field)
 
         if "driveAtk" in unitSkills:
-            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            range = within_2_space
             condition = lambda s: lambda o: True
             affect_self = False
             affect_other_side = True
@@ -429,7 +432,23 @@ def start_of_turn(starting_team, waiting_team, turn):
         if "defiantRes" in unitSkills and unitHPCur / unitStats[0] <= 0.50:
             unit.inflictStat(RES, 2 * unitSkills["defiantRes"] + 1)
 
+        # TACTIC SKILLS
+        if "resTacticW" in unitSkills:
+            move_arrs = [[], [], [], []]
+            for ally in allies_within_n_spaces[2]:
+                move_arrs[ally.move].append(ally)
+
+            for arr in move_arrs:
+                if len(arr) <= 2:
+                    for ally in arr:
+                        ally.inflictStat(RES, 6)
+
         # CHILL SKILLS
+
+        if "chillAtkW" in unitSkills:
+            highest_atk = units_with_extreme_stat(waiting_team, ATK, find_max=True)
+            for foe in highest_atk:
+                foe.inflictStat(ATK, -7)
 
         if "chillDefW" in unitSkills:
             highest_def = units_with_extreme_stat(waiting_team, DEF, find_max=True)
@@ -503,7 +522,7 @@ def start_of_turn(starting_team, waiting_team, turn):
         # Aura - Linde
         if "lindeAtkBuff" in unitSkills:
             for ally in allies_within_n_spaces[1]:
-                if ally.wpnType in MAGIC_WEAPONS or ally.wpnType == "Staff":
+                if ally.wpnType in TOME_WEAPONS or ally.wpnType == "Staff":
                     ally.inflictStat(ATK, 6)
 
         # Dark Aura - Linde/Delthea
@@ -525,6 +544,12 @@ def start_of_turn(starting_team, waiting_team, turn):
                 ally.inflictStat(DEF, 5)
                 ally.inflictStat(RES, 5)
 
+        # Echesacks (Refine) - Zephiel
+        if "i <3 dragons" in unitSkills:
+            for foe in foes_within_n_spaces[2]:
+                if foe.wpnType not in DRAGON_WEAPONS:
+                    foe.inflictStat(DEF, -6)
+
         # Sisterly Axe - X!Eirika
         if "sisterlyBoost" in unitSkills and allies_within_n_spaces[2]:
             unit.inflictStat(ATK, 6)
@@ -535,6 +560,29 @@ def start_of_turn(starting_team, waiting_team, turn):
                 ally.inflictStat(ATK, 6)
                 ally.inflictStat(SPD, 6)
                 ally.inflictStatus(Status.Dodge)
+
+        # Elena's Staff (Base) - Mist
+        if "mistDebuff" in unitSkills:
+            i = 1
+            while i <= 4:
+                if not foes_within_n_spaces[i]:
+                    i += 1
+                else:
+                    for foe in foes_within_n_spaces[i]:
+                        foe.inflictStat(ATK, -7)
+                        foe.inflictStat(SPD, -7)
+                    break
+
+        # Elena's Staff (Refine Eff) - Mist
+        if "mistPanic" in unitSkills:
+            i = 1
+            while i <= 4:
+                if not foes_within_n_spaces[i]:
+                    i += 1
+                else:
+                    for foe in foes_within_n_spaces[i]:
+                        foe.inflictStatus(Status.Panic)
+                    break
 
         # Tactical Bolt/Gale (M!/F!Robin)
         if "spectrumTactic" in unitSkills:
@@ -822,12 +870,12 @@ def get_warp_moves(unit, unit_team, enemy_team):
 
 # STRING COLLECTION
 # -- EFFECT TYPES --
-# buff_stat   - Applies buff of stat by N (Ex. buff_atk_7, buff_spd_4)
-# debuff_stat - Applies debuff of stat by N (Ex. debuff_def_6, debuff_res_3)
-# status_S      - Applies status S (Ex. status_DeepWounds, status_Orders)
-# damage      - Deals N damage (Ex. damage_7)
-# heal        - Heals N health (Ex. heal_10)
-# end_turn      - Ends action of allies
+# buff_stat   - Applies buff of stat by value
+# debuff_stat - Applies debuff of stat by value
+# status      - Applies status given by value
+# damage      - Deals N damage given by value
+# heal        - Heals N health given by value
+# end_turn    - Ends action
 
 # -- GROUP TYPES --
 # self                - applies to only self
@@ -836,13 +884,14 @@ def get_warp_moves(unit, unit_team, enemy_team):
 # foes_allies          - applies to only foe's allies
 # self_and_allies     - applies to self and self's allies
 # foe_and_foes_allies - applies to foe and foe's allies
+# all                 - any unit
 
 # -- AREA TYPES --
 # one                   - only one unit (used for self/foe group types)
 # within_N_spaces_self  - within N spaces of self (Ex. within_2_spaces_self)
 # within_N_spaces_foe   - within N spaces of foe (Ex. within_4_spaces_foe)
 # nearest_N_spaces_self - nearest N spaces of self, not including self
-# nearest_N_spaces_foe - nearest N spaces of foe, not including foe
+# nearest_N_spaces_foe  - nearest N spaces of foe, not including foe
 # within_N_rows_self
 # within_N_cols_self
 # within_N_rows_or_cols_self
@@ -905,6 +954,7 @@ def end_of_combat(atk_effects, def_effects, attacker, defender):
     atkAreas['within_2_spaces_self'] = attacker.tile.unitsWithinNSpaces(2)
     atkAreas['within_1_spaces_foe'] = defender.tile.unitsWithinNSpaces(1)
     atkAreas['within_2_spaces_foe'] = defender.tile.unitsWithinNSpaces(2)
+    atkAreas['within_4_spaces_foe'] = defender.tile.unitsWithinNSpaces(4)
 
     defAreas = {}
     defAreas['one'] = [defender, attacker]
@@ -912,6 +962,7 @@ def end_of_combat(atk_effects, def_effects, attacker, defender):
     defAreas['within_2_spaces_self'] = defender.tile.unitsWithinNSpaces(2)
     defAreas['within_1_spaces_foe'] = attacker.tile.unitsWithinNSpaces(1)
     defAreas['within_2_spaces_foe'] = attacker.tile.unitsWithinNSpaces(2)
+    defAreas['within_4_spaces_foe'] = attacker.tile.unitsWithinNSpaces(4)
 
     areaMethods = {}
     areaMethods['self'] = get_self
