@@ -30,11 +30,12 @@ Sprites and gameplay assets are downloaded from the https://feheroes.fandom.com 
 
 <h2>How to Use</h2>
 
-1. Clone this repository.
+1. Download the source code for a given version, or clone this repository.
    
 ```
 $ git clone https://github.com/EtDet/RATA-Public
 ```
+
 
 2. Install required packages.
 ```
