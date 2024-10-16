@@ -16,9 +16,9 @@ Sprites and gameplay assets are downloaded from the https://feheroes.fandom.com 
 
 <h2>Current Features</h2>
 <ul>
-  <li>Access to 90 units and the skills within their base kits.</li>
+  <li>Access to 140+ units and the skills within their base kits.</li>
   <li>Units can be freely customized with skills, levels, merges, and IVs.</li>
-  <li>Full map and combat simulations can be performed on 50 arena maps by complete user control.</li>
+  <li>Full map and combat simulations can be performed on 20+ arena maps by complete user control.</li>
 </ul>
 
 <h2>Roadmap</h2>
@@ -30,11 +30,12 @@ Sprites and gameplay assets are downloaded from the https://feheroes.fandom.com 
 
 <h2>How to Use</h2>
 
-1. Clone this repository.
+1. Download the source code for a given version, or clone this repository.
    
 ```
 $ git clone https://github.com/EtDet/RATA-Public
 ```
+
 
 2. Install required packages.
 ```
