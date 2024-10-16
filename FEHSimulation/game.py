@@ -7,6 +7,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import os
 import json
+import random
 from re import sub
 
 print("Beginning running...")
@@ -17,18 +18,6 @@ ENEMY = 1
 RARITY_COLORS = ["#43464f", "#859ba8", "#8a4d15", "#c7d6d6", "#ffc012"]
 
 moves = {0: "Infantry", 1: "Cavalry", 2: "Flyer", 3: "Armored"}
-weapons = {
-    "Sword": (0, "Sword"), "Lance": (1, "Lance"), "Axe": (2, "Axe"),
-    "Staff": (15, "Staff"),
-    "RTome": (11, "Red Tome"), "BTome": (12, "Blue Tome"), "GTome": (13, "Green Tome"), "CTome": (14, "Colorless Tome"),
-    "CBow": (6, "Colorless Bow"), "RBow": (3, "Red Bow"), "BBow": (4, "Blue Blow"), "GBow": (5, "Green Bow"),
-    "CDagger": (10, "Colorless Dagger"), "RDagger": (7, "Red Dagger"), "BDagger": (8, "Blue Dagger"),
-    "GDagger": (9, "Green Dagger"),
-    "RDragon": (16, "Red Dragon"), "BDragon": (17, "Blue Dragon"), "GDragon": (18, "Green Dragon"),
-    "CDragon": (19, "Colorless Dragon"),
-    "RBeast": (20, "Red Beast"), "BBeast": (21, "Blue Beast"), "GBeast": (22, "Green Beast"),
-    "CBeast": (23, "Colorless Beast")
-}
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
@@ -171,13 +160,14 @@ d_bonus_doubler = makeSkill("D Bonus Doubler")
 moonlit_bangle_q = makeSkill("Moonlit Bangle Q")
 times_pulse_4 = makeSkill("Time's Pulse 4")
 
-xander = makeHero("Boey")
-xander.set_skill(makeWeapon("Inscribed Tome"), WEAPON)
+xander = makeHero("Roderick")
+xander.set_skill(makeWeapon("Knightly LanceEff"), WEAPON)
 xander.set_skill(makeAssist("Shove"), ASSIST)
 xander.set_skill(makeSpecial("Moonbow"), SPECIAL)
-xander.set_skill(makeSkill("Earth Boost 3"), ASKILL)
-xander.set_skill(makeSkill("Guard 3"), BSKILL)
-xander.set_skill(makeSkill("Spur Def/Res 2"), CSKILL)
+xander.set_skill(makeSkill("Attack/Res 2"), ASKILL)
+xander.set_skill(makeSkill("Seal Atk/Spd 2"), BSKILL)
+xander.set_skill(makeSkill("Drive Def 2"), CSKILL)
+xander.set_skill(makeSeal("Attack +3"), SSEAL)
 
 # reginn = makeHero("AI!Reginn")
 reginn = Hero("Reginn", "AI!Reginn", "Dvergr Heir", 0, "Lance", 1, [41, 46, 48, 38, 22], [50, 80, 90, 60, 40], 5, 5, 0)
@@ -198,7 +188,7 @@ tested_assist = makeAssist("Reposition")
 tested_special = makeSpecial("Iceberg")
 tested_askill = makeSkill("Death Blow 3")
 tested_bskill = makeSkill("Wings of Mercy 3")
-tested_cskill = makeSkill("Bow Exp. 3")
+tested_cskill = makeSkill("Hone Atk 3")
 
 tested_unit.set_skill(tested_weapon, WEAPON)
 tested_unit.set_skill(tested_assist, ASSIST)
@@ -442,7 +432,15 @@ def get_obstruct_tiles(unit, enemy_team):
     all_obstruct_tiles = []
     for enemy in enemy_team:
         enemy_skills = enemy.getSkills()
+
+        obstruct_cond = False
+
         if "obstruct" in enemy_skills and enemy.HPcur / enemy.visible_stats[HP] >= 1.1 - enemy_skills["obstruct"] * 0.2:
+            obstruct_cond = True
+        if "obstructSe" in enemy_skills and enemy.HPcur / enemy.visible_stats[HP] >= 1.1 - enemy_skills["obstructSe"] * 0.2:
+            obstruct_cond = True
+
+        if obstruct_cond:
             tiles = enemy.tile.tilesWithinNSpaces(1)
             for x in tiles:
                 if x not in all_obstruct_tiles:
@@ -559,6 +557,9 @@ animation = False
 
 # Global canto variable
 canto = None
+
+# Global swap variable
+swap_mode = False
 
 
 # Move different types of images to a set location
@@ -748,6 +749,10 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
 
     def next_phase():
 
+
+        canvas.itemconfig(swap_spaces_text, fill="#282424")
+        canvas.itemconfig(swap_spaces, fill="#282424")
+
         # alternate turns
         turn_info[1] = abs(turn_info[1] - 1)
 
@@ -858,6 +863,81 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
 
         mapstate = create_mapstate(player_units_all, enemy_units_all, chosen_map, units_to_move, turn_info[0])
         map_states.append(mapstate)
+
+    def toggle_swap():
+        global swap_mode
+
+        swap_mode = not swap_mode
+
+        if swap_mode:
+            canvas.itemconfig(swap_spaces_text, text="Confirm")
+            canvas.itemconfig(swap_spaces, fill="green3")
+
+            # canvas color = #282424
+
+            canvas.itemconfig(end_turn, fill="#282424")
+            canvas.itemconfig(end_turn_text, fill="#282424")
+
+            canvas.itemconfig(undo_action, fill="#282424")
+            canvas.itemconfig(undo_action_text, fill="#282424")
+
+            apply_mapstate(canvas.initial_mapstate)
+
+            for unit in player_units_all:
+                curTile = canvas.create_image(0, 0, image=gt_photo)
+                canvas.canto_tile_imgs.append(curTile)
+
+                canvas.tag_lower(curTile, player_sprite_IDs[player_units_all.index(unit)])
+
+                move_to_tile(canvas, curTile, unit.tile.tileNum)
+
+
+        else:
+            canvas.itemconfig(swap_spaces_text, text="Swap\nSpaces")
+            canvas.itemconfig(swap_spaces, fill="#75f216")
+
+            canvas.itemconfig(end_turn, fill="#f21651")
+            canvas.itemconfig(end_turn_text, fill="DeepPink4")
+
+            canvas.itemconfig(undo_action, fill="blue")
+            canvas.itemconfig(undo_action_text, fill="#bfbda4")
+
+            clear_banner()
+
+            for green_tile_id in canvas.canto_tile_imgs:
+                canvas.delete(green_tile_id)
+            canvas.canto_tile_imgs.clear()
+
+            canvas.initial_mapstate = create_mapstate(player_units_all, enemy_units_all, chosen_map, units_to_move, turn_info[0])
+
+            print("---- PLAYER PHASE ----")
+            damage, heals = start_of_turn(player_units, enemy_units, 1)
+
+            for unit in player_units_all:
+                if unit in heals:
+                    unit.HPcur = min(unit.visible_stats[HP], unit.HPcur + heals[unit])
+                    animate_heal_popup(canvas, heals[unit], unit.tile.tileNum)
+
+                    set_hp_visual(unit, unit.HPcur)
+
+            i = 0
+            while i < len(player_units):
+                if player_units[i].specialCount != -1:
+                    canvas.itemconfig(player_special_count_labels[i], text=player_units[i].specialCount)
+
+                player_units[i].canto_ready = True
+
+                i += 1
+
+            i = 0
+            while i < len(enemy_units):
+                if enemy_units[i].specialCount != -1:
+                    canvas.itemconfig(enemy_special_count_labels[i], text=enemy_units[i].specialCount)
+                i += 1
+
+            map_states.clear()
+
+            map_states.append(create_mapstate(player_units_all, enemy_units_all, chosen_map, units_to_move, turn_info[0]))
 
     def clear_banner():
         if hasattr(set_banner, "banner_rectangle") and set_banner.banner_rectangle:
@@ -1709,6 +1789,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
     def on_click(event):
         global animation
         global canto
+        global swap_mode
 
         if animation: return
 
@@ -1716,7 +1797,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
         x, y = event.x, event.y
 
         # End turn button
-        if 380 < x < 450 and y > 820 and y < 900:
+        if 380 < x < 450 and y > 820 and y < 900 and not swap_mode:
             canto = None
 
             for blue_tile_id in canvas.canto_tile_imgs:
@@ -1727,8 +1808,15 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
 
             return
 
+        # Swap spaces button
+        if 460 < x < 530 and 820 < y < 900 and len(map_states) == 1 and canto is None:
+            toggle_swap()
+            return
+
+
+
         # Undo button
-        if 10 < x < 80 and 820 < y < 900:
+        if 10 < x < 80 and 820 < y < 900 and not swap_mode:
 
             if len(map_states) > 1:
                 if not canto:
@@ -1736,6 +1824,10 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                 apply_mapstate(map_states[-1])
             else:
                 apply_mapstate(map_states[0])
+
+            if len(map_states) == 1:
+                canvas.itemconfig(swap_spaces_text, fill="#5e5b03")
+                canvas.itemconfig(swap_spaces, fill="#75f216")
 
         # Out of bounds case
         if x < 0 or x > 540 or y <= 90 or y > 810:
@@ -1822,7 +1914,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
             canvas.drag_data['tile_id_arr'] = tile_arr
 
             # Create blue tiles for each possible movement
-            if not (canto is not None and cur_hero == canto):
+            if not (canto is not None and cur_hero == canto) and not swap_mode:
 
                 for m in moves_obj_array:
                     x_comp = m.destination % 6
@@ -1845,7 +1937,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
             assist_range = []  # all tiles that can be assisted
 
             # Identify all possible tiles to attack from, regardless of targets
-            if cur_hero.weapon is not None and not (canto is not None and canto == cur_hero):
+            if cur_hero.weapon is not None and not (canto is not None and canto == cur_hero) and not swap_mode:
                 # for all possible movement tiles
                 for m in moves_obj_array:
                     # find attack range (list of ints)
@@ -1859,17 +1951,6 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                         # if not overlapping with moves and not placed already
                         if n not in canvas.drag_data['moves'] and n not in perimeter_attack_range:
                             perimeter_attack_range.append(n)
-
-            # Identify all tiles to assist from, regardless of targets
-            # Unsure if still needed
-            '''
-            if cur_hero.assist is not None and not (canto is not None and canto == cur_hero):
-                for m in moves_obj_array:
-                    ast_arr = get_attack_tiles(m.destination, cur_hero.assist.range)
-                    for n in ast_arr:
-                        if n not in assist_range:
-                            assist_range.append(n)
-            '''
 
             # Draw red attack tiles within range
             for n in perimeter_attack_range:
@@ -1936,7 +2017,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
             confirmed_assists = []
             unconfirmed_assists = []
 
-            if cur_hero.assist is not None and not (canto is not None and canto == cur_hero):
+            if cur_hero.assist is not None and not (canto is not None and canto == cur_hero) and not swap_mode:
                 for m in moves_obj_array:
                     ast_arr = get_attack_tiles(m.destination, cur_hero.assist.range)
                     for n in ast_arr:
@@ -2188,13 +2269,16 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                 canvas.tag_raise(enemy_hp_bar_bg[item_index])
                 canvas.tag_raise(enemy_hp_bar_fg[item_index])
 
-            # make starting path
-            first_path = canvas.create_image(pixel_offset_x, pixel_offset_y, anchor=tk.NW, image=arrow_photos[14])
-            canvas.tag_lower(first_path, item_id)
-
-            canvas.drag_data['arrow_path'] = [first_path]
+            canvas.drag_data['arrow_path'] = []
             canvas.drag_data['attack_range'] = attack_range
             canvas.drag_data['assist_range'] = confirmed_assists
+
+            # make starting path
+            if not swap_mode:
+                first_path = canvas.create_image(pixel_offset_x, pixel_offset_y, anchor=tk.NW, image=arrow_photos[14])
+                canvas.tag_lower(first_path, item_id)
+
+                canvas.drag_data['arrow_path'] = [first_path]
 
         else:
             canvas.drag_data = None
@@ -2202,6 +2286,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
     def on_drag(event):
         global animation
         global canto
+        global swap_mode
 
         if animation: return
 
@@ -2456,7 +2541,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
             # draw the arrow path
 
             # recheck conditions
-            if cur_tile_int in canvas.drag_data['moves'] or canvas.drag_data['target_path'] != "NONE":
+            if (cur_tile_int in canvas.drag_data['moves'] or canvas.drag_data['target_path'] != "NONE") and not swap_mode:
                 if len(traced_path) == 0 or event.x > 539 or event.x < 0:
                     star = canvas.create_image(x_arrow_pivot, y_arrow_pivot, anchor=tk.NW,
                                                image=arrow_photos[MOVE_STAR])
@@ -2540,7 +2625,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                     canvas.tag_lower(last_arrow, canvas.drag_data['item'])
 
             # draw move_star at start only if out of bounds
-            elif cur_tile_int not in canvas.drag_data['moves']:
+            elif cur_tile_int not in canvas.drag_data['moves'] and not swap_mode:
                 if len(canvas.drag_data['arrow_path']) != 1:
                     for arrow in canvas.drag_data['arrow_path']:
                         canvas.delete(arrow)
@@ -2566,6 +2651,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
     def on_release(event):
         global animation
         global canto
+        global swap_mode
 
         if canvas.drag_data is not None:
             successful_move = False
@@ -2654,8 +2740,31 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
             # unit_tile = chosen_map.tiles[new_tile].hero_on
             # target_tile = chosen_map.tiles[mouse_new_tile].hero_on
 
-            destination_unit = chosen_map.tiles[destination_tile].hero_on
-            release_unit = chosen_map.tiles[release_tile].hero_on
+            destination_unit = chosen_map.tiles[destination_tile].hero_on # the unit going to the destination, usually to interact w/ dest unit
+            release_unit = chosen_map.tiles[release_tile].hero_on # the unit on the tile being hovered over by the mouse
+
+            # Swap Allies if in swap mode
+            if swap_mode and player.isAllyOf(release_unit):
+                ally = release_unit
+
+                unit_final_position = ally.tile.tileNum
+                ally_final_position = player.tile.tileNum
+
+                player.tile.hero_on = None
+                ally.tile.hero_on = None
+
+                player.tile = chosen_map.tiles[unit_final_position]
+                ally.tile = chosen_map.tiles[ally_final_position]
+
+                chosen_map.tiles[unit_final_position].hero_on = player
+                chosen_map.tiles[ally_final_position].hero_on = ally
+
+                update_unit_graphics(player)
+                update_unit_graphics(ally)
+
+                canvas.drag_data = None
+
+                return
 
             ATTACK = 0
             ASSIST = 1
@@ -2672,6 +2781,8 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                 canvas.itemconfig(grayscale_sprite, state='normal')
 
                 if not is_alive:
+                    canvas.itemconfig(player_sprite, state='hidden')
+                    canvas.itemconfig(grayscale_sprite, state='hidden')
                     canvas.itemconfig(weapon_icon_sprite, state='hidden')
                     canvas.itemconfig(player_sprite, state='hidden')
                     #move_to_tile(canvas, player_sprite, 100)
@@ -2727,9 +2838,10 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                 def hide_enemy(is_alive):
 
                     canvas.itemconfig(enemy_sprite, state='hidden')
-                    # canvas.itemconfig(grayscale_sprite, state='normal')
+                    canvas.itemconfig(grayscale_sprite, state='normal')
 
                     if not is_alive:
+                        canvas.itemconfig(grayscale_sprite, state='hidden')
                         canvas.itemconfig(enemy_weapon_icon, state='hidden')
                         # move_to_tile(canvas, enemy_sprite, 100)
 
@@ -2893,8 +3005,8 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                 player_tile_number = player.tile.tileNum
                 enemy_tile_number = enemy.tile.tileNum
 
-                player_move_pos = -1
-                enemy_move_pos = -1
+                player_move_pos = player_tile_number
+                enemy_move_pos = enemy_tile_number
 
                 if "knock_back" in player.getSkills():
                     player_move_pos = player_tile_number
@@ -3422,6 +3534,10 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                         canto = player
                         player.canto_ready = False
 
+                        canvas.itemconfig(swap_spaces, fill="#282424")
+                        canvas.itemconfig(swap_spaces_text, fill="#282424")
+
+                        # Canto officially burned
                         # Canto Control goes here
 
                         # Draw Blue Spaces
@@ -3482,6 +3598,10 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                                                turn_info[0])
                     map_states.append(mapstate)
 
+                    if len(map_states) > 1:
+                        canvas.itemconfig(swap_spaces, fill="#282424")
+                        canvas.itemconfig(swap_spaces_text, fill="#282424")
+
                 '''
                 if cur_hero.side == 0 and not animation:
                     canvas.itemconfig(grayscale_player_sprite_IDs[item_index], state='normal')
@@ -3505,13 +3625,14 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
     def on_double_click(event):
         global animation
         global canto
+        global swap_mode
 
         if animation: return
 
         x, y = event.x, event.y
 
         # End turn button
-        if x > 380 and y > 820 and x < 450 and y < 900:
+        if x > 380 and y > 820 and x < 450 and y < 900 and not swap_mode:
             next_phase()
 
             canto = None
@@ -3522,8 +3643,12 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
 
             return
 
+        if 460 < x < 530 and 820 < y < 900 and len(map_states) == 1 and canto is None:
+            toggle_swap()
+            return
+
         # Undo button
-        if 10 < x < 80 and 820 < y < 900:
+        if 10 < x < 80 and 820 < y < 900 and not swap_mode:
 
             if len(map_states) > 1:
                 if not canto:
@@ -3531,6 +3656,10 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                 apply_mapstate(map_states[-1])
             else:
                 apply_mapstate(map_states[0])
+
+            if len(map_states) == 1:
+                canvas.itemconfig(swap_spaces_text, fill="#5e5b03")
+                canvas.itemconfig(swap_spaces, fill="#75f216")
 
         if x < 0 or x > 540 or y <= 90 or y > 810:
             return
@@ -3540,7 +3669,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
         selected_tile = x_comp + 6 * y_comp
         cur_hero = chosen_map.tiles[selected_tile].hero_on
 
-        if cur_hero is not None:
+        if cur_hero is not None and not swap_mode:
 
             S = cur_hero.side
 
@@ -4044,12 +4173,16 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
         i += 1
 
     end_turn = canvas.create_rectangle((380, 820, 450, 900), fill='#f21651', width=0)
-    end_turn_text = canvas.create_text(415, 855, text="End Turn", fill="#edb7be")
-    duo_skill = canvas.create_rectangle((460, 820, 530, 900), fill='#75f216', width=0)
-    end_turn_text = canvas.create_text(495, 855, text="Duo Skill", fill="#5e5b03")
+    end_turn_text = canvas.create_text(415, 855, text="End\nTurn", fill="DeepPink4", justify=tk.CENTER)
+
+    swap_spaces = canvas.create_rectangle((460, 820, 530, 900), fill='#75f216', width=0)
+    swap_spaces_text = canvas.create_text(495, 855, text="Swap\nSpaces", fill="#5e5b03", justify=tk.CENTER)
 
     undo_action = canvas.create_rectangle((10, 820, 80, 900), fill='blue', width=0)
-    undo_action_text = canvas.create_text(45, 855, text="Prev. Action", fill="#afada4")
+    undo_action_text = canvas.create_text(45, 855, text="Prev.\nAction", fill="#bfbda4", justify=tk.CENTER)
+
+    # Map state before any start or turn effects
+    canvas.initial_mapstate = create_mapstate(player_units_all, enemy_units_all, chosen_map, units_to_move, turn_info[0])
 
     print("---- PLAYER PHASE ----")
     damage, heals = start_of_turn(player_units, enemy_units, 1)

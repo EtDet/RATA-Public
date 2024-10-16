@@ -1,8 +1,6 @@
 from math import trunc, isnan
 from itertools import islice
-import random
 from enum import Enum
-import os
 
 import pandas as pd
 
@@ -45,6 +43,19 @@ TOME_WEAPONS = RANGED_WEAPONS[0:4]
 
 PHYSICAL_WEAPONS = ["Sword", "Lance", "Axe"] + BOW_WEAPONS + BEAST_WEAPONS + DRAGON_WEAPONS
 MAGICAL_WEAPONS = ["Staff"] + TOME_WEAPONS + DRAGON_WEAPONS
+
+weapons = {
+    "Sword": (0, "Sword"), "Lance": (1, "Lance"), "Axe": (2, "Axe"),
+    "Staff": (15, "Staff"),
+    "RTome": (11, "Red Tome"), "BTome": (12, "Blue Tome"), "GTome": (13, "Green Tome"), "CTome": (14, "Colorless Tome"),
+    "CBow": (6, "Colorless Bow"), "RBow": (3, "Red Bow"), "BBow": (4, "Blue Blow"), "GBow": (5, "Green Bow"),
+    "CDagger": (10, "Colorless Dagger"), "RDagger": (7, "Red Dagger"), "BDagger": (8, "Blue Dagger"),
+    "GDagger": (9, "Green Dagger"),
+    "RDragon": (16, "Red Dragon"), "BDragon": (17, "Blue Dragon"), "GDragon": (18, "Green Dragon"),
+    "CDragon": (19, "Colorless Dragon"),
+    "RBeast": (20, "Red Beast"), "BBeast": (21, "Blue Beast"), "GBeast": (22, "Green Beast"),
+    "CBeast": (23, "Colorless Beast")
+}
 
 # return stat increase needed for level 1 -> 40 based on growth and rarity
 def growth_to_increase(value, rarity):
@@ -246,8 +257,6 @@ class Hero:
 
         self.tile = None # current tile unit is standing on
         self.attacking_tile = None # used for forecasts
-
-        self.spLines = [""] * 4
 
     # set unit to level 1, at the assigned rarity
     def set_rarity(self, new_rarity):
@@ -733,16 +742,6 @@ class Hero:
         if self.special is not None: return self.special.cooldown
         else: return 0
 
-    def addSpecialLines(self, line0, line1, line2, line3):
-        self.spLines[0] = line0
-        self.spLines[1] = line1
-        self.spLines[2] = line2
-        self.spLines[3] = line3
-
-    def getSpecialLine(self):
-        x = random.randint(0, 3)
-        return self.spLines[x]
-
     def isAllyOf(self, other):
         if other is None: return False
         return other.side == self.side and other is not self
@@ -768,7 +767,8 @@ class Skill:
         self.exc_users = exc_users
 
 
-    def __str__(self): print(self.name + "\n" + self.desc)
+    def __str__(self):
+        return self.name + "\n" + self.desc
 
 class Weapon:
     def __init__(self, name, intName, desc, mt, range, type, effects, exc_users):
@@ -784,13 +784,6 @@ class Weapon:
     def __str__(self): print(self.name + " \nMt: " + str(self.mt) + " Rng: " + str(self.range) + "\n" + self.desc)
 
 NIL_WEAPON = Weapon("Nil", "Nil Weapon", "", 0, 1, "Sword", {}, [])
-
-class AssistType(Enum):
-    Rally = 0
-    Move = 1
-    Staff = 2
-    Refresh = 3
-    Other = 4
 
 class Assist:
     def __init__(self, name, desc, effects, range, type, users):
@@ -939,12 +932,12 @@ class Status(Enum):
 
 
 print("Reading Unit & Skill Data...")
-__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-hero_sheet = pd.read_csv(__location__ + '/FEHstats.csv')
-weapon_sheet = pd.read_csv(__location__ + '/FEHWeapons.csv')
-assist_sheet = pd.read_csv(__location__ + '/FEHAssists.csv')
-special_sheet = pd.read_csv(__location__ + '/FEHSpecials.csv')
-skills_sheet = pd.read_csv(__location__ + '/FEHABCXSkills.csv')
+hero_sheet = pd.read_csv('FEHstats.csv')
+weapon_sheet = pd.read_csv('FEHWeapons.csv')
+assist_sheet = pd.read_csv('FEHAssists.csv')
+special_sheet = pd.read_csv('FEHSpecials.csv')
+skills_sheet = pd.read_csv('FEHABCXSkills.csv')
+seals_sheet = pd.read_csv("FEHSeals.csv")
 
 # Skills currently present for use
 impl_skills_sheet = pd.read_csv("FEHImplABCXSkills.csv")
@@ -1071,6 +1064,25 @@ def makeSkill(name):
 
     return Skill(name, desc, letter, tier, effects, users)
 
+def makeSeal(name):
+    row = seals_sheet.loc[seals_sheet['Name'] == name]
+    n = row.index.values[0]
+
+    name = row.loc[n, 'Name']
+    desc = row.loc[n, 'Description']
+    letter = row.loc[n, 'Letter']
+    tier = row.loc[n, 'Tier']
+    effects = {}
+    users = []
+
+    if not pd.isna(row.loc[n, 'Effect1']) and not pd.isna(row.loc[n, 'Level1']): effects.update({row.loc[n, 'Effect1']: int(row.loc[n, 'Level1'])})
+    if not pd.isna(row.loc[n, 'Effect2']) and not pd.isna(row.loc[n, 'Level2']): effects.update({row.loc[n, 'Effect2']: int(row.loc[n, 'Level2'])})
+    if not pd.isna(row.loc[n, 'Effect3']) and not pd.isna(row.loc[n, 'Level3']): effects.update({row.loc[n, 'Effect3']: int(row.loc[n, 'Level3'])})
+    if not pd.isna(row.loc[n, 'Effect4']) and not pd.isna(row.loc[n, 'Level4']): effects.update({row.loc[n, 'Effect4']: int(row.loc[n, 'Level4'])})
+    if not pd.isna(row.loc[n, 'Effect5']) and not pd.isna(row.loc[n, 'Level5']): effects.update({row.loc[n, 'Effect5']: int(row.loc[n, 'Level5'])})
+
+    return Skill(name, desc, letter, tier, effects, users)
+
 #veyle = makeHero("Veyle")
 #obscurité = Weapon("Obscurité", "idk", 14, 2, {"stuff":10})
 
@@ -1114,5 +1126,9 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "Ike", "Mist", "Soren", "Titania",
                           "Celica", "Mae", "Boey", "Genny",
                           "BR!Caeda", "BR!Charlotte", "BR!Lyn", "BR!Cordelia",
-                          "!Marth"
+                          "!Marth",
+                          "Athena", "Katarina", "Luke", "Roderick", "Legion", "Clarisse",
+                          "SU!F!Robin", "SU!Gaius", "SU!Frederick", "SU!A!Tiki",
+                          "Tobin", "Delthea", "Mathilda", "Gray", "Saber", "Sonya", "Leon", "Berkut", "Clive",
+                          "SU!F!Corrin", "SU!Elise", "SU!Leo", "SU!Xander"
                     ]

@@ -14,6 +14,7 @@ import tkinter as tk
 from tkinter import ttk
 
 import tkmacosx as tkm
+import textwrap
 
 WEAPON = 0
 ASSIST = 1
@@ -307,6 +308,9 @@ def remove_elements():
 
     window.unbind("<MouseWheel>")
 
+    for label in creation_labels:
+        CreateToolTip(label, "")
+
 def generate_main():
     remove_elements()
 
@@ -554,6 +558,15 @@ def generate_creation_edit(num):
     creation_comboboxes[20].set(cskill)
     handle_selection_change_cskill()
 
+    # Sacred Seal
+    sseal = row["SSeal"]
+
+    if pd.isnull(sseal):
+        sseal = "None"
+
+    creation_comboboxes[21].set(sseal)
+    handle_selection_change_sseal()
+
     # Build Name
     build_name.set(row["Build Name"])
 
@@ -693,6 +706,7 @@ def delete_unit(num):
 
     generate_units()
 
+# When leaving creation menu, reset all parameters
 def clear_creation_fields():
     heroProxy.reset()
 
@@ -701,11 +715,15 @@ def clear_creation_fields():
 
     handle_selection_change_name.created_hero = None
 
+    image1_label.config(image=pixel)
+    image2_label.config(image=pixel)
+
     unit_name.set("---\n---")
 
     unit_stats.set("Lv. ---\n+0 Flowers")
 
     unit_picked.set("No Unit Selected")
+
 
     for x in creation_str_vars:
         x.set("")
@@ -724,6 +742,7 @@ def clear_creation_fields():
     creation_comboboxes[18]['values'] = []
     creation_comboboxes[19]['values'] = []
     creation_comboboxes[20]['values'] = []
+    creation_comboboxes[21]['values'] = []
 
     build_name.set("")
     error_text.config(fg='#292e36')
@@ -782,9 +801,17 @@ def get_valid_weapons(cur_hero):
                            "Assault", "Absorb", "Absorb+", "Fear", "Fear+", "Slow", "Slow+", "Gravity", "Gravity+", "Panic", "Panic+", "Pain", "Pain+",
                            "Fire Breath", "Fire Breath+", "Flametongue", "Flametongue+", "Lightning Breath", "Lightning Breath+", "Light Breath", "Light Breath+",
 
-                           "Blue Egg", "Blue Egg+", "Green Egg", "Green Egg+", "Carrot Lance", "Carrot Lance+", "Carrot Axe", "Carrot Axe+",
+                           "Firesweep Bow", "Firesweep Bow+", "Firesweep Lance", "Firesweep L+",
+                           "Rauðrowl", "Rauðrowl+", "Gronnowl", "Gronnowl+", "Blárowl", "Blárowl+",
+                           "Zanbato", "Zanbato+", "Ridersbane", "Ridersbane+",
+                           "Slaying Edge", "Slaying Edge+", "Slaying Bow", "Slaying Bow+",
 
-                           "Firesweep Bow", "Firesweep Bow+", "Gronnowl", "Gronnowl+", "Blárowl", "Blárowl+"]
+                           "Legion's Axe", "Legion's Axe+", "Clarisse's Bow", "Clarisse's Bow+", "Berkut's Lance", "Berkut's Lance+",
+
+                           "Blue Egg", "Blue Egg+", "Green Egg", "Green Egg+", "Carrot Lance", "Carrot Lance+", "Carrot Axe", "Carrot Axe+",
+                           "Blessed Bouquet", "Blessed Bouquet+", "First Bite", "First Bite+", "Cupid Arrow", "Cupid Arrow+", "Candlelight", "Candlelight+",
+                           "Seashell", "Seashell+", "Refreshing Bolt", "Refreshing Bolt+", "Deft Harpoon", "Deft Harpoon+", "Melon Crusher", "Melon Crusher+",
+                           "Tomato Tome", "Tomato Tome+", "Sealife Tome", "Sealife Tome+", "Hibiscus Tome", "Hibiscus Tome+", "Lilith Floatie", "Lilith Floatie+"]
 
     # Remove of different weapon
     i = 0
@@ -888,6 +915,7 @@ def get_valid_assists(cur_hero):
 
     implemented_assists = ["Heal", "Mend", "Reconcile", "Recover", "Recover+", "Martyr", "Martyr+", "Rehabilitate", "Rehabilitate+", "Restore", "Restore+",
                            "Rally Attack", "Rally Speed", "Rally Defence", "Rally Resistance",
+                           "Rally Atk/Spd", "Rally Atk/Res", "Rally Def/Res",
                            "Dance", "Sing",
                            "Harsh Command", "Ardent Sacrifice", "Reciprocal Aid",
                            "Draw Back", "Reposition", "Swap", "Pivot", "Shove", "Smite",]
@@ -1035,7 +1063,12 @@ def get_valid_abc_skills(cur_hero):
             if restr_wpn[i] == "NotMagic" and cur_hero.wpnType not in hero.TOME_WEAPONS: add_cond = False
             if restr_wpn[i] == "NotBow" and cur_hero.wpnType not in hero.BOW_WEAPONS: add_cond = False
             if restr_wpn[i] == "NotBeast" and cur_hero.wpnType not in hero.BEAST_WEAPONS: add_cond = False
+            if restr_wpn[i] == "NotSword" and cur_hero.wpnType != "Sword": add_cond = True
+            if restr_wpn[i] == "NotLance" and cur_hero.wpnType != "Lance": add_cond = True
+            if restr_wpn[i] == "NotAxe" and cur_hero.wpnType != "Axe": add_cond = True
+            if restr_wpn[i] == "NotRTome" and cur_hero.wpnType != "RTome": add_cond = True
             if restr_wpn[i] == "NotBTome" and cur_hero.wpnType != "BTome": add_cond = True
+            if restr_wpn[i] == "NotGTome" and cur_hero.wpnType != "GTome": add_cond = True
 
             if "Dragon" in restr_wpn[i] and restr_wpn[i] != "NotDragon" and cur_hero.wpnType in hero.DRAGON_WEAPONS: add_cond = False
             elif "Beast" in restr_wpn[i] and restr_wpn[i] != "NotBeast" and cur_hero.wpnType in hero.BEAST_WEAPONS:  add_cond = False
@@ -1043,7 +1076,6 @@ def get_valid_abc_skills(cur_hero):
 
             if "Ranged" in restr_wpn[i] and cur_hero.wpnType in hero.RANGED_WEAPONS: add_cond = False
             if "Melee" in restr_wpn[i] and cur_hero.wpnType in hero.MELEE_WEAPONS: add_cond = False
-
 
             # Movement conditions
             if "Inf" in restr_move[i] and cur_hero.move == 0: add_cond = False
@@ -1102,6 +1134,59 @@ def get_valid_abc_skills(cur_hero):
 
     return a_skills, b_skills, c_skills
 
+def get_valid_seals(cur_hero):
+    seal_names = list(hero.seals_sheet["Name"])
+
+    restr_move = list(hero.seals_sheet['RestrictedMovement'])
+    restr_wpn = list(hero.seals_sheet['RestrictedWeapons'])
+    restr_use = list(hero.seals_sheet['Selectable'])
+
+    valid_seals = []
+
+    i = 0
+    while i < len(seal_names):
+        add_cond = True
+
+        # Color Conditions
+        if restr_wpn[i] == "Colorless" and cur_hero.wpnType in hero.COLORLESS_WEAPONS: add_cond = False
+        if restr_wpn[i] == "Red" and cur_hero.wpnType in hero.RED_WEAPONS: add_cond = False
+        if restr_wpn[i] == "Blue" and cur_hero.wpnType in hero.BLUE_WEAPONS: add_cond = False
+        if restr_wpn[i] == "Green" and cur_hero.wpnType in hero.GREEN_WEAPONS: add_cond = False
+
+        if restr_wpn[i] == "Staff" and cur_hero.wpnType == "Staff": add_cond = False
+        if restr_wpn[i] == "NotStaff" and cur_hero.wpnType != "Staff": add_cond = False
+        if restr_wpn[i] == "NotDragon" and cur_hero.wpnType not in hero.DRAGON_WEAPONS: add_cond = False
+        if restr_wpn[i] == "NotDagger" and cur_hero.wpnType not in hero.DAGGER_WEAPONS: add_cond = False
+        if restr_wpn[i] == "NotMagic" and cur_hero.wpnType not in hero.TOME_WEAPONS: add_cond = False
+        if restr_wpn[i] == "NotBow" and cur_hero.wpnType not in hero.BOW_WEAPONS: add_cond = False
+        if restr_wpn[i] == "NotBeast" and cur_hero.wpnType not in hero.BEAST_WEAPONS: add_cond = False
+        if restr_wpn[i] == "NotSword" and cur_hero.wpnType != "Sword": add_cond = True
+        if restr_wpn[i] == "NotLance" and cur_hero.wpnType != "Lance": add_cond = True
+        if restr_wpn[i] == "NotAxe" and cur_hero.wpnType != "Axe": add_cond = True
+        if restr_wpn[i] == "NotRTome" and cur_hero.wpnType != "RTome": add_cond = True
+        if restr_wpn[i] == "NotBTome" and cur_hero.wpnType != "BTome": add_cond = True
+        if restr_wpn[i] == "NotGTome" and cur_hero.wpnType != "GTome": add_cond = True
+
+        if "Dragon" in restr_wpn[i] and restr_wpn[i] != "NotDragon" and cur_hero.wpnType in hero.DRAGON_WEAPONS: add_cond = False
+        elif "Beast" in restr_wpn[i] and restr_wpn[i] != "NotBeast" and cur_hero.wpnType in hero.BEAST_WEAPONS:  add_cond = False
+        elif "Staff" in restr_wpn[i] and restr_wpn[i] != "NotStaff" and cur_hero.wpnType == "Staff":             add_cond = False
+
+        if "Ranged" in restr_wpn[i] and cur_hero.wpnType in hero.RANGED_WEAPONS: add_cond = False
+        if "Melee" in restr_wpn[i] and cur_hero.wpnType in hero.MELEE_WEAPONS: add_cond = False
+
+        # Movement conditions
+        if "Inf" in restr_move[i] and cur_hero.move == 0: add_cond = False
+        elif "Cav" in restr_move[i] and cur_hero.move == 1: add_cond = False
+        elif "Fly" in restr_move[i] and cur_hero.move == 2: add_cond = False
+        elif "Armor" in restr_move[i] and cur_hero.move == 3: add_cond = False
+
+        if add_cond and restr_use[i]:
+            valid_seals.append(seal_names[i])
+
+        i += 1
+
+    return ["None"] + sorted(valid_seals)
+
 # Upon valid unit and name options, add the unit to the CSV file
 def add_unit_to_list():
     hero_to_add = handle_selection_change_name.created_hero
@@ -1118,7 +1203,7 @@ def add_unit_to_list():
         askill = hero_to_add.askill.name if hero_to_add.askill is not None else None
         bskill = hero_to_add.bskill.name if hero_to_add.bskill is not None else None
         cskill = hero_to_add.cskill.name if hero_to_add.cskill is not None else None
-        sSeal = None
+        sSeal = hero_to_add.sSeal.name if hero_to_add.sSeal is not None else None
         xskill = None
         level = hero_to_add.level
         merges = hero_to_add.merges
@@ -1171,8 +1256,8 @@ def edit_unit_in_list(num):
         askill = hero_to_add.askill.name if hero_to_add.askill is not None else None
         bskill = hero_to_add.bskill.name if hero_to_add.bskill is not None else None
         cskill = hero_to_add.cskill.name if hero_to_add.cskill is not None else None
-        sSeal = None
-        xskill = None
+        sSeal = hero_to_add.sSeal.name if hero_to_add.sSeal is not None else None
+        xskill = hero_to_add.xskill.name if hero_to_add.xskill is not None else None
         level = hero_to_add.level
         merges = hero_to_add.merges
         rarity = hero_to_add.rarity
@@ -1305,7 +1390,7 @@ window.configure(background='#797282')
 # MAIN MENU ELEMENTS
 title_label = tk.Label(master=window, text='RATA - An FE: Heroes Simulator', font='Helvetica 24', relief="raised")
 subtitle_label = tk.Label(master=window, text='By CloudX (2024)', font='Helvetica 18', relief="raised")
-version_label = tk.Label(master=window, text="Ver 1.0.4 - Rite of Shadows", font='Helvetica 12', relief="raised")
+version_label = tk.Label(master=window, text="Ver 1.0.5 - Nohrian Summer", font='Helvetica 12', relief="raised")
 start_button = tkm.Button(window, command=generate_maps, width=255, text="Level Select", font="Helvetica 14", cursor="hand2", bg='blue', fg='white')
 units_button = tkm.Button(window, command=generate_units, width=255, text="My Units", font="Helvetica 14", cursor="hand2", bg='blue', fg='white')
 help_button = tkm.Button(window, command=about,width=255, text="GitHub Page", font="Helvetica 14", cursor="hand2", bg='blue', fg='white')
@@ -1903,14 +1988,45 @@ creation_make_text = tk.Label(bottom_frame, text='Build Name: ', width=10)
 error_text = tk.Label(bottom_frame, text='Error: No Unit Selected or Build Name Empty', bg='#292e36', fg='#292e36', font="Helvetica 10 bold")
 
 
-
-
-
 unit_picked = tk.StringVar()
 unit_picked.set("No Hero Selected")
 
 creation_image_label = tk.Label(unit_stat_frame, image=pixel, textvariable=unit_picked, font= "Helvetica 13", compound=tk.TOP, height=200, width=200, bg='#728275', relief=tk.RAISED)
 creation_image_label.pack(padx=10, pady=10)
+
+creation_icon_window = tk.Frame(unit_stat_frame, bg='#070708', relief=tk.RAISED)
+
+move_icons = []
+status_pic = Image.open("CombatSprites/" + "Status" + ".png")
+
+inf_icon = status_pic.crop((350, 414, 406, 468))
+inf_icon = inf_icon.resize((24, 24), Image.LANCZOS)
+move_icons.append(ImageTk.PhotoImage(inf_icon))
+cav_icon = status_pic.crop((462, 414, 518, 468))
+cav_icon = cav_icon.resize((24, 24), Image.LANCZOS)
+move_icons.append(ImageTk.PhotoImage(cav_icon))
+fly_icon = status_pic.crop((518, 414, 572, 468))
+fly_icon = fly_icon.resize((24, 24), Image.LANCZOS)
+move_icons.append(ImageTk.PhotoImage(fly_icon))
+arm_icon = status_pic.crop((406, 414, 462, 468))
+arm_icon = arm_icon.resize((24, 24), Image.LANCZOS)
+move_icons.append(ImageTk.PhotoImage(arm_icon))
+
+weapon_icons = []
+i = 0
+while i < 24:
+    cur_icon = status_pic.crop((56 * i, 206, 56 * (i + 1), 260))
+    cur_icon = cur_icon.resize((25, 25), Image.LANCZOS)
+    weapon_icons.append(ImageTk.PhotoImage(cur_icon))
+    i += 1
+
+
+image1_label = tk.Label(creation_icon_window, image=pixel, height=20, width=20, bg='#070708')
+image1_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+image2_label = tk.Label(creation_icon_window, image=pixel, height=20, width=20, bg='#070708')
+image2_label.pack(side=tk.LEFT, padx=5, pady=5)
+
 
 unit_name = tk.StringVar()
 unit_name.set("---\n---")
@@ -1941,7 +2057,7 @@ while i < 5:
 
 
 names = ["Unit", "Rarity", "Merge", "Asset", "Blessing", "S-Support", "Weapon", "Refine", "Assist", "Special", "Emblem", "Emblem Merge"]
-names2 = ["Resplendent?", "Level", "DFlowers", "Flaw", "Asc. Asset", "A-Support", "A Skill", "B Skill", "C Skill", "Sacred Seal", "X Skill"]
+names2 = ["Resplendent", "Level", "DFlowers", "Flaw", "Asc. Asset", "A-Support", "A Skill", "B Skill", "C Skill", "Sacred Seal", "X Skill", "Aided"]
 
 creation_str_vars = []
 
@@ -1957,27 +2073,28 @@ left_dropbox_frame.pack(padx=8, pady=7, side=tk.LEFT, anchor='nw')
 right_dropbox_frame.pack(padx=8, pady=7, side=tk.RIGHT, anchor='ne')
 
 def handle_selection_change_name(event=None):
+    # Get name selected
     selected_value = creation_str_vars[0].get()
-    #print(f"You selected: {selected_value}")
 
+    # Get internal name from name + epithet
     cur_intName = intName_dict[selected_value]
 
+    # Set who this unit is on the proxy
     heroProxy.full_name = selected_value
 
-
+    # Get image of selected unit
     cur_image = Image.open("TestSprites/" + cur_intName + ".png")
-
     resized_image = cur_image.resize((int(cur_image.width / 1.3), int(cur_image.height / 1.3)), Image.LANCZOS)
-
     curPhoto = ImageTk.PhotoImage(resized_image)
-
     creation_image_label.config(image=curPhoto)
     creation_image_label.image = curPhoto
 
+    # Actual Hero object
     madeHero: hero.Hero = hero.makeHero(cur_intName)
 
     # Set default value in ComboBoxes upon first Hero selection
     if handle_selection_change_name.created_hero is None:
+
         # Set default rarity
         creation_str_vars[1].set(min(5, heroProxy.rarity))
 
@@ -2013,6 +2130,11 @@ def handle_selection_change_name(event=None):
     # Set allowed weapons
     creation_comboboxes[6]['values'] = weapons
 
+    if heroProxy.weapon is not None:
+        CreateToolTip(creation_labels[6], heroProxy.weapon.desc)
+    else:
+        CreateToolTip(creation_labels[6], "")
+
     # Generate all possible assist skills
     assists = get_valid_assists(madeHero)
 
@@ -2022,6 +2144,11 @@ def handle_selection_change_name(event=None):
 
     # Set allowed assists
     creation_comboboxes[8]['values'] = assists
+
+    if heroProxy.assist is not None:
+        CreateToolTip(creation_labels[8], heroProxy.assist.desc)
+    else:
+        CreateToolTip(creation_labels[8], "")
 
     # Generate all possible special skills
     specials = get_valid_specials(madeHero)
@@ -2033,34 +2160,69 @@ def handle_selection_change_name(event=None):
     # Set allowed assists
     creation_comboboxes[9]['values'] = specials
 
+    if heroProxy.special is not None:
+        CreateToolTip(creation_labels[9], heroProxy.special.desc)
+    else:
+        CreateToolTip(creation_labels[9], "")
+
     # ABC Skills
     a_sk, b_sk, c_sk = get_valid_abc_skills(madeHero)
 
+    # Reset a skills
     if creation_str_vars[18].get() not in a_sk:
         heroProxy.askill = None
         creation_str_vars[18].set("None")
 
-    # Set allowed assists
+    # Set allowed a skills
     creation_comboboxes[18]['values'] = a_sk
 
+    # Reset b skills
     if creation_str_vars[19].get() not in b_sk:
         heroProxy.bskill = None
         creation_str_vars[19].set("None")
 
-    # Set allowed assists
+    # Set allowed b skills
     creation_comboboxes[19]['values'] = b_sk
 
+    # Reset c skills
     if creation_str_vars[20].get() not in c_sk:
         heroProxy.cskill = None
         creation_str_vars[20].set("None")
 
-    # Set allowed assists
+    # Set allowed c skills
     creation_comboboxes[20]['values'] = c_sk
-    #print(a_sk, b_sk, c_sk)
 
+    if heroProxy.askill is not None:
+        CreateToolTip(creation_labels[18], heroProxy.askill.desc)
+    else:
+        CreateToolTip(creation_labels[18], "")
+
+    if heroProxy.bskill is not None:
+        CreateToolTip(creation_labels[19], heroProxy.bskill.desc)
+    else:
+        CreateToolTip(creation_labels[19], "")
+
+    if heroProxy.cskill is not None:
+        CreateToolTip(creation_labels[20], heroProxy.cskill.desc)
+    else:
+        CreateToolTip(creation_labels[20], "")
+
+    # Get valid sacred seals
+    s_seals = get_valid_seals(madeHero)
+
+    # Reset sacred seal
+    if creation_str_vars[21].get() not in s_seals:
+        heroProxy.sSeal = None
+        creation_str_vars[21].set("None")
+
+    # Set allowed sacred seals
+    creation_comboboxes[21]['values'] = s_seals
 
     handle_selection_change_name.created_hero = madeHero
     heroProxy.apply_proxy(madeHero)
+
+    image1_label.config(image=move_icons[madeHero.move])
+    image2_label.config(image=weapon_icons[hero.weapons[madeHero.wpnType][0 ]])
 
     unit_picked.set("")
 
@@ -2208,6 +2370,11 @@ def handle_selection_change_weapon(event=None):
 
     heroProxy.refine = ""
 
+    if heroProxy.weapon is not None:
+        CreateToolTip(creation_labels[6], heroProxy.weapon.desc)
+    else:
+        CreateToolTip(creation_labels[6], "")
+
     # Set valid refines for this given weapon
     refines_arr = get_valid_refines(selected_value)
     creation_str_vars[7].set("None")
@@ -2238,6 +2405,11 @@ def handle_selection_change_refine(event=None):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
+    if heroProxy.weapon is not None:
+        CreateToolTip(creation_labels[6], heroProxy.weapon.desc)
+    else:
+        CreateToolTip(creation_labels[6], "")
+
 def handle_selection_change_assist(event=None):
     selected_value = creation_str_vars[8].get()
     #print(f"You selected: {selected_value}")
@@ -2255,6 +2427,11 @@ def handle_selection_change_assist(event=None):
         while i < 5:
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
+
+    if heroProxy.assist is not None:
+        CreateToolTip(creation_labels[8], heroProxy.assist.desc)
+    else:
+        CreateToolTip(creation_labels[8], "")
 
 def handle_selection_change_special(event=None):
     selected_value = creation_str_vars[9].get()
@@ -2274,6 +2451,11 @@ def handle_selection_change_special(event=None):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
+    if heroProxy.special is not None:
+        CreateToolTip(creation_labels[9], heroProxy.special.desc)
+    else:
+        CreateToolTip(creation_labels[9], "")
+
 def handle_selection_change_askill(event=None):
     selected_value = creation_str_vars[18].get()
     #print(f"You selected: {selected_value}")
@@ -2291,6 +2473,11 @@ def handle_selection_change_askill(event=None):
         while i < 5:
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
+
+    if heroProxy.askill is not None:
+        CreateToolTip(creation_labels[18], heroProxy.askill.desc)
+    else:
+        CreateToolTip(creation_labels[18], "")
 
 def handle_selection_change_bskill(event=None):
     selected_value = creation_str_vars[19].get()
@@ -2310,6 +2497,11 @@ def handle_selection_change_bskill(event=None):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
+    if heroProxy.bskill is not None:
+        CreateToolTip(creation_labels[19], heroProxy.bskill.desc)
+    else:
+        CreateToolTip(creation_labels[19], "")
+
 def handle_selection_change_cskill(event=None):
     selected_value = creation_str_vars[20].get()
     #print(f"You selected: {selected_value}")
@@ -2328,6 +2520,33 @@ def handle_selection_change_cskill(event=None):
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
 
+    if heroProxy.cskill is not None:
+        CreateToolTip(creation_labels[20], heroProxy.cskill.desc)
+    else:
+        CreateToolTip(creation_labels[20], "")
+
+def handle_selection_change_sseal(event=None):
+    selected_value = creation_str_vars[21].get()
+
+    if selected_value != "None":
+        heroProxy.sSeal = hero.makeSeal(selected_value)
+    else:
+        heroProxy.sSeal = None
+
+    if handle_selection_change_name.created_hero is not None:
+        heroProxy.apply_proxy(handle_selection_change_name.created_hero)
+
+        i = 0
+        while i < 5:
+            creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
+            i += 1
+
+    if heroProxy.sSeal is not None:
+        CreateToolTip(creation_labels[21], heroProxy.sSeal.desc)
+    else:
+        CreateToolTip(creation_labels[21], "")
+
+creation_labels = []
 creation_str_vars = []
 creation_comboboxes = []
 
@@ -2335,7 +2554,11 @@ for row in range(12):
 
     cur_str_var = tk.StringVar()
 
-    tk.Label(left_dropbox_frame, text=names[row], width=12).grid(row=row, column=0, padx=10, pady=5)
+    cur_label = tk.Label(left_dropbox_frame, text=names[row], width=12)
+    creation_labels.append(cur_label)
+
+    cur_label.grid(row=row, column=0, padx=10, pady=5)
+
     combo1 = ttk.Combobox(left_dropbox_frame, textvariable=cur_str_var)
     combo1.grid(row=row, column=1, padx=10, pady=10)
 
@@ -2386,11 +2609,64 @@ for row in range(12):
         combo1['textvariable'] = None
         combo1.bind("<<ComboboxSelected>>", handle_selection_change_special)
 
+#from tkinter import *
 
-for row in range(11):
+class ToolTip(object):
+
+    def __init__(self, widget):
+        self.widget = widget
+        self.tipwindow = None
+        self.id = None
+        self.x = self.y = 0
+
+    def showtip(self, text):
+        try:
+
+            lines = text.splitlines()  # Split text into lines
+            wrapped_lines = [textwrap.fill(line, 60) for line in lines]
+            self.text = "\n".join(wrapped_lines)
+
+        # Weapon description is blank (or I haven't edited it yet)
+        except AttributeError:
+            self.text = ""
+
+        if self.tipwindow or not self.text: return
+
+        x, y, cx, cy = self.widget.bbox("insert")
+        x = x + self.widget.winfo_rootx() #+ 57
+        y = y + cy + self.widget.winfo_rooty() + 27
+        self.tipwindow = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(1)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = tk.Label(tw, text=self.text, justify=tk.LEFT,
+                      background="#110947", foreground="white", relief=tk.SOLID, borderwidth=1,
+                      font=("Helvetica", "10"))
+        label.pack(ipadx=1)
+
+    def hidetip(self):
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
+
+def CreateToolTip(widget, text):
+    toolTip = ToolTip(widget)
+    def enter(event):
+        toolTip.showtip(text)
+    def leave(event):
+        toolTip.hidetip()
+    widget.bind('<Enter>', enter)
+    widget.bind('<Leave>', leave)
+
+for row in range(12):
     cur_str_var = tk.StringVar()
 
-    tk.Label(right_dropbox_frame, text=names2[row], width=12).grid(row=row, column=0, padx=10, pady=5)
+    cur_label = tk.Label(right_dropbox_frame, text=names2[row], width=12)
+
+    creation_labels.append(cur_label)
+
+    cur_label.grid(row=row, column=0, padx=10, pady=5)
+
     combo1 = ttk.Combobox(right_dropbox_frame, textvariable=cur_str_var)
     combo1.grid(row=row, column=1, padx=10, pady=10)
 
@@ -2425,6 +2701,10 @@ for row in range(11):
     if row == 8:
         combo1['textvariable'] = None
         combo1.bind("<<ComboboxSelected>>", handle_selection_change_cskill)
+
+    if row == 9:
+        combo1['textvariable'] = None
+        combo1.bind("<<ComboboxSelected>>", handle_selection_change_sseal)
 
 def check_input(event):
     value = event.widget.get()

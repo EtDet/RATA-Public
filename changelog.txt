@@ -1,3 +1,18 @@
+1.0.5 (10/16/24)
+
+New Features:
+-Added the following new heroes: BR!Caeda, BR!Charlotte, BR!Cordelia, BR!Lyn, Katarina, Athena, Luke, Roderick, Legion, Clarisse, SU!Frederick, SU!Gaius, SU!F!Robin, SU!A!Tiki, Tobin, Delthea, Gray, Mathilda, Leon, Saber, Sonya, Berkut, Clive, SU!F!Corrin, SU!Elise, SU!Xander, SU!Leo
+-The new weapons and skills introduced with these heroes have also been added.
+-Hovering over the name for each skill type (Weapon, Assist, etc.) in the unit builder will now display the description for that skill.
+-Added the movement and weapon icon for a unit when selected in the unit builder.
+-Added a Swap button to change the positions of the player's team on their first turn.
+-Sacred Seals added, starting with a handful of basic effects; more seals are soon to come.
+
+Bug Fixes:
+-Fixed an issue where hero sprites would not be in the correct position after a combat.
+-Fixed Carrot Lance+ not having its correct Mt value.
+-Fixed Rogue Dagger+ not giving an HP boost when refined.
+
 1.0.4 (10/2/24)
 New Features:
 -Added the following new heroes: SP!Chrom, SP!Lucina, SP!Xander, SP!Camilla, Navarre, Zephiel, Xander, Lloyd, Camus, Alm, Lukas, Clair, Faye, Ike, Mist, Soren, Titania, Celica, Mae, Boey, Genny, Masked Marth

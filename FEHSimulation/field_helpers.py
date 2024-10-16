@@ -1,3 +1,9 @@
+# This file holds several methods to carry out the following functions for game.py:
+# - Start of turn skills
+# - Warp tiles
+# - Combat Fields
+# - Post-combat effects
+
 from hero import *
 from combat import CombatField
 
@@ -44,6 +50,16 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
 
+        if "driveSpd" in unitSkills:
+            range = within_2_space
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = True
+            effects = {"driveSpd_f": unitSkills["driveSpd"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
         if "spurDef" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 1
             condition = lambda s: lambda o: True
@@ -54,12 +70,32 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
 
+        if "driveDef" in unitSkills:
+            range = within_2_space
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = True
+            effects = {"driveDef_f": unitSkills["driveDef"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
         if "spurRes" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 1
             condition = lambda s: lambda o: True
             affect_self = False
             affect_other_side = True
             effects = {"spurRes_f": unitSkills["spurRes"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
+        if "driveRes" in unitSkills:
+            range = within_2_space
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = True
+            effects = {"driveRes_f": unitSkills["driveRes"]}
 
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
@@ -172,6 +208,16 @@ def create_combat_fields(player_team, enemy_team):
             affect_self = False
             affect_other_side = False
             effects = {"gordin_field_f": unitSkills["gordin_field"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
+        if "jointSupportPartner" in unitSkills:
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: o.isSupportOf(s)
+            affect_self = False
+            affect_other_side = True
+            effects = {"jointSupportPartner_f": 3}
 
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
@@ -419,18 +465,54 @@ def start_of_turn(starting_team, waiting_team, turn):
                 foe.inflictStat(RES, -unitSkills["threatenResW"])
 
         # DEFIANT SKILLS
+        def apply_defiant(defiant_type):
+            if defiant_type in unitSkills or f"{defiant_type}Se" in unitSkills and unit.HPcur / unitStats[0] <= 0.50:
 
-        if "defiantAtk" in unitSkills and unitHPCur / unitStats[0] <= 0.50:
-            unit.inflictStat(ATK, 2 * unitSkills["defiantAtk"] + 1)
+                stat = ploy_types.index(defiant_type) + 1
 
-        if "defiantSpd" in unitSkills and unitHPCur / unitStats[0] <= 0.50:
-            unit.inflictStat(SPD, 2 * unitSkills["defiantSpd"] + 1)
+                if defiant_type in unitSkills: unit.inflictStat(stat, 2 * unitSkills[defiant_type] + 1)
+                if f"{defiant_type}Se" in unitSkills: unit.inflictStat(stat, 2 * unitSkills[f"{defiant_type}Se"] + 1)
 
-        if "defiantDef" in unitSkills and unitHPCur / unitStats[0] <= 0.50:
-            unit.inflictStat(DEF, 2 * unitSkills["defiantDef"] + 1)
+        defiant_types = ["defiantAtk", "defiantSpd", "defiantDef", "defiantRes"]
+        for defiant in defiant_types:
+            apply_defiant(defiant)
 
-        if "defiantRes" in unitSkills and unitHPCur / unitStats[0] <= 0.50:
-            unit.inflictStat(RES, 2 * unitSkills["defiantRes"] + 1)
+
+        # PLOY SKILLS
+        def apply_ploy(ploy_type):
+            if ploy_type in unitSkills or f"{ploy_type}W" in unitSkills:
+                valid_foes = [p_tile.hero_on for p_tile in tiles_within_1_row_or_column if p_tile.hero_on is not None and p_tile.hero_on.isEnemyOf(unit)]
+
+                for foe in valid_foes:
+                    unit_res = unit.visible_stats[RES]
+                    foe_res = foe.visible_stats[RES]
+
+                    if "phantomRes" in unitSkills: unit_res += unit.getSkills()["phantomRes"]
+                    if "phantomRes" in foe.getSkills(): foe_res += foe.getSkills()["phantomRes"]
+
+                    if unit_res > foe_res:
+                        stat = ploy_types.index(ploy_type) + 1
+
+                        if ploy_type in unitSkills: foe.inflictStat(stat, -unitSkills[ploy_type])
+                        if f"{ploy_type}W" in unitSkills: foe.inflictStat(stat, -unitSkills[f"{ploy_type}W"])
+
+        ploy_types = ["atkPloy", "spdPloy", "defPloy", "resPloy"]
+        for ploy in ploy_types:
+            apply_ploy(ploy)
+
+        if "panicPloy" in unitSkills:
+            diff = 7 - unitSkills["panicPloy"] * 2
+            for tile in tiles_within_1_row_or_column:
+                if tile.hero_on is not None and tile.hero_on.side != unit.side:
+                    if tile.hero_on.HPcur <= unit.HPcur - diff:
+                        tile.hero_on.inflictStatus(Status.Panic)
+
+        if "panicPloyW" in unitSkills:
+            diff = 7 - unitSkills["panicPloyW"] * 2
+            for tile in tiles_within_1_row_or_column:
+                if tile.hero_on is not None and tile.hero_on.side != unit.side:
+                    if tile.hero_on.HPcur <= unit.HPcur - diff:
+                        tile.hero_on.inflictStatus(Status.Panic)
 
         # TACTIC SKILLS
         if "resTacticW" in unitSkills:
@@ -444,7 +526,6 @@ def start_of_turn(starting_team, waiting_team, turn):
                         ally.inflictStat(RES, 6)
 
         # CHILL SKILLS
-
         if "chillAtkW" in unitSkills:
             highest_atk = units_with_extreme_stat(waiting_team, ATK, find_max=True)
             for foe in highest_atk:
@@ -483,8 +564,15 @@ def start_of_turn(starting_team, waiting_team, turn):
         if "turn1Pulse" in unitSkills and turn == 1:
             sp_charges[unit] += unitSkills["turn1Pulse"]
 
-        # WAVE SKILLS
+        if "turn1PulseD" in unitSkills and turn == 1 and unit.getSpecialType() == "Defense": # Defensive Specials Only
+            sp_charges[unit] += unitSkills["turn1PulseD"]
 
+        if "infantryPulse" in unitSkills and turn == 1:
+            for ally in waiting_team:
+                if unit.HPcur - (7 * unitSkills["infantryPulse"]) > ally.HPcur and ally.move == 0:
+                    sp_charges[ally] += 1
+
+        # WAVE SKILLS
         if "evenAtkWaveW" in unitSkills and turn % 2 == 0:
             unit.inflictStat(ATK, unitSkills["evenAtkWaveW"])
             for ally in allies_within_n_spaces[1]:
@@ -628,13 +716,6 @@ def start_of_turn(starting_team, waiting_team, turn):
             unit.inflictStat(SPD, 6)
             unit.inflictStatus(Status.MobilityUp)
 
-        if "panicPloy" in unitSkills:
-            diff = 7 - unitSkills["panicPloy"] * 2
-            for tile in tiles_within_1_row_or_column:
-                if tile.hero_on is not None and tile.hero_on.side != unit.side:
-                    if tile.hero_on.HPcur <= unit.HPcur - diff:
-                        tile.hero_on.inflictStatus(Status.Panic)
-
     # LOOP 1.5: APPLY SUMMED SP CHARGES
     for unit in sp_charges:
         unit.chargeSpecial(sp_charges[unit])
@@ -694,6 +775,13 @@ def start_of_turn(starting_team, waiting_team, turn):
 
         if "recoverSk" in unitSkills:
             if (turn - 1) % (5 - unitSkills["recoverSk"]) == 0:
+                if unit not in heals_given:
+                    heals_given[unit] = 10
+                else:
+                    heals_given[unit] += 10
+
+        if "recoverSe" in unitSkills:
+            if (turn - 1) % (5 - unitSkills["recoverSe"]) == 0:
                 if unit not in heals_given:
                     heals_given[unit] = 10
                 else:
