@@ -1,7 +1,18 @@
-1.0.5 (10/16/24)
-
+1.0.6 (10/26/24)
 New Features:
--Added the following new heroes: BR!Caeda, BR!Charlotte, BR!Cordelia, BR!Lyn, Katarina, Athena, Luke, Roderick, Legion, Clarisse, SU!Frederick, SU!Gaius, SU!F!Robin, SU!A!Tiki, Tobin, Delthea, Gray, Mathilda, Leon, Saber, Sonya, Berkut, Clive, SU!F!Corrin, SU!Elise, SU!Xander, SU!Leo
+-Added the following new heroes, completing the first year of added Heroes: Amelia, Innes, Seth, Tana, Valter, B!Ike, B!Lyn, B!Roy, B!Lucina, Elincia, Nephenee, Oscar, Black Knight, DA!Azura,
+ DA!Olivia, DA!Inigo, DA!Shigure, Sigurd, Deirdre, Tailtiu, Arvis, Ayra, Arden, H!Sakura, H!Jakob, H!Henry, H!Nowi, Dorcas, Lute, Mia, Joshua
+-The new weapons and skills introduced with these heroes have also been added.
+-Summoner Support and Ally Support have been implemented. Ally Support is currently locked to Rank S.
+
+Bug Fixes:
+-Fixed inability to use Sacred Seals in battles from the menu.
+-Fixed certain Exp/Valor skills not being correctly restricted from certain units.
+
+1.0.5 (10/16/24)
+New Features:
+-Added the following new heroes: BR!Caeda, BR!Charlotte, BR!Cordelia, BR!Lyn, Katarina, Athena, Luke, Roderick, Legion, Clarisse, SU!Frederick, SU!Gaius, SU!F!Robin, SU!A!Tiki, Tobin, Delthea, Gray,
+ Mathilda, Leon, Saber, Sonya, Berkut, Clive, SU!F!Corrin, SU!Elise, SU!Xander, SU!Leo
 -The new weapons and skills introduced with these heroes have also been added.
 -Hovering over the name for each skill type (Weapon, Assist, etc.) in the unit builder will now display the description for that skill.
 -Added the movement and weapon icon for a unit when selected in the unit builder.

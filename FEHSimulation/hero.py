@@ -3,6 +3,7 @@ from itertools import islice
 from enum import Enum
 
 import pandas as pd
+import pickle
 
 # CONSTANTS
 HP = 0
@@ -223,8 +224,17 @@ class Hero:
         self.emblem = None
         self.emblem_merges: int = 0
 
+        # Ally/Summoner Support
+        # 0 - No Rank
+        # 1 - C
+        # 2 - B
+        # 3 - A
+        # 4 - S
+
         self.allySupport = None
-        self.summonerSupport = None
+        self.allySupportLevel = 4
+
+        self.summonerSupport = 0
 
         self.blessing = None
 
@@ -398,7 +408,7 @@ class Hero:
 
             required_vector = int(required_vector)
 
-            with open("growth_vectors.bin") as file:
+            with open("Spreadsheets\growth_vectors.bin") as file:
                 my_slice = list(islice(file, required_vector % 2496, required_vector + 1))
 
             vector = (''.join(my_slice))[0:40]
@@ -601,7 +611,18 @@ class Hero:
     def set_visible_stats(self):
         i = 0
         while i < 5:
-            self.visible_stats[i] = self.stats[i] + self.skill_stat_mods[i]
+            sum_sup_stat = 0
+            if i == 0:
+                if self.summonerSupport == 1:
+                    sum_sup_stat = 3
+                if self.summonerSupport == 2 or self.summonerSupport == 3:
+                    sum_sup_stat = 4
+                if self.summonerSupport == 4:
+                    sum_sup_stat = 5
+            else:
+                sum_sup_stat = 2 * int(5 - i <= self.summonerSupport)
+
+            self.visible_stats[i] = self.stats[i] + self.skill_stat_mods[i] + sum_sup_stat
             self.visible_stats[i] = max(min(self.visible_stats[i], 99), 0)
             i += 1
 
@@ -932,15 +953,28 @@ class Status(Enum):
 
 
 print("Reading Unit & Skill Data...")
-hero_sheet = pd.read_csv('FEHstats.csv')
-weapon_sheet = pd.read_csv('FEHWeapons.csv')
-assist_sheet = pd.read_csv('FEHAssists.csv')
-special_sheet = pd.read_csv('FEHSpecials.csv')
-skills_sheet = pd.read_csv('FEHABCXSkills.csv')
-seals_sheet = pd.read_csv("FEHSeals.csv")
+hero_sheet = pd.read_csv('Spreadsheets\FEHstats.csv')
+weapon_sheet = pd.read_csv('Spreadsheets\FEHWeapons.csv')
+assist_sheet = pd.read_csv('Spreadsheets\FEHAssists.csv')
+special_sheet = pd.read_csv('Spreadsheets\FEHSpecials.csv')
+skills_sheet = pd.read_csv('Spreadsheets\FEHABCXSkills.csv')
+seals_sheet = pd.read_csv("Spreadsheets\FEHSeals.csv")
 
 # Skills currently present for use
-impl_skills_sheet = pd.read_csv("FEHImplABCXSkills.csv")
+impl_skills_sheet = pd.read_csv("Spreadsheets\FEHImplABCXSkills.csv")
+
+# Support partners
+
+def get_ally_support(int_name):
+    loaded_file = open('supports.pkl', 'rb')
+    supports = pickle.load(loaded_file)
+
+    for pairing in supports:
+        if int_name in pairing:
+            return pairing[pairing.index(int_name) - 1]
+
+    return None
+
 print("Unit & Skill Data Loaded.")
 
 def makeHero(name):
@@ -967,7 +1001,12 @@ def makeHero(name):
     bvid = row.loc[n, 'BVID']
     refreshType = row.loc[n, 'RefreshType']
 
-    return Hero(name, int_name, epithet, game, wpnType, moveType, [u_hp, u_atk, u_spd, u_def, u_res], [g_hp, g_atk, g_spd, g_def, g_res], dfl, bvid, refreshType)
+    result_hero = Hero(name, int_name, epithet, game, wpnType, moveType, [u_hp, u_atk, u_spd, u_def, u_res], [g_hp, g_atk, g_spd, g_def, g_res], dfl, bvid, refreshType)
+
+    # Set ally support from supports.pkl
+    result_hero.allySupport = get_ally_support(int_name)
+
+    return result_hero
 
 def makeWeapon(name):
     # ﻿
@@ -1105,6 +1144,8 @@ def makeSeal(name):
 
 #print(veyle.visible_stats)
 
+a = makeHero("Dimitri")
+
 # Heroes added so far
 implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "Barst", "Bartre", "Beruka", "Caeda",
                           "Cain", "Camilla", "Catria", "Cecilia", "Cherche", "Chrom", "Clarine", "Cordelia", "M!Corrin", "F!Corrin",
@@ -1130,5 +1171,12 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "Athena", "Katarina", "Luke", "Roderick", "Legion", "Clarisse",
                           "SU!F!Robin", "SU!Gaius", "SU!Frederick", "SU!A!Tiki",
                           "Tobin", "Delthea", "Mathilda", "Gray", "Saber", "Sonya", "Leon", "Berkut", "Clive",
-                          "SU!F!Corrin", "SU!Elise", "SU!Leo", "SU!Xander"
+                          "SU!F!Corrin", "SU!Elise", "SU!Leo", "SU!Xander",
+                          "Amelia", "Innes", "Seth", "Tana", "Valter",
+                          "B!Ike", "B!Lyn", "B!Lucina", "B!Roy",
+                          "Elincia", "Nephenee", "Oscar", "Black Knight",
+                          "DA!Olivia", "DA!Inigo", "DA!Azura", "DA!Shigure",
+                          "Sigurd", "Deirdre", "Tailtiu", "Arvis", "Ayra", "Arden",
+                          "H!Henry", "H!Jakob", "H!Sakura", "H!Nowi",
+                          "Dorcus", "Lute", "Mia", "Joshua"
                     ]

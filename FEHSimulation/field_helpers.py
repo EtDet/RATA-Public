@@ -212,12 +212,44 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
 
+        # Mathilda/Clive
         if "jointSupportPartner" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: o.isSupportOf(s)
             affect_self = False
             affect_other_side = True
             effects = {"jointSupportPartner_f": 3}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
+        if "oscarDrive" in unitSkills:
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: o.move == 0 or o.move == 1
+            affect_self = False
+            affect_other_side = True
+            effects = {"oscarDrive_f": unitSkills["oscarDrive"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
+        # B!Lucina
+        if "lucinaDrive" in unitSkills:
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: o.wpnType in MELEE_WEAPONS
+            affect_self = False
+            affect_other_side = True
+            effects = {"lucinaDrive": unitSkills["lucinaDrive_f"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
+        if "refinedLucinaDrive" in unitSkills:
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
+            condition = lambda s: lambda o: o.wpnType in PHYSICAL_WEAPONS
+            affect_self = False
+            affect_other_side = True
+            effects = {"refinedLucinaDrive": unitSkills["refinedLucinaDrive_f"]}
 
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
@@ -231,6 +263,18 @@ def create_combat_fields(player_team, enemy_team):
 
             field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
             combat_fields.append(field)
+
+        # H!Nowi
+        if "nowiField" in unitSkills:
+            range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 3
+            condition = lambda s: lambda o: True
+            affect_self = False
+            affect_other_side = False
+            effects = {"nowiField_f": unitSkills["nowiField"]}
+
+            field = CombatField(owner, range, condition, affect_self, affect_other_side, effects)
+            combat_fields.append(field)
+
 
         if "supportThem" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
@@ -343,6 +387,10 @@ def start_of_turn(starting_team, waiting_team, turn):
         tiles_within_1_col = tile.tilesWithinNCols(1)
         tiles_within_1_row = tile.tilesWithinNRows(1)
         tiles_within_1_row_or_column = list(set(tiles_within_1_col) | set(tiles_within_1_row))
+
+        tiles_within_3_col = tile.tilesWithinNCols(3)
+        tiles_within_3_row = tile.tilesWithinNRows(3)
+        tiles_within_3_row_or_column = list(set(tiles_within_3_col) | set(tiles_within_3_row))
 
         unitSkills = unit.getSkills()
         unitStats = unit.getStats()
@@ -466,9 +514,10 @@ def start_of_turn(starting_team, waiting_team, turn):
 
         # DEFIANT SKILLS
         def apply_defiant(defiant_type):
-            if defiant_type in unitSkills or f"{defiant_type}Se" in unitSkills and unit.HPcur / unitStats[0] <= 0.50:
 
-                stat = ploy_types.index(defiant_type) + 1
+            if (defiant_type in unitSkills or f"{defiant_type}Se" in unitSkills) and unit.HPcur / unitStats[0] <= 0.50:
+
+                stat = defiant_types.index(defiant_type) + 1
 
                 if defiant_type in unitSkills: unit.inflictStat(stat, 2 * unitSkills[defiant_type] + 1)
                 if f"{defiant_type}Se" in unitSkills: unit.inflictStat(stat, 2 * unitSkills[f"{defiant_type}Se"] + 1)
@@ -500,6 +549,32 @@ def start_of_turn(starting_team, waiting_team, turn):
         for ploy in ploy_types:
             apply_ploy(ploy)
 
+        if "atkLargePloyW" in unitSkills:
+            valid_foes = [p_tile.hero_on for p_tile in tiles_within_3_row_or_column if p_tile.hero_on is not None and p_tile.hero_on.isEnemyOf(unit)]
+
+            for foe in valid_foes:
+                unit_res = unit.visible_stats[RES]
+                foe_res = foe.visible_stats[RES]
+
+                if "phantomRes" in unitSkills: unit_res += unit.getSkills()["phantomRes"]
+                if "phantomRes" in foe.getSkills(): foe_res += foe.getSkills()["phantomRes"]
+
+                if unit_res > foe_res:
+                    foe.inflictStat(ATK, -unitSkills["atkLargePloyW"])
+
+        if "resLargePloyW" in unitSkills:
+            valid_foes = [p_tile.hero_on for p_tile in tiles_within_3_row_or_column if p_tile.hero_on is not None and p_tile.hero_on.isEnemyOf(unit)]
+
+            for foe in valid_foes:
+                unit_res = unit.visible_stats[RES]
+                foe_res = foe.visible_stats[RES]
+
+                if "phantomRes" in unitSkills: unit_res += unit.getSkills()["phantomRes"]
+                if "phantomRes" in foe.getSkills(): foe_res += foe.getSkills()["phantomRes"]
+
+                if unit_res > foe_res:
+                    foe.inflictStat(RES, -unitSkills["resLargePloyW"])
+
         if "panicPloy" in unitSkills:
             diff = 7 - unitSkills["panicPloy"] * 2
             for tile in tiles_within_1_row_or_column:
@@ -515,6 +590,16 @@ def start_of_turn(starting_team, waiting_team, turn):
                         tile.hero_on.inflictStatus(Status.Panic)
 
         # TACTIC SKILLS
+        if "spdTacticW" in unitSkills:
+            move_arrs = [[], [], [], []]
+            for ally in allies_within_n_spaces[2]:
+                move_arrs[ally.move].append(ally)
+
+            for arr in move_arrs:
+                if len(arr) <= 2:
+                    for ally in arr:
+                        ally.inflictStat(SPD, 6)
+
         if "resTacticW" in unitSkills:
             move_arrs = [[], [], [], []]
             for ally in allies_within_n_spaces[2]:
@@ -550,10 +635,10 @@ def start_of_turn(starting_team, waiting_team, turn):
         # SP CHARGE
 
         # Wrath
-        if "wrathW" in unitSkills and unitHPCur / unitStats[0] <= unitSkills["wrathW"] * 0.25:
+        if "wrathW" in unitSkills and unitHPCur / unitStats[0] <= unitSkills["wrathW"] * 0.25 and unit.getSpecialType() in ["Offense", "AOE"]:
             sp_charges[unit] += 1
 
-        if "wrathSk" in unitSkills and unitHPCur / unitStats[0] <= unitSkills["wrathSk"] * 0.25:
+        if "wrathSk" in unitSkills and unitHPCur / unitStats[0] <= unitSkills["wrathSk"] * 0.25 and unit.getSpecialType() in ["Offense", "AOE"]:
             sp_charges[unit] += 1
 
         # Time's Pulse
@@ -604,6 +689,51 @@ def start_of_turn(starting_team, waiting_team, turn):
 
                     if foe_res <= unit_res - 3:
                         foe.inflictStat(ATK, -7)
+
+        if "sabotageSpdW" in unitSkills:
+            for foe in waiting_team:
+
+                if allies_within_n(foe, 1):
+                    unit_res = unit.visible_stats[RES]
+                    foe_res = foe.visible_stats[RES]
+
+                    if "phantomRes" in unit.getSkills():
+                        unit_res += unit.getSkills()["phantomRes"]
+                    if "phantomRes" in foe.getSkills():
+                        foe_res += foe.getSkills()["phantomRes"]
+
+                    if foe_res <= unit_res - 3:
+                        foe.inflictStat(SPD, -unitSkills["sabotageSpdW"])
+
+        if "sabotageResW" in unitSkills:
+            for foe in waiting_team:
+
+                if allies_within_n(foe, 1):
+                    unit_res = unit.visible_stats[RES]
+                    foe_res = foe.visible_stats[RES]
+
+                    if "phantomRes" in unit.getSkills():
+                        unit_res += unit.getSkills()["phantomRes"]
+                    if "phantomRes" in foe.getSkills():
+                        foe_res += foe.getSkills()["phantomRes"]
+
+                    if foe_res <= unit_res - 3:
+                        foe.inflictStat(SPD, -unitSkills["sabotageResW"])
+
+        # STATUSES
+        if "armorMarch" in unitSkills and unit.HPcur / unit.visible_stats[HP] >= 1.5 - 0.5 * unitSkills["armorMarch"]:
+            ally_cond = False
+            for ally in allies_within_n_spaces[1]:
+                if ally.move == 3:
+
+                    ally.inflictStatus(Status.MobilityUp)
+                    ally_cond = True
+
+            if ally_cond:
+                unit.inflictStatus(Status.MobilityUp)
+
+
+
 
         # THE UNIQUE SKILL STUFF
 
@@ -860,7 +990,6 @@ def can_be_on_tile(tile, move_type_int):
         else: return False
 
 
-
 def get_warp_moves(unit, unit_team, enemy_team):
     unitSkills = unit.getSkills()
     unitStats = unit.getStats()
@@ -873,7 +1002,7 @@ def get_warp_moves(unit, unit_team, enemy_team):
             if ally != unit and ally_hp <= unitSkills["wingsOfMercy"] * 0.10 + 0.20:
                 adj_ally_spaces = ally.tile.tilesWithinNSpaces(1)
                 for adj_tile in adj_ally_spaces:
-                    if can_be_on_tile(adj_tile, unit.move) and adj_tile.hero_on is None:
+                    if can_be_on_tile(adj_tile, unit.move):
                         warp_moves.append(adj_tile)
 
     if "escRoute" in unitSkills:
@@ -882,7 +1011,18 @@ def get_warp_moves(unit, unit_team, enemy_team):
                 if ally != unit:
                     adj_ally_spaces = ally.tile.tilesWithinNSpaces(1)
                     for adj_tile in adj_ally_spaces:
-                        if can_be_on_tile(adj_tile, unit.move) and adj_tile.hero_on is None:
+                        if can_be_on_tile(adj_tile, unit.move):
+                            warp_moves.append(adj_tile)
+
+    # Flier Formation
+    # Warp to adj. spaces to flying ally within 2 spaces
+    if "flierFormation" in unitSkills:
+        if unit.HPcur/unitStats[HP] >= 1.5 - 0.5 * unitSkills["flierFormation"]:
+            for ally in unit.tile.unitsWithinNSpaces(2):
+                if ally.isAllyOf(unit) and ally.move == 2:
+                    adj_ally_spaces = ally.tile.tilesWithinNSpaces(1)
+                    for adj_tile in adj_ally_spaces:
+                        if can_be_on_tile(adj_tile, unit.move):
                             warp_moves.append(adj_tile)
 
     if "annaSchmovement" in unitSkills and unit.HPcur/unitStats[HP] >= 0.50:
@@ -891,6 +1031,15 @@ def get_warp_moves(unit, unit_team, enemy_team):
             if ally != unit and ally.side == unit.side:
                 adj_ally_spaces = ally.tile.tilesWithinNSpaces(1)
                 for adj_tile in adj_ally_spaces:
+                    if can_be_on_tile(adj_tile, unit.move) and adj_tile.hero_on is None:
+                        warp_moves.append(adj_tile)
+
+    if "nowiSchmovement" in unitSkills:
+        potential_allies = unit.tile.unitsWithinNSpaces(2)
+        for ally in potential_allies:
+            if ally != unit and ally.side == unit.side:
+                close_ally_spaces = ally.tile.tilesWithinNSpaces(2)
+                for adj_tile in close_ally_spaces:
                     if can_be_on_tile(adj_tile, unit.move) and adj_tile.hero_on is None:
                         warp_moves.append(adj_tile)
 
@@ -941,7 +1090,21 @@ def get_warp_moves(unit, unit_team, enemy_team):
 
                 local_spaces = ally.tile.tilesWithinNSpaces(1)
                 for tile in local_spaces:
-                    warp_moves.append(tile)
+                    if can_be_on_tile(tile, unit.move):
+                        warp_moves.append(tile)
+
+        # Guidance
+        # Inf and Armor allies can move to a space adj. to flier w/ skill
+        if "guidance" in allySkills and ally.HPcur / allyStats[HP] >= 1.5 - 0.5 * allySkills["guidance"]:
+            if unit.move == 0 or unit.move == 3:
+                units_within_2 = allies_within_n(ally, 2)
+                if unit in units_within_2:
+
+                    local_spaces = ally.tile.tilesWithinNSpaces(1)
+                    for tile in local_spaces:
+                        if can_be_on_tile(tile, unit.move):
+                            warp_moves.append(tile)
+
 
     # Remove duplicates
     warp_moves = list(set(warp_moves))

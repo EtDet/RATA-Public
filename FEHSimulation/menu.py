@@ -16,6 +16,8 @@ from tkinter import ttk
 import tkmacosx as tkm
 import textwrap
 
+import pickle
+
 WEAPON = 0
 ASSIST = 1
 SPECIAL = 2
@@ -109,8 +111,10 @@ class HeroProxy:
 
         apl_hero.set_level(self.level)
 
-        apl_hero.allySupport = self.a_support
+        apl_hero.allySupport = intName_dict[self.a_support]
+
         apl_hero.summonerSupport = self.s_support
+        apl_hero.set_visible_stats()
 
         if self.weapon is not None:
             wpn_name = self.weapon.intName
@@ -431,6 +435,12 @@ def generate_creation():
     creation_make_text.pack(side=tk.RIGHT, anchor='nw', padx=10, pady=10)
     error_text.pack(side=tk.LEFT, anchor='nw', padx=10, pady=10)
 
+    creation_labels[5].grid(row=5, column=0, padx=4, pady=10)
+    creation_labels[17].grid(row=5, column=0, padx=4, pady=10)
+
+    creation_comboboxes[5].grid(row=5, column=1, padx=4, pady=4)
+    creation_comboboxes[17].grid(row=5, column=1, padx=4, pady=4)
+
     creation_back_button.config(command=generate_units)
 
     current_elements.append(unit_stat_frame)
@@ -469,6 +479,26 @@ def generate_creation_edit(num):
     merges = row["Merges"]
     creation_comboboxes[2].set(merges)
     handle_selection_change_merge()
+
+    # Summ Support
+    s_support = row["SSupport"]
+
+    if pd.isnull(s_support):
+        s_support = 0
+
+    if s_support == 1:
+        s_str = "Rank C"
+    elif s_support == 2:
+        s_str = "Rank B"
+    elif s_support == 3:
+        s_str = "Rank A"
+    elif s_support == 4:
+        s_str = "Rank S"
+    else:
+        s_str = "None"
+
+    creation_comboboxes[5].set(s_str)
+    handle_selection_change_summsupport()
 
     # Asset & Flaw
     asset = STAT_STR[row["Asset"]]
@@ -531,6 +561,22 @@ def generate_creation_edit(num):
     creation_comboboxes[9].set(special)
     handle_selection_change_special()
 
+    # Support Ally
+    loaded_file = open('supports.pkl', 'rb')
+    db = pickle.load(loaded_file)
+
+    ally_str = "None"
+
+    for pairing in db:
+        if int_name in pairing:
+            ally_support = pairing[pairing.index(int_name)-1]
+            ally_hero = hero.makeHero(ally_support) if ally_support is not None else None
+            ally_str = ally_hero.name + ": " + ally_hero.epithet if ally_hero is not None else "None"
+
+
+    creation_comboboxes[17].set(ally_str)
+    handle_selection_change_allysupport()
+
     # A Skill
     askill = row["ASkill"]
 
@@ -576,6 +622,12 @@ def generate_creation_edit(num):
 
 def generate_creation_enemy(num):
     generate_creation()
+
+    creation_comboboxes[17].grid_forget()
+    creation_comboboxes[5].grid_forget()
+
+    creation_labels[17].grid_forget()
+    creation_labels[5].grid_forget()
 
     clear_creation_fields()
 
@@ -739,6 +791,9 @@ def clear_creation_fields():
     creation_comboboxes[8]['values'] = []
     creation_comboboxes[9]['values'] = []
 
+    creation_comboboxes[5]['values'] = []
+    creation_comboboxes[17]['values'] = []
+
     creation_comboboxes[18]['values'] = []
     creation_comboboxes[19]['values'] = []
     creation_comboboxes[20]['values'] = []
@@ -759,6 +814,8 @@ def generate_all_units_option():
 
     options = []
     intName_dict = {}
+
+    intName_dict[None] = None
 
     i = 0
     while i < len(names):
@@ -801,17 +858,20 @@ def get_valid_weapons(cur_hero):
                            "Assault", "Absorb", "Absorb+", "Fear", "Fear+", "Slow", "Slow+", "Gravity", "Gravity+", "Panic", "Panic+", "Pain", "Pain+",
                            "Fire Breath", "Fire Breath+", "Flametongue", "Flametongue+", "Lightning Breath", "Lightning Breath+", "Light Breath", "Light Breath+",
 
+                           "Wo Dao", "Wo Dao+",
                            "Firesweep Bow", "Firesweep Bow+", "Firesweep Lance", "Firesweep L+",
                            "Rauðrowl", "Rauðrowl+", "Gronnowl", "Gronnowl+", "Blárowl", "Blárowl+",
                            "Zanbato", "Zanbato+", "Ridersbane", "Ridersbane+",
-                           "Slaying Edge", "Slaying Edge+", "Slaying Bow", "Slaying Bow+",
+                           "Slaying Edge", "Slaying Edge+", "Slaying Lance", "Slaying Lance+", "Slaying Axe", "Slaying Axe+", "Slaying Bow", "Slaying Bow+",
 
                            "Legion's Axe", "Legion's Axe+", "Clarisse's Bow", "Clarisse's Bow+", "Berkut's Lance", "Berkut's Lance+",
 
                            "Blue Egg", "Blue Egg+", "Green Egg", "Green Egg+", "Carrot Lance", "Carrot Lance+", "Carrot Axe", "Carrot Axe+",
                            "Blessed Bouquet", "Blessed Bouquet+", "First Bite", "First Bite+", "Cupid Arrow", "Cupid Arrow+", "Candlelight", "Candlelight+",
                            "Seashell", "Seashell+", "Refreshing Bolt", "Refreshing Bolt+", "Deft Harpoon", "Deft Harpoon+", "Melon Crusher", "Melon Crusher+",
-                           "Tomato Tome", "Tomato Tome+", "Sealife Tome", "Sealife Tome+", "Hibiscus Tome", "Hibiscus Tome+", "Lilith Floatie", "Lilith Floatie+"]
+                           "Tomato Tome", "Tomato Tome+", "Sealife Tome", "Sealife Tome+", "Hibiscus Tome", "Hibiscus Tome+", "Lilith Floatie", "Lilith Floatie+",
+                           "Dancer's Fan", "Dancer's Fan+", "Dancer's Ring", "Dancer's Ring+", "Dancer's Score", "Dancer's Score+",
+                           "Spectral Tome", "Spectral Tome+", "Monstrous Bow", "Monstrous Bow+", "Kitty Paddle", "Kitty Paddle+"]
 
     # Remove of different weapon
     i = 0
@@ -915,7 +975,7 @@ def get_valid_assists(cur_hero):
 
     implemented_assists = ["Heal", "Mend", "Reconcile", "Recover", "Recover+", "Martyr", "Martyr+", "Rehabilitate", "Rehabilitate+", "Restore", "Restore+",
                            "Rally Attack", "Rally Speed", "Rally Defence", "Rally Resistance",
-                           "Rally Atk/Spd", "Rally Atk/Res", "Rally Def/Res",
+                           "Rally Atk/Spd", "Rally Atk/Def", "Rally Atk/Res", "Rally Spd/Def", "Rally Spd/Res", "Rally Def/Res",
                            "Dance", "Sing",
                            "Harsh Command", "Ardent Sacrifice", "Reciprocal Aid",
                            "Draw Back", "Reposition", "Swap", "Pivot", "Shove", "Smite",]
@@ -1063,12 +1123,12 @@ def get_valid_abc_skills(cur_hero):
             if restr_wpn[i] == "NotMagic" and cur_hero.wpnType not in hero.TOME_WEAPONS: add_cond = False
             if restr_wpn[i] == "NotBow" and cur_hero.wpnType not in hero.BOW_WEAPONS: add_cond = False
             if restr_wpn[i] == "NotBeast" and cur_hero.wpnType not in hero.BEAST_WEAPONS: add_cond = False
-            if restr_wpn[i] == "NotSword" and cur_hero.wpnType != "Sword": add_cond = True
-            if restr_wpn[i] == "NotLance" and cur_hero.wpnType != "Lance": add_cond = True
-            if restr_wpn[i] == "NotAxe" and cur_hero.wpnType != "Axe": add_cond = True
-            if restr_wpn[i] == "NotRTome" and cur_hero.wpnType != "RTome": add_cond = True
-            if restr_wpn[i] == "NotBTome" and cur_hero.wpnType != "BTome": add_cond = True
-            if restr_wpn[i] == "NotGTome" and cur_hero.wpnType != "GTome": add_cond = True
+            if restr_wpn[i] == "NotSword" and cur_hero.wpnType != "Sword": add_cond = False
+            if restr_wpn[i] == "NotLance" and cur_hero.wpnType != "Lance": add_cond = False
+            if restr_wpn[i] == "NotAxe" and cur_hero.wpnType != "Axe": add_cond = False
+            if restr_wpn[i] == "NotRTome" and cur_hero.wpnType != "RTome": add_cond = False
+            if restr_wpn[i] == "NotBTome" and cur_hero.wpnType != "BTome": add_cond = False
+            if restr_wpn[i] == "NotGTome" and cur_hero.wpnType != "GTome": add_cond = False
 
             if "Dragon" in restr_wpn[i] and restr_wpn[i] != "NotDragon" and cur_hero.wpnType in hero.DRAGON_WEAPONS: add_cond = False
             elif "Beast" in restr_wpn[i] and restr_wpn[i] != "NotBeast" and cur_hero.wpnType in hero.BEAST_WEAPONS:  add_cond = False
@@ -1211,7 +1271,7 @@ def add_unit_to_list():
         asset = hero_to_add.asset
         flaw = hero_to_add.flaw
         asc = hero_to_add.asc_asset
-        sSupport = 0
+        sSupport = hero_to_add.summonerSupport
         aSupport = None
         blessing = None
         dflowers = 0
@@ -1222,24 +1282,65 @@ def add_unit_to_list():
 
         data = [name, cur_build_name,
                 weapon, assist, special, askill, bskill, cskill, sSeal, xskill,
-                level, merges, rarity, asset, flaw, asc, aSupport, sSupport, blessing, dflowers, resp, emblem, emblem_merges, cheats]
+                level, merges, rarity, asset, flaw, asc, sSupport, aSupport, blessing, dflowers, resp, emblem, emblem_merges, cheats]
 
-        try:
-            my_units_file = "my_units.csv"
+        my_units_file = "my_units.csv"
+        names = pd.read_csv(my_units_file, encoding='cp1252')['Build Name'].tolist()
 
-            with open(my_units_file, mode="a", newline='', encoding="cp1252") as file:
-                f_writer = writer(file)
-                f_writer.writerow(data)
+        # Ensure build name is unique
+        if cur_build_name not in names:
 
-            # Go back to unit selection screen
-            generate_units()
+            try:
+                my_units_file = "my_units.csv"
 
-            spacer.config(fg="lime", text=f'"{cur_build_name}" created successfully.')
+                with open(my_units_file, mode="a", newline='', encoding="cp1252") as file:
+                    f_writer = writer(file)
+                    f_writer.writerow(data)
 
-        except PermissionError:
-            print(f"Error: Permission denied when writing to file. Please close {my_units_file} and try again.")
+                # Go back to unit selection screen
+                generate_units()
+
+                spacer.config(fg="lime", text=f'"{cur_build_name}" created successfully.')
+
+                ally_supports = open('supports.pkl', 'rb')
+                db = pickle.load(ally_supports)
+
+                new_db = []
+                found = False
+
+                for pairing in db:
+                    if hero_to_add.intName in pairing:
+                        found = True
+
+                        if hero_to_add.allySupport not in pairing and hero_to_add.allySupport is not None:
+                            temp_pairing = (hero_to_add.intName, hero_to_add.allySupport)
+                            new_db.append(temp_pairing)
+
+                        elif hero_to_add.allySupport is not None:
+                            temp_pairing = pairing
+                            new_db.append(temp_pairing)
+
+                    else:
+                        new_db.append(pairing)
+
+                if not found and hero_to_add.allySupport is not None:
+                    new_db.append((hero_to_add.intName, hero_to_add.allySupport))
+
+                open("supports.pkl", "w").close()
+
+                db_file = open("supports.pkl", "ab")
+                pickle.dump(new_db, db_file)
+                db_file.close()
+
+
+            except PermissionError:
+                print(f"Error: Permission denied when writing to file. Please close {my_units_file} and try again.")
+
+        else:
+            error_text.config(fg='#d60408', text="Error: Build Name Already Exists")
     else:
-        error_text.config(fg='#d60408')
+        error_text.config(fg='#d60408', text='Error: No Unit Selected or Build Name Empty')
+
 
 
 def edit_unit_in_list(num):
@@ -1264,7 +1365,7 @@ def edit_unit_in_list(num):
         asset = hero_to_add.asset
         flaw = hero_to_add.flaw
         asc = hero_to_add.asc_asset
-        sSupport = 0
+        sSupport = hero_to_add.summonerSupport
         aSupport = None
         blessing = None
         dflowers = 0
@@ -1275,30 +1376,69 @@ def edit_unit_in_list(num):
 
         data = [name, cur_build_name,
                 weapon, assist, special, askill, bskill, cskill, sSeal, xskill,
-                level, merges, rarity, asset, flaw, asc, aSupport, sSupport, blessing, dflowers, resp, emblem, emblem_merges, cheats]
+                level, merges, rarity, asset, flaw, asc, sSupport, aSupport, blessing, dflowers, resp, emblem, emblem_merges, cheats]
 
-        try:
-            my_units_file = "my_units.csv"
+        my_units_file = "my_units.csv"
+        names = pd.read_csv(my_units_file, encoding='cp1252')['Build Name'].tolist()
 
-            with open(my_units_file, 'r', newline='', encoding="cp1252") as file:
-                f_reader = reader(file)
-                read_data = list(f_reader)
+        # Ensure build name is unique, or name is unchanged
+        if cur_build_name not in names or names[num] == cur_build_name:
 
-            read_data[num + 1] = data
+            try:
+                my_units_file = "my_units.csv"
 
-            with open(my_units_file, mode="w", newline='', encoding="cp1252") as file:
-                f_writer = writer(file)
-                f_writer.writerows(read_data)
+                with open(my_units_file, 'r', newline='', encoding="cp1252") as file:
+                    f_reader = reader(file)
+                    read_data = list(f_reader)
 
-            # Go back to unit selection screen
-            generate_units()
+                read_data[num + 1] = data
 
-            spacer.config(fg="lime", text=f'"{cur_build_name}" saved successfully.')
+                with open(my_units_file, mode="w", newline='', encoding="cp1252") as file:
+                    f_writer = writer(file)
+                    f_writer.writerows(read_data)
 
-        except PermissionError:
-            print(f"Error: Permission denied when writing to file. Please close {my_units_file} and try again.")
+                # Go back to unit selection screen
+                generate_units()
+
+                spacer.config(fg="lime", text=f'"{cur_build_name}" saved successfully.')
+
+                ally_supports = open('supports.pkl', 'rb')
+                db = pickle.load(ally_supports)
+
+                new_db = []
+                found = False
+
+                for pairing in db:
+                    if hero_to_add.intName in pairing:
+                        found = True
+
+                        if hero_to_add.allySupport not in pairing and hero_to_add.allySupport is not None:
+                            temp_pairing = (hero_to_add.intName, hero_to_add.allySupport)
+                            new_db.append(temp_pairing)
+
+                        elif hero_to_add.allySupport is not None:
+                            temp_pairing = pairing
+                            new_db.append(temp_pairing)
+
+                    else:
+                        new_db.append(pairing)
+
+                if not found and hero_to_add.allySupport is not None:
+                    new_db.append((hero_to_add.intName, hero_to_add.allySupport))
+
+                open("supports.pkl", "w").close()
+
+                db_file = open("supports.pkl", "ab")
+                pickle.dump(new_db, db_file)
+                db_file.close()
+
+            except PermissionError:
+                print(f"Error: Permission denied when writing to file. Please close {my_units_file} and try again.")
+
+        else:
+            error_text.config(fg='#d60408', text="Error: Build Name Already Exists")
     else:
-        error_text.config(fg='#d60408')
+        error_text.config(fg='#d60408', text='Error: No Unit Selected or Build Name Empty')
 
 # Scroll list of units when editing
 def on_canvas_mousewheel(event):
@@ -1352,13 +1492,17 @@ def begin_simulation():
 
             cur_hero.set_level(row["Level"])
 
+            cur_hero.summonerSupport = row["SSupport"] if not pd.isnull(row["SSupport"]) else 0
+
+            cur_hero.set_visible_stats()
+
             if not pd.isnull(row["Weapon"]): cur_hero.set_skill(hero.makeWeapon(row["Weapon"]), WEAPON)
             if not pd.isnull(row["Assist"]): cur_hero.set_skill(hero.makeAssist(row["Assist"]), ASSIST)
             if not pd.isnull(row["Special"]): cur_hero.set_skill(hero.makeSpecial(row["Special"]), SPECIAL)
             if not pd.isnull(row["ASkill"]): cur_hero.set_skill(hero.makeSkill(row["ASkill"]), ASKILL)
             if not pd.isnull(row["BSkill"]): cur_hero.set_skill(hero.makeSkill(row["BSkill"]), BSKILL)
             if not pd.isnull(row["CSkill"]): cur_hero.set_skill(hero.makeSkill(row["CSkill"]), CSKILL)
-
+            if not pd.isnull(row["SSeal"]): cur_hero.set_skill(hero.makeSeal(row["SSeal"]), CSKILL)
 
             player_units.append(cur_hero)
 
@@ -1390,14 +1534,15 @@ window.configure(background='#797282')
 # MAIN MENU ELEMENTS
 title_label = tk.Label(master=window, text='RATA - An FE: Heroes Simulator', font='Helvetica 24', relief="raised")
 subtitle_label = tk.Label(master=window, text='By CloudX (2024)', font='Helvetica 18', relief="raised")
-version_label = tk.Label(master=window, text="Ver 1.0.5 - Nohrian Summer", font='Helvetica 12', relief="raised")
-start_button = tkm.Button(window, command=generate_maps, width=255, text="Level Select", font="Helvetica 14", cursor="hand2", bg='blue', fg='white')
-units_button = tkm.Button(window, command=generate_units, width=255, text="My Units", font="Helvetica 14", cursor="hand2", bg='blue', fg='white')
-help_button = tkm.Button(window, command=about,width=255, text="GitHub Page", font="Helvetica 14", cursor="hand2", bg='blue', fg='white')
-quit_button = tkm.Button(window, command=window.destroy, width=255, text="Close", font="Helvetica 14", cursor="hand2", bg='red', fg='white')
+version_label = tk.Label(master=window, text="Ver 1.0.6 - Year 1 Complete", font='Helvetica 12', relief="raised")
+
+start_button = tkm.Button(window, command=generate_maps, height=40, width=255, text="Level Select", font="Helvetica 14", cursor="hand2", bg='blue', fg='white', borderless=True, takefocus=0)
+units_button = tkm.Button(window, command=generate_units, height=40, width=255, text="My Units", font="Helvetica 14", cursor="hand2", bg='blue', fg='white', borderless=True)
+help_button = tkm.Button(window, command=about, height=40, width=255, text="GitHub Page", font="Helvetica 14", cursor="hand2", bg='blue', fg='white', borderless=True)
+quit_button = tkm.Button(window, command=window.destroy, height=40, width=255, text="Close", font="Helvetica 14", cursor="hand2", bg='red', fg='white', borderless=True)
 
 front_page_elements = [title_label, subtitle_label, version_label, start_button, units_button, help_button, quit_button]
-front_page_paddings = [(80, 5), (10, 5), (5, 5), (20, 20), (0, 20), (0, 20), (0, 20)]
+front_page_paddings = [(80, 5), (10, 5), (5, 5), (20, 10), (0, 10), (0, 10), (0, 10)]
 
 # MAP SELECTION ELEMENTS
 
@@ -1928,15 +2073,17 @@ search_frame = tk.Frame(window, bg='#797282')
 back_button = tk.Button(search_frame, text='<- Back', command=generate_main, width=10)
 back_button.pack(side='left')
 
-name_search_label = ttk.Label(master=search_frame, text='Name Search:')
-name_search_label.pack(side='left', padx=(25, 5))
+# RE-ADD ONCE READY
 
-search_string = tk.StringVar()
-search_bar = tk.Entry(search_frame, textvariable=search_string, width=30)
-search_bar.pack(side='left', padx=(5,20))
+#name_search_label = ttk.Label(master=search_frame, text='Name Search:')
+#name_search_label.pack(side='left', padx=(25, 5))
 
-search_button = tk.Button(search_frame, text='Search', width=15)
-search_button.pack(side='left')
+#search_string = tk.StringVar()
+#search_bar = tk.Entry(search_frame, textvariable=search_string, width=30)
+#search_bar.pack(side='left', padx=(5,20))
+
+#search_button = tk.Button(search_frame, text='Search', width=15)
+#search_button.pack(side='left')
 
 select_frame = tk.Frame(window, bg='#797282')
 edit_button = tk.Button(select_frame, text='Edit', command=generate_main, width=10)
@@ -2218,6 +2365,24 @@ def handle_selection_change_name(event=None):
     # Set allowed sacred seals
     creation_comboboxes[21]['values'] = s_seals
 
+    # Set Ally Support Partner
+    if madeHero.allySupport is not None:
+        temp_ally = hero.makeHero(madeHero.allySupport)
+        temp_str = temp_ally.name + ": " + temp_ally.epithet
+        heroProxy.a_support = temp_str
+    else:
+        temp_str = "None"
+
+    creation_str_vars[17].set(temp_str)
+
+    # Valid support partners for a hero should be all heroes minus themselves
+    creation_comboboxes[17]['values'] = ["None"] + [support_names for support_names in all_hero_options if support_names != madeHero.name + ": "  + madeHero.epithet]
+
+    # Set Summoner Support Rank
+    creation_str_vars[5].set("None")
+
+    creation_comboboxes[5]['values'] = ["None", "Rank C", "Rank B", "Rank A", "Rank S"]
+
     handle_selection_change_name.created_hero = madeHero
     heroProxy.apply_proxy(madeHero)
 
@@ -2357,6 +2522,39 @@ def handle_selection_change_flaw(event=None):
         while i < 5:
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
+
+def handle_selection_change_allysupport(event=None):
+    selected_value = creation_str_vars[17].get()
+
+    if selected_value != "None":
+        heroProxy.a_support = selected_value
+    else:
+        heroProxy.a_support = None
+
+    heroProxy.apply_proxy(handle_selection_change_name.created_hero)
+
+def handle_selection_change_summsupport(event=None):
+    selected_value = creation_str_vars[5].get()
+
+    if selected_value == "None":
+        heroProxy.s_support = 0
+    if selected_value == "Rank C":
+        heroProxy.s_support = 1
+    if selected_value == "Rank B":
+        heroProxy.s_support = 2
+    if selected_value == "Rank A":
+        heroProxy.s_support = 3
+    if selected_value == "Rank S":
+        heroProxy.s_support = 4
+
+    if handle_selection_change_name.created_hero is not None:
+        heroProxy.apply_proxy(handle_selection_change_name.created_hero)
+
+        i = 0
+        while i < 5:
+            creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
+            i += 1
+
 
 def handle_selection_change_weapon(event=None):
     selected_value = creation_str_vars[6].get()
@@ -2589,6 +2787,11 @@ for row in range(12):
         combo1['values'] = iv_strs
         combo1.bind("<<ComboboxSelected>>", handle_selection_change_asset)
 
+    # S SUPPORT
+    if row == 5:
+        combo1['textvariable'] = None
+        combo1.bind("<<ComboboxSelected>>", handle_selection_change_summsupport)
+
     # WEAPON
     if row == 6:
         combo1['textvariable'] = None
@@ -2689,6 +2892,10 @@ for row in range(12):
     if row == 4:
         combo1['textvariable'] = None
         #combo1['values'] = iv_strs
+
+    if row == 5:
+        combo1['textvariable'] = None
+        combo1.bind("<<ComboboxSelected>>", handle_selection_change_allysupport)
 
     if row == 6:
         combo1['textvariable'] = None

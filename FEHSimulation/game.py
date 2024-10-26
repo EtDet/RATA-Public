@@ -1,3 +1,5 @@
+import tkinter
+
 from combat import *
 
 from field_helpers import start_of_turn, end_of_combat, create_combat_fields, get_warp_moves, allies_within_n
@@ -9,6 +11,8 @@ import os
 import json
 import random
 from re import sub
+
+import textwrap
 
 print("Beginning running...")
 
@@ -85,6 +89,52 @@ class MapState:
 
         print("\nTurn Num: " + str(self.turn_num))
 
+class ToolTip(object):
+
+    def __init__(self, widget):
+        self.widget = widget
+        self.tipwindow = None
+        self.id = None
+        self.x = self.y = 0
+
+    def showtip(self, text):
+        try:
+
+            lines = text.splitlines()  # Split text into lines
+            wrapped_lines = [textwrap.fill(line, 60) for line in lines]
+            self.text = "\n".join(wrapped_lines)
+
+        # Weapon description is blank (or I haven't edited it yet)
+        except AttributeError:
+            self.text = ""
+
+        if self.tipwindow or not self.text: return
+
+        x, y, cx, cy = self.widget.bbox("insert")
+        x = x + self.widget.winfo_rootx() #+ 57
+        y = y + cy + self.widget.winfo_rooty() + 27
+        self.tipwindow = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(1)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = tk.Label(tw, text=self.text, justify=tk.LEFT,
+                      background="#110922", foreground="white", relief=tk.SOLID, borderwidth=1,
+                      font=("Helvetica", "10"))
+        label.pack(ipadx=1)
+
+    def hidetip(self):
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
+
+def CreateToolTip(widget, text):
+    toolTip = ToolTip(widget)
+    def enter(event):
+        toolTip.showtip(text)
+    def leave(event):
+        toolTip.hidetip()
+    widget.bind('<Enter>', enter)
+    widget.bind('<Leave>', leave)
 
 # Create blank to be played upon
 map0 = Map(0)
@@ -160,13 +210,13 @@ d_bonus_doubler = makeSkill("D Bonus Doubler")
 moonlit_bangle_q = makeSkill("Moonlit Bangle Q")
 times_pulse_4 = makeSkill("Time's Pulse 4")
 
-xander = makeHero("Roderick")
+xander = makeHero("Est")
 xander.set_skill(makeWeapon("Knightly LanceEff"), WEAPON)
 xander.set_skill(makeAssist("Shove"), ASSIST)
 xander.set_skill(makeSpecial("Moonbow"), SPECIAL)
 xander.set_skill(makeSkill("Attack/Res 2"), ASKILL)
 xander.set_skill(makeSkill("Seal Atk/Spd 2"), BSKILL)
-xander.set_skill(makeSkill("Drive Def 2"), CSKILL)
+xander.set_skill(makeSkill("Hone Atk 3"), CSKILL)
 xander.set_skill(makeSeal("Attack +3"), SSEAL)
 
 # reginn = makeHero("AI!Reginn")
@@ -179,15 +229,18 @@ reginn.set_skill(atkspd_excel, ASKILL)
 reginn.set_skill(flow_guard_4, BSKILL)
 reginn.set_skill(shadow_shift_4, CSKILL)
 
+reginn.summonerSupport = 4
+reginn.set_visible_stats()
+
 # reginn.set_IVs(SPD,DEF,SPD)
 # reginn.set_level(40)
 
-tested_unit = makeHero("Faye")
-tested_weapon = makeWeapon("Firesweep Bow+")
-tested_assist = makeAssist("Reposition")
+tested_unit = makeHero("DA!Azura")
+tested_weapon = makeWeapon("Urðr")
+tested_assist = makeAssist("Dance")
 tested_special = makeSpecial("Iceberg")
 tested_askill = makeSkill("Death Blow 3")
-tested_bskill = makeSkill("Wings of Mercy 3")
+tested_bskill = makeSkill("Flier Formation 3")
 tested_cskill = makeSkill("Hone Atk 3")
 
 tested_unit.set_skill(tested_weapon, WEAPON)
@@ -1008,6 +1061,20 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                                    width=13)
         unit_info_label.place(x=10, y=5)
 
+        # ToolTip for Ally/Summoner Support
+        support_ranks = ["None", "Rank C", " Rank B", "Rank A", "Rank S"]
+        sum_support_str = support_ranks[hero.summonerSupport]
+
+        ally_support_str = support_ranks[hero.allySupportLevel]
+
+        if hero.allySupport is not None:
+            temp_ally = makeHero(hero.allySupport)
+            temp_str = temp_ally.name + ": " + temp_ally.epithet
+        else:
+            temp_str = "no one"
+
+        CreateToolTip(unit_info_label, "Summoner Support: " + sum_support_str + "\nAlly Support: " + ally_support_str + " with " + temp_str)
+
         set_banner.label_array.append(unit_info_label)
 
         move_icon = canvas.create_image(135, 6, anchor=tk.NW, image=move_icons[hero.move])
@@ -1025,6 +1092,8 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
         unit_level_label.place(x=187, y=5)
 
         set_banner.label_array.append(unit_level_label)
+
+        # S-Support & A-Support Labels:
 
         # STAT LABEL
         fills = ['white'] * 5
@@ -1044,19 +1113,19 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                 not is_neutral_iv and hero.flaw == hero.asc_asset and is_merged:
             fills[hero.asc_asset] = 'blue'
 
-        set_banner.rect_array.append(canvas.create_rectangle((131, 30, 291, 47), fill="#73666c", width=0))
+        set_banner.rect_array.append(canvas.create_rectangle((170, 30, 290, 47), fill="#73666c", width=0))
 
-        set_banner.rect_array.append(canvas.create_rectangle((131, 49, 209, 64), fill="#6e4046", width=0))
-        set_banner.rect_array.append(canvas.create_rectangle((211, 49, 291, 64), fill="#4d6e40", width=0))
-        set_banner.rect_array.append(canvas.create_rectangle((131, 66, 209, 81), fill="#87764c", width=0))
-        set_banner.rect_array.append(canvas.create_rectangle((211, 66, 291, 81), fill="#466569", width=0))
+        set_banner.rect_array.append(canvas.create_rectangle((170, 49, 230, 65), fill="#6e4046", width=0))
+        set_banner.rect_array.append(canvas.create_rectangle((230, 49, 290, 65), fill="#4d6e40", width=0))
+        set_banner.rect_array.append(canvas.create_rectangle((170, 65, 230, 81), fill="#87764c", width=0))
+        set_banner.rect_array.append(canvas.create_rectangle((230, 65, 290, 81), fill="#466569", width=0))
 
-        set_banner.rect_array.append(canvas.create_text((155, 38), text="HP", fill=fills[HP], font=("Helvetica", 11)))
+        set_banner.rect_array.append(canvas.create_text((187, 38), text="HP", fill=fills[HP], font=("Helvetica", 11)))
 
-        set_banner.rect_array.append(canvas.create_text((155, 56), text="Atk", fill=fills[ATK], font=("Helvetica", 11)))
-        set_banner.rect_array.append(canvas.create_text((235, 56), text="Spd", fill=fills[SPD], font=("Helvetica", 11)))
-        set_banner.rect_array.append(canvas.create_text((155, 73), text="Def", fill=fills[DEF], font=("Helvetica", 11)))
-        set_banner.rect_array.append(canvas.create_text((235, 73), text="Res", fill=fills[RES], font=("Helvetica", 11)))
+        set_banner.rect_array.append(canvas.create_text((187, 56), text="Atk", fill=fills[ATK], font=("Helvetica", 11)))
+        set_banner.rect_array.append(canvas.create_text((247, 56), text="Spd", fill=fills[SPD], font=("Helvetica", 11)))
+        set_banner.rect_array.append(canvas.create_text((187, 73), text="Def", fill=fills[DEF], font=("Helvetica", 11)))
+        set_banner.rect_array.append(canvas.create_text((247, 73), text="Res", fill=fills[RES], font=("Helvetica", 11)))
 
         fills = ['white'] * 5
 
@@ -1080,12 +1149,10 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
         if percentage == 100.0:
             percentage = 100
 
-        set_banner.rect_array.append(
-            canvas.create_text((185, 38), text=hero.HPcur, fill=fills[HP], font=("Helvetica", 12)))
-        set_banner.rect_array.append(
-            canvas.create_text((205, 38), text="/" + str(stats[HP]), fill='white', font=("Helvetica", 12)))
-        set_banner.rect_array.append(
-            canvas.create_text((250, 38), text=str(percentage) + "%", fill='white', font=("Helvetica", 12)))
+        set_banner.rect_array.append(canvas.create_text((210, 38), text=hero.HPcur, fill=fills[HP], font=("Helvetica", 11)))
+        set_banner.rect_array.append(canvas.create_text((230, 38), text="/" + str(stats[HP]), fill='white', font=("Helvetica", 11)))
+
+        set_banner.rect_array.append(canvas.create_text((265, 38), text=str(percentage) + "%", fill='white', font=("Helvetica", 11)))
 
         displayed_atk = min(max(stats[ATK] + hero.buffs[ATK] * panic_factor + hero.debuffs[ATK], 0), 99)
         displayed_spd = min(max(stats[SPD] + hero.buffs[SPD] * panic_factor + hero.debuffs[SPD], 0), 99)
@@ -1093,17 +1160,16 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
         displayed_res = min(max(stats[RES] + hero.buffs[RES] * panic_factor + hero.debuffs[RES], 0), 99)
 
         set_banner.rect_array.append(
-            canvas.create_text((185, 56), text=displayed_atk, fill=fills[ATK], font=("Helvetica", 11)))
+            canvas.create_text((217, 56), text=displayed_atk, fill=fills[ATK], font=("Helvetica", 11)))
         set_banner.rect_array.append(
-            canvas.create_text((265, 56), text=displayed_spd, fill=fills[SPD], font=("Helvetica", 11)))
+            canvas.create_text((277, 56), text=displayed_spd, fill=fills[SPD], font=("Helvetica", 11)))
         set_banner.rect_array.append(
-            canvas.create_text((185, 73), text=displayed_def, fill=fills[DEF], font=("Helvetica", 11)))
+            canvas.create_text((217, 73), text=displayed_def, fill=fills[DEF], font=("Helvetica", 11)))
         set_banner.rect_array.append(
-            canvas.create_text((265, 73), text=displayed_res, fill=fills[RES], font=("Helvetica", 11)))
+            canvas.create_text((277, 73), text=displayed_res, fill=fills[RES], font=("Helvetica", 11)))
 
         # SKILLS
-        set_banner.rect_array.append(
-            canvas.create_text((308, (5 + 22) / 2), text="⚔️", fill="red", font=("Helvetica", 9), anchor='e'))
+        set_banner.rect_array.append(canvas.create_text((308, (5 + 22) / 2), text="⚔️", fill="red", font=("Helvetica", 9), anchor='e'))
         text_coords = ((310 + 410) / 2, (5 + 22) / 2)
 
         refine_suffixes = ("Eff", "Atk", "Spd", "Def", "Res", "Wra", "Daz")
@@ -1117,15 +1183,11 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
             if int_name_weapon.endswith(suffix):
                 ref_str = " (" + suffix[0] + ")"
 
-        set_banner.rect_array.append(
-            canvas.create_text(*text_coords, text=weapon + ref_str, fill=weapon_fill, font=("Helvetica", 9),
-                               anchor='center'))
+        set_banner.rect_array.append(canvas.create_text(*text_coords, text=weapon + ref_str, fill=weapon_fill, font=("Helvetica", 9), anchor='center'))
 
-        set_banner.rect_array.append(
-            canvas.create_text((309, (25 + 38) / 2), text="◐", fill="green", font=("Helvetica", 23), anchor='e'))
+        set_banner.rect_array.append(canvas.create_text((309, (25 + 38) / 2), text="◐", fill="green", font=("Helvetica", 23), anchor='e'))
         text_coords = ((310 + 410) / 2, (25 + 42) / 2)
-        set_banner.rect_array.append(
-            canvas.create_text(*text_coords, text=assist, fill="white", font=("Helvetica", 9), anchor='center'))
+        set_banner.rect_array.append(canvas.create_text(*text_coords, text=assist, fill="white", font=("Helvetica", 9), anchor='center'))
 
         set_banner.rect_array.append(
             canvas.create_text((308, (45 + 60) / 2), text="☆", fill="#ff33ff", font=("Helvetica", 10), anchor='e'))
@@ -1164,12 +1226,12 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
             canvas.create_text(*text_coords, text=xskill, fill="white", font=("Helvetica", 9), anchor='center'))
 
         # STATUS EFFECTS DISPLAY
-        status_rect = canvas.create_rectangle((75, 49, 127, 81), fill="#7388bd", width=0, tags='status')
+        status_rect = canvas.create_rectangle((117, 30, 167, 81), fill="#7388bd", width=0, tags='status')
         set_banner.rect_array.append(status_rect)
-        text_coords = (101, 65)
+        text_coords = (142, 55)
         set_banner.rect_array.append(
-            canvas.create_text(*text_coords, text="Statuses", fill="white", font=("Helvetica", 9), anchor='center',
-                               tags='status'))
+            canvas.create_text(*text_coords, text="Statuses\n (Hover)", fill="white", font=("Helvetica", 9), anchor=tk.CENTER,
+                               tags='status', ))
 
         set_banner.base_rect = None
 
@@ -3184,6 +3246,8 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
                 unit_final_position = -1
                 ally_final_position = -1
 
+                playerSkills = player.getSkills()
+
                 if "repo" in player.assist.effects:
 
                     # Tiles currently occupied by unit and ally
@@ -3387,6 +3451,17 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
 
                     canvas.itemconfig(ally_sprite, state='normal')
                     canvas.itemconfig(ally_gs_sprite, state='hidden')
+
+                    if "atkRefresh" in playerSkills: ally.inflictStat(ATK, playerSkills["atkRefresh"])
+                    if "spdRefresh" in playerSkills: ally.inflictStat(SPD, playerSkills["spdRefresh"])
+                    if "defRefresh" in playerSkills: ally.inflictStat(ATK, playerSkills["defRefresh"])
+                    if "resRefresh" in playerSkills: ally.inflictStat(SPD, playerSkills["resRefresh"])
+
+                    if "spectrumRefresh" in playerSkills:
+                        i = 1
+                        while i <= 4:
+                            ally.inflictStat(i, playerSkills["spectrumRefresh"])
+                            i += 1
 
                 # Rally
                 if "rallyAtk" in player.assist.effects:
@@ -4160,6 +4235,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str):
         enemy_units[i].tile = chosen_map.tiles[start_tile]
         enemy_units[i].tile.hero_on = enemy_units[i]
         enemy_units[i].side = ENEMY
+        enemy_units[i].allySupport = None
 
         move_to_tile_wp(canvas, enemy_weapon_icons[i], start_tile)
         move_to_tile_sp(canvas, enemy_special_count_labels[i], start_tile)
