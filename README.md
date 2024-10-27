@@ -10,7 +10,8 @@ game's AI is further studied, more testing tools will be provided for more thoro
 This project is also being made to preserve FEH's gameplay since it is a live service application with an eventual
 sunset.
 
-Runs on Python version 3.10.11.
+Runs on Python version 3.10.11. Tkinter widgets may not display properly on Mac devices and may require resizing
+the window to access all features.
 
 Sprites and gameplay assets are downloaded from the https://feheroes.fandom.com page.
 
@@ -42,12 +43,12 @@ $ git clone https://github.com/EtDet/RATA-Public
 cd RATA-Public
 ```
 ```
-pip install -r requirements.txt
+$ pip install -r requirements.txt
 ```
 
 3. Run sprites.py to download all unit sprites and map backgrounds.
 ```
-$ cd RATA-Public\FEHSimulation
+$ cd FEHSimulation
 ```
 ```
 $ python3 sprites.py
