@@ -4,21 +4,21 @@ import requests
 from hero import hero_sheet, Hero, implemented_heroes
 from PIL import Image
 from io import BytesIO
+import os.path
 import unicodedata
 
 
 def download_and_save_image(url, save_path):
+    if os.path.isfile(save_path):
+        print(f"Image {save_path} already exists, moving on...")
+        return 0
+
     response = requests.get(url)
 
     if response.status_code == 200:
-
         image = Image.open(BytesIO(response.content))
-
-        final_save_path = 'TestSprites/' + save_path + ".png"
-
-        image.save(final_save_path)
-
-        print(f"Image successfully saved to {final_save_path}")
+        image.save(save_path)
+        print(f"Image successfully saved to {save_path}")
     else:
         print(f"Failed to retrieve image. Status code: {response.status_code}")
         return -1
@@ -65,7 +65,7 @@ while i < len(names):
 
     # Only to be used for getting the most recent units for development, comment back as soon as you're done!
     #if True:
-        download_and_save_image(image_url, int_name)
+        download_and_save_image(image_url, "TestSprites/" + int_name + ".png")
 
         if has_resp == True:
             resp_image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_Resplendent_Mini_Unit_Ok.png"
@@ -75,7 +75,7 @@ while i < len(names):
         if weapon in ["RBeast", "BBeast", "GBeast", "CBeast"]:
             beast_image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_TransformMap_Mini_Unit_Idle.png"
             beast_name = int_name + "-Tr"
-            download_and_save_image(beast_image_url, beast_name)
+            download_and_save_image(beast_image_url, "TestSprites/" + beast_name + ".png")
 
     i += 1
 
@@ -83,24 +83,7 @@ i = 1
 #i = 101
 while i < 25:
     image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + "Map_Z" + str(i).zfill(4) + ".png"
-
-    # print(image_url)
-
-    response = requests.get(image_url)
-
-    if response.status_code == 200:
-
-        image = Image.open(BytesIO(response.content))
-
-        final_save_path = 'Maps/Arena Maps/' + "Map_Z" + str(i).zfill(4) + ".png"
-
-        image.save(final_save_path)
-
-        print(f"Image successfully saved to {final_save_path}")
-    else:
-        print(f"Failed to retrieve image. Status code: {response.status_code}")
-        break
-
+    download_and_save_image(image_url, "Maps/Arena Maps/" + "Map_Z" + str(i).zfill(4) + ".png")
     i += 1
 
 # 'https://feheroes.fandom.com/wiki/Special:Redirect/file/Seidr_Goddess_of_Hope_Mini_Unit_Ok.png'
