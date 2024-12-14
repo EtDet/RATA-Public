@@ -42,10 +42,13 @@
        "startMove": 1,
        "wallBreak": false
       },
-       {"name": "Merric",
+       {"name": "Mikoto",
        "level": 40,
        "rarity": 5,
-       "weapon": "Rexcalibur",
+       "weapon": "Doting StaffEff",
+       "special": "Moonbow",
+       "askill": "Death Blow 4",
+       "cskill": "Drive Res 2",
        "startMove": 1,
        "wallBreak": false
       }

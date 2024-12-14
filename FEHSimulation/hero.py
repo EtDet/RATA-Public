@@ -135,7 +135,7 @@ class Hero:
         # - Legendary/Mythic Blessings
         # - Bonus unit stats (Arena, TT, etc.)
         # Usually not present until unit enters map
-        self.map_stat_mods: list[int] = [0] * 5
+        self.battle_stat_mods: list[int] = [0] * 5
 
         # Visible stats, what is shown in-game
         self.visible_stats: list[int] = stats[:]
@@ -260,8 +260,18 @@ class Hero:
         # If Canto can be utilized after unit's next action (attacking, breaking, or assisting, etc.)
         self.canto_ready = False
 
-        self.special_galeforce_triggered = False
+        # Galeforce triggered of each type
+
+        # 1) Share Spoils
+        # 2) Priority Specials (Time and Light, Time is Light)
+        # 3) Nonspecial Effs w/o priority (Lone Wolf, Override)
+        # 4) Special Effs w/o priority (Galeforce)
+
+        self.priority_galeforce_triggered = False
         self.nonspecial_galeforce_triggered = False
+        self.special_galeforce_triggered = False
+
+        self.assist_galeforce_triggered = False
 
         self.beast_trans_condition = False
 
@@ -501,6 +511,18 @@ class Hero:
             self.skill_stat_mods[ATK] += skill.effects["atkspdBoost"]
             self.skill_stat_mods[SPD] += skill.effects["atkspdBoost"]
 
+        if "spddefBoost" in skill.effects:
+            self.skill_stat_mods[SPD] += skill.effects["spddefBoost"]
+            self.skill_stat_mods[DEF] += skill.effects["spddefBoost"]
+
+        if "spdresBoost" in skill.effects:
+            self.skill_stat_mods[SPD] += skill.effects["spdresBoost"]
+            self.skill_stat_mods[RES] += skill.effects["spdresBoost"]
+
+        if "defresBoost" in skill.effects:
+            self.skill_stat_mods[DEF] += skill.effects["defresBoost"]
+            self.skill_stat_mods[RES] += skill.effects["defresBoost"]
+
         if "spectrumBoost" in skill.effects:
             self.skill_stat_mods[ATK] += skill.effects["spectrumBoost"]
             self.skill_stat_mods[SPD] += skill.effects["spectrumBoost"]
@@ -559,6 +581,18 @@ class Hero:
             self.skill_stat_mods[ATK] -= skill.effects["atkspdBoost"]
             self.skill_stat_mods[SPD] -= skill.effects["atkspdBoost"]
 
+        if "spddefBoost" in skill.effects:
+            self.skill_stat_mods[SPD] -= skill.effects["spddefBoost"]
+            self.skill_stat_mods[DEF] -= skill.effects["spddefBoost"]
+
+        if "spdresBoost" in skill.effects:
+            self.skill_stat_mods[SPD] -= skill.effects["spdresBoost"]
+            self.skill_stat_mods[RES] -= skill.effects["spdresBoost"]
+
+        if "defresBoost" in skill.effects:
+            self.skill_stat_mods[DEF] -= skill.effects["defresBoost"]
+            self.skill_stat_mods[RES] -= skill.effects["defresBoost"]
+
         if "spectrumBoost" in skill.effects:
             self.skill_stat_mods[ATK] -= skill.effects["spectrumBoost"]
             self.skill_stat_mods[SPD] -= skill.effects["spectrumBoost"]
@@ -610,6 +644,8 @@ class Hero:
 
     def set_visible_stats(self):
         i = 0
+
+        # Summoner Support Stats
         while i < 5:
             sum_sup_stat = 0
             if i == 0:
@@ -622,13 +658,14 @@ class Hero:
             else:
                 sum_sup_stat = 2 * int(5 - i <= self.summonerSupport)
 
-            self.visible_stats[i] = self.stats[i] + self.skill_stat_mods[i] + sum_sup_stat
+            self.visible_stats[i] = self.stats[i] + self.skill_stat_mods[i] + sum_sup_stat + self.battle_stat_mods[i]
             self.visible_stats[i] = max(min(self.visible_stats[i], 99), 0)
             i += 1
 
+        self.visible_stats = [int(x) for x in self.visible_stats]
         self.HPcur = self.visible_stats[0]
 
-    # Getting stat with applied buffs and debuffs
+    # Getting stat with applied buffs and debuffs, not neutralized
     def get_visible_stat(self, STAT):
         panic_factor = 1
         if Status.Panic in self.statusNeg: panic_factor = -1
@@ -663,7 +700,8 @@ class Hero:
         if num > 0: self.buffs[stat] = max(self.buffs[stat], num)
         if num < 0: self.debuffs[stat] = min(self.debuffs[stat], num)
 
-        print(self.name + "'s " + statStr + " was modified by " + str(num) + ".")
+        if num != 0:
+            print(self.name + "'s " + statStr + " was modified by " + str(num) + ".")
 
     def chargeSpecial(self, charge):
         # Will only charge special if charge is >0, and if special is present (-1 represents no special equipped)
@@ -672,7 +710,10 @@ class Hero:
             self.specialCount = max(0, self.specialCount - charge)
             self.specialCount = min(self.specialCount, self.specialMax)
 
-            print(self.name + "'s special was charged by " + str(charge) + ". Currently is: " + str(self.specialCount))
+            if charge < -6:
+                print(self.name + "'s special count was reset. Currently is: " + str(self.specialCount))
+            else:
+                print(self.name + "'s special was charged by " + str(charge) + ". Currently is: " + str(self.specialCount))
 
     def inflictDamage(self, damage):
         self.HPcur -= damage
@@ -715,6 +756,8 @@ class Hero:
         heroSkills = {}
         if self.weapon is not None:
             heroSkills = {x: heroSkills.get(x, 0) + self.weapon.effects.get(x, 0) for x in set(heroSkills).union(self.weapon.effects)}
+        if self.assist is not None:
+            heroSkills = {x: heroSkills.get(x, 0) + self.assist.effects.get(x, 0) for x in set(heroSkills).union(self.assist.effects)}
         if self.special is not None:
             heroSkills = {x: heroSkills.get(x, 0) + self.special.effects.get(x, 0) for x in set(heroSkills).union(self.special.effects)}
         if self.askill is not None:
@@ -825,24 +868,90 @@ class Special:
 
     def getName(self): return self.name
 
-class Blessing():
-    def __init__(self, element, boostType, stat):
-        # 9 - none
-        # 0 - fire, 1 - water, 2 - wind, 3 - earth
-        # 4 - light, 5 - dark, 6 - astra, 7 - anima
-        self.element = element
+FIRE: int = 0
+WATER: int = 1
+EARTH: int = 2
+WIND: int = 3
+LIGHT: int = 4
+DARK: int = 5
+ASTRA: int = 6
+ANIMA: int = 7
 
-        # 9 - none
+ARENA_ELEMENTS = [FIRE, WATER, EARTH, WIND]
+AETHER_ELEMENTS = [LIGHT, DARK, ASTRA, ANIMA]
+BLESSING_NAMES = ["FIRE", "WATER", "EARTH", "WIND", "LIGHT", "DARK", "ASTRA", "ANIMA"]
+
+class Blessing:
+    def __init__(self, args):
+        # 0 - fire, 1 - water, 2 - earth, 3 - wind
+        # 4 - light, 5 - dark, 6 - astra, 7 - anima
+        self.element = args[0]
+
         # 0 - blessing, for non-legendary/mythic unit
         # 1 - legendary effect 1 - stat boost
-        #     OR mythic effect 1 - AR boost + stat boost
+        #     OR mythic effect 1 - stat boost
         # 2 - legendary effect 2 - pair up
+        #     OR mythic effect 2 - stat boost + extra slot
         # 3 - legendary effect 3 - stat boost + pair up
-        self.boostType = boostType
+        self.boostType = args[1]
 
-        # 9 - none
+        # 0 - none
         # 1 - atk, 2 - spd, 3 - def, 4 - res
-        self.stat = stat
+        self.stat = args[2]
+
+    def toString(self):
+        elem_str = BLESSING_NAMES[self.element].capitalize()
+        type_str = " Legend, " if self.element < 4 else " Mythic, "
+
+        boost_str = ""
+
+        # print(self.element, self.boostType, self.stat)
+
+        if self.element < 4:
+            if self.boostType == 1:
+                if self.stat == ATK:
+                    boost_str = "Atk"
+                if self.stat == SPD:
+                    boost_str = "Spd"
+                if self.stat == DEF:
+                    boost_str = "Def"
+                if self.stat == RES:
+                    boost_str = "Res"
+            elif self.boostType == 2:
+                boost_str = "Pair Up"
+            elif self.boostType == 3:
+                if self.stat == ATK:
+                    boost_str = "A/Pair"
+                if self.stat == SPD:
+                    boost_str = "S/Pair"
+                if self.stat == DEF:
+                    boost_str = "D/Pair"
+                if self.stat == RES:
+                    boost_str = "R/Pair"
+
+        return elem_str + type_str + boost_str
+
+blessing_dict = {
+    "Fjorm":      (WATER, 1, SPD),
+    "Gunnthrá":   (WIND,  1, RES),
+    "L!Ike":      (EARTH, 1, ATK),
+    "L!Ephraim":  (FIRE,  1, DEF),
+    "F!Grima":    (EARTH, 1, SPD),
+    "L!Lyn":      (WIND,  1, ATK),
+    "L!Ryoma":    (WATER, 1, DEF),
+    "L!Hector":   (FIRE,  1, ATK),
+    "L!Lucina":   (WIND,  1, SPD),
+    "L!Marth":    (FIRE,  1, RES),
+    "L!Y!Tiki":   (EARTH, 1, DEF),
+    "L!Eirika":   (WATER, 1, ATK),
+    "Hríd":       (WIND,  1, DEF)
+}
+
+def create_specialized_blessing(int_name):
+    if int_name not in blessing_dict:
+        return None
+    else:
+        return Blessing(blessing_dict[int_name])
 
 class DuoSkill:
     def __init__(self, effect):
@@ -875,16 +984,15 @@ class HarmonicSkill(DuoSkill):
 # 🔵 - movement
 # 🟢 - other
 
+
 class Status(Enum):
     # negative, sorted
-
-    CantoControl = 0  # 🔵 If range = 1 Canto skill becomes Canto 1, if range = 2, turn ends when canto triggers
     Panic = 1  # 🔴 Buffs are negated & treated as penalties
     Exposure = 2  # 🔴 Foe's attacks deal +10 true damage
     Sabotage = 3  # 🔴 Reduces atk/spd/def/res by lowest debuff among unit & allies within 2 spaces during combat
     Discord = 4  # 🔴 Reduces atk/spd/def/res by 2 + number of allies within 2 spaces of unit, max 3 during combat
-    HushSpectrum = 5
-    ShareSpoils = 6
+    HushSpectrum = 5 # 🔴 Atk/Spd/Def/Res-5 and sp halt +1 on self before unit's first attack
+    ShareSpoils = 6 # 🔴 Atk/Spd/Def/Res-5, nullify percentage damage reduction of self, and grants another action to foe if this unit is defeated
     FalseStart = 7  # 🟢 Disables "at start of turn" skills, does not neutralize beast transformations or reusable duo/harmonized skills, cancelled by Odd/Even Recovery Skills
     Flash = 8  # 🔴 Unable to counterattack
     Isolation = 9  # 🟢 Cannot use or receive assist skills
@@ -897,12 +1005,13 @@ class Status(Enum):
     TimesGrip = 16  # 🔴 Inflicts Atk/Spd/Def/Res-4 during next combat, neutralizes skills during allies' combats
     Gravity = 17  # 🔵 Movement reduced to 1
     Stall = 18  # 🔵 Converts MobilityUp to Gravity
-    Guard = 19  # 🔴 Special charge -1
-    Frozen = 20  # 🔴 Increases/decreases speed difference needed to make follow up for unit/foe by max(2 * Δdef + 10, 10)
-    TriAdept = 21  # 🔴 Triangle Adept 3, weapon tri adv/disadv affected by 20%
-    CancelAction = 22  # 🟢 After start of turn skills trigger, unit's action ends immediately (cancels active units in Summoner Duels)
+    CantoControl = 19  # 🔵 If range = 1 Canto skill becomes Canto 1, if range = 2, turn ends when canto triggers
+    Guard = 20  # 🔴 Special charge -1
+    Frozen = 21  # 🔴 Increases/decreases speed difference needed to make follow up for unit/foe by max(2 * Δdef + 10, 10)
+    TriAdept = 22  # 🔴 Triangle Adept 3, weapon tri adv/disadv affected by 20%
+    CancelAction = 23  # 🟢 After start of turn skills trigger, unit's action ends immediately (cancels active units in Summoner Duels)
 
-    # positive, unsorted
+    # positive, unsorted (will sort once there exists a skill that depends on it)
     MobilityUp = 103  # 🔵 Movement increased by 1, cancelled by Gravity
     Orders = 106  # 🔵 Unit can move to space adjacent to ally within 2 spaces
     EffDragons = 107  # 🔴 Gain effectiveness against dragons
@@ -918,7 +1027,7 @@ class Status(Enum):
     DenyFollowUp = 119  # 🔴 Foe cannot make a follow-up attack
     NullEffFlyers = 120  # 🔴 Gain immunity to "eff against flyers"
     Dodge = 121  # 🔴 If unit's spd > foe's spd, reduces combat & non-Røkkr AoE damage by X%, X = (unit's spd - foe's spd) * 4, max of 40%
-    MakeFollowUp = 122  # 🔴 Unit makes follow-up attack when initiating combat
+    Pursual = 122  # 🔴 Unit makes follow-up attack when initiating combat
     TriAttack = 123  # 🔴 If within 2 spaces of 2 allies with TriAttack and initiating combat, unit attacks twice
     NullPanic = 124  # 🔴 Nullifies Panic
     CancelAffinity = 125  # 🔴 Cancel Affinity 3, reverses weapon triangle to neutral if Triangle Adept-having unit/foe has advantage
@@ -944,27 +1053,43 @@ class Status(Enum):
     TimesGate = 156 # 🔵 Allies within 4 spaces can warp to a space adjacent to unit
     Incited = 157 # 🔴 If initiating combat, grants Atk/Spd/Def/Res = num spaces moved, max 3
     FirstReduce40 = 158 # 🔴 If initiating combat, reduces damage from first attack received by 40%
-    HalfDamageReduction = 159 # 🔴 Cuts foe's damage reduction skill efficacy in half
-    EssenceDrain = 163 # 🔴 If unit attacks, steals positive statuses from foes within 2 spaces of target and gives to all allies with this status. If foe defeated, restores 10HP to allies with this status.
+    HalfDamageReduction = 159 # 🔴 Cuts foe's non-special damage reduction skill efficacy in half
+    EssenceDrain = 163 # 🔴 If unit attacks, steals positive bonuses from foes within 2 spaces of target and gives to self and all allies with this status. If foe defeated, restores 10HP to self and allies with this status.
     Bonded = 164 # 🔴 Activates different effects depending on skills present in battle
     Bulwark = 165 # 🔵 Foes cannot move through spaces within X spaces of unit, X = foe's range
     DivineNectar = 166 # 🔴 Neutralizes Deep Wounds, restores 20HP as combat begins, and reduces damage by 10
     Paranoia = 167 # 🔴 If unit's HP >= 99%, grants Atk+5, Desperation, and if either # foe negative statuses >= 3 or foe is of same range, grants Vantage
+    Anathema = 168 # 🔴 Inflicts Spd/Def/Res-4 on foes within 3 spaces
+    FutureWitness = 169 # 🔴 Canto 2, Atk/Spd/Def/Res+5, reduce first attacks by 7, and sp halt +1 on foe before foe's first attack
+    Dosage = 170 # 🔴 Atk/Spd/Def/Res+5, 10HP healed after combat, disables effects that steal bonuses, and clears all bonuses from foes that attempt to steal bonuses
+    Empathy = 171 # 🔴 Grants Atk/Spd/Def/Res = num unique Bonus effects and Penalty effects currently on map (max 7)
+    DivinelyInspiring = 172 # 🔴 Grants Atk/Spd/Def/Res = X * 3, grants -X sp jump to self before foe's first attack, and heals X * 4 HP per hit (X = num allies with this status in 3 spaces, max 2)
+
+
+class GameMode(Enum):
+    StoryMap = 0
+    HeroBattle = 1
+
+    Arena = 2
+    AetherRaids = 3
 
 
 print("Reading Unit & Skill Data...")
-hero_sheet = pd.read_csv('Spreadsheets\FEHstats.csv')
-weapon_sheet = pd.read_csv('Spreadsheets\FEHWeapons.csv')
-assist_sheet = pd.read_csv('Spreadsheets\FEHAssists.csv')
-special_sheet = pd.read_csv('Spreadsheets\FEHSpecials.csv')
-skills_sheet = pd.read_csv('Spreadsheets\FEHABCXSkills.csv')
-seals_sheet = pd.read_csv("Spreadsheets\FEHSeals.csv")
+hero_sheet = pd.read_csv('Spreadsheets/FEHstats.csv')
+weapon_sheet = pd.read_csv('Spreadsheets/FEHWeapons.csv')
+assist_sheet = pd.read_csv('Spreadsheets/FEHAssists.csv')
+special_sheet = pd.read_csv('Spreadsheets/FEHSpecials.csv')
+skills_sheet = pd.read_csv('Spreadsheets/FEHABCXSkills.csv')
+seals_sheet = pd.read_csv("Spreadsheets/FEHSeals.csv")
 
 # Skills currently present for use
-impl_skills_sheet = pd.read_csv("Spreadsheets\FEHImplABCXSkills.csv")
+# Yeah this was not properly thought out
+impl_skills_sheet = pd.read_csv("Spreadsheets/FEHImplABCXSkills.csv")
+
+print("Unit & Skill Data Loaded.")
 
 # Support partners
-
+# If intName in the supports.pkl array, returns their support partner
 def get_ally_support(int_name):
     loaded_file = open('supports.pkl', 'rb')
     supports = pickle.load(loaded_file)
@@ -974,8 +1099,6 @@ def get_ally_support(int_name):
             return pairing[pairing.index(int_name) - 1]
 
     return None
-
-print("Unit & Skill Data Loaded.")
 
 def makeHero(name):
     row = hero_sheet.loc[hero_sheet['IntName'] == name]
@@ -1005,6 +1128,9 @@ def makeHero(name):
 
     # Set ally support from supports.pkl
     result_hero.allySupport = get_ally_support(int_name)
+
+    # Assign specialized blessing type if unit is Legendary/Mythic
+    result_hero.blessing = create_specialized_blessing(int_name)
 
     return result_hero
 
@@ -1144,7 +1270,7 @@ def makeSeal(name):
 
 #print(veyle.visible_stats)
 
-a = makeHero("Dimitri")
+#a = makeHero("Dimitri")
 
 # Heroes added so far
 implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "Barst", "Bartre", "Beruka", "Caeda",
@@ -1178,5 +1304,44 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "DA!Olivia", "DA!Inigo", "DA!Azura", "DA!Shigure",
                           "Sigurd", "Deirdre", "Tailtiu", "Arvis", "Ayra", "Arden",
                           "H!Henry", "H!Jakob", "H!Sakura", "H!Nowi",
-                          "Dorcus", "Lute", "Mia", "Joshua"
+                          "Dorcus", "Lute", "Mia", "Joshua",
+                          "Fjorm",
+                          "Rhajat", "Siegbert", "Shiro", "Soleil",
+                          "WI!Chrom", "WI!Lissa", "WI!M!Robin", "WI!Tharja",
+                          "Gunnthrá",
+                          "NY!Azura", "NY!M!Corrin", "NY!Camilla", "NY!Takumi",
+                          "Micaiah", "Sothe", "Zelgius", "Oliver",
+                          "P!Eirika", "L'Arachel", "Myrrh", "Lyon", "Marisa",
+                          "L!Ike",
+                          "V!Hector", "V!Eliwood", "V!Lilina", "V!Lyn", "V!Roy",
+                          "FA!Celica", "FA!Hardin", "M!Grima", "FA!Takumi",
+                          "L!Ephraim",
+                          "P!Chrom", "F!Morgan", "M!Morgan", "Gerome",
+                          "SP!Alfonse", "SP!Sharena", "SP!Catria", "SP!Kagero",
+                          "F!Grima",
+                          "Leif", "Nanna", "P!Reinhardt", "P!Olwen", "Saias", "Finn",
+                          "P!Hinoka", "Shigure", "F!Kana", "Kaze", "M!Kana",
+                          "L!Lyn",
+                          "Ares", "Lene", "Ishtar", "Julius",
+                          "BR!Ninian", "BR!Sanaki", "BR!Tharja", "BR!Marth",
+                          "L!Ryoma",
+                          "Karla", "Legault", "P!Nino", "Linus", "Canas",
+                          "SU!Cordelia", "SU!Noire", "SU!Tana", "SU!Innes",
+                          "L!Hector",
+                          "SU!Linde", "SU!Y!Tiki", "SU!Takumi", "SU!Camilla",
+                          "Libra", "Maribelle", "Sumia", "P!Olivia", "Walhart",
+                          "L!Lucina",
+                          "SF!Elincia", "SF!Micaiah", "SF!Ryoma", "SF!Xander",
+                          "B!Hector", "B!Celica", "B!Ephraim", "B!Veronica",
+                          "L!Marth",
+                          "Jamke", "Lewyn", "Quan", "Silvia", "Ethlyn",
+                          "Flora", "Nina", "Ophelia", "Silas", "Garon",
+                          "Helbindi", "Laegjarn", "Laevatein",
+                          "L!Y!Tiki",
+                          "H!Kagero", "H!Niles", "H!Mia", "H!Myrrh", "H!Dorcas",
+                          "Kliff", "Aversa", "Owain", "Loki",
+                          "L!Eirika",
+                          "P!M!Corrin", "P!F!Corrin", "Mikoto", "P!Camilla", "P!Azura",
+                          "Surtr", "Ylgr", "Gharnef",
+                          "Hríd",
                     ]

@@ -30,6 +30,9 @@ XSKILL = 7
 STATS = {"None": -1, "HP": 0, "Atk": 1, "Spd": 2, "Def": 3, "Res": 4}
 STAT_STR = ["HP", "Atk", "Spd", "Def", "Res", "None"]
 
+BLESSINGS_DICT = {"None": -1, "Fire": 0, "Water": 1, "Earth": 2, "Wind": 3,
+                         "Light": 4, "Dark": 5, "Astra": 6, "Anima": 7}
+
 class HeroProxy:
     def __init__(self):
         self.full_name = ""
@@ -42,6 +45,7 @@ class HeroProxy:
         self.asset = -1
         self.flaw = -1
         self.asc_asset = -1
+        self.blessing = None
         self.s_support = 0
         self.a_support = None
 
@@ -68,6 +72,8 @@ class HeroProxy:
         self.asset = -1
         self.flaw = -1
         self.asc_asset = -1
+
+        self.blessing = None
 
         self.s_support = 0
         self.a_support = None
@@ -135,6 +141,8 @@ class HeroProxy:
         apl_hero.set_skill(self.cskill, CSKILL)
         apl_hero.set_skill(self.sSeal, SSEAL)
         apl_hero.set_skill(self.xskill, XSKILL)
+
+        apl_hero.blessing = self.blessing
 
 class SelectProxy:
     def __init__(self):
@@ -291,6 +299,9 @@ class SelectedOptions:
         self.map_data = None
 
         self.map_str = None
+
+        self.season_el = ()
+        self.season_ae = ()
 
 def about():
     webbrowser.open("https://github.com/EtDet/RATA-Public", new=0, autoraise=True)
@@ -479,6 +490,16 @@ def generate_creation_edit(num):
     merges = row["Merges"]
     creation_comboboxes[2].set(merges)
     handle_selection_change_merge()
+
+    # Blessings
+    blessing = row["Blessing"]
+    if pd.isnull(blessing):
+        if creation_str_vars[4].get() == "None":
+            creation_comboboxes[4].set("None")
+    else:
+        creation_comboboxes[4].set(hero.BLESSING_NAMES[int(blessing)].capitalize())
+
+    handle_selection_change_blessing()
 
     # Summ Support
     s_support = row["SSupport"]
@@ -786,6 +807,8 @@ def clear_creation_fields():
         i += 1
 
     # Reset Weapon/Assist/Special options
+    creation_comboboxes[4]['values'] = []
+
     creation_comboboxes[6]['values'] = []
     creation_comboboxes[7]['values'] = []
     creation_comboboxes[8]['values'] = []
@@ -851,18 +874,25 @@ def get_valid_weapons(cur_hero):
                            "Iron Lance", "Steel Lance", "Silver Lance", "Silver Lance+", "Heavy Spear", "Heavy Spear+", "Brave Lance", "Brave Lance+", "Sapphire Lance", "Sapphire Lance+", "Killer Lance", "Killer Lance+",
                            "Iron Axe", "Steel Axe", "Silver Axe", "Silver Axe+", "Hammer", "Hammer+", "Brave Axe", "Brave Axe+", "Emerald Axe", "Emerald Axe+", "Killer Axe", "Killer Axe+",
                            "Iron Bow", "Steel Bow", "Silver Bow", "Silver Bow+", "Killer Bow", "Killer Bow+", "Brave Bow", "Brave Bow+", "Assassin's Bow", "Assassin's Bow+",
-                           "Iron Dagger", "Steel Dagger", "Silver Dagger", "Silver Dagger+", "Smoke Dagger", "Smoke Dagger+", "Rogue Dagger", "Rogue Dagger+", "Poison Dagger", "Poison Dagger+",
+                           "Iron Dagger", "Steel Dagger", "Silver Dagger", "Silver Dagger+", "Smoke Dagger", "Smoke Dagger+", "Rogue Dagger", "Rogue Dagger+", "Poison Dagger", "Poison Dagger+", "Barb Shuriken", "Barb Shuriken+",
                            "Fire", "Elfire", "Bolganone", "Bolganone+", "Flux", "Ruin", "Fenrir", "Fenrir+", "Rauðrblade", "Rauðrblade+", "Rauðrraven", "Rauðrraven+", "Rauðrwolf", "Rauðrwolf+",
-                           "Thunder", "Elthunder", "Thoron", "Thoron+", "Blárblade", "Blárblade+", "Blárraven", "Blárraven+",
-                           "Wind", "Elwind", "Rexcalibur", "Rexcalibur+", "Gronnblade", "Gronnblade+", "Gronnraven", "Gronnraven+",
-                           "Assault", "Absorb", "Absorb+", "Fear", "Fear+", "Slow", "Slow+", "Gravity", "Gravity+", "Panic", "Panic+", "Pain", "Pain+",
-                           "Fire Breath", "Fire Breath+", "Flametongue", "Flametongue+", "Lightning Breath", "Lightning Breath+", "Light Breath", "Light Breath+",
+                           "Thunder", "Elthunder", "Thoron", "Thoron+", "Light", "Ellight", "Shine", "Shine+", "Blárblade", "Blárblade+", "Blárraven", "Blárraven+",  "Blárwolf", "Blárwolf+",
+                           "Wind", "Elwind", "Rexcalibur", "Rexcalibur+", "Gronnblade", "Gronnblade+", "Gronnraven", "Gronnraven+",  "Gronnwolf", "Gronnwolf+",
+                           "Assault", "Absorb", "Absorb+", "Fear", "Fear+", "Slow", "Slow+", "Gravity", "Gravity+", "Panic", "Panic+", "Pain", "Pain+", "Trilemma", "Trilemma+",
+                           "Fire Breath", "Fire Breath+", "Flametongue", "Flametongue+", "Lightning Breath", "Lightning Breath+", "Light Breath", "Light Breath+", "Water Breath", "Water Breath+",
 
-                           "Wo Dao", "Wo Dao+",
-                           "Firesweep Bow", "Firesweep Bow+", "Firesweep Lance", "Firesweep L+",
+                           "Wo Dao", "Wo Dao+", "Harmonic Lance", "Harmonic Lance+", "Wo Gùn", "Wo Gùn+",
+                           "Firesweep Bow", "Firesweep Bow+", "Firesweep Lance", "Firesweep L+", "Firesweep S", "Firesweep S+",
                            "Rauðrowl", "Rauðrowl+", "Gronnowl", "Gronnowl+", "Blárowl", "Blárowl+",
-                           "Zanbato", "Zanbato+", "Ridersbane", "Ridersbane+",
+                           "Zanbato", "Zanbato+", "Ridersbane", "Ridersbane+", "Poleaxe", "Poleaxe+",
                            "Slaying Edge", "Slaying Edge+", "Slaying Lance", "Slaying Lance+", "Slaying Axe", "Slaying Axe+", "Slaying Bow", "Slaying Bow+",
+                           "Armorsmasher", "Armorsmasher+", "Slaying Spear", "Slaying Spear+", "Slaying Hammer", "Slaying Hammer+", "Guard Bow", "Guard Bow+",
+                           "Safeguard", "Safeguard+", "Respisal Lance", "Reprisal Lance+", "Barrier Blade", "Barrier Blade+",
+                           "The Cleaner", "The Cleaner+", "Shining Bow", "Shining Bow+",
+                           "Flash", "Flash+",
+
+                           "Keen Rauðrwolf", "Keen Rauðrwolf+", "Keen Blárwolf", "Keen Blárwolf+", "Keen Gronnwolf", "Keen Gronnwolf+",
+                           "Blárserpent", "Blárserpent+",
 
                            "Legion's Axe", "Legion's Axe+", "Clarisse's Bow", "Clarisse's Bow+", "Berkut's Lance", "Berkut's Lance+",
 
@@ -871,7 +901,16 @@ def get_valid_weapons(cur_hero):
                            "Seashell", "Seashell+", "Refreshing Bolt", "Refreshing Bolt+", "Deft Harpoon", "Deft Harpoon+", "Melon Crusher", "Melon Crusher+",
                            "Tomato Tome", "Tomato Tome+", "Sealife Tome", "Sealife Tome+", "Hibiscus Tome", "Hibiscus Tome+", "Lilith Floatie", "Lilith Floatie+",
                            "Dancer's Fan", "Dancer's Fan+", "Dancer's Ring", "Dancer's Ring+", "Dancer's Score", "Dancer's Score+",
-                           "Spectral Tome", "Spectral Tome+", "Monstrous Bow", "Monstrous Bow+", "Kitty Paddle", "Kitty Paddle+"]
+                           "Spectral Tome", "Spectral Tome+", "Monstrous Bow", "Monstrous Bow+", "Kitty Paddle", "Kitty Paddle+",
+                           "Handbell", "Handbell+", "Sack o' Gifts", "Sack o' Gifts+", "Tannenboom!", "Tannenboom!+", "Candelabra", "Candelabra+",
+                           "Hagoita", "Hagoita+", "Kadomatsu", "Kadomatsu+", "Kagami Mochi", "Kagami Mochi+", "Hama Ya", "Hama Ya",
+                           "Green Gift", "Green Gift+", "Blue Gift", "Blue Gift+", "Gratia", "Gratia+", "Casa Blanca", "Casa Blanca+",
+                           "Giant Spoon", "Giant Spoon+", "Lethal Carrot", "Lethal Carrot+",
+                           "Fresh Bouquet", "Fresh Bouquet+", "Ardent Service", "Ardent Service+",
+                           "Shell Lance", "Shell Lance+", "Beach Banner", "Beach Banner+", "Cocobow", "Cocobow+",
+                           "Starfish", "Starfish+", "Fishie Bow", "Fishie Bow+", "Juicy Wave", "Juicy Wave+",
+                           "Cloud Maiougi", "Cloud Maiougi+", "Sky Maiougi", "Sky Maiougi+", "Dusk Uchiwa", "Dusk Uchiwa+",
+                           "Bottled Juice",  "Bottled Juice+", "Devilish Bow", "Devilish Bow+", "Witchy Wand", "Witchy Wand+", "Hack-o'-Lantern", "Hack-o'-Lantern+"]
 
     # Remove of different weapon
     i = 0
@@ -976,13 +1015,18 @@ def get_valid_assists(cur_hero):
     implemented_assists = ["Heal", "Mend", "Reconcile", "Recover", "Recover+", "Martyr", "Martyr+", "Rehabilitate", "Rehabilitate+", "Restore", "Restore+",
                            "Rally Attack", "Rally Speed", "Rally Defence", "Rally Resistance",
                            "Rally Atk/Spd", "Rally Atk/Def", "Rally Atk/Res", "Rally Spd/Def", "Rally Spd/Res", "Rally Def/Res",
+                           "Rally Atk/Spd+", "Rally Spd/Def+",
+                           "Rally Up Atk", "Rally Up Atk+",
                            "Dance", "Sing",
                            "Harsh Command", "Ardent Sacrifice", "Reciprocal Aid",
-                           "Draw Back", "Reposition", "Swap", "Pivot", "Shove", "Smite",]
+                           "Draw Back", "Reposition", "Swap", "Pivot", "Shove", "Smite"]
 
     i = 0
     while i < len(assist_names):
-        if assist_names[i] in implemented_assists:
+        if cur_hero.intName in exclusive_all[i]:
+            prf_assists.append(assist_names[i])
+
+        elif assist_names[i] in implemented_assists:
             if (len(exclusive_all[i]) == 0):
                 standard_assists.append(assist_names[i])
 
@@ -1027,13 +1071,14 @@ def get_valid_specials(cur_hero):
     # Implemented Specials
     implemented_specials = ["Glowing Ember", "Bonfire", "Ignis", "Chilling Wind", "Iceberg", "Glacies", "New Moon", "Moonbow", "Luna",
                             "Dragon Gaze", "Draconic Aura", "Dragon Fang", "Night Sky", "Glimmer", "Astra", "Retribution", "Reprisal", "Vengeance",
-                            "Daylight", "Noontime", "Sol", "Aether",
+                            "Daylight", "Noontime", "Sol", "Aether", "Blue Flame",
                             "Rising Flame", "Blazing Flame", "Growing Flame",
                             "Rising Light", "Blazing Light", "Growing Light",
                             "Rising Thunder", "Blazing Thunder", "Growing Thunder",
                             "Rising Wind", "Blazing Wind", "Growing Wind",
                             "Buckler", "Escutcheon", "Pavise", "Holy Vestiments", "Sacred Cowl", "Aegis", "Miracle",
-                            "Imbue", "Heavenly Light", "Kindled-Fire Balm", "Swift-Winds Balm", "Solid-Earth Balm", "Still-Water Balm"]
+                            "Imbue", "Heavenly Light", "Kindled-Fire Balm", "Swift-Winds Balm", "Solid-Earth Balm", "Still-Water Balm",
+                            "Windfire Balm", "Windfire Balm+", "Earthwater Balm", "Earthwater Balm+"]
 
     i = 0
     while i < len(special_names):
@@ -1265,15 +1310,20 @@ def add_unit_to_list():
         cskill = hero_to_add.cskill.name if hero_to_add.cskill is not None else None
         sSeal = hero_to_add.sSeal.name if hero_to_add.sSeal is not None else None
         xskill = None
+
         level = hero_to_add.level
         merges = hero_to_add.merges
         rarity = hero_to_add.rarity
+
         asset = hero_to_add.asset
         flaw = hero_to_add.flaw
         asc = hero_to_add.asc_asset
+
+        blessing = hero_to_add.blessing.element if (hero_to_add.blessing is not None and hero_to_add.blessing.boostType == 0) else None
+
         sSupport = hero_to_add.summonerSupport
         aSupport = None
-        blessing = None
+
         dflowers = 0
         resp = False
         emblem = None
@@ -1359,15 +1409,20 @@ def edit_unit_in_list(num):
         cskill = hero_to_add.cskill.name if hero_to_add.cskill is not None else None
         sSeal = hero_to_add.sSeal.name if hero_to_add.sSeal is not None else None
         xskill = hero_to_add.xskill.name if hero_to_add.xskill is not None else None
+
         level = hero_to_add.level
         merges = hero_to_add.merges
         rarity = hero_to_add.rarity
+
         asset = hero_to_add.asset
         flaw = hero_to_add.flaw
         asc = hero_to_add.asc_asset
+
+        blessing = hero_to_add.blessing.element if (hero_to_add.blessing is not None and hero_to_add.blessing.boostType == 0) else None
+
         sSupport = hero_to_add.summonerSupport
         aSupport = None
-        blessing = None
+
         dflowers = 0
         resp = False
         emblem = None
@@ -1504,6 +1559,8 @@ def begin_simulation():
             if not pd.isnull(row["CSkill"]): cur_hero.set_skill(hero.makeSkill(row["CSkill"]), CSKILL)
             if not pd.isnull(row["SSeal"]): cur_hero.set_skill(hero.makeSeal(row["SSeal"]), CSKILL)
 
+            if not pd.isnull(row["Blessing"]): cur_hero.blessing = hero.Blessing((int(row["Blessing"]), 0, 0))
+
             player_units.append(cur_hero)
 
         i += 1
@@ -1519,9 +1576,11 @@ def begin_simulation():
     map = Map(0)
     map.define_map(selectedOptions.map_data)
 
+    season = selectedOptions.season_el + selectedOptions.season_ae
+
     window.destroy()
 
-    start_sim(player_units, cleaned_enemy_units, map, selectedOptions.map_str)
+    start_sim(player_units, cleaned_enemy_units, map, selectedOptions.map_str, season)
 
 # window
 window = tk.Tk()
@@ -1534,7 +1593,7 @@ window.configure(background='#797282')
 # MAIN MENU ELEMENTS
 title_label = tk.Label(master=window, text='RATA - An FE: Heroes Simulator', font='Helvetica 24', relief="raised")
 subtitle_label = tk.Label(master=window, text='By CloudX (2024)', font='Helvetica 18', relief="raised")
-version_label = tk.Label(master=window, text="Ver 1.0.6 - Year 1 Complete", font='Helvetica 12', relief="raised")
+version_label = tk.Label(master=window, text="Ver 1.0.7 - Year 2 Complete", font='Helvetica 12', relief="raised")
 
 start_button = tkm.Button(window, command=generate_maps, height=40, width=255, text="Level Select", font="Helvetica 14", cursor="hand2", bg='blue', fg='white', borderless=True, takefocus=0)
 units_button = tkm.Button(window, command=generate_units, height=40, width=255, text="My Units", font="Helvetica 14", cursor="hand2", bg='blue', fg='white', borderless=True)
@@ -1978,6 +2037,9 @@ def generate_enemy_building():
     enemy_main_frame.pack(pady=(150, 10))
     enemy_remove_frame.pack(pady=(0, 0))
 
+    season_frame.pack(pady=(10,0))
+
+    current_elements.append(season_frame)
     current_elements.append(enemy_top)
     current_elements.append(enemy_main_frame)
     current_elements.append(enemy_remove_frame)
@@ -2064,6 +2126,66 @@ enemy_back_button.pack(side='left', padx=10)
 enemy_main_frame = tk.Frame(window, bg="#686171")
 
 enemy_remove_frame = tk.Frame(window, bg="firebrick3")
+
+
+def handle_season_elemental(event=None):
+    selected_value = elemental_str_var.get()
+
+    el_season = ()
+
+    if selected_value == "Fire/Water":
+        el_season = (0, 1)
+    elif selected_value == "Fire/Earth":
+        el_season = (0, 2)
+    elif selected_value == "Fire/Wind":
+        el_season = (0, 3)
+    elif selected_value == "Water/Earth":
+        el_season = (1, 2)
+    elif selected_value == "Water/Wind":
+        el_season = (1, 3)
+    elif selected_value == "Earth/Wind":
+        el_season = (2, 3)
+
+    selectedOptions.season_el = el_season
+
+    return
+
+def handle_season_aether(event=None):
+    selected_value = aether_str_var.get()
+
+    ae_season = ()
+
+    if selected_value == "Light/Dark":
+        ae_season = (4, 5)
+    if selected_value == "Astra/Anima":
+        ae_season = (6, 7)
+
+    selectedOptions.season_ae = ae_season
+
+    return
+
+season_frame = tk.Frame(window, bg="#797282")
+
+elemental_label = tk.Label(season_frame, text="Elemental Season:")
+elemental_label.pack(side='left', pady=10)
+
+elemental_str_var = tk.StringVar()
+elemental_season_combobox = ttk.Combobox(season_frame, textvariable=elemental_str_var)
+elemental_season_combobox.pack(side='left', padx=(10,20))
+elemental_season_combobox['values'] = ["None", "Fire/Water", "Fire/Earth", "Fire/Wind", "Water/Earth", "Water/Wind", "Earth/Wind"]
+elemental_season_combobox.bind("<<ComboboxSelected>>", handle_season_elemental)
+
+aether_label = tk.Label(season_frame, text="Aether Season:")
+aether_label.pack(side='left', padx=(20,10))
+
+aether_str_var = tk.StringVar()
+aether_season_combobox = ttk.Combobox(season_frame, textvariable=aether_str_var)
+aether_season_combobox.pack(side='left')
+aether_season_combobox['values'] = ["None", "Light/Dark", "Astra/Anima"]
+aether_season_combobox.bind("<<ComboboxSelected>>", handle_season_aether)
+
+
+
 
 proceed_button = tk.Button(enemy_top, command=begin_simulation, text='Proceed', bg='chartreuse2', width=10)
 
@@ -2260,6 +2382,15 @@ def handle_selection_change_name(event=None):
         # Set default level
         creation_str_vars[13].set(min(40, heroProxy.level))
 
+    if madeHero.blessing is None:
+        creation_str_vars[4].set("None")
+        creation_comboboxes[4]['values'] = ["None", "Fire", "Water", "Earth", "Wind"]
+    else:
+        if madeHero.blessing.boostType != 0:
+            creation_str_vars[4].set(madeHero.blessing.toString())
+        creation_comboboxes[4]['values'] = []
+
+    heroProxy.blessing = madeHero.blessing
 
     # Generate all possible weapons for selected Hero
     weapons = get_valid_weapons(madeHero)
@@ -2522,6 +2653,17 @@ def handle_selection_change_flaw(event=None):
         while i < 5:
             creation_stats[i].set(stat_strings[i] + str(handle_selection_change_name.created_hero.visible_stats[i]))
             i += 1
+
+def handle_selection_change_blessing(event=None):
+    selected_value = creation_str_vars[4].get()
+
+    if selected_value == "None":
+        heroProxy.blessing = None
+    elif selected_value in BLESSINGS_DICT:
+        heroProxy.blessing = hero.Blessing((BLESSINGS_DICT[selected_value], 0, 0))
+
+    heroProxy.apply_proxy(handle_selection_change_name.created_hero)
+
 
 def handle_selection_change_allysupport(event=None):
     selected_value = creation_str_vars[17].get()
@@ -2786,6 +2928,11 @@ for row in range(12):
         combo1['textvariable'] = None
         combo1['values'] = iv_strs
         combo1.bind("<<ComboboxSelected>>", handle_selection_change_asset)
+
+    # BLESSING
+    if row == 4:
+        combo1['textvariable'] = None
+        combo1.bind("<<ComboboxSelected>>", handle_selection_change_blessing)
 
     # S SUPPORT
     if row == 5:

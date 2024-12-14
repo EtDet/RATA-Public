@@ -1,3 +1,30 @@
+1.0.7 (12/14/24)
+New Features:
+-Added all 126 heroes introduced in Year 2.
+-The new weapons and skills introduced with these heroes have also been added. (You get the remix kits too, have fun).
+-With Legendary Heroes come Fire, Water, Earth, and Wind blessings. These can be set in the unit builder and grant the corresponding stat boosts.
+-Added several missing weapons not currently implemented (wolf tomes, upgraded armor effective weapons).
+
+Bug Fixes:
+-Fixed an issue involving how stat buffs/debuffs and status effects are given out, making Chill/Sabotage skills behave as intended.
+-Fixed an issue where neutralized stat Bonuses/Penalties would still count towards the [Bonus] and [Penalty] keywords.
+-Fixed an issue where Bond skills to not give a stat boost when being attacked.
+-Fixed an issue where certain amounts of stat boosts given in combat would not be accurately calculated due to truncation.
+-Fixed an issue where Candlelight+'s refines would not properly display.
+-Fixed an issue where the Whitewing sisters' weapons would not give a stat boost when being attacked.
+-Fixed an issue where Geirskögul's Drive effect was not given out properly.
+-Fixed an issue where Lordly Lance's refines would not work when in the unit builder.
+-Fixed an issue where sprites would not hide correctly.
+-Fixed an issue where the incorrect special count would display when undoing an action.
+-Fixed an issue where skills depending on the number of times a unit has entered combat would not work properly when undoing an action.
+-Fixed an issue where special counts would not visually update when swapping tiles.
+-Fixed an issue where in some cases, multiple of the same type of Drive or Rein-like skills would not stack with themselves.
+-Fixed an issue where unit graphics would not properly display with activating Galeforce after undoing an action.
+
+Note:
+-The next planned update will focus on improvements to menus and will add more maps (remaining Arena, story, paralogues, GHBs, & LHBs).
+-Later on, the Book 3 will introduce many new mechanics such as beast units, Pair Up, Duo units, and most importantly, Aether Raids. Look forward to it!
+
 1.0.6 (10/26/24)
 New Features:
 -Added the following new heroes, completing the first year of added Heroes: Amelia, Innes, Seth, Tana, Valter, B!Ike, B!Lyn, B!Roy, B!Lucina, Elincia, Nephenee, Oscar, Black Knight, DA!Azura,
@@ -53,7 +80,6 @@ Bug Fixes:
 -Fixed an issue of weapon names containing non-ASCII characters not being saved properly
 
 1.0.1 (8/17/24)
-
 Bug Fixes:
 -Chrom will now appear in hero creation menu
 -Several instances of "Silver Bow+" and "Silver Dagger+" no longer display in hero creation menu

@@ -281,6 +281,9 @@ Atk/Def Finish 3,"If unit is within 3 spaces of an ally, grants Atk/Def+6 to uni
 Spd/Res Finish 1,"If unit is within 3 spaces of an ally, grants Spd/Res+2 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +1 damage during combat. (Except when dealing damage with area-of-effect Specials.)",1,A,94,FALSE,,,,,,,,,,,Any,Any
 Spd/Res Finish 2,"If unit is within 3 spaces of an ally, grants Spd/Res+4 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +3 damage during combat. (Except when dealing damage with area-of-effect Specials.)",2,A,94,FALSE,,,,,,,,,,,Any,Any
 Spd/Res Finish 3,"If unit is within 3 spaces of an ally, grants Spd/Res+6 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +5 damage during combat. (Except when dealing damage with area-of-effect Specials.)",3,A,94,FALSE,,,,,,,,,,,Any,Any
+Atk/Def Prime 1,"If [Bonus] is active on unit, grants Atk/Def+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 3).",1,A,231,FALSE,,,,,,,,,,,Any,Any
+Atk/Def Prime 2,"If [Bonus] is active on unit, grants Atk/Def+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 5).",2,A,231,FALSE,,,,,,,,,,,Any,Any
+Atk/Def Prime 3,"If [Bonus] is active on unit, grants Atk/Def+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 7).",3,A,231,FALSE,,,,,,,,,,,Any,Any
 Obstruct 1,"If unit's HP ≥ 90%, foes cannot move through spaces adjacent to unit. (Does not affect foes with Pass skills.)",1,B,95,TRUE,obstructSe,1,,,,,,,,,Any,Any
 Obstruct 2,"If unit's HP ≥ 70%, foes cannot move through spaces adjacent to unit. (Does not affect foes with Pass skills.)",2,B,95,TRUE,obstructSe,2,,,,,,,,,Any,Any
 Obstruct 3,"If unit's HP ≥ 50%, foes cannot move through spaces adjacent to unit. (Does not affect foes with Pass skills.)",3,B,95,TRUE,obstructSe,3,,,,,,,,,Any,Any
@@ -587,6 +590,9 @@ Def Opening 3,"At start of turn, grants Def+6 to ally with the highest Atk for 1
 Res Opening 1,"At start of turn, grants Res+2 to ally with the highest Atk for 1 turn. (Excludes unit.)",1,C,208,FALSE,,,,,,,,,,,Any,Any
 Res Opening 2,"At start of turn, grants Res+4 to ally with the highest Atk for 1 turn. (Excludes unit.)",2,C,208,FALSE,,,,,,,,,,,Any,Any
 Res Opening 3,"At start of turn, grants Res+6 to ally with the highest Atk for 1 turn. (Excludes unit.)",3,C,208,FALSE,,,,,,,,,,,Any,Any
+Rouse Atk/Spd 1,"At start of turn, if unit is not adjacent to an ally, grants Atk/Spd+2 to unit for 1 turn.",1,C,230,FALSE,,,,,,,,,,,Any,Any
+Rouse Atk/Spd 2,"At start of turn, if unit is not adjacent to an ally, grants Atk/Spd+4 to unit for 1 turn.",2,C,230,FALSE,,,,,,,,,,,Any,Any
+Rouse Atk/Spd 3,"At start of turn, if unit is not adjacent to an ally, grants Atk/Spd+6 to unit for 1 turn.",3,C,230,FALSE,,,,,,,,,,,Any,Any
 Rouse Atk/Def 1,"At start of turn, if unit is not adjacent to an ally, grants Atk/Def+2 to unit for 1 turn.",1,C,209,FALSE,,,,,,,,,,,Any,Any
 Rouse Atk/Def 2,"At start of turn, if unit is not adjacent to an ally, grants Atk/Def+4 to unit for 1 turn.",2,C,209,FALSE,,,,,,,,,,,Any,Any
 Rouse Atk/Def 3,"At start of turn, if unit is not adjacent to an ally, grants Atk/Def+6 to unit for 1 turn.",3,C,209,FALSE,,,,,,,,,,,Any,Any

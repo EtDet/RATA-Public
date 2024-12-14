@@ -153,11 +153,11 @@ class Tile:
 
         return tiles_within
 
-    def numWithinNRowsOrCols(self, n, lookForSameSide):
-        if self.hero_on is None: return -1
-        if n % 2 == 0: return 0
+    def tilesWithinNRowsOrCols(self, n):
+        if self.hero_on is None: return []
+        if n % 2 == 0: return []
 
-        #return len()
+        return list(set(self.tilesWithinNCols(n)).union(set(self.tilesWithinNRows(n))))
 
 
 class Structure:
