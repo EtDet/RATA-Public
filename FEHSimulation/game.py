@@ -189,7 +189,7 @@ verge_of_death = makeSkill("Verge of Death")
 resonance_4 = makeSkill("Resonance 4")
 inf_null_follow = makeSkill("Inf. Null Follow 4")
 
-celica = makeHero("Gaius")
+celica = makeHero("Micaiah")
 
 celica.set_skill(caring_magic, WEAPON)
 celica.set_skill(warp_ragnarok, SPECIAL)
@@ -232,7 +232,7 @@ xander.set_skill(makeSeal("Attack +3"), SSEAL)
 # xander.blessing = Blessing((WATER, 0, 0))
 
 # reginn = makeHero("AI!Reginn")
-reginn = Hero("Reginn", "AI!Reginn", "Dvergr Heir", 0, "Lance", 1, [41, 46, 48, 38, 22], [50, 80, 90, 60, 40], 5, 5, 0)
+reginn = makeHero("L!Ephraim")
 
 reginn.set_skill(dverger_wayfinder, WEAPON)
 reginn.set_skill(reposition, ASSIST)
@@ -248,7 +248,7 @@ reginn.set_visible_stats()
 # reginn.set_level(40)
 
 tested_unit = makeHero("H!Mia")
-tested_weapon = makeWeapon("SylgrEff")
+tested_weapon = makeWeapon("Witchy Wand+")
 tested_assist = makeAssist("Future Vision II")
 tested_special = makeSpecial("Moonbow")
 tested_askill = makeSkill("Swift Sparrow 2")

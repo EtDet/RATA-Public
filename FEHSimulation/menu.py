@@ -119,7 +119,7 @@ class HeroProxy:
 
         apl_hero.allySupport = intName_dict[self.a_support]
 
-        apl_hero.summonerSupport = self.s_support
+        apl_hero.summonerSupport = int(self.s_support)
         apl_hero.set_visible_stats()
 
         if self.weapon is not None:
@@ -1321,7 +1321,7 @@ def add_unit_to_list():
 
         blessing = hero_to_add.blessing.element if (hero_to_add.blessing is not None and hero_to_add.blessing.boostType == 0) else None
 
-        sSupport = hero_to_add.summonerSupport
+        sSupport = int(hero_to_add.summonerSupport)
         aSupport = None
 
         dflowers = 0
@@ -1420,7 +1420,7 @@ def edit_unit_in_list(num):
 
         blessing = hero_to_add.blessing.element if (hero_to_add.blessing is not None and hero_to_add.blessing.boostType == 0) else None
 
-        sSupport = hero_to_add.summonerSupport
+        sSupport = int(hero_to_add.summonerSupport)
         aSupport = None
 
         dflowers = 0
@@ -1547,7 +1547,7 @@ def begin_simulation():
 
             cur_hero.set_level(row["Level"])
 
-            cur_hero.summonerSupport = row["SSupport"] if not pd.isnull(row["SSupport"]) else 0
+            cur_hero.summonerSupport = int(row["SSupport"]) if not pd.isnull(row["SSupport"]) else 0
 
             cur_hero.set_visible_stats()
 

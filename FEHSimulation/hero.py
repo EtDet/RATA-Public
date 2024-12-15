@@ -234,7 +234,7 @@ class Hero:
         self.allySupport = None
         self.allySupportLevel = 4
 
-        self.summonerSupport = 0
+        self.summonerSupport: int = 0
 
         self.blessing = None
 
