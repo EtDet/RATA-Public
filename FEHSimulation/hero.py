@@ -418,7 +418,7 @@ class Hero:
 
             required_vector = int(required_vector)
 
-            with open("Spreadsheets\growth_vectors.bin") as file:
+            with open("Spreadsheets/growth_vectors.bin") as file:
                 my_slice = list(islice(file, required_vector % 2496, required_vector + 1))
 
             vector = (''.join(my_slice))[0:40]
