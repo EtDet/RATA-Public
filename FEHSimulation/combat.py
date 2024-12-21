@@ -4539,9 +4539,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defPostCombatEffs[2].append(("status", Status.TriAdept, "foe", "one"))
 
     if "disperseTrilemma" in atkSkills:
-        atkPostCombatEffs[2].append(("status", Status.TriAdept, "foe_and_allies", "within_2_spaces_foe"))
+        atkPostCombatEffs[2].append(("status", Status.TriAdept, "foe_and_foes_allies", "within_2_spaces_foe"))
     if "disperseTrilemma" in defSkills:
-        defPostCombatEffs[2].append(("status", Status.TriAdept, "foe_and_allies", "within_2_spaces_foe"))
+        defPostCombatEffs[2].append(("status", Status.TriAdept, "foe_and_foes_allies", "within_2_spaces_foe"))
 
     # Witchy Wand
     if "spReset" in atkSkills:
@@ -4552,11 +4552,11 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defPostCombatEffs[2].append(("status", Status.Guard, "foe", "one"))
 
     if "disperseSpReset" in atkSkills:
-        atkPostCombatEffs[2].append(("sp_reset", 99, "foe_and_allies", "within_2_spaces_foe"))
-        atkPostCombatEffs[2].append(("status", Status.Guard, "foe_and_allies", "within_2_spaces_foe"))
+        atkPostCombatEffs[2].append(("sp_reset", 99, "foe_and_foes_allies", "within_2_spaces_foe"))
+        atkPostCombatEffs[2].append(("status", Status.Guard, "foe_and_foes_allies", "within_2_spaces_foe"))
     if "disperseSpReset" in defSkills:
-        defPostCombatEffs[2].append(("sp_reset", 99, "foe_and_allies", "within_2_spaces_foe"))
-        defPostCombatEffs[2].append(("status", Status.Guard, "foe_and_allies", "within_2_spaces_foe"))
+        defPostCombatEffs[2].append(("sp_reset", 99, "foe_and_foes_allies", "within_2_spaces_foe"))
+        defPostCombatEffs[2].append(("status", Status.Guard, "foe_and_foes_allies", "within_2_spaces_foe"))
 
     # Triangle Adept
     if "triAdept" in atkSkills: atkr.triangle_adept_level = atkSkills["triAdept"] * 0.05 + 0.05
