@@ -1064,7 +1064,7 @@ class Status(Enum):
     Dosage = 170 # 🔴 Atk/Spd/Def/Res+5, 10HP healed after combat, disables effects that steal bonuses, and clears all bonuses from foes that attempt to steal bonuses
     Empathy = 171 # 🔴 Grants Atk/Spd/Def/Res = num unique Bonus effects and Penalty effects currently on map (max 7)
     DivinelyInspiring = 172 # 🔴 Grants Atk/Spd/Def/Res = X * 3, grants -X sp jump to self before foe's first attack, and heals X * 4 HP per hit (X = num allies with this status in 3 spaces, max 2)
-
+    PreemptPulse = 173 # 🔴 Grants -1 sp jump before unit's first attack
 
 class GameMode(Enum):
     StoryMap = 0

@@ -103,80 +103,80 @@ def create_combat_fields(player_team, enemy_team):
 
         if "goadCav" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
-            condition = lambda s: lambda o: True
+            condition = lambda s: lambda o: o.move == 1
             affect_self = False
             affect_same_side = True
-            effects = {"goadCav_f": 4}
+            effects = {"goad_f": 4}
 
             field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
             combat_fields.append(field)
 
         if "wardCav" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
-            condition = lambda s: lambda o: True
+            condition = lambda s: lambda o: o.move == 1
             affect_self = False
             affect_same_side = True
-            effects = {"wardCav_f": 4}
+            effects = {"ward_f": 4}
 
             field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
             combat_fields.append(field)
 
         if "goadFly" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
-            condition = lambda s: lambda o: True
+            condition = lambda s: lambda o: o.move == 2
             affect_self = False
             affect_same_side = True
-            effects = {"goadFly_f": 4}
+            effects = {"goad_f": 4}
 
             field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
             combat_fields.append(field)
 
         if "wardFly" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
-            condition = lambda s: lambda o: True
+            condition = lambda s: lambda o: o.move == 2
             affect_self = False
             affect_same_side = True
-            effects = {"wardFly_f": 4}
+            effects = {"ward_f": 4}
 
             field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
             combat_fields.append(field)
 
         if "goadArmor" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
-            condition = lambda s: lambda o: True
+            condition = lambda s: lambda o: o.move == 3
             affect_self = False
             affect_same_side = True
-            effects = {"goadArmor_f": 4}
+            effects = {"goad_f": 4}
 
             field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
             combat_fields.append(field)
 
         if "wardArmor" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
-            condition = lambda s: lambda o: True
+            condition = lambda s: lambda o: o.move == 3
             affect_self = False
             affect_same_side = True
-            effects = {"wardArmor_f": 4}
+            effects = {"ward_f": 4}
+
+            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            combat_fields.append(field)
+
+        if "goadDragon" in unitSkills:
+            range = within_2_space
+            condition = lambda s: lambda o: o.wpnType in DRAGON_WEAPONS
+            affect_self = False
+            affect_same_side = True
+            effects = {"goad_f": 4}
 
             field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
             combat_fields.append(field)
 
         if "wardDragon" in unitSkills:
             range = within_2_space
-            condition = lambda s: lambda o: True
+            condition = lambda s: lambda o: o.wpnType in DRAGON_WEAPONS
             affect_self = False
             affect_same_side = True
-            effects = {"wardDragon_f": 4}
-
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
-            combat_fields.append(field)
-
-        if "wardDragon" in unitSkills:
-            range = within_2_space
-            condition = lambda s: lambda o: True
-            affect_self = False
-            affect_same_side = True
-            effects = {"wardDragon_f": 4}
+            effects = {"ward_f": 4}
 
             field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
             combat_fields.append(field)

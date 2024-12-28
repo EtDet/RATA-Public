@@ -1,3 +1,14 @@
+1.0.8 (12/27/25)
+
+Bug Fixes:
+-Fixed damage calculation in terms of special damage and defensive terrain.
+-Fixed Feud effects (currently only in Lyn's refined Swift Mulagir) to not disable the effects produced by the foe.
+-Fixed an issue causing Push skills to perform 2 post-combat damage instead of 1.
+-Fixed skills like Bonfire/Ignis calculating special damage to use Def instead of Spd.
+
+Note:
+- Just some small fixes.
+
 1.0.7 (12/14/24)
 New Features:
 -Added all 126 heroes introduced in Year 2.

@@ -147,7 +147,7 @@ def CreateToolTip(widget, text):
 
 # Create blank to be played upon
 map0 = Map(0)
-map_num = "Map_Z0003"
+map_num = "Map_Z0004"
 
 # Read JSON data associated with loaded map
 # with open(__location__ + "\\Maps\\Story Maps\\Book 1\\Preface\\story0-0-1.json") as read_file: data = json.load(read_file)
@@ -183,7 +183,7 @@ honeAtk1 = makeSkill("Hone Atk 1")
 # ike.set_IVs(ATK,SPD,ATK)
 # ike.set_level(40)
 
-caring_magic = makeWeapon("SylgrEff")
+caring_magic = makeWeapon("Silver Dagger+")
 warp_ragnarok = makeSpecial("Warp Ragnarok")
 verge_of_death = makeSkill("Verge of Death")
 resonance_4 = makeSkill("Resonance 4")
@@ -221,7 +221,7 @@ moonlit_bangle_q = makeSkill("Moonlit Bangle Q")
 times_pulse_4 = makeSkill("Time's Pulse 4")
 
 xander = makeHero("Ylgr")
-xander.set_skill(makeWeapon("SylgrEff"), WEAPON)
+xander.set_skill(makeWeapon("Silver Dagger+"), WEAPON)
 xander.set_skill(makeAssist("Rally Atk/Spd+"), ASSIST)
 xander.set_skill(makeSpecial("Luna"), SPECIAL)
 xander.set_skill(makeSkill("Atk/Def Bond 3"), ASKILL)
@@ -247,8 +247,8 @@ reginn.set_visible_stats()
 # reginn.set_IVs(SPD,DEF,SPD)
 # reginn.set_level(40)
 
-tested_unit = makeHero("H!Mia")
-tested_weapon = makeWeapon("Witchy Wand+")
+tested_unit = makeHero("Jeorge")
+tested_weapon = makeWeapon("Swift MulagirEff")
 tested_assist = makeAssist("Future Vision II")
 tested_special = makeSpecial("Moonbow")
 tested_askill = makeSkill("Swift Sparrow 2")
@@ -4282,8 +4282,9 @@ def start_sim(player_units, enemy_units, chosen_map, map_str, season):
     # SPRITE LOADING
 
     # liquid
-    liquid_image = Image.open(__location__ + "/CombatSprites/" + chosen_map.liquid_texture)
+    liquid_image = Image.open("CombatSprites/" + chosen_map.liquid_texture)
     liquid_photo = ImageTk.PhotoImage(liquid_image)
+
     canvas.create_image(0, 90, anchor=tk.NW, image=liquid_photo)
     canvas.create_image(0, 90 * 3, anchor=tk.NW, image=liquid_photo)
 
@@ -4395,19 +4396,19 @@ def start_sim(player_units, enemy_units, chosen_map, map_str, season):
     arrows = Image.open(__location__ + "/CombatSprites/" + "Map" + ".png")
     arrow_photos = []
 
-    START_NORTH = 0;
-    START_SOUTH = 1;
-    START_EAST = 2;
+    START_NORTH = 0
+    START_SOUTH = 1
+    START_EAST = 2
     START_WEST = 3
-    END_NORTH = 4;
-    END_SOUTH = 5;
-    END_EAST = 6;
+    END_NORTH = 4
+    END_SOUTH = 5
+    END_EAST = 6
     END_WEST = 7
-    LINE_VERT = 8;
+    LINE_VERT = 8
     LINE_HORI = 9
-    BEND_NE = 10;
-    BEND_ES = 11;
-    BEND_SE = 12;
+    BEND_NE = 10
+    BEND_ES = 11
+    BEND_SE = 12
     BEND_EN = 13
     MOVE_STAR = 14
 
@@ -4483,8 +4484,7 @@ def start_sim(player_units, enemy_units, chosen_map, map_str, season):
     # map history, memory of all moves in map states
     map_states = []
 
-    phase_label = canvas.create_text((540 / 2, 830), text="PLAYER PHASE", fill="#038cfc", font=("Helvetica", 20),
-                                     anchor='center')
+    phase_label = canvas.create_text((540 / 2, 830), text="PLAYER PHASE", fill="#038cfc", font=("Helvetica", 20), anchor='center')
     next_phase.phase_txt = phase_label
 
     turn_label = canvas.create_text((540 / 2, 860), text="Turn " + str(turn_info[0]) + "/" + str(turn_info[2]),

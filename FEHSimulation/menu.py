@@ -30,8 +30,7 @@ XSKILL = 7
 STATS = {"None": -1, "HP": 0, "Atk": 1, "Spd": 2, "Def": 3, "Res": 4}
 STAT_STR = ["HP", "Atk", "Spd", "Def", "Res", "None"]
 
-BLESSINGS_DICT = {"None": -1, "Fire": 0, "Water": 1, "Earth": 2, "Wind": 3,
-                         "Light": 4, "Dark": 5, "Astra": 6, "Anima": 7}
+BLESSINGS_DICT = {"None": -1, "Fire": 0, "Water": 1, "Earth": 2, "Wind": 3, "Light": 4, "Dark": 5, "Astra": 6, "Anima": 7}
 
 class HeroProxy:
     def __init__(self):
@@ -1582,6 +1581,8 @@ def begin_simulation():
 
     start_sim(player_units, cleaned_enemy_units, map, selectedOptions.map_str, season)
 
+    window.mainloop()
+
 # window
 window = tk.Tk()
 #window.resizable(False, False)
@@ -1593,7 +1594,7 @@ window.configure(background='#797282')
 # MAIN MENU ELEMENTS
 title_label = tk.Label(master=window, text='RATA - An FE: Heroes Simulator', font='Helvetica 24', relief="raised")
 subtitle_label = tk.Label(master=window, text='By CloudX (2024)', font='Helvetica 18', relief="raised")
-version_label = tk.Label(master=window, text="Ver 1.0.7 - Year 2 Complete", font='Helvetica 12', relief="raised")
+version_label = tk.Label(master=window, text="Ver 1.0.8 - Year 2 Complete", font='Helvetica 12', relief="raised")
 
 start_button = tkm.Button(window, command=generate_maps, height=40, width=255, text="Level Select", font="Helvetica 14", cursor="hand2", bg='blue', fg='white', borderless=True, takefocus=0)
 units_button = tkm.Button(window, command=generate_units, height=40, width=255, text="My Units", font="Helvetica 14", cursor="hand2", bg='blue', fg='white', borderless=True)
@@ -1713,6 +1714,7 @@ def set_map_canvas(map_data, curImage, map_str):
 
             result = [-1, -1, -1, -1]
 
+            # Get tile num for each adjacent tile (NSEW)
             if y_comp + 1 < 8: result[0] = tile_num + 6
             if y_comp - 1 >= 0: result[1] = tile_num - 6
             if x_comp + 1 < 6: result[2] = tile_num + 1
@@ -1721,12 +1723,18 @@ def set_map_canvas(map_data, curImage, map_str):
             wall_type = 0
             iterator = 1
 
+            # If adjacent tile has a wall, add unique value to indicate that direction
+            # N - 1
+            # S - 2
+            # E - 4
+            # W - 8
             for adj_tile in result:
                 if adj_tile in all_walls:
                     wall_type += iterator
 
                 iterator *= 2
 
+            # Move one down on the wall crops to the variant with 2 health
             wall_health_offset = 182
             cur_crop = list(wall_crops[wall_type])
 
@@ -3102,5 +3110,6 @@ images = []
 
 generate_main()
 #generate_creation()
+
 
 window.mainloop()

@@ -228,7 +228,6 @@ class Map:
         else: self.enemy_start_spaces.append(tile_no)
 
     def define_map(self, map_json):
-
         if "liquid" in map_json:
             self.liquid_texture = map_json["liquid"]
         if "wall" in map_json:

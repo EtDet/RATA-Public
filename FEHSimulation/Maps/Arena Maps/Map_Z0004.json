@@ -1,5 +1,5 @@
 {
-    "name": "Volcano 1",
+    "name": "Arena 4: Volcano 1",
     "liquid": "LavaPattern.png",
     "terrain": [[0, 2, 2, 0, 2, 2],
                 [0, 0, 0, 0, 0, 0],

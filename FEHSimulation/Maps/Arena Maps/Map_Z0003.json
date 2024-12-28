@@ -1,5 +1,5 @@
 {
-    "name": "Walls 1",
+    "name": "Arena 3: Walls 1",
     "terrain": [[0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0],
@@ -42,13 +42,13 @@
        "startMove": 1,
        "wallBreak": false
       },
-       {"name": "Mikoto",
+       {"name": "Catria",
        "level": 40,
        "rarity": 5,
-       "weapon": "Doting StaffEff",
+       "weapon": "Silver Lance+",
        "special": "Moonbow",
-       "askill": "Death Blow 4",
-       "cskill": "Drive Res 2",
+       "askill": "Fort. Def/Res 2",
+       "cskill": "Spd/Res Rein 3",
        "startMove": 1,
        "wallBreak": false
       }
