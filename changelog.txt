@@ -16,6 +16,7 @@ Bug Fixes:
 -Fixed damage calculation for Moonbow-type specials on defensive terrain.
 -Fixed magical weapons not being affected by defensive terrain.
 -Fixed AOE damage on defensive terrain.
+-Fixed Future Sight II's weapon description not displaying.
 
 1.0.8 (12/27/24)
 
