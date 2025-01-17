@@ -1,0 +1,58 @@
+{
+    "name": "Chapter 8: Part 1: Sinister Shadow (Normal) ",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [2, 2, 2, 0, 0, 2],
+                [0, 0, 0, 0, 0, 2],
+                [4, 0, 4, 4, 0, 0],
+                [0, 0, 0, 0, 0, 2],
+                [4, 0, 4, 4, 0, 2],
+                [0, 0, 0, 0, 0, 2],
+                [0, 0, 0, 0, 0, 2]],
+    "defensiveTiles": [],
+    "playerStart": [6, 0, 1 ,2],
+    "enemyStart": [30, 28, 45, 21],
+    "enemyData":
+    [  {"name": "M!Robin",
+       "level": 17,
+       "rarity": 3,
+       "alt_stats": [25, 14, 14, 14, 10],
+       "weapon": "Elthunder",
+       "special": "Glowing Ember",
+       "cskill": "Spur Def 2",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+       },
+        {"name": "Tharja",
+       "level": 17,
+       "rarity": 3,
+       "alt_stats": [24, 16, 17, 11, 10],
+       "weapon": "Ruin",
+       "special": "Retribution",
+       "cskill": "Spur Res 2",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Axe Cavalier",
+       "level": 17,
+       "rarity": 3,
+       "alt_stats": [26, 17, 11, 12, 15],
+       "weapon": "Steel Axe",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Lance Knight",
+       "level": 17,
+       "rarity": 3,
+       "alt_stats": [35, 19, 7, 21, 9],
+       "weapon": "Steel Lance",
+       "assist": "Reposition",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

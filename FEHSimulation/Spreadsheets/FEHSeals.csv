@@ -278,6 +278,9 @@ Atk/Def Clash 3,"If unit or foe initiates combat after moving to a different spa
 Atk/Def Finish 1,"If unit is within 3 spaces of an ally, grants Atk/Def+2 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +1 damage during combat. (Except when dealing damage with area-of-effect Specials.)",1,A,93,FALSE,,,,,,,,,,,Any,Any
 Atk/Def Finish 2,"If unit is within 3 spaces of an ally, grants Atk/Def+4 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +3 damage during combat. (Except when dealing damage with area-of-effect Specials.)",2,A,93,FALSE,,,,,,,,,,,Any,Any
 Atk/Def Finish 3,"If unit is within 3 spaces of an ally, grants Atk/Def+6 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +5 damage during combat. (Except when dealing damage with area-of-effect Specials.)",3,A,93,FALSE,,,,,,,,,,,Any,Any
+Atk/Res Finish 1,"If unit is within 3 spaces of an ally, grants Atk/Res+2 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +1 damage during combat. (Except when dealing damage with area-of-effect Specials.)",1,A,235,FALSE,,,,,,,,,,,Any,Any
+Atk/Res Finish 2,"If unit is within 3 spaces of an ally, grants Atk/Res+4 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +3 damage during combat. (Except when dealing damage with area-of-effect Specials.)",2,A,235,FALSE,,,,,,,,,,,Any,Any
+Atk/Res Finish 3,"If unit is within 3 spaces of an ally, grants Atk/Res+6 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +5 damage during combat. (Except when dealing damage with area-of-effect Specials.)",3,A,235,FALSE,,,,,,,,,,,Any,Any
 Spd/Res Finish 1,"If unit is within 3 spaces of an ally, grants Spd/Res+2 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +1 damage during combat. (Except when dealing damage with area-of-effect Specials.)",1,A,94,FALSE,,,,,,,,,,,Any,Any
 Spd/Res Finish 2,"If unit is within 3 spaces of an ally, grants Spd/Res+4 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +3 damage during combat. (Except when dealing damage with area-of-effect Specials.)",2,A,94,FALSE,,,,,,,,,,,Any,Any
 Spd/Res Finish 3,"If unit is within 3 spaces of an ally, grants Spd/Res+6 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +5 damage during combat. (Except when dealing damage with area-of-effect Specials.)",3,A,94,FALSE,,,,,,,,,,,Any,Any
@@ -311,9 +314,12 @@ Poision Strike 3,"If unit initiates combat, deals 10 damage to foe after combat.
 Renewal 1,"At the start of every fourth turn, restores 10 HP.",1,B,103,TRUE,recoverSe,1,,,,,,,,,Any,Any
 Renewal 2,"At the start of every third turn, restores 10 HP.",2,B,103,TRUE,recoverSe,2,,,,,,,,,Any,Any
 Renewal 3,"At start of odd-numbered turns, restores 10 HP.",3,B,103,TRUE,recoverSe,3,,,,,,,,,Any,Any
-Live to Serve 1,"When healing an ally with a staff, restores HP to unit = 50% of HP restored to target.",1,B,104,FALSE,,,,,,,,,,,Any,Any
-Live to Serve 2,"When healing an ally with a staff, restores HP to unit = 75% of HP restored to target.",2,B,104,FALSE,,,,,,,,,,,Any,Any
-Live to Serve 3,"When healing an ally with a staff, restores HP to unit = HP restored to target.",3,B,104,FALSE,,,,,,,,,,,Any,Any
+Live to Serve 1,"When healing an ally with a staff, restores HP to unit = 50% of HP restored to target.",1,B,104,FALSE,,,,,,,,,,,Any,NotStaff
+Live to Serve 2,"When healing an ally with a staff, restores HP to unit = 75% of HP restored to target.",2,B,104,FALSE,,,,,,,,,,,Any,NotStaff
+Live to Serve 3,"When healing an ally with a staff, restores HP to unit = HP restored to target.",3,B,104,FALSE,,,,,,,,,,,Any,NotStaff
+Wrathful Staff 1,"At start of combat, if unit's HP = 100%, calculates damage from staff like other weapons.",1,B,232,FALSE,,,,,,,,,,,Any,NotStaff
+Wrathful Staff 2,"At start of combat, if unit's HP ≥ 50%, calculates damage from staff like other weapons.",2,B,232,FALSE,,,,,,,,,,,Any,NotStaff
+Wrathful Staff 3,Calculates damage from staff like other weapons.,3,B,232,FALSE,,,,,,,,,,,Any,NotStaff
 Seal Atk 1,Inflicts Atk-3 on foe through its next action after combat.,1,B,105,TRUE,sealAtkSe,3,,,,,,,,,Any,Staff
 Seal Atk 2,Inflicts Atk-5 on foe through its next action after combat.,2,B,105,TRUE,sealAtkSe,5,,,,,,,,,Any,Staff
 Seal Atk 3,Inflicts Atk-7 on foe through its next action after combat.,3,B,105,TRUE,sealAtkSe,7,,,,,,,,,Any,Staff
@@ -401,6 +407,9 @@ Dragon's Wrath 3,"If foe initiates combat, reduces damage from foe's first attac
 Spd/Def Tempo 1,"Inflicts Spd/Def-1 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",1,B,135,FALSE,,,,,,,,,,,Any,Any
 Spd/Def Tempo 2,"Inflicts Spd/Def-2 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",2,B,135,FALSE,,,,,,,,,,,Any,Any
 Spd/Def Tempo 3,"Inflicts Spd/Def-3 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",3,B,135,FALSE,,,,,,,,,,,Any,Any
+Spd/Res Tempo 1,"Inflicts Spd/Res-1 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",1,B,233,FALSE,,,,,,,,,,,Any,Any
+Spd/Res Tempo 2,"Inflicts Spd/Res-2 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",2,B,233,FALSE,,,,,,,,,,,Any,Any
+Spd/Res Tempo 3,"Inflicts Spd/Res-3 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",3,B,233,FALSE,,,,,,,,,,,Any,Any
 Breath of Life 1,"If unit initiates combat, restores 3 HP to adjacent allies after combat.",1,C,136,FALSE,,,,,,,,,,,Any,Any
 Breath of Life 2,"If unit initiates combat, restores 5 HP to adjacent allies after combat.",2,C,136,FALSE,,,,,,,,,,,Any,Any
 Breath of Life 3,"If unit initiates combat, restores 7 HP to adjacent allies after combat.",3,C,136,FALSE,,,,,,,,,,,Any,Any
@@ -542,6 +551,9 @@ Res Smoke 3,Inflicts Res-7 on foes within 2 spaces of target through their next 
 Armor March 1,"At start of turn, if unit's HP = 100% and unit is adjacent to an armored ally, unit and adjacent armored allies can move 1 extra space. (That turn only. Does not stack.)",1,C,192,FALSE,,,,,,,,,,,Any,Any
 Armor March 2,"At start of turn, if unit's HP ≥ 50% and unit is adjacent to an armored ally, unit and adjacent armored allies can move 1 extra space. (That turn only. Does not stack.)",2,C,192,FALSE,,,,,,,,,,,Any,Any
 Armor March 3,"At start of turn, if unit is adjacent to an armored ally, unit and adjacent armored allies can move 1 extra space. (That turn only. Does not stack.)",3,C,192,FALSE,,,,,,,,,,,Any,Any
+Assault Troop 1,"At start of turn, if any foe is in cardinal directions of unit, grants [Charge] to unit for 1 turn.",1,C,234,FALSE,,,,,,,,,,,Any,Any
+Assault Troop 2,"At start of turn, if any foe is within 3 columns or 3 rows centered on unit, grants [Charge] to unit for 1 turn.",2,C,234,FALSE,,,,,,,,,,,Any,Any
+Assault Troop 3,"At start of turn, if unit's HP = 100% or any foe is within 3 columns or 3 rows centered on unit, grants [Charge] to unit for 1 turn.",3,C,234,FALSE,,,,,,,,,,,Any,Any
 Guidance 1,"If unit's HP = 100%, infantry and armored allies within 2 spaces can move to a space adjacent to unit.",1,C,193,FALSE,,,,,,,,,,,Any,Any
 Guidance 2,"If unit's HP ≥ 50%, infantry and armored allies within 2 spaces can move to a space adjacent to unit.",2,C,193,FALSE,,,,,,,,,,,Any,Any
 Guidance 3,Infantry and armored allies within 2 spaces can move to a space adjacent to unit.,3,C,193,FALSE,,,,,,,,,,,Any,Any

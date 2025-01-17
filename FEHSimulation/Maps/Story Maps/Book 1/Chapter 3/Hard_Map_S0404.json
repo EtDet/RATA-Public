@@ -1,0 +1,50 @@
+{
+    "name": "Chapter 3: Part 4: Quirky Family (Hard)",
+    "terrain": [[2, 2, 2, 2, 0, 0],
+                [2, 2, 2, 2, 0, 0],
+                [0, 0, 2, 2, 0, 0],
+                [0, 0, 2, 2, 0, 0],
+                [0, 0, 0, 2, 0, 0],
+                [0, 2, 0, 2, 0, 0],
+                [1, 2, 0, 0, 0, 0],
+                [1, 2, 2, 2, 2, 2]],
+    "defensiveTiles": [],
+    "playerStart": [8, 9, 10, 11],
+    "enemyStart": [40, 25, 39, 31],
+    "enemyData":
+    [  {"name": "Fir",
+       "level": 17,
+       "rarity": 3,
+       "alt_stats": [26, 12, 19, 11, 15],
+       "weapon": "Iron Sword",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Bartre",
+       "level": 17,
+       "rarity": 3,
+       "alt_stats": [30, 19, 12, 16, 6],
+       "weapon": "Iron Axe",
+       "bskill": "Brash Assault 1",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Shanna",
+       "level": 17,
+       "rarity": 3,
+       "alt_stats": [24, 15, 18, 12, 14],
+       "weapon": "Iron Lance",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Bow Fighter",
+       "level": 17,
+       "rarity": 2,
+       "alt_stats": [25, 15, 13, 12, 5],
+       "weapon": "Iron Bow",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

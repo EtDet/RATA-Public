@@ -1,0 +1,55 @@
+{
+    "name": "Chapter 2: Part 5: Prince of Conquest (Hard)",
+    "terrain": [[4, 4, 4, 4, 4, 4],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [4, 0, 0, 0, 0, 4],
+                [0, 0, 0, 0, 0, 0],
+                [4, 0, 0, 0, 0, 4],
+                [0, 0, 0, 0, 0, 0],
+                [4, 0, 0, 0, 0, 4]],
+    "defensiveTiles": [],
+    "playerStart": [7, 8, 9, 10],
+    "enemyStart": [38, 37, 39, 40],
+    "enemyData":
+    [  {"name": "Xander",
+       "level": 16,
+       "rarity": 2,
+       "alt_stats": [26, 15, 9, 17, 6],
+       "weapon": "Iron Sword",
+       "cskill": "Spur Def 2",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+       },
+        {"name": "Peri",
+       "level": 15,
+       "rarity": 2,
+       "alt_stats": [20, 15, 15, 9, 11],
+       "weapon": "Iron Lance",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Laslow",
+       "level": 15,
+       "rarity": 2,
+       "alt_stats": [25, 16, 12, 11, 8],
+       "weapon": "Iron Sword",
+       "assist": "Rally Speed",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Axe Cavalier",
+       "level": 15,
+       "rarity": 2,
+       "alt_stats": [23, 15, 9, 10, 13],
+       "weapon": "Iron Axe",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

@@ -1,0 +1,59 @@
+{
+    "name": "Chapter 6: Part 4: Shy Princess (Lunatic) ",
+    "terrain": [[1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "struct_walls": {
+      "static": [2, 3, 16, 31, 34, 37],
+      "twoBreak": [40],
+      "oneBreak": [9, 13, 14, 15, 19, 22, 24, 25, 28, 35, 38, 39]
+    },
+    "playerStart": [6, 7, 0, 1],
+    "enemyStart": [33, 11, 36, 26],
+    "enemyData":
+    [  {"name": "Sakura",
+       "level": 34,
+       "rarity": 4,
+       "alt_stats": [32, 22, 25, 20, 25],
+       "weapon": "Assault",
+       "assist": "Mend",
+       "special": "Imbue",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Hana",
+       "level": 34,
+       "rarity": 4,
+       "alt_stats": [33, 30, 31, 19, 20],
+       "weapon": "Armorslayer",
+       "askill": "Fury 2",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Subaki",
+       "level": 34,
+       "rarity": 4,
+       "alt_stats": [34, 21, 30, 30, 18],
+       "weapon": "Silver Lance",
+       "assist": "Reciprocal Aid",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Kagero",
+       "level": 34,
+       "rarity": 4,
+       "alt_stats": [27, 26, 27, 18, 22],
+       "weapon": "Silver Dagger",
+       "special": "Retribution",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

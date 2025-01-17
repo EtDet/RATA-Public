@@ -1,0 +1,51 @@
+{
+    "name": "Chapter 5: Part 3: No Way Out (Normal) ",
+    "terrain": [[2, 1, 0, 0, 0, 0],
+                [2, 0, 0, 0, 1, 0],
+                [2, 2, 0, 2, 2, 2],
+                [2, 2, 0, 0, 0, 0],
+                [2, 2, 0, 0, 0, 2],
+                [2, 2, 0, 2, 2, 2],
+                [2, 0, 0, 0, 1, 0],
+                [1, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [27, 28, 21, 22],
+    "enemyStart": [47, 2, 3, 45],
+    "enemyData":
+    [  {"name": "Jeorge",
+       "level": 10,
+       "rarity": 3,
+       "alt_stats": [21, 12, 12, 8, 8],
+       "weapon": "Steel Bow",
+       "cskill": "Spur Spd 2",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Barst",
+       "level": 10,
+       "rarity": 3,
+       "alt_stats": [24, 13, 12, 10, 6],
+       "weapon": "Steel Axe",
+       "cskill": "Spur Atk 2",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Bow Fighter",
+       "level": 10,
+       "rarity": 3,
+       "alt_stats": [23, 12, 11, 11, 5],
+       "weapon": "Steel Bow",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Lance Knight",
+       "level": 10,
+       "rarity": 3,
+       "alt_stats": [30, 15, 5, 17, 6],
+       "weapon": "Steel Lance",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

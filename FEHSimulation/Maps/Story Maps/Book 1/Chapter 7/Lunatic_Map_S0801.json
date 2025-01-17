@@ -1,0 +1,53 @@
+{
+    "name": "Chapter 7: Part 1: Blazing Trial (Lunatic) ",
+    "terrain": [[1, 1, 1, 1, 2, 2],
+                [0, 0, 0, 1, 2, 2],
+                [0, 0, 0, 2, 2, 1],
+                [0, 0, 2, 2, 0, 0],
+                [0, 0, 2, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 1],
+                [1, 1, 1, 0, 1, 1]],
+    "defensiveTiles": [],
+    "playerStart": [22, 23, 16, 17],
+    "enemyStart": [31, 30, 24, 0],
+    "enemyData":
+    [  {"name": "Matthew",
+       "level": 34,
+       "rarity": 4,
+       "alt_stats": [35, 22, 29, 24, 15],
+       "weapon": "Rogue Dagger",
+       "bskill": "Poison Strike 2",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Serra",
+       "level": 34,
+       "rarity": 4,
+       "alt_stats": [29, 24, 26, 17, 28],
+       "weapon": "Assault",
+       "assist": "Mend",
+       "special": "Swift-Winds Balm",
+       "cskill": "Hone Atk 2",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Thief",
+       "level": 34,
+       "rarity": 4,
+       "alt_stats": [32, 22, 33, 11, 27],
+       "weapon": "Silver Dagger",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Thief",
+       "level": 34,
+       "rarity": 4,
+       "alt_stats": [32, 22, 33, 11, 27],
+       "weapon": "Steel Dagger",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

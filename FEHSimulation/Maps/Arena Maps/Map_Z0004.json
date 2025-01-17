@@ -1,5 +1,6 @@
 {
     "name": "Arena 4: Volcano 1",
+    "mode": "arena",
     "liquid": "LavaPattern.png",
     "terrain": [[0, 2, 2, 0, 2, 2],
                 [0, 0, 0, 0, 0, 0],

@@ -1,0 +1,54 @@
+{
+    "name": "Prologue 2: Proof of Power",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 2],
+                [0, 0, 2, 0, 0, 2],
+                [0, 1, 2, 0, 0, 0],
+                [0, 2, 0, 0, 0, 0],
+                [0, 2, 0, 0, 0, 0],
+                [0, 1, 2, 2, 2, 2],
+                [0, 0, 0, 0, 1, 2]],
+    "defensiveTiles": [],
+    "struct_walls": {
+      "static": [],
+      "twoBreak": [],
+      "oneBreak": [33, 34]
+    },
+    "playerStart": [43, 44, 45, 46],
+    "enemyStart": [11, 3, 4, 17],
+    "enemyData":
+    [  {"name": "Minerva",
+       "level": 2,
+       "rarity": 1,
+       "alt_stats": [17, 2, 8, 4, 1],
+       "weapon": "Iron Axe",
+       "startMove": 3,
+       "wallBreak": true
+       },
+        {"name": "Palla",
+       "level": 1, 
+       "rarity": 1, 
+       "alt_stats": [15, 1, 7, 1, 3],
+       "weapon": "Iron Sword",
+       "startMove": 2,
+       "wallBreak": true
+      },
+        {"name": "Catria",
+       "level": 1,
+       "rarity": 1,
+       "alt_stats": [15, 1, 8, 2, 2],
+       "weapon": "Iron Lance",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Maria",
+       "level": 1,
+       "rarity": 1,
+       "alt_stats": [14, 0, 6, 0, 4],
+       "assist": "Heal",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

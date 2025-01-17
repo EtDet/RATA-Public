@@ -1,4 +1,23 @@
-1.0.8 (12/27/25)
+2.0.0 (1/17/25)
+
+New Features:
+-Brand-new menu to access all features in one place! Look at the README file for a more detailed guide to navigate it.
+-Player units can now be marked as Bonus units for Arena maps, granting HP+10 and Atk/Spd/Def/Res+4 to the assigned unit for the map.
+-Added the following new maps: Arena Maps 25-50, Main Story Book 1 Chapters 1-9 with Normal/Hard/Lunatic difficulties.
+-Added Veronica and Bruno as buildable units, along with their respective exclusive weapons.
+
+Changes:
+-Loki: The Trickster and Loki: Trickster God have had their internal names changed. Please redownload their images and delete any saved builds of them you may have.
+
+Bug Fixes:
+-Fixed an issue which caused units without a special to display a special count when undoing their death.
+-Fixed Ally Supports to now remove old supports when new ones are created involving a unit from that old support.
+-Fixed the restrictions of Staff Valor to now include only Staff units.
+-Fixed damage calculation for Moonbow-type specials on defensive terrain.
+-Fixed magical weapons not being affected by defensive terrain.
+-Fixed AOE damage on defensive terrain.
+
+1.0.8 (12/27/24)
 
 Bug Fixes:
 -Fixed damage calculation in terms of special damage and defensive terrain.
@@ -7,7 +26,7 @@ Bug Fixes:
 -Fixed skills like Bonfire/Ignis calculating special damage to use Def instead of Spd.
 
 Note:
-- Just some small fixes.
+-Just some small fixes.
 
 1.0.7 (12/14/24)
 New Features:

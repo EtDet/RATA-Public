@@ -1,5 +1,6 @@
 {
     "name": "Arena 33: Fortress 5",
+    "mode": "arena",
     "liquid": "WavePattern.png",
     "wall": "Wallpattern_inside.png",
 

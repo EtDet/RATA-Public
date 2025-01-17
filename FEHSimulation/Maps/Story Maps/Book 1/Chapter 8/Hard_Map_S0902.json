@@ -1,0 +1,51 @@
+{
+    "name": "Chapter 8: Part 2: Napping Dragon (Hard) ",
+    "terrain": [[1, 0, 0, 0, 0, 2],
+                [0, 2, 0, 0, 1, 2],
+                [0, 0, 2, 0, 0, 0],
+                [0, 0, 2, 0, 2, 0],
+                [0, 0, 2, 0, 2, 0],
+                [0, 2, 0, 0, 2, 0],
+                [0, 2, 0, 0, 0, 2],
+                [0, 0, 0, 1, 0, 2]],
+    "defensiveTiles": [],
+    "playerStart": [44, 45, 46, 38],
+    "enemyStart": [3, 2, 17, 18],
+    "enemyData":
+    [  {"name": "Nowi",
+       "level": 28,
+       "rarity": 3,
+       "alt_stats": [34, 23, 18, 20, 18],
+       "weapon": "Lightning Breath",
+       "cskill": "Threaten Res 2",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Henry",
+       "level": 28,
+       "rarity": 3,
+       "alt_stats": [34, 16, 15, 22, 17],
+       "weapon": "Rauðrraven",
+       "askill": "Defiant Def 2",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Green Mage",
+       "level": 28,
+       "rarity": 3,
+       "alt_stats": [29, 21, 22, 13, 19],
+       "weapon": "Elwind",
+       "startMove": 2,
+       "wallBreak": true
+      },
+        {"name": "Bow Fighter",
+       "level": 28,
+       "rarity": 3,
+       "alt_stats": [33, 22, 20, 20, 10],
+       "weapon": "Steel Bow",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

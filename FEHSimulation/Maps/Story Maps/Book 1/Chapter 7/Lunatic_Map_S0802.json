@@ -1,0 +1,53 @@
+{
+    "name": "Chapter 7: Part 2: Two Noblemen (Lunatic) ",
+    "terrain": [[0, 0, 1, 0, 1, 0],
+                [0, 0, 1, 1, 0, 0],
+                [0, 0, 0, 2, 1, 0],
+                [2, 0, 0, 0, 2, 0],
+                [2, 2, 0, 0, 2, 0],
+                [0, 2, 1, 0, 0, 0],
+                [0, 2, 2, 0, 1, 1],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [47, 40, 35, 29],
+    "enemyStart": [1, 2, 43, 42],
+    "enemyData":
+    [  {"name": "Eliwood",
+       "level": 35,
+       "rarity": 4,
+       "alt_stats": [34, 26, 26, 19, 28],
+       "weapon": "Silver Sword",
+       "assist": "Swap",
+       "cskill": "Ward Cavalry",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Green Cavalier",
+       "level": 35,
+       "rarity": 4,
+       "alt_stats": [29, 31, 21, 14, 30],
+       "weapon": "Rexcalibur",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Hector",
+       "level": 35,
+       "rarity": 4,
+       "alt_stats": [46, 32, 20, 33, 16],
+       "weapon": "Silver Axe",
+       "assist": "Pivot",
+       "cskill": "Goad Armor",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Lance Knight",
+       "level": 35,
+       "rarity": 4,
+       "alt_stats": [49, 33, 13, 35, 16],
+       "weapon": "Silver Lance",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

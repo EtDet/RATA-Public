@@ -1,0 +1,53 @@
+{
+    "name": "Chapter 7: Part 4: The Guardian (Hard) ",
+    "terrain": [[0, 2, 0, 0, 0, 0],
+                [0, 0, 2, 0, 0, 0],
+                [0, 0, 2, 0, 0, 0],
+                [0, 0, 0, 2, 0, 0],
+                [0, 0, 0, 0, 0, 2],
+                [2, 0, 0, 2, 0, 2],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 2, 0]],
+    "defensiveTiles": [],
+    "playerStart": [46, 40, 41, 35],
+    "enemyStart": [24, 13, 9, 8],
+    "enemyData":
+    [  {"name": "Green Mage",
+       "level": 27,
+       "rarity": 3,
+       "alt_stats": [29, 20, 21, 13, 18],
+       "weapon": "Elwind",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Hawkeye",
+       "level": 27,
+       "rarity": 3,
+       "alt_stats": [34, 22, 14, 18, 19],
+       "weapon": "Killer Axe",
+       "special": "Rising Light",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Lyn",
+       "level": 27,
+       "rarity": 3,
+       "alt_stats": [29, 18, 26, 18, 18],
+       "weapon": "Steel Sword",
+       "special": "Night Sky",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Florina",
+       "level": 27,
+       "rarity": 3,
+       "alt_stats": [31, 19, 19, 17, 23],
+       "weapon": "Steel Lance",
+       "assist": "Ardent Sacrifice",
+       "cskill": "Breath of Life 2",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

@@ -1,0 +1,50 @@
+{
+    "name": "Chapter 3: Part 3: Desert Dragons (Lunatic)",
+    "terrain": [[0, 0, 0, 4, 0, 0],
+                [0, 0, 0, 4, 0, 4],
+                [0, 2, 0, 0, 0, 0],
+                [0, 0, 2, 0, 0, 0],
+                [0, 0, 0, 2, 0, 0],
+                [0, 2, 0, 0, 0, 2],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [18, 6, 8, 9],
+    "enemyStart": [42, 31, 40, 32],
+    "enemyData":
+    [  {"name": "Fae",
+       "level": 26,
+       "rarity": 4,
+       "alt_stats": [34, 21, 18, 18, 21],
+       "weapon": "Fire Breath",
+       "cskill": "Threaten Atk 1",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Sophia",
+       "level": 26,
+       "rarity": 4,
+       "alt_stats": [30, 24, 12, 18, 20],
+       "weapon": "Flux",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Axe Fighter",
+       "level": 26,
+       "rarity": 3,
+       "alt_stats": [33, 20, 20, 20, 14],
+       "weapon": "Iron Axe",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Raigh",
+       "level": 26,
+       "rarity": 4,
+       "alt_stats": [28, 23, 20, 15, 19],
+       "weapon": "Flux",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

@@ -1,0 +1,53 @@
+{
+    "name": "Chapter 1: Part 4: Dual Cavaliers (Hard)",
+    "terrain": [[0, 0, 1, 1, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 2, 2, 0, 2, 2],
+                [0, 0, 0, 0, 2, 0],
+                [0, 0, 2, 0, 0, 0],
+                [0, 2, 2, 0, 2, 2],
+                [0, 0, 0, 0, 0, 0],
+                [1, 1, 0, 2, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [9, 11, 2, 4],
+    "enemyStart": [36, 46, 24, 35],
+    "enemyData":
+    [  {"name": "Cain",
+       "level": 13,
+       "rarity": 2,
+       "alt_stats": [22, 13, 11, 12, 8],
+       "weapon": "Iron Sword",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+       },
+        {"name": "Abel",
+       "level": 13,
+       "rarity": 2,
+       "alt_stats": [21, 12, 13, 11, 9],
+       "weapon": "Iron Lance",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Gordin",
+       "level": 12,
+       "rarity": 2,
+       "alt_stats": [23, 12, 9, 13, 5],
+       "weapon": "Iron Bow",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Lance Flier",
+       "level": 12,
+       "rarity": 2,
+       "alt_stats": [21, 9, 14, 6, 15],
+       "weapon": "Iron Lance",
+       "startMove": 2,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

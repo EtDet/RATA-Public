@@ -1,0 +1,63 @@
+{
+    "name": "Chapter 7: Part 5: Blazing Noblemen (Lunatic) ",
+    "terrain": [[2, 0, 0, 0, 2, 0],
+                [2, 0, 0, 0, 2, 0],
+                [0, 2, 0, 2, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 2, 2, 2],
+                [2, 2, 0, 0, 1, 0],
+                [1, 2, 2, 0, 0, 0],
+                [0, 0, 0, 0, 0, 2]],
+    "defensiveTiles": [],
+    "playerStart": [27, 20, 14, 15],
+    "enemyStart": [44, 30, 0, 41, 11],
+    "enemyData":
+    [  {"name": "Eliwood",
+       "level": 38,
+       "rarity": 4,
+       "alt_stats": [36, 27, 28, 21, 29],
+       "weapon": "Silver Sword",
+       "special": "Holy Vestiments",
+       "bskill": "Escape Route 2",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Hector",
+       "level": 38,
+       "rarity": 4,
+       "alt_stats": [49, 34, 22, 35, 17],
+       "weapon": "Silver Axe",
+       "special": "Buckler",
+       "bskill": "Wings of Mercy 2",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Lyn",
+       "level": 38,
+       "rarity": 4,
+       "alt_stats": [35, 25, 35, 25, 25],
+       "weapon": "Silver Sword",
+       "askill": "Defiant Atk 2",
+       "bskill": "Knock Back",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Bow Fighter",
+       "level": 38,
+       "rarity": 4,
+       "alt_stats": [39, 29, 27, 26, 14],
+       "weapon": "Silver Bow",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Lance Knight",
+       "level": 38,
+       "rarity": 4,
+       "alt_stats": [51, 36, 14, 38, 17],
+       "weapon": "Silver Lance",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

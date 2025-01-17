@@ -1,0 +1,53 @@
+{
+    "name": "Chapter 6: Part 3: Blunt Princess (Lunatic) ",
+    "terrain": [[0, 0, 0, 0, 0, 1],
+                [0, 1, 1, 0, 1, 0],
+                [0, 0, 0, 2, 0, 2],
+                [1, 0, 0, 2, 0, 2],
+                [0, 0, 0, 2, 0, 2],
+                [1, 0, 0, 0, 0, 1],
+                [0, 2, 0, 0, 0, 0],
+                [2, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [9, 10, 3, 4],
+    "enemyStart": [37, 38, 30, 39],
+    "enemyData":
+    [  {"name": "Hinoka",
+       "level": 33,
+       "rarity": 4,
+       "alt_stats": [35, 29, 27, 20, 19],
+       "weapon": "Brave Lance",
+       "askill": "Defiant Def 2",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Azama",
+       "level": 33,
+       "rarity": 4,
+       "alt_stats": [37, 16, 22, 27, 20],
+       "weapon": "Pain",
+       "assist": "Reconcile",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Setsuna",
+       "level": 33,
+       "rarity": 4,
+       "alt_stats": [32, 23, 31, 17, 18],
+       "weapon": "Silver Bow",
+       "assist": "Reciprocal Aid",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Subaki",
+       "level": 33,
+       "rarity": 4,
+       "alt_stats": [34, 20, 29, 29, 17],
+       "weapon": "Silver Lance",
+       "bskill": "Quick Riposte 2",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

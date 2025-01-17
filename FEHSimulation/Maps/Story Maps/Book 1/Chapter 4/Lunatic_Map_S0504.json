@@ -1,0 +1,56 @@
+{
+    "name": "Chapter 4: Part 4: Surprising Villager (Lunatic)",
+    "terrain": [[0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "struct_walls": {
+      "static": [],
+      "twoBreak": [6, 27, 42, 43, 44],
+      "oneBreak": [8, 15, 19, 31, 39]
+    },
+    "playerStart": [1, 2, 3, 4],
+    "enemyStart": [37, 25, 33, 21],
+    "enemyData":
+    [  {"name": "Troubadour",
+       "level": 29,
+       "rarity": 4,
+       "alt_stats": [24, 24, 15, 14, 32],
+       "weapon": "Gravity",
+       "assist": "Physic",
+       "startMove": -1,
+       "wallBreak": false
+       },
+        {"name": "Bow Cavalier",
+       "level": 29,
+       "rarity": 4,
+       "alt_stats": [32, 30, 16, 17, 18],
+       "weapon": "Silver Bow",
+       "startMove": -1,
+       "wallBreak": false
+      },
+        {"name": "F!Robin",
+       "level": 29,
+       "rarity": 4,
+       "alt_stats": [32, 22, 22, 21, 16],
+       "weapon": "Rexcalibur",
+       "startMove": -1,
+       "wallBreak": false
+      },
+        {"name": "Donnel",
+       "level": 29,
+       "rarity": 4,
+       "alt_stats": [34, 26, 20, 24, 16],
+       "weapon": "Silver Lance",
+       "bskill": "Drag Back",
+       "startMove": -1,
+       "wallBreak": false
+      }
+    ]
+  }
+  

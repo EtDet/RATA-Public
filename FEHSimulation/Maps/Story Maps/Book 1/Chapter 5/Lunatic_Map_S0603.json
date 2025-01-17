@@ -1,0 +1,51 @@
+{
+    "name": "Chapter 5: Part 3: No Way Out (Lunatic) ",
+    "terrain": [[2, 1, 0, 0, 0, 0],
+                [2, 0, 0, 0, 1, 0],
+                [2, 2, 0, 2, 2, 2],
+                [2, 2, 0, 0, 0, 0],
+                [2, 2, 0, 0, 0, 2],
+                [2, 2, 0, 2, 2, 2],
+                [2, 0, 0, 0, 1, 0],
+                [1, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [27, 28, 21, 22],
+    "enemyStart": [47, 2, 3, 45],
+    "enemyData":
+    [  {"name": "Jeorge",
+       "level": 30,
+       "rarity": 4,
+       "alt_stats": [31, 25, 25, 18, 16],
+       "weapon": "Silver Bow",
+       "cskill": "Spur Spd 2",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Barst",
+       "level": 30,
+       "rarity": 4,
+       "alt_stats": [38, 26, 25, 22, 12],
+       "weapon": "Brave Axe",
+       "cskill": "Spur Atk 2",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Bow Fighter",
+       "level": 30,
+       "rarity": 4,
+       "alt_stats": [35, 23, 22, 21, 11],
+       "weapon": "Silver Bow",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Lance Knight",
+       "level": 30,
+       "rarity": 4,
+       "alt_stats": [45, 30, 11, 32, 14],
+       "weapon": "Silver Lance",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

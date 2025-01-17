@@ -1,0 +1,54 @@
+{
+    "name": "Arena 27: Fortress 4",
+    "mode": "arena",
+    "wall": "Wallpattern_inside.png",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 3, 0],
+                [0, 0, 0, 3, 0, 3],
+                [0, 3, 0, 0, 3, 0],
+                [3, 0, 3, 0, 0, 0],
+                [0, 3, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [19, 34],
+    "struct_walls": {
+      "static": [5, 7, 16, 42],
+      "twoBreak": [],
+      "oneBreak": [21, 23, 30, 32]
+    },
+    "playerStart": [8, 9, 2, 3],
+    "enemyStart": [43, 44, 45, 46],
+    "enemyData":
+    [  {"name": "Chrom",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Armorslayer+",
+       "special": "Bonfire",
+       "cskill": "Hone Atk 2",
+       "startMove": 1,
+       "wallBreak": false
+       },
+        {"name": "Myrrh",
+       "level": 40,
+       "rarity": 5,
+        "assist": "Reposition",
+       "startMove": 1,
+       "wallBreak": false
+      },
+       {"name": "SF!Xander",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Iron Dagger",
+       "assist": "Dance",
+       "startMove": 1,
+       "wallBreak": false
+      },
+       {"name": "Soren",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Rexcalibur",
+       "startMove": 1,
+       "wallBreak": false
+      }
+    ]
+  }

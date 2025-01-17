@@ -1,7 +1,8 @@
+# FORMAT FOR GETTING AN IMAGE FILE FROM FANDOM WIKI
 # https://feheroes.fandom.com/wiki/Special:Redirect/file/Alfonse_Prince_of_Askr_Mini_Unit_Ok.png
 
 import requests
-from hero import hero_sheet, Hero, implemented_heroes
+from hero import hero_sheet, Hero, implemented_heroes, generics
 from PIL import Image
 from io import BytesIO
 import os.path
@@ -61,7 +62,7 @@ while i < len(names):
     image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_Mini_Unit_Ok.png"
 
     # If image is currently of a character in this current build
-    if int_name in implemented_heroes:
+    if int_name in implemented_heroes and name + epithet != "BrunoMasked Knight":
 
     # Only to be used for getting the most recent units for development, comment back as soon as you're done!
     #if True:
@@ -79,11 +80,46 @@ while i < len(names):
 
     i += 1
 
+# Bruno: Masked Knight
+# Uses name different from visible name on Wiki (??? -> Bruno)
+download_and_save_image("https://feheroes.fandom.com/wiki/Special:Redirect/file/Masked_Knight_Mini_Unit_Ok.png", "TestSprites/" + "Bruno" + ".png")
+
+
+for generic in generics:
+    image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + generic + "_Mini_Unit_Idle.png"
+    download_and_save_image(image_url, "TestSprites/" + generic + ".png")
+
+# Arena Maps
 i = 1
-#i = 101
-while i < 25:
+while i <= 50:
     image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + "Map_Z" + str(i).zfill(4) + ".png"
     download_and_save_image(image_url, "Maps/Arena Maps/" + "Map_Z" + str(i).zfill(4) + ".png")
+    i += 1
+
+# Story Maps
+
+# Preface
+i = 1
+while i <= 2:
+    image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + "Map_S" + str(i).zfill(4) + ".png"
+    download_and_save_image(image_url, "Maps/Story Maps/Book 1/Preface/" + "Map_S" + str(i).zfill(4) + ".png")
+    i += 1
+
+# Prologue
+i = 1
+while i <= 3:
+    image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + "Map_S01" + str(i).zfill(2) + ".png"
+    download_and_save_image(image_url, "Maps/Story Maps/Book 1/Prologue/" + "Map_S01" + str(i).zfill(2) + ".png")
+    i += 1
+
+# Main Story
+i = 1
+while i <= 9:
+    j = 1
+    while j <= 5:
+        image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + "Map_S" + str(i+1).zfill(2) + str(j).zfill(2) + ".png"
+        download_and_save_image(image_url, "Maps/Story Maps/Book 1/Chapter " + str(i) + "/" + "Map_S" + str(i+1).zfill(2) + str(j).zfill(2) + ".png")
+        j += 1
     i += 1
 
 # 'https://feheroes.fandom.com/wiki/Special:Redirect/file/Seidr_Goddess_of_Hope_Mini_Unit_Ok.png'

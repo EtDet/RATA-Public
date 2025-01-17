@@ -1,0 +1,60 @@
+{
+    "name": "Arena 50: Desert 9",
+    "mode": "arena",
+    "wall": "Wallpattern_desert.png",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 3, 0, 0, 3, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 3, 0, 0, 0],
+                [1, 0, 0, 0, 0, 1],
+                [1, 0, 0, 0, 0, 1]],
+    "defensiveTiles": [20],
+    "struct_walls": {
+      "static": [12, 17, 24, 37, 40, 41, 42, 43, 47],
+      "twoBreak": [26, 46],
+      "oneBreak": [13, 15, 27, 29, 36]
+    },
+    "playerStart": [1, 2, 3, 4],
+    "enemyStart": [44, 39, 38, 45],
+    "enemyData":
+    [  {"name": "E!Celica",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Caring Magic",
+      "special": "Warp Ragnarok",
+      "askill": "Verge of Death",
+      "bskill": "Resonance 4",
+      "cskill": "Inf. Null Follow 4",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "E!Ike",
+       "level": 40,
+       "rarity": 5,
+          "weapon": "Emblem Ragnell",
+          "assist": "Reposition",
+          "special": "Great Aether",
+          "askill": "Def/Res Finish 4",
+          "bskill": "Laguz Friend 4",
+       "startMove": 1,
+       "wallBreak": true
+      },
+       {"name": "SF!Xander",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Iron Dagger",
+         "assist": "Dance",
+       "startMove": 1,
+       "wallBreak": true
+      },
+       {"name": "Cecilia",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Tome of OrderEff",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }

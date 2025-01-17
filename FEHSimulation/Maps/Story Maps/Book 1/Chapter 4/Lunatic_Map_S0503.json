@@ -1,0 +1,50 @@
+{
+    "name": "Chapter 4: Part 3: Big Ambush (Lunatic)",
+    "terrain": [[2, 2, 2, 2, 2, 2],
+                [2, 2, 2, 2, 2, 0],
+                [2, 2, 0, 0, 0, 0],
+                [2, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 2],
+                [0, 0, 2, 0, 2, 2],
+                [0, 2, 2, 2, 2, 2],
+                [2, 2, 2, 2, 2, 2]],
+    "defensiveTiles": [],
+    "playerStart": [25, 27, 20, 22],
+    "enemyStart": [42, 0, 47, 5],
+    "enemyData":
+    [  {"name": "Lance Flier",
+       "level": 28,
+       "rarity": 4,
+       "alt_stats": [30, 19, 26, 14, 27],
+       "weapon": "Silver Lance",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Sword Flier",
+       "level": 28,
+       "rarity": 4,
+       "alt_stats": [30, 19, 26, 14, 27],
+       "weapon": "Silver Sword",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Axe Flier",
+       "level": 28,
+       "rarity": 4,
+       "alt_stats": [30, 19, 26, 14, 27],
+       "weapon": "Silver Axe",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Cordelia",
+       "level": 28,
+       "rarity": 4,
+       "alt_stats": [31, 26, 26, 15, 18],
+       "weapon": "Silver Lance",
+       "askill": "Triangle Adept 1",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

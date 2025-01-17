@@ -1,0 +1,52 @@
+{
+    "name": "Chapter 3: Part 5: Nobles of Binding (Lunatic)",
+    "liquid": "LavaPattern.png",
+    "terrain": [[0, 0, 2, 0, 0, 0],
+                [0, 0, 2, 0, 0, 0],
+                [0, 2, 2, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 2, 0],
+                [2, 2, 2, 2, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [11, 3, 4, 5],
+    "enemyStart": [41, 25, 33, 30],
+    "enemyData":
+    [  {"name": "Roy",
+       "level": 28,
+       "rarity": 4,
+       "alt_stats": [35, 22, 23, 18, 19],
+       "weapon": "Steel Sword",
+       "bskill": "Drag Back",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Lilina",
+       "level": 28,
+       "rarity": 4,
+       "alt_stats": [28, 28, 18, 13, 23],
+       "weapon": "Elfire",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Gwendolyn",
+       "level": 28,
+       "rarity": 4,
+       "alt_stats": [39, 22, 17, 29, 19],
+       "weapon": "Steel Lance",
+       "assist": "Swap",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Troubadour",
+       "level": 28,
+       "rarity": 3,
+       "alt_stats": [23, 22, 14, 13, 29],
+       "assist": "Mend",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

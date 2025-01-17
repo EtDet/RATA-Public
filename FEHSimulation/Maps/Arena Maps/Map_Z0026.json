@@ -1,0 +1,53 @@
+{
+    "name": "Arena 26: Forest 10",
+    "mode": "arena",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 1],
+                [0, 0, 3, 3, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 3, 3, 0, 0],
+                [1, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [14, 15, 32, 33],
+    "struct_walls": {
+      "static": [19, 22, 25, 28],
+      "twoBreak": [],
+      "oneBreak": [23, 26]
+    },
+    "playerStart": [1, 2, 3, 4],
+    "enemyStart": [43, 44, 45, 46],
+    "enemyData":
+    [  {"name": "Chrom",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Armorslayer+",
+       "special": "Bonfire",
+       "cskill": "Hone Atk 2",
+       "startMove": 1,
+       "wallBreak": false
+       },
+        {"name": "Myrrh",
+       "level": 40,
+       "rarity": 5,
+        "assist": "Reposition",
+       "startMove": 1,
+       "wallBreak": false
+      },
+       {"name": "SF!Xander",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Iron Dagger",
+       "assist": "Dance",
+       "startMove": 1,
+       "wallBreak": false
+      },
+       {"name": "Soren",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Rexcalibur",
+       "startMove": 1,
+       "wallBreak": false
+      }
+    ]
+  }

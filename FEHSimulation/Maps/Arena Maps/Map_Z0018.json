@@ -1,5 +1,6 @@
 {
     "name": "Arena 18: Ships",
+    "mode": "arena",
     "wall": "Boxpattern.png",
     "terrain": [[2, 2, 0, 0, 0, 0],
                 [2, 0, 0, 0, 0, 0],

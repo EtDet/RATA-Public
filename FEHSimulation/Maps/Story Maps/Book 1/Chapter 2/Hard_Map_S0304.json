@@ -1,0 +1,54 @@
+{
+    "name": "Chapter 2: Part 4: Bewitching Princess (Hard)",
+    "liquid": "LavaPattern.png",
+    "terrain": [[2, 2, 2, 2, 2, 2],
+                [0, 0, 0, 0, 0, 0],
+                [2, 2, 2, 2, 0, 2],
+                [0, 0, 0, 0, 0, 0],
+                [2, 0, 2, 0, 2, 2],
+                [2, 0, 0, 0, 0, 0],
+                [2, 2, 0, 2, 2, 2],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [13, 14, 8, 2],
+    "enemyStart": [38, 37, 28, 39],
+    "enemyData":
+    [  {"name": "Camilla",
+       "level": 15,
+       "rarity": 2,
+       "alt_stats": [22, 13, 14, 10, 12],
+       "weapon": "Iron Axe",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+       },
+        {"name": "Beruka",
+       "level": 14,
+       "rarity": 2,
+       "alt_stats": [25, 12, 9, 16, 8],
+       "weapon": "Iron Axe",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "F!Selena",
+       "level": 14,
+       "rarity": 2,
+       "alt_stats": [21, 9, 15, 14, 10],
+       "weapon": "Iron Sword",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Lance Flier",
+       "level": 14,
+       "rarity": 2,
+       "alt_stats": [21, 10, 15, 7, 16],
+       "weapon": "Iron Lance",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

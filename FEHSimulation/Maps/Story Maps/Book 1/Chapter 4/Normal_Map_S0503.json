@@ -1,0 +1,50 @@
+{
+    "name": "Chapter 4: Part 3: Big Ambush (Normal)",
+    "terrain": [[2, 2, 2, 2, 2, 2],
+                [2, 2, 2, 2, 2, 0],
+                [2, 2, 0, 0, 0, 0],
+                [2, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 2],
+                [0, 0, 2, 0, 2, 2],
+                [0, 2, 2, 2, 2, 2],
+                [2, 2, 2, 2, 2, 2]],
+    "defensiveTiles": [],
+    "playerStart": [25, 27, 20, 22],
+    "enemyStart": [42, 0, 47, 5],
+    "enemyData":
+    [  {"name": "Lance Flier",
+       "level": 8,
+       "rarity": 3,
+       "alt_stats": [20, 9, 11, 5, 12],
+       "weapon": "Iron Lance",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Sword Flier",
+       "level": 8,
+       "rarity": 3,
+       "alt_stats": [20, 9, 11, 5, 12],
+       "weapon": "Iron Sword",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Axe Flier",
+       "level": 8,
+       "rarity": 3,
+       "alt_stats": [20, 9, 11, 5, 12],
+       "weapon": "Iron Axe",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Cordelia",
+       "level": 8,
+       "rarity": 3,
+       "alt_stats": [21, 11, 12, 6, 7],
+       "weapon": "Steel Lance",
+       "askill": "Triangle Adept 1",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

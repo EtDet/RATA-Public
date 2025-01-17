@@ -1,0 +1,54 @@
+{
+    "name": "Arena 32: Desert 3",
+    "mode": "arena",
+    "wall": "Wallpattern_desert.png",
+    "terrain": [[2, 1, 0, 1, 1, 2],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 2, 0, 0],
+                [0, 0, 0, 2, 0, 0],
+                [0, 0, 0, 2, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [2, 2, 3, 3, 2, 2]],
+    "defensiveTiles": [2, 3, 14, 15],
+    "struct_walls": {
+      "static": [20, 26],
+      "twoBreak": [],
+      "oneBreak": []
+    },
+    "playerStart": [30, 25, 19, 12],
+    "enemyStart": [35, 28, 22, 17],
+    "enemyData":
+    [  {"name": "Chrom",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Armorslayer+",
+       "special": "Bonfire",
+       "cskill": "Hone Atk 2",
+       "startMove": 1,
+       "wallBreak": false
+       },
+        {"name": "Myrrh",
+       "level": 40,
+       "rarity": 5,
+        "assist": "Reposition",
+       "startMove": 1,
+       "wallBreak": false
+      },
+       {"name": "SF!Xander",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Iron Dagger",
+       "assist": "Dance",
+       "startMove": 1,
+       "wallBreak": false
+      },
+       {"name": "Soren",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Rexcalibur",
+       "startMove": 1,
+       "wallBreak": false
+      }
+    ]
+  }

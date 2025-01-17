@@ -1,0 +1,51 @@
+{
+    "name": "Chapter 5: Part 4: Three Sisters Fly (Normal) ",
+    "terrain": [[0, 0, 0, 0, 0, 2],
+                [2, 0, 0, 0, 1, 2],
+                [2, 1, 0, 1, 1, 2],
+                [2, 1, 0, 0, 1, 2],
+                [2, 0, 0, 1, 1, 2],
+                [2, 1, 0, 1, 1, 2],
+                [0, 0, 0, 0, 1, 2],
+                [0, 0, 0, 0, 1, 2]],
+    "defensiveTiles": [],
+    "playerStart": [7, 1, 2, 3],
+    "enemyStart": [37, 44, 39, 38],
+    "enemyData":
+    [  {"name": "Catria",
+       "level": 11,
+       "rarity": 3,
+       "alt_stats": [21, 12, 14, 10, 10],
+       "weapon": "Steel Lance",
+       "special": "New Moon",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Palla",
+       "level": 11,
+       "rarity": 3,
+       "alt_stats": [23, 12, 12, 9, 11],
+       "weapon": "Steel Sword",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Est",
+       "level": 11,
+       "rarity": 3,
+       "alt_stats": [21, 14, 11, 8, 13],
+       "weapon": "Heavy Spear",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Axe Knight",
+       "level": 11,
+       "rarity": 3,
+       "alt_stats": [31, 16, 5, 18, 7],
+       "weapon": "Steel Axe",
+       "assist": "Pivot",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

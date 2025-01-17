@@ -1,0 +1,41 @@
+{
+    "name": "Chapter 1: Part 1: Mystery Trial (Normal)",
+    "terrain": [[2, 2, 2, 2, 2, 2],
+                [2, 2, 2, 2, 2, 2],
+                [0, 2, 2, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 2, 0],
+                [0, 0, 1, 2, 1, 0],
+                [2, 2, 2, 2, 2, 2],
+                [2, 2, 2, 2, 2, 2]],
+    "defensiveTiles": [],
+    "playerStart": [24, 25, 18, 19],
+    "enemyStart": [23, 28, 17],
+    "enemyData":
+    [  {"name": "Marth",
+       "level": 1,
+       "rarity": 2,
+       "alt_stats": [15, 2, 5, 2, 0],
+       "weapon": "Iron Sword",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Jagen",
+       "level": 1,
+       "rarity": 2,
+       "alt_stats": [17, 3, 3, 2, 2],
+       "weapon": "Iron Lance",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Caeda",
+       "level": 1,
+       "rarity": 2,
+       "alt_stats": [13, 1, 6, 0, 3],
+       "weapon": "Iron Sword",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

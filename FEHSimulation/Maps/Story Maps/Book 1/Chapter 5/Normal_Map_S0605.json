@@ -1,0 +1,53 @@
+{
+    "name": "Chapter 5: Part 5: Divine Dragon Princess (Normal) ",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 1, 0, 2, 0, 0],
+                [2, 2, 2, 0, 1, 0],
+                [0, 0, 0, 0, 0, 0],
+                [2, 2, 2, 0, 0, 0],
+                [4, 4, 4, 2, 0, 1],
+                [4, 0, 4, 2, 0, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [42, 43, 44, 45],
+    "enemyStart": [22, 7, 9, 17],
+    "enemyData":
+    [  {"name": "Thief",
+       "level": 12,
+       "rarity": 3,
+       "alt_stats": [21, 11, 15, 6, 13],
+       "weapon": "Steel Dagger",
+       "bskill": "Poison Strike 1",
+       "startMove": 4,
+       "wallBreak": true
+       },
+        {"name": "Y!Tiki",
+       "level": 12,
+       "rarity": 3,
+       "alt_stats": [24, 12, 10, 14, 12],
+       "weapon": "Flametongue",
+       "special": "Rising Flame",
+       "askill": "Armored Blow 2",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Minerva",
+       "level": 12,
+       "rarity": 3,
+       "alt_stats": [23, 12, 13, 13, 8],
+       "weapon": "Steel Axe",
+       "special": "Holy Vestiments",
+       "startMove": 3,
+       "wallBreak": true
+      },
+        {"name": "Lance Fighter",
+       "level": 12,
+       "rarity": 3,
+       "alt_stats": [25, 12, 12, 13, 8],
+       "weapon": "Steel Lance",
+       "startMove": 4,
+       "wallBreak": true
+      }
+    ]
+  }
+  

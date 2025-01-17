@@ -1,0 +1,53 @@
+{
+    "name": "Chapter 7: Part 4: The Guardian (Lunatic) ",
+    "terrain": [[0, 2, 0, 0, 0, 0],
+                [0, 0, 2, 0, 0, 0],
+                [0, 0, 2, 0, 0, 0],
+                [0, 0, 0, 2, 0, 0],
+                [0, 0, 0, 0, 0, 2],
+                [2, 0, 0, 2, 0, 2],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 2, 0]],
+    "defensiveTiles": [],
+    "playerStart": [46, 40, 41, 35],
+    "enemyStart": [24, 13, 9, 8],
+    "enemyData":
+    [  {"name": "Green Mage",
+       "level": 37,
+       "rarity": 4,
+       "alt_stats": [34, 26, 29, 17, 24],
+       "weapon": "Rexcalibur",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Hawkeye",
+       "level": 37,
+       "rarity": 4,
+       "alt_stats": [41, 30, 19, 25, 26],
+       "weapon": "Killer Axe",
+       "special": "Rising Light",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Lyn",
+       "level": 37,
+       "rarity": 4,
+       "alt_stats": [34, 24, 34, 24, 25],
+       "weapon": "Silver Sword",
+       "special": "Night Sky",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Florina",
+       "level": 37,
+       "rarity": 4,
+       "alt_stats": [38, 25, 25, 22, 31],
+       "weapon": "Heavy Spear",
+       "assist": "Ardent Sacrifice",
+       "cskill": "Breath of Life 2",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

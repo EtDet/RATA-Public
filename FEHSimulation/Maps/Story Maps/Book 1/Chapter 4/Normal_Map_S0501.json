@@ -1,0 +1,43 @@
+{
+    "name": "Chapter 4: Part 1: Awakening Trial (Normal)",
+    "terrain": [[0, 2, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 2],
+                [2, 2, 0, 0, 0, 0],
+                [0, 2, 2, 0, 2, 2],
+                [0, 0, 0, 0, 1, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 2, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1]],
+    "defensiveTiles": [],
+    "playerStart": [44, 45, 46, 38],
+    "enemyStart": [4, 1, 5],
+    "enemyData":
+    [  {"name": "Chrom",
+       "level": 7,
+       "rarity": 3,
+       "alt_stats": [22, 9, 8, 8, 4],
+       "weapon": "Iron Sword",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Frederick",
+       "level": 7,
+       "rarity": 3,
+       "alt_stats": [20, 9, 6, 10, 3],
+       "weapon": "Steel Axe",
+       "cskill": "Fortify Def 1",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Lissa",
+       "level": 7,
+       "rarity": 3,
+       "alt_stats": [17, 7, 6, 6, 8],
+       "weapon": "Fear",
+       "assist": "Mend",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

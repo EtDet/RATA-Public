@@ -24,238 +24,214 @@ def create_combat_fields(player_team, enemy_team):
         if "spurAtk" in unitSkills:
             range = within_1_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"spurAtk_f": unitSkills["spurAtk"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "driveAtk" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"spurAtk_f": unitSkills["driveAtk"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "spurSpd" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 1
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"spurSpd_f": unitSkills["spurSpd"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "driveSpd" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"driveSpd_f": unitSkills["driveSpd"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "spurDef" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 1
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"spurDef_f": unitSkills["spurDef"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "driveDef" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"driveDef_f": unitSkills["driveDef"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "spurRes" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 1
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"spurRes_f": unitSkills["spurRes"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "driveRes" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"driveRes_f": unitSkills["driveRes"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "goadCav" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: o.move == 1
-            affect_self = False
             affect_same_side = True
             effects = {"goad_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "wardCav" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: o.move == 1
-            affect_self = False
             affect_same_side = True
             effects = {"ward_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "goadFly" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: o.move == 2
-            affect_self = False
             affect_same_side = True
             effects = {"goad_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "wardFly" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: o.move == 2
-            affect_self = False
             affect_same_side = True
             effects = {"ward_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "goadArmor" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: o.move == 3
-            affect_self = False
             affect_same_side = True
             effects = {"goad_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "wardArmor" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: o.move == 3
-            affect_self = False
             affect_same_side = True
             effects = {"ward_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "goadDragon" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: o.wpnType in DRAGON_WEAPONS
-            affect_self = False
             affect_same_side = True
             effects = {"goad_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "wardDragon" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: o.wpnType in DRAGON_WEAPONS
-            affect_self = False
             affect_same_side = True
             effects = {"ward_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         # REIN SKILLS
         if "atkRein" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = False
             effects = {"atkRein_f": unitSkills["atkRein"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "spdRein" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = False
             effects = {"spdRein_f": unitSkills["spdRein"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "defRein" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = False
             effects = {"defRein_f": unitSkills["defRein"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "resRein" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = False
             effects = {"resRein_f": unitSkills["resRein"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "spdRC" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) <= 1 or abs(s[1] - o[1]) <= 1
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = False
             effects = {"spdRC_f": unitSkills["spdRC"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "defRC" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) <= 1 or abs(s[1] - o[1]) <= 1
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = False
             effects = {"defRC_f": unitSkills["defRC"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "cruxField" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) <= 1 or abs(s[1] - o[1]) <= 1
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = False
             effects = {"cruxField_f": unitSkills["cruxField"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "infantryRush" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: o.move == 0
-            affect_self = False
             affect_same_side = True
 
             if unitSkills["infantryRush"] == 1:
@@ -265,13 +241,12 @@ def create_combat_fields(player_team, enemy_team):
             else:
                 effects = {"iRush3": 0}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "infantryFlash" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: o.move == 0
-            affect_self = False
             affect_same_side = True
 
             if unitSkills["infantryRush"] == 1:
@@ -281,28 +256,26 @@ def create_combat_fields(player_team, enemy_team):
             else:
                 effects = {"iFlash3": 0}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         # Distant Guard
         if "distGuard" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"distDef": unitSkills["distGuard"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "closeGuard" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"closeDef": unitSkills["closeGuard"]}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
 
@@ -312,109 +285,99 @@ def create_combat_fields(player_team, enemy_team):
         if "driveSpectrum" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"driveAtk_f": 2, "driveSpd_f": 2, "driveDef_f": 2, "driveRes_f": 2}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         # Renowned Bow (Refine Eff) - Gordin
         if "gordin_field" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = False
             effects = {"atkRein_f": 4, "defRein_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         # Knightly/Lordly Lance (Refine Eff) - Mathilda/Clive
         if "jointSupportPartner" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: o.isSupportOf(s)
-            affect_self = False
             affect_same_side = True
             effects = {"jointSupportPartner_f": 3}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         # Thunderhead (Refine Eff) - P!Olwen
         if "olwen_field" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = False
             effects = {"olwen_field_f": 5}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         # Giga Excalibur (Refine EfF) - P!Nino
         if "doing her best" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"driveAtk_f": 4, "driveSpd_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         # Loyal Greatlance (Refine Eff) - Oscar
         if "oscarDrive" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: o.move == 0 or o.move == 1
-            affect_self = False
             affect_same_side = True
             effects = {"oscarDrive_f": 3}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         # Father's Tactics (Refine Eff) - F!Morgan
         if "morganJointDrive" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"driveAtk_f": 3, "driveSpd_f": 3}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         # Geirskögul (Base) - B!Lucina
         if "lucinaDrive" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: o.wpnType in MELEE_WEAPONS
-            affect_self = False
             affect_same_side = True
             effects = {"lucinaDrive_f": 3}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "refinedLucinaDrive" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: o.wpnType in PHYSICAL_WEAPONS
-            affect_self = False
             affect_same_side = True
             effects = {"refinedLucinaDrive_f": 3}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         # Tharja's Hex (Refined Eff) - Tharja
         if "tharja_field" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = False
             effects = {"atkRein_f": 4, "spdRein_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         # LORD HAVE MERCY
@@ -423,15 +386,14 @@ def create_combat_fields(player_team, enemy_team):
             condition1 = lambda s: lambda o: len(allies_within_n(s, 3)) == 1
             condition2 = lambda s: lambda o: len(allies_within_n(s, 3)) == 2
             condition3 = lambda s: lambda o: len(allies_within_n(s, 3)) >= 3
-            affect_self = False
             affect_same_side = False
             effects1 = {"complexRein1_f": 2}
             effects2 = {"complexRein2_f": 4}
             effects3 = {"complexRein3_f": 6}
 
-            field1 = CombatField(owner, range, condition1, affect_self, affect_same_side, effects1)
-            field2 = CombatField(owner, range, condition2, affect_self, affect_same_side, effects2)
-            field3 = CombatField(owner, range, condition3, affect_self, affect_same_side, effects3)
+            field1 = CombatField(owner, range, condition1, affect_same_side, effects1)
+            field2 = CombatField(owner, range, condition2, affect_same_side, effects2)
+            field3 = CombatField(owner, range, condition3, affect_same_side, effects3)
             combat_fields.append(field1)
             combat_fields.append(field2)
             combat_fields.append(field3)
@@ -439,128 +401,116 @@ def create_combat_fields(player_team, enemy_team):
         if "rhajatField" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = False
             effects = {"spdRein_f": 5, "resRein_f": 5}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         # Grimoire (Refine Eff) - H!Nowi
         if "nowiField" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 3
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = False
             effects = {"nowiField_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         # Yato (Refine Eff) - Corrin
         if "supportThem" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: o.allySupport == s.intName
-            affect_self = False
             affect_same_side = True
             effects = {"corrinField_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "gunterJointDrive" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"gunterJointDrive_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "hinokaField" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 3
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = False
             effects = {"hinokaField_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "camillaField" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: o.move == 1 or o.move == 2
-            affect_self = False
             affect_same_side = True
             effects = {"driveAtk_f": 3, "driveSpd_f": 3}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "eliseField" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = False
             effects = {"eliseField_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         # Flier Hinoka
         if "hinokaJointDrive" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"driveAtk_f": 4, "driveSpd_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
         if "veronicaField" in unitSkills:
             range = within_3_space
             condition = lambda s: lambda o: True
-            affect_self = False
 
             affect_same_side1 = True
             effects1 = {"driveAtk_f": 3, "driveSpd_f": 3}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side1, effects1)
+            field = CombatField(owner, range, condition, affect_same_side1, effects1)
             combat_fields.append(field)
 
             affect_same_side2 = False
             effects2 = {"defRein_f": 3, "resRein_f": 3}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side2, effects2)
+            field = CombatField(owner, range, condition, affect_same_side2, effects2)
             combat_fields.append(field)
 
         if "stupid dumb idiot field I cant code easily" in unitSkills:
             range = within_3_space
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = False
 
             effects = {"ylgrField_f": 1}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
 
         if "reginnAccel" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) <= 1 or abs(s[1] - o[1]) <= 1
             condition = lambda s: lambda o: True
-            affect_self = False
             affect_same_side = True
             effects = {"reginnField_f": 4}
 
-            field = CombatField(owner, range, condition, affect_self, affect_same_side, effects)
+            field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
 
     return combat_fields
-
 
 def start_of_turn(starting_team, waiting_team, turn):
 
@@ -1686,7 +1636,7 @@ def start_of_turn(starting_team, waiting_team, turn):
     # return hash maps of units who have had damage dealt or healed, or if their special cooldown was modified
     return damage_taken, heals_given
 
-# Allies within N spaces of unit
+# Unites within N spaces of unit
 def allies_within_n(unit, n):
     unit_list = unit.tile.unitsWithinNSpaces(n)
     returned_list = []
@@ -1727,6 +1677,7 @@ def foes_within_n_cardinal(unit, n):
 
     return returned_list
 
+# If unit's movement type allows them to be on a certain type of terrain
 def can_be_on_terrain(terrain_int, move_type_int):
     if terrain_int == 0 or terrain_int == 3: return True
     if terrain_int == 4: return False
@@ -1739,6 +1690,7 @@ def can_be_on_terrain(terrain_int, move_type_int):
         if move_type_int == 2: return True
         else: return False
 
+# If unit can be on a tile, given terrain or structures
 def can_be_on_tile(tile, move_type_int):
     if tile.structure_on is not None:
         # Destructable wall
@@ -1756,8 +1708,161 @@ def can_be_on_tile(tile, move_type_int):
         if move_type_int == 2: return True
         else: return False
 
+# The distance a unit can move on a given turn
+def allowed_movement(unit):
+    move_type = unit.move
 
-def get_warp_moves(unit, unit_team, enemy_team):
+    spaces_allowed = 3 - abs(move_type - 1)
+
+    status_bonus_move = 0
+
+    # Movement increased by positive status effects
+    if Status.MobilityUp in unit.statusPos:
+        status_bonus_move = 1
+    if Status.Gallop in unit.statusPos:
+        status_bonus_move = 2
+
+    spaces_allowed += status_bonus_move
+
+    # Movement set to 1 by negative status effects
+    if Status.Gravity in unit.statusNeg or (Status.MobilityUp in unit.statusPos and Status.Stall in unit.statusNeg):
+        spaces_allowed = 1
+
+    return spaces_allowed
+
+def get_obstruct_tiles(unit, enemy_team):
+    all_obstruct_tiles = []
+    for enemy in enemy_team:
+        enemy_skills = enemy.getSkills()
+
+        obstruct_cond = False
+
+        if "obstruct" in enemy_skills and enemy.HPcur / enemy.visible_stats[HP] >= 1.1 - enemy_skills["obstruct"] * 0.2:
+            obstruct_cond = True
+        if "obstructSe" in enemy_skills and enemy.HPcur / enemy.visible_stats[HP] >= 1.1 - enemy_skills["obstructSe"] * 0.2:
+            obstruct_cond = True
+
+        if obstruct_cond:
+            tiles = enemy.tile.tilesWithinNSpaces(1)
+            for x in tiles:
+                if x not in all_obstruct_tiles:
+                    all_obstruct_tiles.append(x)
+
+    return all_obstruct_tiles
+
+# given an adjacent tile and hero, calculate the movement cost to get to it
+def get_tile_cost(tile, unit):
+    cost = 1
+    move_type = unit.move
+
+    # cases in which units cannot go to tile
+    if tile.terrain == 1 and move_type == 1: return -1  # cavalry & forests
+    if tile.terrain == 2 and move_type != 2: return -1  # nonfliers & water/mountains
+    if tile.terrain == 4: return -1  # impassible terrain for anyone
+    if tile.structure_on is not None and tile.structure_on.health != 0: return -1  # structure currently on
+
+    if tile.terrain == 1 and move_type == 0: cost = 2
+    if tile.terrain == 3 and move_type == 1: cost = 3
+    if tile.divine_vein == 1 and tile.divine_vein_owner != unit.side and unit.getRange() == 2: cost = 2
+
+    if Status.TraverseTerrain in unit.statusPos: cost = 1
+
+    if "cannotStopTakumi" in unit.getSkills() and unit.HPcur / unit.visible_stats[HP] >= 0.50: cost = 1
+
+    if tile.hero_on is not None:
+        if "pathfinder" in tile.hero_on.getSkills(): cost = 0
+
+    return cost
+
+# Get all non-warp tiles to move to + the path to get to them
+def get_nonwarp_moves(unit, other_team, spaces_allowed=None):
+    tile = unit.tile
+
+    if spaces_allowed is None:
+        spaces_allowed = allowed_movement(unit)
+
+    visited = set() # tiles that have already been visited
+    queue = [(tile, 0, "")] # array of tuples of potential movement tiles, current costs, and current optimal pattern
+
+    possible_tiles = [] # unique, possible tiles, to be returned
+    optimal_moves = [] # shortest possible string to get to corresponding possible_move at index i
+
+    char_arr = ['N', 'S', 'E', 'W']
+
+    pass_cond = False
+    if "passSk" in unit.getSkills():
+        pass_cond = unit.HPcur >= 1 - 0.25 * unit.getSkills()["passSk"]
+    if "passW" in unit.getSkills() and not pass_cond:
+        pass_cond = unit.HPcur >= 1 - 0.25 * unit.getSkills()["passW"]
+
+    # all tiles which can obstruct non-warping movement
+    obstruct_tiles = get_obstruct_tiles(unit, other_team)
+    possible_obstruct_tiles = [] # obstruct tiles that can be moved to
+    optimal_obstruct_moves = [] # paths to each obstruct tile
+
+    while queue:
+        # get current tuple
+        current_tile, cost, path_str = queue.pop(0)
+
+        # not possible if too far, break since this is a BFS
+        if cost > spaces_allowed: break
+
+        visited.add(current_tile)
+
+        if current_tile in obstruct_tiles and not pass_cond and current_tile != tile:
+            possible_obstruct_tiles.append(current_tile)
+            optimal_obstruct_moves.append(path_str)
+            continue
+
+        possible_tiles.append(current_tile)
+        optimal_moves.append(path_str)
+
+        current_neighbors = []
+        for x in (current_tile.north, current_tile.south, current_tile.east, current_tile.west):
+            current_neighbors.append(x)
+
+        i = 0
+        for x in current_neighbors:
+            if x not in visited and x is not None:
+
+                neighbor_cost = get_tile_cost(x, unit)
+
+                within_allowed_cost = cost + neighbor_cost <= spaces_allowed
+
+                if within_allowed_cost and neighbor_cost >= 0 and (x.hero_on is None or unit.isAllyOf(x.hero_on) or pass_cond):
+                    queue.append((x, cost + neighbor_cost, path_str + char_arr[i]))
+                    visited.add(x)
+            i += 1
+
+    final_possible_tiles = []
+    final_optimal_moves = []
+
+    final_possible_obstruct_tiles = []
+    final_optimal_obstruct_moves = []
+
+    if possible_tiles:
+        final_possible_tiles.append(possible_tiles[0])
+        final_optimal_moves.append(optimal_moves[0])
+
+    # remove tiles with other units on as valid moves
+    i = 1
+    while i < len(possible_tiles):
+        if possible_tiles[i].hero_on is None:
+            final_possible_tiles.append(possible_tiles[i])
+            final_optimal_moves.append(optimal_moves[i])
+        i += 1
+
+    i = 0
+    while i < len(possible_obstruct_tiles):
+        if possible_obstruct_tiles[i].hero_on is None:
+            final_possible_obstruct_tiles.append(possible_obstruct_tiles[i])
+            final_possible_obstruct_tiles.append(possible_obstruct_tiles[i])
+        i += 1
+
+    return final_possible_tiles, final_optimal_moves, final_possible_obstruct_tiles, final_optimal_obstruct_moves
+
+# List possible tiles to warp to
+def get_warp_moves(unit, unit_team, other_team):
     unitSkills = unit.getSkills()
     unitStats = unit.getStats()
 
@@ -1939,7 +2044,208 @@ def get_warp_moves(unit, unit_team, enemy_team):
 
     return result_warp_moves
 
+# A possible movement action by a unit
+class Move():
+    def __init__(self, dest, num_moved, is_warp, trav_str):
+        self.destination = dest  # tile ID
+        self.num_moved = num_moved  # num tiles between start and this tile
+        self.is_warp = is_warp  # does this move use a warp space?
+        self.trav_string = trav_str  # traversal string, holds default optimal path
 
+def get_regular_moves(unit, unit_team, other_team):
+    tile = unit.tile
+
+    final_dests = []
+    final_paths = []
+    final_move_Objs = []
+
+    moves, paths, obst_moves, obst_paths = get_nonwarp_moves(unit, other_team)
+
+    warp_tiles = get_warp_moves(unit, unit_team, other_team)
+
+    for i in range(0, len(moves)):
+        final_dests.append(moves[i].tileNum)
+        final_paths.append(paths[i])
+
+        end = moves[i].tileNum
+        distance = abs(end % 6 - tile.x_coord) + abs(end // 6 - tile.y_coord % 6)
+
+        final_move_Objs.append(Move(end, num_moved=distance, is_warp=False, trav_str=paths[i]))
+
+    for i in range(0, len(warp_tiles)):
+        if warp_tiles[i].tileNum not in final_dests:
+            final_dests.append(warp_tiles[i].tileNum)
+            final_paths.append("WARP")
+
+            end = warp_tiles[i].tileNum
+            distance = abs(end % 6 - tile.x_coord) + abs(end // 6 - tile.y_coord % 6)
+
+            final_move_Objs.append(Move(end, num_moved=distance, is_warp=True, trav_str="WARP"))
+
+    for i in range(0, len(obst_moves)):
+        if obst_moves[i].tileNum not in final_dests:
+            final_dests.append(obst_moves[i].tileNum)
+            final_paths.append(obst_paths[i])
+
+            end = obst_moves[i].tileNum
+            distance = abs(end % 6 - tile.x_coord) + abs(end // 6 - tile.y_coord % 6)
+
+            final_move_Objs.append(Move(end, num_moved=distance, is_warp=False, trav_str=obst_paths[i]))
+
+    return final_dests, final_paths, final_move_Objs
+
+def get_canto_moves(unit, unit_team, other_team, distance_traveled, allowed_movement, action, turn):
+    tile = unit.tile
+
+    # array of all canto distances given by skills, only max is taken
+    possible_move_vals = [0]
+
+    unitSkills = unit.getSkills()
+
+    if "canto2" in unitSkills:
+        possible_move_vals.append(2)
+
+    if "reginnAccel" in unitSkills and turn <= 4:
+        possible_move_vals.append(min(distance_traveled + 2, 5))
+
+    # take max, value is used for canto distance
+    base_move = max(possible_move_vals)
+
+    # CANTO CONTROL
+    if Status.CantoControl in unit.statusNeg:
+        if unit.wpnType in MELEE_WEAPONS:
+            base_move = 1
+        if unit.wpnType in RANGED_WEAPONS:
+            base_move = 0
+
+    # Canto does not trigger at all, occurs under the following conditions:
+    # - Canto Dist. with 0 spaces traveled
+    # - Canto Rem. with max spaces traveled
+    # - Canto Ally 2 with no allies in range (unsure if ally in range but no valid
+    #   warp tiles will still activate canto, please test and DM me @Cloud__Z__)
+    # - Unit does not meet any conditions to activate any type of canto
+    # In these cases, Canto Control cannot be applied by a foe, and unit can still
+    # activate Canto elsewhere if given another action.
+
+    if base_move == 0:
+        return [], [], []
+
+    canto_dests = []
+    canto_paths = []
+    canto_move_Objs = []
+
+    moves, paths, obst_moves, obst_paths = get_nonwarp_moves(unit, other_team)
+
+    warp_tiles = get_warp_moves(unit, unit_team, other_team)
+
+    for i in range(0, len(moves)):
+        canto_dests.append(moves[i].tileNum)
+        canto_paths.append(paths[i])
+
+        end = moves[i].tileNum
+        distance = abs(end % 6 - tile.x_coord) + abs(end // 6 - tile.y_coord % 6)
+
+        canto_move_Objs.append(Move(end, num_moved=distance, is_warp=False, trav_str=paths[i]))
+
+    for i in range(0, len(warp_tiles)):
+        if warp_tiles[i].tileNum not in canto_dests:
+            end = warp_tiles[i].tileNum
+            distance = abs(end % 6 - tile.x_coord) + abs(end // 6 - tile.y_coord % 6)
+
+            # If warp is not within allowed number of spaces and not using warp-based canto, do not consider this movement
+            if distance > base_move and base_move != -1:
+                continue
+
+            canto_dests.append(warp_tiles[i].tileNum)
+            canto_paths.append("WARP")
+
+            canto_move_Objs.append(Move(end, num_moved=distance, is_warp=True, trav_str="WARP"))
+
+    for i in range(0, len(obst_moves)):
+        if obst_moves[i].tileNum not in canto_dests:
+            canto_dests.append(obst_moves[i].tileNum)
+            canto_paths.append(obst_paths[i])
+
+            end = obst_moves[i].tileNum
+            distance = abs(end % 6 - tile.x_coord) + abs(end // 6 - tile.y_coord % 6)
+
+            canto_move_Objs.append(Move(end, num_moved=distance, is_warp=False, trav_str=obst_paths[i]))
+
+    return canto_dests, canto_paths, canto_move_Objs
+
+# Get tile moved to if unit at u_tile used reposition on ally at a_tile
+def final_reposition_tile(u_tile, a_tile):
+    if u_tile == -1 or a_tile == -1:
+        return -1
+
+    bottom_row = (0, 1, 2, 3, 4, 5)
+    if u_tile in bottom_row and a_tile == u_tile + 6: return -1
+
+    top_row = (42, 43, 44, 45, 46, 47)
+    if u_tile in top_row and a_tile == u_tile - 6: return -1
+
+    left_column = (0, 6, 12, 18, 24, 30, 36, 42)
+    if u_tile in left_column and a_tile == u_tile + 1: return -1
+
+    right_column = (5, 11, 17, 23, 29, 35, 41, 47)
+    if u_tile in right_column and a_tile == u_tile - 1: return -1
+
+    final_tile = -1
+
+    if u_tile > a_tile:
+        final_tile = a_tile + 2 * (u_tile - a_tile)
+
+    if u_tile < a_tile:
+        final_tile = a_tile - 2 * (a_tile - u_tile)
+
+    return final_tile
+
+aoe_patterns = {
+    1: [-2, -1, 0, 1, 2],  # Rising/Blazing Flame
+    2: [-7, -5, 0, 5, 7],  # Rising/Blazing Light
+    3: [-12, -6, 0, 6, 12],  # Rising/Blazing Thunder
+    4: [-6, -1, 0, 1, 6],  # Rising/Blazing Wind & Gifted Magic (I & II)
+
+    11: [-7, -5, -2, -1, 0, 1, 2, 5, 7],  # Growing Flame
+    12: [-12, -7, -5, -2, 0, 2, 5, 7, 12],  # Growing Light
+    13: [-18, -12, -6, -1, 0, 1, 6, 12, 18],  # Growing Thunder
+    14: [-7, -6, -5, -1, 0, 1, 5, 6, 7],  # Growing Wind
+
+    21: [5, 6, 7, 11, 12, 13, 17, 18, 19],  # Override, Facing North
+}
+
+# Under assumption of 6x8 map
+# Constants to assume whether a tile is valid for AOE targeting (not off map)
+tile_conditions = {
+    -18: lambda x: 0 <= x <= 48,
+    -12: lambda x: 0 <= x <= 48,
+    -7: lambda x: 0 <= x <= 48 and (x - 1) % 6 < 5,
+    -6: lambda x: 0 <= x <= 48,
+    -5: lambda x: 0 <= x and x <= 47 and (x + 1) % 6 > 0,
+    -2: lambda x: (x - 2) % 6 < 4,
+    -1: lambda x: (x - 1) % 6 < 5,
+    0: lambda x: True,
+    1: lambda x: (x + 1) % 6 > 0,
+    2: lambda x: (x + 2) % 6 > 1,
+    5: lambda x: 0 <= x <= 48 and (x - 1) % 6 < 5,
+    6: lambda x: 0 <= x <= 48,
+    7: lambda x: 0 <= x <= 48 and (x + 1) % 6 > 0,
+    12: lambda x: 0 <= x <= 48,
+    18: lambda x: 0 <= x <= 48,
+}
+
+
+# Returns all tiles to be targeted by an AOE move given a certain position and tile range
+def aoe_tiles(u_tile, aoe_range_num):
+    pattern = aoe_patterns[aoe_range_num]
+
+    final_tiles = []
+
+    for tile in pattern:
+        if tile_conditions[tile](u_tile) and tile + u_tile >= 0 and tile + u_tile <= 47:
+            final_tiles.append(tile + u_tile)
+
+    return final_tiles
 
 # STRING COLLECTION
 # -- EFFECT TYPES --
@@ -1953,8 +2259,8 @@ def get_warp_moves(unit, unit_team, enemy_team):
 # -- GROUP TYPES --
 # self                - applies to only self
 # foe                 - applies to only foe
-# allies              - applies to only allies
-# foes_allies          - applies to only foe's allies
+# allies              - applies to only self's allies
+# foes_allies         - applies to only foe's allies
 # self_and_allies     - applies to self and self's allies
 # foe_and_foes_allies - applies to foe and foe's allies
 # all                 - any unit
@@ -2060,7 +2366,6 @@ def end_of_combat(atk_effects, def_effects, attacker, defender, savior_unit):
             area = defAreas
             unit = defender
             other = attacker
-
 
         effect = combined[i]
 

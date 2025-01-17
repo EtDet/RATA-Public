@@ -1,0 +1,53 @@
+{
+    "name": "Chapter 6: Part 1: Birthright Trial (Hard) ",
+    "terrain": [[2, 2, 2, 2, 2, 1],
+                [0, 0, 0, 2, 2, 0],
+                [2, 0, 0, 0, 0, 1],
+                [2, 0, 0, 2, 2, 0],
+                [2, 2, 0, 2, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [2, 2, 2, 2, 0, 0],
+                [2, 1, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [37, 38, 31, 25],
+    "enemyStart": [29, 22, 17, 2],
+    "enemyData":
+    [  {"name": "Ryoma",
+       "level": 21,
+       "rarity": 3,
+       "alt_stats": [28, 19, 21, 14, 11],
+       "weapon": "Steel Sword",
+       "askill": "Defiant Atk 2",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Takumi",
+       "level": 21,
+       "rarity": 3,
+       "alt_stats": [27, 18, 18, 14, 10],
+       "weapon": "Steel Bow",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Sakura",
+       "level": 21,
+       "rarity": 3,
+       "alt_stats": [25, 15, 17, 13, 17],
+       "weapon": "Fear",
+       "assist": "Mend",
+       "cskill": "Fortify Def 2",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Hinoka",
+       "level": 21,
+       "rarity": 3,
+       "alt_stats": [28, 19, 18, 14, 14],
+       "weapon": "Steel Lance",
+       "askill": "Defiant Def 2",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

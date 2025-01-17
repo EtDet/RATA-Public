@@ -1,0 +1,54 @@
+{
+    "name": "Chapter 2: Part 1: Conquest Trial (Normal)",
+    "terrain": [[2, 0, 0, 1, 0, 2],
+                [2, 2, 0, 0, 2, 2],
+                [0, 2, 2, 0, 0, 0],
+                [0, 0, 2, 2, 2, 0],
+                [0, 1, 0, 2, 0, 0],
+                [0, 0, 2, 2, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [1, 0, 2, 0, 1, 0]],
+    "defensiveTiles": [],
+    "playerStart": [23, 16, 17, 10],
+    "enemyStart": [38, 19, 12, 25],
+    "enemyData":
+    [  {"name": "Xander",
+       "level": 3,
+       "rarity": 2,
+       "alt_stats": [18, 5, 4, 5, 0],
+       "weapon": "Iron Sword",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+       },
+        {"name": "Camilla",
+       "level": 3,
+       "rarity": 2,
+       "alt_stats": [16, 5, 7, 3, 3],
+       "weapon": "Iron Axe",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Leo",
+       "level": 3,
+       "rarity": 2,
+       "alt_stats": [15, 4, 5, 2, 4],
+       "weapon": "Flux",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Elise",
+       "level": 3,
+       "rarity": 2,
+       "alt_stats": [14, 4, 6, 0, 5],
+       "weapon": "Gravity",
+       "assist": "Heal",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

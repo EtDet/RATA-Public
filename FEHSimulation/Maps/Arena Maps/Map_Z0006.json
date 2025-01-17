@@ -1,5 +1,6 @@
 {
     "name": "Arena 6: Fortress 1",
+    "mode": "arena",
     "wall": "Wallpattern_inside.png",
     "terrain": [[0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0],

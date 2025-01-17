@@ -1,0 +1,52 @@
+{
+    "name": "Chapter 4: Part 5: Prince of Awakening (Lunatic)",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 2, 0, 2, 2, 0],
+                [0, 2, 0, 0, 2, 0],
+                [0, 2, 0, 0, 0, 0],
+                [0, 2, 2, 0, 2, 0],
+                [0, 2, 0, 0, 2, 0],
+                [0, 0, 0, 0, 2, 0],
+                [0, 2, 0, 0, 2, 0]],
+    "defensiveTiles": [],
+    "playerStart": [8, 9, 2, 3],
+    "enemyStart": [33, 17, 35, 36],
+    "enemyData":
+    [  {"name": "Chrom",
+       "level": 30,
+       "rarity": 4,
+       "alt_stats": [39, 29, 19, 24, 12],
+       "weapon": "Silver Sword",
+       "special": "Daylight",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "F!Robin",
+       "level": 30,
+       "rarity": 4,
+       "alt_stats": [32, 22, 22, 21, 16],
+       "weapon": "Rexcalibur",
+       "special": "Rising Wind",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Stahl",
+       "level": 30,
+       "rarity": 4,
+       "alt_stats": [37, 26, 20, 23, 16],
+       "weapon": "Silver Sword",
+       "assist": "Rally Attack",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Sully",
+       "level": 30,
+       "rarity": 4,
+       "alt_stats": [34, 23, 27, 18, 20],
+       "weapon": "Silver Lance",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

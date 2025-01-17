@@ -1,0 +1,54 @@
+{
+    "name": "Chapter 2: Part 4: Bewitching Princess (Lunatic)",
+    "liquid": "LavaPattern.png",
+    "terrain": [[2, 2, 2, 2, 2, 2],
+                [0, 0, 0, 0, 0, 0],
+                [2, 2, 2, 2, 0, 2],
+                [0, 0, 0, 0, 0, 0],
+                [2, 0, 2, 0, 2, 2],
+                [2, 0, 0, 0, 0, 0],
+                [2, 2, 0, 2, 2, 2],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [13, 14, 8, 2],
+    "enemyStart": [38, 37, 28, 39],
+    "enemyData":
+    [  {"name": "Camilla",
+       "level": 25,
+       "rarity": 3,
+       "alt_stats": [28, 19, 20, 17, 19],
+       "weapon": "Steel Axe",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+       },
+        {"name": "Beruka",
+       "level": 24,
+       "rarity": 3,
+       "alt_stats": [33, 18, 14, 23, 13],
+       "weapon": "Steel Axe",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "F!Selena",
+       "level": 24,
+       "rarity": 3,
+       "alt_stats": [27, 15, 22, 20, 17],
+       "weapon": "Steel Sword",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Lance Flier",
+       "level": 24,
+       "rarity": 3,
+       "alt_stats": [27, 18, 22, 12, 23],
+       "weapon": "Steel Lance",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

@@ -44,6 +44,39 @@ class Tile:
         # 5 - wood
         self.terrain_texture = texture
 
+    def tilesNSpacesAway(self, n):
+        fringe = Queue()  # tiles to visit
+        visited = set()  # visited tiles to avoid duplicates
+        tilesAtN = []  # tiles exactly n spaces away
+
+        fringe.put(self)  # start with the current tile
+        visited.add(self)
+
+        # Level marker
+        fringe.put(Tile(-1, -1, -1, -1))
+        level = 0
+
+        while not fringe.empty() and level <= n:
+            cur = fringe.get()
+
+            if cur.tileNum == -1:
+                level += 1
+                if level > n:
+                    break
+                if not fringe.empty():
+                    fringe.put(Tile(-1, -1, -1, -1))
+                continue
+
+            # Add neighboring tiles to the queue
+            for neighbor in [cur.north, cur.east, cur.south, cur.west]:
+                if neighbor is not None and neighbor not in visited:
+                    fringe.put(neighbor)
+                    visited.add(neighbor)
+                    if level == n - 1:  # Next level will be 'n'
+                        tilesAtN.append(neighbor)
+
+        return tilesAtN
+
     # all tiles within n spaces
     def tilesWithinNSpaces(self, n):
         fringe = Queue()  # tiles to visit
@@ -173,6 +206,7 @@ class Structure:
         # 0, structure is destoryed
         # -1, structure is indestructable
         self.health = health
+        self.max_health = health
 
 # class AR_Structure: SUBCLASS
 # level
@@ -243,8 +277,9 @@ class Map:
                 j -= 1
             i += 1
 
-        for x in map_json["defensiveTiles"]:
-            self.tiles[x].is_def_terrain = 1
+        if "defensiveTiles" in map_json:
+            for x in map_json["defensiveTiles"]:
+                self.tiles[x].is_def_terrain = 1
 
         for x in map_json["playerStart"]:
             self.player_start_spaces.append(x)

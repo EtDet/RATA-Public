@@ -1,0 +1,61 @@
+{
+    "name": "Chapter 2: Part 2: Lovely Bloom (Lunatic)",
+    "wall": "Wallpattern_inside.png",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 1]],
+    "defensiveTiles": [],
+    "struct_walls": {
+      "static": [18, 19, 22, 23, 31, 34, 37, 40],
+      "twoBreak": [32, 33],
+      "oneBreak": []
+    },
+    "playerStart": [14, 15, 8, 9],
+    "enemyStart": [43, 35, 30, 46],
+    "enemyData":
+    [  {"name": "Elise",
+       "level": 24,
+       "rarity": 3,
+       "alt_stats": [22, 20, 20, 11, 20],
+       "weapon": "Fear",
+       "assist": "Mend",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+       },
+        {"name": "F!Arthur",
+       "level": 23,
+       "rarity": 3,
+       "alt_stats": [30, 19, 17, 18, 14],
+       "weapon": "Steel Axe",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Effie",
+       "level": 23,
+       "rarity": 3,
+       "alt_stats": [35, 25, 13, 21, 13],
+       "weapon": "Steel Lance",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Troubadour",
+       "level": 23,
+       "rarity": 3,
+       "alt_stats": [22, 19, 12, 12, 25],
+       "weapon": "Assault",
+       "assist": "Heal",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

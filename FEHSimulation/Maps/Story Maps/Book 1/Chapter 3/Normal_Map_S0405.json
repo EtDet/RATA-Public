@@ -1,0 +1,52 @@
+{
+    "name": "Chapter 3: Part 5: Nobles of Binding (Normal)",
+    "liquid": "LavaPattern.png",
+    "terrain": [[0, 0, 2, 0, 0, 0],
+                [0, 0, 2, 0, 0, 0],
+                [0, 2, 2, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 2, 0],
+                [2, 2, 2, 2, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [11, 3, 4, 5],
+    "enemyStart": [41, 25, 33, 30],
+    "enemyData":
+    [  {"name": "Roy",
+       "level": 8,
+       "rarity": 3,
+       "alt_stats": [22, 8, 11, 7, 5],
+       "weapon": "Iron Sword",
+       "bskill": "Drag Back",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Lilina",
+       "level": 8,
+       "rarity": 3,
+       "alt_stats": [17, 10, 7, 4, 10],
+       "weapon": "Fire",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Gwendolyn",
+       "level": 8,
+       "rarity": 3,
+       "alt_stats": [25, 9, 6, 13, 6],
+       "weapon": "Iron Lance",
+       "assist": "Swap",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Troubadour",
+       "level": 8,
+       "rarity": 2,
+       "alt_stats": [14, 4, 5, 3, 11],
+       "assist": "Mend",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

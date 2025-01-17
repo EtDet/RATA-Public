@@ -1,0 +1,51 @@
+{
+    "name": "Chapter 4: Part 2: Blade and Dancer (Normal)",
+    "terrain": [[4, 4, 4, 4, 4, 4],
+                [0, 0, 4, 4, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 4, 0, 0, 4, 0],
+                [0, 4, 4, 4, 4, 0],
+                [0, 0, 4, 4, 0, 0],
+                [1, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [7, 8, 9, 10],
+    "enemyStart": [30, 31, 35, 23],
+    "enemyData":
+    [  {"name": "Lon'qu",
+       "level": 7,
+       "rarity": 3,
+       "alt_stats": [21, 8, 13, 6, 7],
+       "weapon": "Steel Sword",
+       "bskill": "Vantage 1",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Olivia",
+       "level": 7,
+       "rarity": 3,
+       "alt_stats": [18, 7, 9, 7, 6],
+       "weapon": "Iron Sword",
+       "assist": "Dance",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Bow Fighter",
+       "level": 7,
+       "rarity": 3,
+       "alt_stats": [21, 10, 9, 9, 3],
+       "weapon": "Iron Bow",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Axe Knight",
+       "level": 7,
+       "rarity": 3,
+       "alt_stats": [27, 12, 3, 14, 3],
+       "weapon": "Iron Axe",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

@@ -1,0 +1,50 @@
+{
+    "name": "Chapter 3: Part 1: Binding Trial (Hard)",
+    "terrain": [[0, 0, 0, 2, 2, 2],
+                [0, 0, 0, 0, 2, 2],
+                [0, 0, 0, 0, 0, 2],
+                [2, 0, 0, 0, 0, 1],
+                [0, 0, 0, 1, 0, 0],
+                [2, 2, 2, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [7, 8, 2, 3],
+    "enemyStart": [37, 39, 25, 32],
+    "enemyData":
+    [  {"name": "Roy",
+       "level": 14,
+       "rarity": 3,
+       "alt_stats": [26, 14, 15, 11, 10],
+       "weapon": "Iron Sword",
+       "askill": "Triangle Adept 1",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Lance Cavalier",
+       "level": 14,
+       "rarity": 2,
+       "alt_stats": [23, 14, 8, 9, 13],
+       "weapon": "Iron Lance",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Bow Fighter",
+       "level": 14,
+       "rarity": 2,
+       "alt_stats": [24, 14, 12, 11, 5],
+       "weapon": "Iron Bow",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Sword Cavalier",
+       "level": 14,
+       "rarity": 2,
+       "alt_stats": [23, 14, 8, 9, 13],
+       "weapon": "Iron Sword",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

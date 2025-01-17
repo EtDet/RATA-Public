@@ -1,0 +1,61 @@
+{
+    "name": "Chapter 2: Part 2: Lovely Bloom (Normal)",
+    "wall": "Wallpattern_inside.png",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 1]],
+    "defensiveTiles": [],
+    "struct_walls": {
+      "static": [18, 19, 22, 23, 31, 34, 37, 40],
+      "twoBreak": [32, 33],
+      "oneBreak": []
+    },
+    "playerStart": [14, 15, 8, 9],
+    "enemyStart": [43, 35, 30, 46],
+    "enemyData":
+    [  {"name": "Elise",
+       "level": 4,
+       "rarity": 2,
+       "alt_stats": [15, 5, 7, 0, 5],
+       "weapon": "Fear",
+       "assist": "Heal",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+       },
+        {"name": "F!Arthur",
+       "level": 3,
+       "rarity": 2,
+       "alt_stats": [19, 5, 5, 4, 0],
+       "weapon": "Iron Axe",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Effie",
+       "level": 3,
+       "rarity": 2,
+       "alt_stats": [20, 9, 2, 7, 0],
+       "weapon": "Iron Lance",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Troubadour",
+       "level": 3,
+       "rarity": 2,
+       "alt_stats": [13, 3, 4, 0, 3],
+       "weapon": "Assault",
+       "assist": "Heal",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

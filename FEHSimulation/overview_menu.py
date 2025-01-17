@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-import feh_widgets as feh
+import feh_widgets as fehw
 
 # Light mode colors
 widget_colors_light = {
@@ -23,6 +23,8 @@ widget_colors_light = {
     "units_bg": "#ddd",
     "units_button": "#eee",
     "units_button_ACTIVE": "#ddd",
+
+    "game_buttonframe_bg": "#ddd",
 }
 
 # Dark mode colors
@@ -45,6 +47,8 @@ widget_colors_dark = {
     "units_bg": "#252525",
     "units_button": "#444",
     "units_button_ACTIVE": "#555",
+
+    "game_buttonframe_bg": "#555",
 }
 
 cur_widget_colors = widget_colors_dark
@@ -66,17 +70,23 @@ window.state('zoomed')
 window.title('RATA 2.0.0')
 window.minsize(width=400, height=300)
 
+
+
 # Top Ribbon
 ribbon_frame = tk.Frame(window, bg=cur_widget_colors["tr"], height=50)
-ribbon_frame.pack(side="top", fill="x")
+#ribbon_frame.pack(side="top", fill="x")
+
+
 
 # Add buttons to the ribbon
 button_labels = ["File", "Edit", "View"]
 button_array = []
 
 for label in button_labels:
-    cur_button = feh.HoverButton(ribbon_frame, text=label, **ribbon_button_args)
+    cur_button = fehw.HoverButton(ribbon_frame, text=label, **ribbon_button_args)
     cur_button.pack(side="left")
+
+
 
 # Background frames for body area
 main_frame = tk.Frame(window, bg=cur_widget_colors["bg"])
@@ -106,12 +116,14 @@ extras_frame = tk.Frame(right_frame, parition_frame_args)
 
 
 maps_frame.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
-maps_frame.pack_propagate(False) # widgets remain a fixed size
+maps_frame.pack_propagate(False) # widgets remain a fixed proportion
 
 units_frame.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
 gameplay_frame.pack(fill=tk.Y, expand=True)
 status_frame.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
+status_frame.pack_propagate(False)
 extras_frame.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
+extras_frame.pack_propagate(False)
 
 # MAPS FRAME ELEMENTS
 
@@ -146,8 +158,7 @@ style.map(style="Treeview",
 
 style.layout(style="Treeview", layoutspec=[('Treeview.treearea', {'sticky': 'nswe'})])
 
-
-trv = feh.FileTree(maps_frame, selectmode='browse')
+trv = fehw.FileTree(maps_frame, selectmode='browse')
 trv.start_file_population()
 trv.pack(padx=10, pady=5, fill="both", expand=True, anchor=tk.NW)
 
@@ -156,33 +167,56 @@ trv.tag_configure('directory_row', background=cur_widget_colors["maps_directory"
 
 # UNITS FRAME ELEMENTS
 
-hero_listing = feh.HeroListing(units_frame, fg=cur_widget_colors["text"], buttonbg=cur_widget_colors["units_button"], bg=cur_widget_colors["units_bg"])
+hero_listing = fehw.HeroListing(units_frame, fg=cur_widget_colors["text"], buttonbg=cur_widget_colors["units_button"], bg=cur_widget_colors["units_bg"])
 hero_listing.pack(fill="both", expand=True, padx=10, pady=5)
+
 hero_listing.pack_propagate(False)
 
-hero_listing.name_frame.config(bg=cur_widget_colors["units_title"])
-hero_listing.name_label.config(bg=cur_widget_colors["units_title"])
-
-#hero_listing.bind()
+# hero_listing.name_frame.config(bg=cur_widget_colors["units_title"])
+# hero_listing.name_label.config(bg=cur_widget_colors["units_title"])
 
 # GAMEPLAY FRAME ELEMENTS
 
 active_gameplay_sims = []
 focused_gameplay_sim = [None]
+bonus_units_per_tab = []
 
 # Singular instance of a running Simulation
 class Simulation:
     def __init__(self, name):
-        self.tab = feh.TabButton(gameplay_tabs_frame, fg=cur_widget_colors["text"], bg=cur_widget_colors["bg"], text=name)
-        self.canvas = feh.GameplayCanvas(gameplay_frame)
+        self.tab = fehw.TabButton(gameplay_tabs_frame, fg=cur_widget_colors["text"], bg=cur_widget_colors["bg"], text=name)
+        self.canvas = fehw.GameplayCanvas(gameplay_frame, hero_listing)
+        self.button_frame = fehw.GameplayButtonFrame(gameplay_frame, fg=cur_widget_colors["text"], inner_bg=cur_widget_colors["bg"], bg=cur_widget_colors["game_buttonframe_bg"])
+
+        self.canvas.unit_status = unit_info
+        self.button_frame.unit_status = unit_info
+
+        self.canvas.button_frame = self.button_frame
+
+        self.canvas.extras = extras
+
+        self.button_frame.start_button.config(command=self.canvas.start_simulation)
+        self.button_frame.end_turn_button.config(command=self.canvas.end_turn_button)
+        self.button_frame.undo_button.config(command=self.canvas.undo_action_button)
+        self.button_frame.swap_spaces_button.config(command=self.canvas.toggle_swap)
+
+        # 0 - Player units
+        # 1 - Enemy units
+        # 2 - Forecasts
+        # 3 - Building
+        self.cur_extras_tab = 0
 
         self.running = False
 
     def delete_canvas_entry(self):
         for sim in active_gameplay_sims:
             sim.canvas.forget()
+            sim.button_frame.forget()
+
+        index = active_gameplay_sims.index(self)
 
         active_gameplay_sims.remove(self)
+        bonus_units_per_tab.pop(index)
 
         if self == focused_gameplay_sim[0]:
             if active_gameplay_sims:
@@ -202,7 +236,7 @@ class Simulation:
     def set_focused(self):
         focused_gameplay_sim[0] = self
 
-        print(focused_gameplay_sim[0].canvas)
+        #print(focused_gameplay_sim[0].canvas)
 
         display_focused()
 
@@ -210,9 +244,11 @@ class Simulation:
 def display_focused():
     for sim in active_gameplay_sims:
         sim.canvas.forget()
+        sim.button_frame.forget()
 
     focused_sim = focused_gameplay_sim[0]
 
+    # If tabs exist
     if focused_sim:
         hero_listing.target_widget = focused_sim.canvas
 
@@ -222,9 +258,47 @@ def display_focused():
         focused_sim.tab.tab_name_button.config(bg="green")
 
         focused_sim.canvas.pack()
+        focused_sim.button_frame.pack(fill=tk.BOTH, expand=True)
+
+        extras.player_team_button.config(state="normal")
+        extras.enemy_team_button.config(state="normal")
+
+        if sim.canvas.running:
+            extras.forecasts_button.config(state="normal")
+
+        index = active_gameplay_sims.index(focused_sim)
+        cur_bonus_units = bonus_units_per_tab[index]
+
+        extras.setup_tabs(focused_sim.canvas.unit_drag_points, cur_bonus_units, focused_sim.canvas.game_mode, focused_sim.canvas.running)
+
+
+        if not focused_sim.canvas.running:
+            extras.show_player_team()
+        else:
+            extras.show_forecasts()
+
+        '''
+        if focused_sim.cur_extras_tab == 1:
+            extras.show_enemy_team()
+        if focused_sim.cur_extras_tab == 2:
+            extras.show_forecasts()
+        if focused_sim.cur_extras_tab == 3:
+            extras.show_building()
+        '''
     else:
         hero_listing.target_widget = empty_gameplay_canvas
 
+        extras.reset_tab_buttons()
+
+        extras.player_team_button.config(state="disabled")
+        extras.enemy_team_button.config(state="disabled")
+        extras.forecasts_button.config(state="disabled")
+        extras.building_button.config(state="disabled")
+
+        extras.active_tab.forget()
+        extras.active_tab = None
+
+    unit_info.clear()
 
 
 # When an item in the map TreeView is double-clicked, add its tab if there are less than 5
@@ -250,6 +324,12 @@ def row_selected(event):
         sim = Simulation(trv.item(item)['text'])
         sim.canvas.setup_with_file(file_path)
 
+        # Setup bonus units
+        bonus_units_per_tab.append([False] * len([drag_point for drag_point in sim.canvas.unit_drag_points.values() if drag_point.side == 0]))
+
+        # Change button frame to display respective gamemode
+        sim.button_frame.gamemode_info.config(text="Gamemode: " + sim.canvas.game_mode.name)
+
         sim.tab.tab_name_button.config(command=sim.set_focused)
         sim.tab.tab_close_button.config(command=sim.delete_canvas_entry)
         sim.tab.pack(side=tk.LEFT, padx=2, pady=2, anchor=tk.N)
@@ -258,6 +338,7 @@ def row_selected(event):
             empty_gameplay_canvas.forget()
         else:
             focused_gameplay_sim[0].canvas.forget()
+            focused_gameplay_sim[0].button_frame.forget()
 
         active_gameplay_sims.append(sim)
 
@@ -266,6 +347,8 @@ def row_selected(event):
 
         display_focused()
 
+        sim.canvas.refresh_units_prep()
+
 trv.bind("<Double-1>", row_selected)
 
 gameplay_tabs_frame = tk.Frame(gameplay_frame, height=35, bg="#282424")
@@ -273,10 +356,20 @@ gameplay_tabs_frame.pack(fill=tk.X)
 
 #tk.Label(gameplay_tabs_frame, height=2, bg="#282424").pack(side=tk.LEFT)
 
-empty_gameplay_canvas = feh.GameplayCanvas(gameplay_frame)
+empty_gameplay_canvas = fehw.GameplayCanvas(gameplay_frame, hero_listing)
 empty_gameplay_canvas.pack()
 
 hero_listing.target_widget = empty_gameplay_canvas
 hero_listing.default_target_widget = empty_gameplay_canvas
+
+# UNIT INFO FRAME
+unit_info = fehw.UnitInfoDisplay(status_frame, bg=cur_widget_colors["units_title"], bg_color=cur_widget_colors["maps_bg"], fg=cur_widget_colors["text"])
+unit_info.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
+
+hero_listing.unit_status = unit_info
+
+# EXTRAS FRAME
+extras = fehw.ExtrasFrame(extras_frame, bg=cur_widget_colors["units_title"], bg_color=cur_widget_colors["maps_bg"], fg=cur_widget_colors["text"])
+extras.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
 
 window.mainloop()

@@ -1,0 +1,59 @@
+{
+    "name": "Chapter 6: Part 2: Vain Prince (Lunatic) ",
+    "wall": "Wallpattern_inside.png",
+    "terrain": [[0, 2, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 2, 0, 0, 2, 0],
+                [0, 2, 0, 0, 2, 0],
+                [0, 2, 0, 0, 2, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 2, 0, 0, 2, 0],
+                [0, 2, 2, 2, 2, 0]],
+    "defensiveTiles": [],
+    "struct_walls": {
+      "static": [26],
+      "twoBreak": [],
+      "oneBreak": [27, 30]
+    },
+    "playerStart": [44, 45, 38, 39],
+    "enemyStart": [6, 14, 12, 17],
+    "enemyData":
+    [  {"name": "Takumi",
+       "level": 32,
+       "rarity": 4,
+       "alt_stats": [33, 26, 27, 20, 14],
+       "weapon": "Silver Bow",
+       "special": "Retribution",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Oboro",
+       "level": 32,
+       "rarity": 4,
+       "alt_stats": [33, 26, 21, 29, 19],
+       "weapon": "Silver Bow",
+       "bskill": "Seal Def 2",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Hinata",
+       "level": 32,
+       "rarity": 4,
+       "alt_stats": [40, 26, 19, 30, 13],
+       "weapon": "Ruby Sword",
+       "bskill": "Brash Assault 2",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Saizo",
+       "level": 32,
+       "rarity": 4,
+       "alt_stats": [31, 22, 28, 27, 12],
+       "weapon": "Silver Dagger",
+       "bskill": "Poison Strike 2",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

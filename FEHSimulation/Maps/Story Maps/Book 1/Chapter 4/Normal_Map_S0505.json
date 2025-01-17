@@ -1,0 +1,52 @@
+{
+    "name": "Chapter 4: Part 5: Prince of Awakening (Normal)",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 2, 0, 2, 2, 0],
+                [0, 2, 0, 0, 2, 0],
+                [0, 2, 0, 0, 0, 0],
+                [0, 2, 2, 0, 2, 0],
+                [0, 2, 0, 0, 2, 0],
+                [0, 0, 0, 0, 2, 0],
+                [0, 2, 0, 0, 2, 0]],
+    "defensiveTiles": [],
+    "playerStart": [8, 9, 2, 3],
+    "enemyStart": [33, 17, 35, 36],
+    "enemyData":
+    [  {"name": "Chrom",
+       "level": 10,
+       "rarity": 3,
+       "alt_stats": [24, 13, 8, 11, 6],
+       "weapon": "Steel Sword",
+       "special": "Daylight",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "F!Robin",
+       "level": 10,
+       "rarity": 3,
+       "alt_stats": [21, 11, 10, 9, 7],
+       "weapon": "Elwind",
+       "special": "Rising Wind",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Stahl",
+       "level": 10,
+       "rarity": 3,
+       "alt_stats": [22, 13, 9, 12, 8],
+       "weapon": "Steel Sword",
+       "assist": "Rally Attack",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Sully",
+       "level": 10,
+       "rarity": 3,
+       "alt_stats": [21, 10, 7, 10, 6],
+       "weapon": "Steel Lance",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

@@ -1,0 +1,51 @@
+{
+    "name": "Chapter 5: Part 4: Three Sisters Fly (Lunatic) ",
+    "terrain": [[0, 0, 0, 0, 0, 2],
+                [2, 0, 0, 0, 1, 2],
+                [2, 1, 0, 1, 1, 2],
+                [2, 1, 0, 0, 1, 2],
+                [2, 0, 0, 1, 1, 2],
+                [2, 1, 0, 1, 1, 2],
+                [0, 0, 0, 0, 1, 2],
+                [0, 0, 0, 0, 1, 2]],
+    "defensiveTiles": [],
+    "playerStart": [7, 1, 2, 3],
+    "enemyStart": [37, 44, 39, 38],
+    "enemyData":
+    [  {"name": "Catria",
+       "level": 31,
+       "rarity": 4,
+       "alt_stats": [32, 24, 27, 22, 19],
+       "weapon": "Killer Lance",
+       "special": "New Moon",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Palla",
+       "level": 31,
+       "rarity": 4,
+       "alt_stats": [34, 24, 25, 21, 20],
+       "weapon": "Silver Sword",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Est",
+       "level": 31,
+       "rarity": 4,
+       "alt_stats": [30, 28, 24, 18, 24],
+       "weapon": "Heavy Spear",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Axe Knight",
+       "level": 31,
+       "rarity": 4,
+       "alt_stats": [46, 31, 12, 33, 14],
+       "weapon": "Silver Axe",
+       "assist": "Pivot",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

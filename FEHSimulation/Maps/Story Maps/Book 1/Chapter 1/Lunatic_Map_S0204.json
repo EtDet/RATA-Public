@@ -1,0 +1,53 @@
+{
+    "name": "Chapter 1: Part 4: Dual Cavaliers (Lunatic)",
+    "terrain": [[0, 0, 1, 1, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 2, 2, 0, 2, 2],
+                [0, 0, 0, 0, 2, 0],
+                [0, 0, 2, 0, 0, 0],
+                [0, 2, 2, 0, 2, 2],
+                [0, 0, 0, 0, 0, 0],
+                [1, 1, 0, 2, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [9, 11, 2, 4],
+    "enemyStart": [36, 46, 24, 35],
+    "enemyData":
+    [  {"name": "Cain",
+       "level": 23,
+       "rarity": 3,
+       "alt_stats": [29, 19, 18, 17, 13],
+       "weapon": "Steel Sword",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+       },
+        {"name": "Abel",
+       "level": 23,
+       "rarity": 3,
+       "alt_stats": [27, 19, 19, 16, 15],
+       "weapon": "Steel Lance",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Gordin",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [30, 18, 14, 19, 9],
+       "weapon": "Steel Bow",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Lance Flier",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [26, 16, 21, 11, 22],
+       "weapon": "Steel Lance",
+       "startMove": 2,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

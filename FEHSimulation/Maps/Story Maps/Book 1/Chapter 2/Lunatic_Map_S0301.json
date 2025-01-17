@@ -1,0 +1,54 @@
+{
+    "name": "Chapter 2: Part 1: Conquest Trial (Lunatic)",
+    "terrain": [[2, 0, 0, 1, 0, 2],
+                [2, 2, 0, 0, 2, 2],
+                [0, 2, 2, 0, 0, 0],
+                [0, 0, 2, 2, 2, 0],
+                [0, 1, 0, 2, 0, 0],
+                [0, 0, 2, 2, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [1, 0, 2, 0, 1, 0]],
+    "defensiveTiles": [],
+    "playerStart": [23, 16, 17, 10],
+    "enemyStart": [38, 19, 12, 25],
+    "enemyData":
+    [  {"name": "Xander",
+       "level": 23,
+       "rarity": 3,
+       "alt_stats": [31, 19, 14, 22, 10],
+       "weapon": "Steel Sword",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+       },
+        {"name": "Camilla",
+       "level": 23,
+       "rarity": 3,
+       "alt_stats": [27, 18, 19, 16, 18],
+       "weapon": "Steel Axe",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Leo",
+       "level": 23,
+       "rarity": 3,
+       "alt_stats": [27, 17, 13, 15, 18],
+       "weapon": "Ruin",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Elise",
+       "level": 23,
+       "rarity": 3,
+       "alt_stats": [22, 19, 19, 11, 19],
+       "weapon": "Gravity",
+       "assist": "Mend",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

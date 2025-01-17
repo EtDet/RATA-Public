@@ -1,0 +1,57 @@
+{
+    "name": "Chapter 5: Part 2: Captive Princess (Hard)",
+    "wall": "Wallpattern_inside.png",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "struct_walls": {
+      "static": [7, 8, 9, 11, 15, 17, 18, 19, 23, 27, 29, 32, 33, 35, 36, 41, 42, 43, 44, 47],
+      "twoBreak": [13],
+      "oneBreak": [34]
+    },
+    "playerStart": [6, 0, 1, 2],
+    "enemyStart": [37, 26, 30, 21],
+    "enemyData":
+    [  {"name": "Maria",
+       "level": 19,
+       "rarity": 3,
+       "alt_stats": [24, 13, 18, 9, 18],
+       "weapon": "Assault",
+       "assist": "Mend",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Minerva",
+       "level": 19,
+       "rarity": 3,
+       "alt_stats": [26, 16, 18, 17, 11],
+       "weapon": "Steel Axe",
+       "bskill": "Lunge",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Bow Fighter",
+       "level": 19,
+       "rarity": 3,
+       "alt_stats": [28, 17, 15, 15, 7],
+       "weapon": "Steel Bow",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Sword Knight",
+       "level": 19,
+       "rarity": 3,
+       "alt_stats": [37, 21, 7, 23, 9],
+       "weapon": "Steel Sword",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

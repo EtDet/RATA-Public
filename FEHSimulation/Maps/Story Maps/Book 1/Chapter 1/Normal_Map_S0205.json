@@ -1,0 +1,54 @@
+{
+    "name": "Chapter 1: Part 5: Prince of Mystery (Normal)",
+    "terrain": [[1, 0, 0, 2, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 2, 2, 2, 0],
+                [0, 2, 0, 0, 2, 0],
+                [0, 0, 0, 0, 2, 0],
+                [0, 2, 2, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [1, 0, 2, 1, 0, 1]],
+    "defensiveTiles": [],
+    "playerStart": [46, 40, 41, 35],
+    "enemyStart": [21, 20, 26, 14],
+    "enemyData":
+    [  {"name": "Gordin",
+       "level": 4,
+       "rarity": 2,
+       "alt_stats": [16, 4, 4, 3, 0],
+       "weapon": "Iron Bow",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+       },
+        {"name": "Marth",
+       "level": 4,
+       "rarity": 2,
+       "alt_stats": [17, 3, 7, 3, 1],
+       "weapon": "Iron Sword",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Merric",
+       "level": 4,
+       "rarity": 2,
+       "alt_stats": [17, 3, 7, 2, 1],
+       "weapon": "Wind",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Caeda",
+       "level": 4,
+       "rarity": 2,
+       "alt_stats": [15, 2, 8, 1, 3],
+       "weapon": "Iron Sword",
+       "assist": "Draw Back",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

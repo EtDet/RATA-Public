@@ -1,0 +1,51 @@
+{
+    "name": "Chapter 8: Part 2: Napping Dragon (Lunatic) ",
+    "terrain": [[1, 0, 0, 0, 0, 2],
+                [0, 2, 0, 0, 1, 2],
+                [0, 0, 2, 0, 0, 0],
+                [0, 0, 2, 0, 2, 0],
+                [0, 0, 2, 0, 2, 0],
+                [0, 2, 0, 0, 2, 0],
+                [0, 2, 0, 0, 0, 2],
+                [0, 0, 0, 1, 0, 2]],
+    "defensiveTiles": [],
+    "playerStart": [44, 45, 46, 38],
+    "enemyStart": [3, 2, 17, 18],
+    "enemyData":
+    [  {"name": "Nowi",
+       "level": 38,
+       "rarity": 4,
+       "alt_stats": [42, 32, 24, 27, 24],
+       "weapon": "Lightning Breath",
+       "cskill": "Threaten Res 2",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Henry",
+       "level": 38,
+       "rarity": 4,
+       "alt_stats": [42, 22, 20, 29, 23],
+       "weapon": "Rauðrraven",
+       "askill": "Defiant Def 2",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Green Mage",
+       "level": 38,
+       "rarity": 4,
+       "alt_stats": [35, 28, 29, 18, 25],
+       "weapon": "Rexcalibur",
+       "startMove": 2,
+       "wallBreak": true
+      },
+        {"name": "Bow Fighter",
+       "level": 38,
+       "rarity": 4,
+       "alt_stats": [39, 29, 27, 26, 14],
+       "weapon": "Silver Bow",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

@@ -1,0 +1,68 @@
+{
+    "name": "Chapter 6: Part 5: Prince of Birthright (Lunatic) ",
+    "wall": "Wallpattern_insideJP.png",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "struct_walls": {
+      "static": [2, 3, 7, 10, 19, 22, 25, 26, 28, 31, 34, 37, 40],
+      "twoBreak": [27],
+      "oneBreak": [43, 46]
+    },
+    "playerStart": [33, 20, 14, 15],
+    "enemyStart": [44, 24, 5, 29, 0],
+    "enemyData":
+    [  {"name": "Ryoma",
+       "level": 35,
+       "rarity": 4,
+       "alt_stats": [36, 30, 31, 22, 17],
+       "weapon": "Steel Sword",
+       "special": "Night Sky",
+       "startMove": 1,
+       "wallBreak": false
+       },
+        {"name": "Saizo",
+       "level": 35,
+       "rarity": 4,
+       "alt_stats": [32, 24, 30, 29, 13],
+       "weapon": "Silver Dagger",
+       "cskill": "Spur Spd 2",
+       "startMove": 1,
+       "wallBreak": false
+      },
+        {"name": "Kagero",
+       "level": 35,
+       "rarity": 4,
+       "alt_stats": [28, 31, 28, 18, 23],
+       "weapon": "Silver Dagger",
+       "askill": "Warding Blow 2",
+       "startMove": 1,
+       "wallBreak": false
+      },
+        {"name": "Oboro",
+       "level": 35,
+       "rarity": 4,
+       "alt_stats": [35, 28, 22, 31, 20],
+       "weapon": "Heavy Spear",
+       "assist": "Reposition",
+       "startMove": 1,
+       "wallBreak": false
+      },
+        {"name": "Hinata",
+       "level": 35,
+       "rarity": 4,
+       "alt_stats": [42, 28, 20, 32, 15],
+       "weapon": "Silver Sword",
+       "assist": "Swap",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

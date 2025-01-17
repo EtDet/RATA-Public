@@ -1,0 +1,53 @@
+{
+    "name": "Chapter 7: Part 2: Two Noblemen (Hard) ",
+    "terrain": [[0, 0, 1, 0, 1, 0],
+                [0, 0, 1, 1, 0, 0],
+                [0, 0, 0, 2, 1, 0],
+                [2, 0, 0, 0, 2, 0],
+                [2, 2, 0, 0, 2, 0],
+                [0, 2, 1, 0, 0, 0],
+                [0, 2, 2, 0, 1, 1],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [47, 40, 35, 29],
+    "enemyStart": [1, 2, 43, 42],
+    "enemyData":
+    [  {"name": "Eliwood",
+       "level": 25,
+       "rarity": 3,
+       "alt_stats": [28, 19, 19, 15, 20],
+       "weapon": "Steel Sword",
+       "assist": "Swap",
+       "cskill": "Ward Cavalry",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Green Cavalier",
+       "level": 25,
+       "rarity": 3,
+       "alt_stats": [25, 22, 16, 10,21],
+       "weapon": "Elwind",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Hector",
+       "level": 25,
+       "rarity": 3,
+       "alt_stats": [39, 23, 15, 24, 11],
+       "weapon": "Steel Axe",
+       "assist": "Pivot",
+       "cskill": "Goad Armor",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Lance Knight",
+       "level": 25,
+       "rarity": 3,
+       "alt_stats": [41, 25, 9, 27, 11],
+       "weapon": "Steel Lance",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

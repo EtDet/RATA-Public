@@ -1,0 +1,53 @@
+{
+    "name": "Chapter 2: Part 3: Callous Prince (Normal)",
+    "terrain": [[1, 1, 1, 1, 1, 1],
+                [2, 0, 0, 0, 2, 1],
+                [0, 0, 1, 0, 0, 0],
+                [0, 2, 1, 1, 2, 0],
+                [0, 1, 1, 0, 0, 0],
+                [0, 0, 2, 1, 0, 0],
+                [1, 0, 0, 0, 0, 1],
+                [2, 1, 0, 0, 1, 2]],
+    "defensiveTiles": [],
+    "playerStart": [7, 8, 9, 10],
+    "enemyStart": [39, 34, 32, 30],
+    "enemyData":
+    [  {"name": "Leo",
+       "level": 5,
+       "rarity": 2,
+       "alt_stats": [16, 6, 5, 3, 5],
+       "weapon": "Flux",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+       },
+        {"name": "Niles",
+       "level": 4,
+       "rarity": 2,
+       "alt_stats": [16, 3, 9, 1, 6],
+       "weapon": "Iron Bow",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Odin",
+       "level": 4,
+       "rarity": 2,
+       "alt_stats": [17, 3, 7, 4, 2],
+       "weapon": "Thunder",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Red Mage",
+       "level": 4,
+       "rarity": 2,
+       "alt_stats": [15, 4, 4, 0, 4],
+       "weapon": "Fire",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

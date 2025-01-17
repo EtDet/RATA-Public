@@ -1,0 +1,51 @@
+{
+    "name": "Chapter 5: Part 1: Return to Mystery (Normal)",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 1, 2, 0, 0, 0],
+                [0, 0, 2, 1, 2, 0],
+                [0, 0, 2, 2, 2, 0],
+                [0, 2, 2, 2, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [2, 0, 0, 0, 0, 0],
+                [2, 2, 1, 2, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [14, 16, 9, 11],
+    "enemyStart": [39, 25, 47, 24],
+    "enemyData":
+    [  {"name": "Navarre",
+       "level": 9,
+       "rarity": 3,
+       "alt_stats": [21, 10, 15, 8, 8],
+       "weapon": "Steel Sword",
+       "bskill": "Desperation 2",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Wrys",
+       "level": 9,
+       "rarity": 3,
+       "alt_stats": [21, 8, 8, 7, 14],
+       "weapon": "Assault",
+       "assist": "Reconcile",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Thief",
+       "level": 9,
+       "rarity": 3,
+       "alt_stats": [20, 9, 14, 4, 11],
+       "weapon": "Steel Dagger",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Thief",
+       "level": 9,
+       "rarity": 3,
+       "alt_stats": [20, 9, 14, 4, 11],
+       "weapon": "Rogue Dagger",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

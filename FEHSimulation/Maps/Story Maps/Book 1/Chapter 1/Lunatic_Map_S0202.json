@@ -1,0 +1,43 @@
+{
+    "name": "Chapter 1: Part 2: Willful Warrior (Lunatic)",
+    "terrain": [[0, 1, 0, 2, 0, 1],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 2, 0, 0],
+                [0, 0, 0, 2, 0, 0],
+                [0, 0, 2, 2, 0, 0],
+                [0, 0, 2, 0, 0, 0],
+                [0, 0, 0, 0, 0, 2],
+                [0, 2, 2, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [28, 23, 16, 11],
+    "enemyStart": [39, 8, 19],
+    "enemyData":
+    [  {"name": "Axe Fighter",
+       "level": 21,
+       "rarity": 3,
+       "alt_stats": [30, 17, 17, 17, 12],
+       "weapon": "Steel Axe",
+       "startMove": 2,
+       "wallBreak": true
+       },
+        {"name": "Ogma",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [33, 20, 21, 16, 7],
+       "weapon": "Steel Sword",
+       "startMove": 2,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Bow Fighter",
+       "level": 21,
+       "rarity": 3,
+       "alt_stats": [29, 18, 16, 16, 8],
+       "weapon": "Steel Bow",
+       "startMove": 2,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

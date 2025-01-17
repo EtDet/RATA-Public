@@ -1,4 +1,5 @@
 import math
+
 from hero import *
 
 # CONSTANTS
@@ -24,6 +25,7 @@ class HeroModifiers:
         # Used for calculating special damage
         self.preTriangleAtk: int = 0
         self.preDefenseTerrain: int = 0
+        self.preResistTerrain: int = 0
 
         # Triangle Adept Skill Level (as decimal)
         self.triangle_adept_level = 0
@@ -462,7 +464,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             in_range = e.range(coords)(owner_coords)
             feud_not_present = not feud_present or e.owner in [attacker, defender] # Disables skill of all foes excluding foe in combat
 
-            if in_range and ((e.owner == afflicted) == e.affectSelf) and condition and feud_not_present:
+            if in_range and ((e.owner == afflicted) == False) and condition and feud_not_present:
 
                 # Sylgr (Refine Eff) - Ylgr
                 # Sets values in the Ylgr arrays equal to the current bonus of the field owner, not subject to neutralization
@@ -504,6 +506,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     else:
         atkDefensiveTerrain = False
         defDefensiveTerrain = False
+
+    #print(atkDefensiveTerrain, defDefensiveTerrain)
 
     # Panic Status Effect
     AtkPanicFactor = 1
@@ -4152,6 +4156,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.disable_foe_guard = True
         defr.disable_foe_fastcharge = True
 
+    # Valaskjálf - Bruno
+    if "brunoVantage" in defSkills and defHPCur / defStats[HP] <= 0.50:
+        defr.vantage = True
+
     # Hliðskjálf (Base) - B!Veronica
     if "veronicaBuffs" in atkSkills:
         atkPostCombatEffs[GIVEN_UNIT_ATTACKED].append(("buff_atk", 4, "self_and_allies", "within_2_spaces_self"))
@@ -5977,12 +5985,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if magic_ally_cond:
             defTargetingDefRes = int(defStats[DEF] < defStats[RES])
 
-    atkr.preDefenseTerrain = defStats[DEF]
+    atkr.preDefenseTerrain = atkStats[DEF]
     defr.preDefenseTerrain = defStats[DEF]
 
+    atkr.preResistTerrain = atkStats[RES]
+    defr.preResistTerrain = defStats[RES]
+
     # Defensive terrain
-    if atkDefensiveTerrain: atkStats[DEF] = trunc(atkStats[DEF] * 1.3)
-    if defDefensiveTerrain: defStats[DEF] = trunc(defStats[DEF] * 1.3)
+    if atkDefensiveTerrain: atkStats[3 + defTargetingDefRes] = trunc(atkStats[3 + defTargetingDefRes] * 1.3)
+    if defDefensiveTerrain: defStats[3 + atkTargetingDefRes] = trunc(defStats[3 + atkTargetingDefRes] * 1.3)
 
     # Amount of speed required to double the foe
     atkOutspeedFactor = 5
@@ -6039,13 +6050,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             total_special += selfModifier.preDefenseTerrain * 0.01 * effs["defBoost"]
 
         if "resBoost" in effs:
-            total_special += initStats[RES] * 0.01 * effs["resBoost"]
+            total_special += selfModifier.preResistTerrain * 0.01 * effs["resBoost"]
 
         if "rupturedSky" in effs:
             total_special += otherModifier.preTriangleAtk * 0.01 * effs["rupturedSky"]
 
         if "staffRes" in effs:
-            total_special += otherStats[RES] * 0.01 * effs["staffRes"]
+            total_special += otherModifier.preResistTerrain * 0.01 * effs["staffRes"]
 
         # Vengeance/Reprisal
         if "retaliatoryBoost" in effs:
@@ -6056,11 +6067,11 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             total_special += base_damage * 0.01 * effs["dmgBoost"]
 
         # Moonbow/Luna
-        targeted_defense = otherStats[defOrRes + 3]
+        targeted_defense = otherModifier.preDefenseTerrain if defOrRes == 0 else otherModifier.preResistTerrain
         if "defReduce" in effs:
             reduced_def = targeted_defense - math.trunc(targeted_defense * 0.01 * effs["defReduce"])
-            attack = initStats[ATK] - reduced_def
-            total_special += attack - base_damage
+            reduced_attack = initStats[ATK] - reduced_def
+            total_special += reduced_attack - base_damage
 
         # Blue Flame
         if "blueFlame" in effs:
@@ -6750,25 +6761,21 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkPostCombatEffs[0].append(("debuff_spd", 5, "foes_allies", "within_2_spaces_foe"))
 
     # ARE YA SMOKING YET?
-    if "atkSmoke" in atkSkills and atkAlive: atkPostCombatEffs[0].append(
-        ("debuff_atk", atkSkills["atkSmoke"], "foes_allies", "within_2_spaces_foe"))
-    if "atkSmoke" in defSkills and defAlive: defPostCombatEffs[0].append(
-        ("debuff_atk", defSkills["atkSmoke"], "foes_allies", "within_2_spaces_foe"))
+    if "atkSmoke" in atkSkills and atkAlive: atkPostCombatEffs[0].append(("debuff_atk", atkSkills["atkSmoke"], "foes_allies", "within_2_spaces_foe"))
+    if "atkSmoke" in defSkills and defAlive: defPostCombatEffs[0].append(("debuff_atk", defSkills["atkSmoke"], "foes_allies", "within_2_spaces_foe"))
 
-    if "spdSmoke" in atkSkills and atkAlive: atkPostCombatEffs[0].append(
-        ("debuff_spd", atkSkills["spdSmoke"], "foes_allies", "within_2_spaces_foe"))
-    if "spdSmoke" in defSkills and defAlive: defPostCombatEffs[0].append(
-        ("debuff_spd", defSkills["spdSmoke"], "foes_allies", "within_2_spaces_foe"))
+    if "spdSmoke" in atkSkills and atkAlive: atkPostCombatEffs[0].append(("debuff_spd", atkSkills["spdSmoke"], "foes_allies", "within_2_spaces_foe"))
+    if "spdSmoke" in defSkills and defAlive: defPostCombatEffs[0].append(("debuff_spd", defSkills["spdSmoke"], "foes_allies", "within_2_spaces_foe"))
 
-    if "defSmoke" in atkSkills and atkAlive: atkPostCombatEffs[0].append(
-        ("debuff_def", atkSkills["defSmoke"], "foes_allies", "within_2_spaces_foe"))
-    if "defSmoke" in defSkills and defAlive: defPostCombatEffs[0].append(
-        ("debuff_def", defSkills["defSmoke"], "foes_allies", "within_2_spaces_foe"))
+    if "defSmoke" in atkSkills and atkAlive: atkPostCombatEffs[0].append(("debuff_def", atkSkills["defSmoke"], "foes_allies", "within_2_spaces_foe"))
+    if "defSmoke" in defSkills and defAlive: defPostCombatEffs[0].append(("debuff_def", defSkills["defSmoke"], "foes_allies", "within_2_spaces_foe"))
 
-    if "resSmoke" in atkSkills and atkAlive: atkPostCombatEffs[0].append(
-        ("debuff_res", atkSkills["defSmoke"], "foes_allies", "within_2_spaces_foe"))
-    if "resSmoke" in defSkills and defAlive: defPostCombatEffs[0].append(
-        ("debuff_res", defSkills["defSmoke"], "foes_allies", "within_2_spaces_foe"))
+    if "resSmoke" in atkSkills and atkAlive: atkPostCombatEffs[0].append(("debuff_res", atkSkills["defSmoke"], "foes_allies", "within_2_spaces_foe"))
+    if "resSmoke" in defSkills and defAlive: defPostCombatEffs[0].append(("debuff_res", defSkills["defSmoke"], "foes_allies", "within_2_spaces_foe"))
+
+    # Élivágar (Veronica)
+    if "veronicaPanic" in atkSkills and atkAlive:
+        atkPostCombatEffs[0].append(("status", Status.Panic, "foes_allies", "within_2_spaces_foe"))
 
     if "Fire Emblem" in atkSkills and atkr.special_triggered:
         b = atkSkills["Fire Emblem"]
@@ -6869,12 +6876,19 @@ def get_AOE_damage(attacker, defender):
     elif attacker.getTargetedDef() == 0:
         atkTargetingDefRes += 1
 
-    if "permHexblade" in atkSkills and not def_disable_foe_hexblade: atkTargetingDefRes = int(
-        defStats[3] < defStats[4])
+    if "permHexblade" in atkSkills and not def_disable_foe_hexblade: atkTargetingDefRes = int(defStats[3] < defStats[4])
 
-    defr_def = defStats[3 + atkTargetingDefRes]
+    defensive_terrain = False
 
-    power_int = atkSkills["aoe_power"]
+    if defender.tile and defender.tile.is_def_terrain == 1:
+        defensive_terrain = True
+
+    if defensive_terrain:
+        defr_def = math.ceil(defStats[3 + atkTargetingDefRes] * 1.3)
+    else:
+        defr_def = defStats[3 + atkTargetingDefRes]
+
+        power_int = atkSkills["aoe_power"]
 
     true_damage = 0
 
@@ -7011,32 +7025,14 @@ class Attack():
 # flowerofease_ref = {"atkRein": 4, "defRein": 4, "resRein": 4}
 
 class CombatField:
-    def __init__(self, owner, range, condition, affectSelf, affectedSide, effect):
+    def __init__(self, owner, range, condition, affectedSide, effect):
         self.owner = owner
         self.range = range
         self.condition = condition(owner)
-        self.affectSelf = affectSelf
         self.affectedSide = affectedSide  # False for different from owner, True otherwise
         self.effect = effect
 
-# flowerOfEaseField = CombatField(mirabilis, exRange1, exCondition, False, True, flowerofease_base)
-
-'''
-
-# HIGHEST TRIANGLE ADEPT LEVEL USED
-# SMALLER LEVELS DO NOT STACK WITH ONE ANOTHER
-# ONLY HIGHEST LEVEL USED
-
-sorceryBlade1 = Skill("Sorcery Blade 1",
-                      "At start of combat, if unit’s HP = 100% and unit is adjacent to a magic ally, calculates damage using the lower of foe’s Def or Res.",
-                      {"sorceryBlade": 1})
-sorceryBlade2 = Skill("Sorcery Blade 2",
-                      "At start of combat, if unit’s HP ≥ 50% and unit is adjacent to a magic ally, calculates damage using the lower of foe’s Def or Res.",
-                      {"sorceryBlade": 2})
-sorceryBlade3 = Skill("Sorcery Blade 3",
-                      "At start of combat, if unit is adjacent to a magic ally, calculates damage using the lower of foe’s Def or Res.",
-                      {"sorceryBlade": 3})
-'''
+# flowerOfEaseField = CombatField(mirabilis, exRange1, exCondition, True, flowerofease_base)
 
 # noah = Hero("Noah", 40, 42, 45, 35, 25, "Sword", 0, marthFalchion, luna, None, None, None)
 # mio = Hero("Mio", 38, 39, 47, 27, 29, "BDagger", 0, tacticalBolt, moonbow, None, None, None)

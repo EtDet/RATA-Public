@@ -1,0 +1,43 @@
+{
+    "name": "Chapter 1: Part 3: Wind and Light (Normal)",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [2, 2, 0, 0, 2, 2],
+                [1, 0, 0, 0, 0, 2],
+                [0, 0, 0, 0, 2, 2]],
+    "defensiveTiles": [],
+    "playerStart": [8, 9, 2, 3],
+    "enemyStart": [38, 30, 40],
+    "enemyData":
+    [  {"name": "Cleric",
+       "level": 1,
+       "rarity": 2,
+       "alt_stats": [14, 0, 4, 0, 1],
+       "assist": "Heal",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Linde",
+       "level": 2,
+       "rarity": 2,
+       "alt_stats": [15, 3, 7, 0, 2],
+       "weapon": "Thunder",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Merric",
+       "level": 2,
+       "rarity": 2,
+       "alt_stats": [17, 2, 6, 2, 1],
+       "weapon": "Wind",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

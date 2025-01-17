@@ -1,0 +1,63 @@
+{
+    "name": "Chapter 9: Part 3: The Blue Crow (Normal) ",
+    "terrain": [[1, 0, 1, 0, 1, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 4, 0, 1, 0, 1],
+                [0, 0, 0, 0, 0, 0],
+                [1, 0, 1, 0, 1, 0],
+                [0, 0, 0, 0, 1, 4],
+                [0, 1, 0, 1, 0, 1],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [0, 1, 2, 3],
+    "enemyStart": [47, 43, 39, 23, 30],
+    "enemyData":
+    [  {"name": "Ursula",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [24, 17, 19, 10, 18],
+       "weapon": "Blárwolf",
+       "askill": "Death Blow 2",
+       "cskill": "Goad Cavalry",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Green Cavalier",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [23, 21, 14, 9, 20],
+       "weapon": "Elwind",
+       "bskill": "Seal Atk 2",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Sword Cavalier",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [29, 20, 13, 14, 18],
+       "weapon": "Armorslayer",
+       "bskill": "Seal Atk 2",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Axe Knight",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [39, 23, 8, 25, 10],
+       "weapon": "Steel Axe",
+       "bskill": "Drag Back",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Lance Knight",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [39, 23, 8, 25, 10],
+       "weapon": "Steel Lance",
+       "bskill": "Drag Back",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

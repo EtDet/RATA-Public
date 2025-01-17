@@ -1,0 +1,50 @@
+{
+    "name": "Chapter 3: Part 1: Binding Trial (Lunatic)",
+    "terrain": [[0, 0, 0, 2, 2, 2],
+                [0, 0, 0, 0, 2, 2],
+                [0, 0, 0, 0, 0, 2],
+                [2, 0, 0, 0, 0, 1],
+                [0, 0, 0, 1, 0, 0],
+                [2, 2, 2, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [7, 8, 2, 3],
+    "enemyStart": [37, 39, 25, 32],
+    "enemyData":
+    [  {"name": "Roy",
+       "level": 24,
+       "rarity": 4,
+       "alt_stats": [32, 20, 21, 16, 16],
+       "weapon": "Steel Sword",
+       "askill": "Triangle Adept 1",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Lance Cavalier",
+       "level": 24,
+       "rarity": 3,
+       "alt_stats": [30, 21, 14, 15, 19],
+       "weapon": "Steel Lance",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Bow Fighter",
+       "level": 24,
+       "rarity": 3,
+       "alt_stats": [31, 20, 18, 18, 9],
+       "weapon": "Steel Bow",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Sword Cavalier",
+       "level": 24,
+       "rarity": 3,
+       "alt_stats": [30, 21, 14, 15, 19],
+       "weapon": "Steel Sword",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

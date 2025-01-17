@@ -1,0 +1,43 @@
+{
+    "name": "Chapter 1: Part 2: Willful Warrior (Normal)",
+    "terrain": [[0, 1, 0, 2, 0, 1],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 2, 0, 0],
+                [0, 0, 0, 2, 0, 0],
+                [0, 0, 2, 2, 0, 0],
+                [0, 0, 2, 0, 0, 0],
+                [0, 0, 0, 0, 0, 2],
+                [0, 2, 2, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [28, 23, 16, 11],
+    "enemyStart": [39, 8, 19],
+    "enemyData":
+    [  {"name": "Axe Fighter",
+       "level": 1,
+       "rarity": 2,
+       "alt_stats": [17, 3, 3, 0, 0],
+       "weapon": "Iron Axe",
+       "startMove": 2,
+       "wallBreak": true
+       },
+        {"name": "Ogma",
+       "level": 2,
+       "rarity": 2,
+       "alt_stats": [18, 4, 7, 2, 0],
+       "weapon": "Iron Sword",
+       "startMove": 2,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Bow Fighter",
+       "level": 1,
+       "rarity": 2,
+       "alt_stats": [15, 2, 2, 1, 0],
+       "weapon": "Iron Bow",
+       "startMove": 2,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

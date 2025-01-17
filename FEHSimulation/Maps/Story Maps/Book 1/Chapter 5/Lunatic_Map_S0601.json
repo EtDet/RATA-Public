@@ -1,0 +1,51 @@
+{
+    "name": "Chapter 5: Part 1: Return to Mystery (Lunatic)",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 1, 2, 0, 0, 0],
+                [0, 0, 2, 1, 2, 0],
+                [0, 0, 2, 2, 2, 0],
+                [0, 2, 2, 2, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [2, 0, 0, 0, 0, 0],
+                [2, 2, 1, 2, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [14, 16, 9, 11],
+    "enemyStart": [39, 25, 47, 24],
+    "enemyData":
+    [  {"name": "Navarre",
+       "level": 29,
+       "rarity": 4,
+       "alt_stats": [33, 26, 29, 17, 17],
+       "weapon": "Silver Sword",
+       "bskill": "Desperation 2",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Wrys",
+       "level": 29,
+       "rarity": 4,
+       "alt_stats": [33, 17, 18, 16, 28],
+       "weapon": "Assault",
+       "assist": "Reconcile",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Thief",
+       "level": 29,
+       "rarity": 4,
+       "alt_stats": [29, 20, 29, 9, 24],
+       "weapon": "Silver Dagger",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Thief",
+       "level": 29,
+       "rarity": 4,
+       "alt_stats": [29, 20, 29, 9, 24],
+       "weapon": "Rogue Dagger",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

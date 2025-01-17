@@ -1,0 +1,61 @@
+{
+    "name": "Chapter 8: Part 4: Divine Dragon Returns (Normal) ",
+    "terrain": [[2, 0, 0, 0, 0, 2],
+                [0, 0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 1, 0],
+                [0, 0, 1, 1, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 2, 2, 0, 2, 0],
+                [0, 2, 0, 0, 2, 0],
+                [2, 0, 0, 2, 2, 0]],
+    "defensiveTiles": [],
+    "playerStart": [44, 45, 38, 39],
+    "enemyStart": [9, 17, 19, 2, 6],
+    "enemyData":
+    [  {"name": "A!Tiki",
+       "level": 20,
+       "rarity": 3,
+       "alt_stats": [27, 18, 13, 19, 14],
+       "weapon": "Fire Breath+",
+       "askill": "Defiant Atk 2",
+       "cskill": "Spur Res 2",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Lucina",
+       "level": 20,
+       "rarity": 3,
+       "alt_stats": [28, 18, 20, 14, 10],
+       "weapon": "Steel Sword",
+       "special": "New Moon",
+       "cskill": "Spur Atk 2",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Lance Cavalier",
+       "level": 20,
+       "rarity": 3,
+       "alt_stats": [28, 18, 13, 14, 17],
+       "weapon": "Steel Lance",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Green Cavalier",
+       "level": 20,
+       "rarity": 3,
+       "alt_stats": [23, 17, 14, 9, 18],
+       "weapon": "Elwind",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Red Cavalier",
+       "level": 20,
+       "rarity": 3,
+       "alt_stats": [23, 17, 14, 9, 18],
+       "weapon": "Elfire",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

@@ -1,0 +1,59 @@
+{
+    "name": "Chapter 9: Part 1: Loyalty and Ambition (Lunatic) ",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 1, 1, 0, 1, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 1, 1, 0, 1, 0],
+                [0, 1, 0, 0, 1, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "struct_walls": {
+      "static": [],
+      "twoBreak": [],
+      "oneBreak": [9, 25]
+    },
+    "playerStart": [7, 10, 0, 1],
+    "enemyStart": [43, 46, 38, 33],
+    "enemyData":
+    [  {"name": "Michalis",
+       "level": 40,
+       "rarity": 4,
+       "alt_stats": [41, 33, 25, 34, 17],
+       "weapon": "Silver Axe",
+       "askill": "Iote's Shield",
+       "cskill": "Threaten Def 2",
+       "startMove": 1,
+       "wallBreak": false
+       },
+        {"name": "Camus",
+       "level": 40,
+       "rarity": 4,
+       "alt_stats": [40, 31, 32, 29, 15],
+       "weapon": "Silver Lance",
+       "special": "Rising Thunder",
+       "askill": "Grani's Shield",
+       "cskill": "Spur Atk 2",
+       "startMove": 1,
+       "wallBreak": false
+      },
+        {"name": "Lance Flier",
+       "level": 40,
+       "rarity": 4,
+       "alt_stats": [36, 26, 34, 19, 35],
+       "weapon": "Silver Lance",
+       "startMove": 1,
+       "wallBreak": false
+      },
+        {"name": "Red Cavalier",
+       "level": 40,
+       "rarity": 4,
+       "alt_stats": [31, 34, 24, 15, 33],
+       "weapon": "Bolganone",
+       "startMove": 1,
+       "wallBreak": false
+      }
+    ]
+  }
+  

@@ -1,0 +1,53 @@
+{
+    "name": "Chapter 6: Part 1: Birthright Trial (Lunatic) ",
+    "terrain": [[2, 2, 2, 2, 2, 1],
+                [0, 0, 0, 2, 2, 0],
+                [2, 0, 0, 0, 0, 1],
+                [2, 0, 0, 2, 2, 0],
+                [2, 2, 0, 2, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [2, 2, 2, 2, 0, 0],
+                [2, 1, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [37, 38, 31, 25],
+    "enemyStart": [29, 22, 17, 2],
+    "enemyData":
+    [  {"name": "Ryoma",
+       "level": 31,
+       "rarity": 4,
+       "alt_stats": [34, 27, 28, 20, 16],
+       "weapon": "Silver Sword",
+       "askill": "Defiant Atk 2",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Takumi",
+       "level": 31,
+       "rarity": 4,
+       "alt_stats": [33, 25, 26, 19, 14],
+       "weapon": "Silver Bow",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Sakura",
+       "level": 31,
+       "rarity": 4,
+       "alt_stats": [30, 21, 24, 18, 24],
+       "weapon": "Fear",
+       "assist": "Mend",
+       "cskill": "Fortify Def 2",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Hinoka",
+       "level": 31,
+       "rarity": 4,
+       "alt_stats": [34, 28, 25, 19, 19],
+       "weapon": "Silver Lance",
+       "askill": "Defiant Def 2",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

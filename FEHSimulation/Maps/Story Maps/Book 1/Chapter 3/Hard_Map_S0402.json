@@ -1,0 +1,51 @@
+{
+    "name": "Chapter 3: Part 2: Two Noblewomen (Hard)",
+    "terrain": [[0, 0, 2, 2, 2, 2],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 2, 2, 0, 0],
+                [0, 2, 2, 2, 0, 0],
+                [0, 2, 2, 2, 2, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 2, 0, 0, 0, 0],
+                [0, 2, 2, 2, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [30, 24, 18, 12],
+    "enemyStart": [41, 11, 35, 17],
+    "enemyData":
+    [  {"name": "Lance Cavalier",
+       "level": 15,
+       "rarity": 2,
+       "alt_stats": [23, 15, 9, 10, 13],
+       "weapon": "Iron Lance",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Lance Cavalier",
+       "level": 15,
+       "rarity": 2,
+       "alt_stats": [23, 15, 9, 10, 13],
+       "weapon": "Iron Lance",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Clarine",
+       "level": 15,
+       "rarity": 3,
+       "alt_stats": [21, 11, 16, 10, 13],
+       "weapon": "Assault",
+       "assist": "Heal",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Cecilia",
+       "level": 15,
+       "rarity": 3,
+       "alt_stats": [22, 15, 11, 10, 13],
+       "weapon": "Wind",
+       "special": "New Moon",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

@@ -1,0 +1,43 @@
+{
+    "name": "Chapter 1: Part 3: Wind and Light (Lunatic)",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [2, 2, 0, 0, 2, 2],
+                [1, 0, 0, 0, 0, 2],
+                [0, 0, 0, 0, 2, 2]],
+    "defensiveTiles": [],
+    "playerStart": [8, 9, 2, 3],
+    "enemyStart": [38, 30, 40],
+    "enemyData":
+    [  {"name": "Cleric",
+       "level": 21,
+       "rarity": 3,
+       "alt_stats": [24, 15, 15, 13, 20],
+       "assist": "Mend",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Linde",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [24, 21, 22, 8, 15],
+       "weapon": "Elthunder",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Merric",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [30, 15, 19, 16, 10],
+       "weapon": "Elwind",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

@@ -1,0 +1,53 @@
+{
+    "name": "Chapter 2: Part 3: Callous Prince (Lunatic)",
+    "terrain": [[1, 1, 1, 1, 1, 1],
+                [2, 0, 0, 0, 2, 1],
+                [0, 0, 1, 0, 0, 0],
+                [0, 2, 1, 1, 2, 0],
+                [0, 1, 1, 0, 0, 0],
+                [0, 0, 2, 1, 0, 0],
+                [1, 0, 0, 0, 0, 1],
+                [2, 1, 0, 0, 1, 2]],
+    "defensiveTiles": [],
+    "playerStart": [7, 8, 9, 10],
+    "enemyStart": [39, 34, 32, 30],
+    "enemyData":
+    [  {"name": "Leo",
+       "level": 25,
+       "rarity": 3,
+       "alt_stats": [28, 18, 14, 16, 19],
+       "weapon": "Ruin",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+       },
+        {"name": "Niles",
+       "level": 24,
+       "rarity": 3,
+       "alt_stats": [27, 15, 21, 10, 21],
+       "weapon": "Steel Bow",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Odin",
+       "level": 24,
+       "rarity": 3,
+       "alt_stats": [31, 13, 20, 15, 15],
+       "weapon": "Elthunder",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      },
+        {"name": "Red Mage",
+       "level": 24,
+       "rarity": 3,
+       "alt_stats": [27, 19, 20, 12, 17],
+       "weapon": "Elfire",
+       "startMove": -1,
+       "wallBreak": true,
+       "group": 1
+      }
+    ]
+  }
+  

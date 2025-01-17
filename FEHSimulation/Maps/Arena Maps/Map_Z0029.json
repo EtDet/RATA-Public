@@ -1,0 +1,53 @@
+{
+    "name": "Arena 29: Bridge 3",
+    "mode": "arena",
+    "terrain": [[0, 0, 0, 2, 2, 2],
+                [0, 0, 0, 0, 0, 2],
+                [1, 0, 0, 2, 0, 0],
+                [0, 0, 0, 0, 2, 0],
+                [0, 2, 0, 0, 0, 0],
+                [0, 0, 2, 0, 0, 1],
+                [2, 0, 0, 0, 0, 0],
+                [2, 2, 2, 0, 0, 0]],
+    "defensiveTiles": [15, 22, 25, 32],
+    "struct_walls": {
+      "static": [],
+      "twoBreak": [],
+      "oneBreak": [20, 21, 26, 27]
+    },
+    "playerStart": [16, 9, 11, 4],
+    "enemyStart": [43, 36, 38, 31],
+    "enemyData":
+    [  {"name": "Chrom",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Armorslayer+",
+       "special": "Bonfire",
+       "cskill": "Hone Atk 2",
+       "startMove": 1,
+       "wallBreak": false
+       },
+        {"name": "Myrrh",
+       "level": 40,
+       "rarity": 5,
+        "assist": "Reposition",
+       "startMove": 1,
+       "wallBreak": false
+      },
+       {"name": "SF!Xander",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Iron Dagger",
+       "assist": "Dance",
+       "startMove": 1,
+       "wallBreak": false
+      },
+       {"name": "Soren",
+       "level": 40,
+       "rarity": 5,
+       "weapon": "Rexcalibur",
+       "startMove": 1,
+       "wallBreak": false
+      }
+    ]
+  }

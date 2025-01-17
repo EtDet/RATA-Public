@@ -240,8 +240,10 @@ class Hero:
 
         self.pair_skill = None
 
-        self.resp = False
-        self.has_resp = False
+        self.resp: bool = False
+        self.has_resp: bool = False
+
+        self.aided: bool = False
 
         # --- The following variables are used for simulation ---
 
@@ -258,7 +260,7 @@ class Hero:
         self.assistTargetedOther = 0
 
         # If Canto can be utilized after unit's next action (attacking, breaking, or assisting, etc.)
-        self.canto_ready = False
+        self.canto_ready = True
 
         # Galeforce triggered of each type
 
@@ -429,6 +431,36 @@ class Hero:
                 j += 1
 
         self.level = level
+        self.set_visible_stats()
+
+    # Sets enemy stat values, doesn't work currently
+    def set_level_enemy(self, old_level, new_level, difficulty):
+        # set to level 1
+        self.set_rarity(self.rarity)
+        self.set_merges(self.merges)
+        self.set_dragonflowers(self.flowers)
+        self.set_emblem_merges(self.emblem_merges)
+
+        print(self.rarity)
+
+        for i in range(0,5):
+            growth = self.growths[i] #+ 5 * cur_modifier
+
+            # +0.10 for normal?
+            # -0.05 for hard?
+            # +0.00 for lunatic?
+            if difficulty == 0:
+                boost = 0.115
+            if difficulty == 1:
+                boost = -0.05
+            if difficulty == 2:
+                boost = 0.0
+
+            applied_growth = trunc(growth * 1.115 * (self.rarity * 0.07 + 0.79))
+
+            self.stats[i] += trunc((new_level - old_level) * (applied_growth/100))
+
+        self.level = new_level
         self.set_visible_stats()
 
     def set_IVs(self, new_asset, new_flaw, new_asc_asset):
@@ -1059,15 +1091,16 @@ class Status(Enum):
     Bulwark = 165 # 🔵 Foes cannot move through spaces within X spaces of unit, X = foe's range
     DivineNectar = 166 # 🔴 Neutralizes Deep Wounds, restores 20HP as combat begins, and reduces damage by 10
     Paranoia = 167 # 🔴 If unit's HP >= 99%, grants Atk+5, Desperation, and if either # foe negative statuses >= 3 or foe is of same range, grants Vantage
-    Anathema = 168 # 🔴 Inflicts Spd/Def/Res-4 on foes within 3 spaces
-    FutureWitness = 169 # 🔴 Canto 2, Atk/Spd/Def/Res+5, reduce first attacks by 7, and sp halt +1 on foe before foe's first attack
-    Dosage = 170 # 🔴 Atk/Spd/Def/Res+5, 10HP healed after combat, disables effects that steal bonuses, and clears all bonuses from foes that attempt to steal bonuses
-    Empathy = 171 # 🔴 Grants Atk/Spd/Def/Res = num unique Bonus effects and Penalty effects currently on map (max 7)
-    DivinelyInspiring = 172 # 🔴 Grants Atk/Spd/Def/Res = X * 3, grants -X sp jump to self before foe's first attack, and heals X * 4 HP per hit (X = num allies with this status in 3 spaces, max 2)
-    PreemptPulse = 173 # 🔴 Grants -1 sp jump before unit's first attack
+    Gallop = 168 # 🔵 Movement increased by 2, cancelled by Gravity, does not stack with MobilityUp
+    Anathema = 169 # 🔴 Inflicts Spd/Def/Res-4 on foes within 3 spaces
+    FutureWitness = 170 # 🔴 Canto 2, Atk/Spd/Def/Res+5, reduce first attacks by 7, and sp halt +1 on foe before foe's first attack
+    Dosage = 171 # 🔴 Atk/Spd/Def/Res+5, 10HP healed after combat, disables effects that steal bonuses, and clears all bonuses from foes that attempt to steal bonuses
+    Empathy = 172 # 🔴 Grants Atk/Spd/Def/Res = num unique Bonus effects and Penalty effects currently on map (max 7)
+    DivinelyInspiring = 173 # 🔴 Grants Atk/Spd/Def/Res = X * 3, grants -X sp jump to self before foe's first attack, and heals X * 4 HP per hit (X = num allies with this status in 3 spaces, max 2)
+    PreemptPulse = 174 # 🔴 Grants -1 sp jump before unit's first attack
 
 class GameMode(Enum):
-    StoryMap = 0
+    Story = 0
     HeroBattle = 1
 
     Arena = 2
@@ -1132,6 +1165,32 @@ def makeHero(name):
     # Assign specialized blessing type if unit is Legendary/Mythic
     result_hero.blessing = create_specialized_blessing(int_name)
 
+    return result_hero
+
+def get_generic_weapon(name):
+    if "Sword" in name: return "Sword"
+    if "Lance" in name: return "Lance"
+    if "Axe" in name: return "Axe"
+
+    if "Red" in name: return "RTome"
+    if "Blue" in name: return "BTome"
+    if "Green" in name: return "GTome"
+
+    if "Bow" in name: return "CBow"
+    if name == "Thief": return "CDagger"
+
+    return "Staff"
+
+def get_generic_move(name):
+    if "Fighter" in name: return 0
+    if "Cavalier" in name or name == "Troubadour": return 1
+    if "Flier" in name: return 2
+    if "Knight" in name: return 3
+
+    return 0
+
+def makeGeneric(name):
+    result_hero = Hero(name, name, "Generic", 0, get_generic_weapon(name), get_generic_move(name), [20, 20, 20, 20, 20], [40, 40, 40, 40, 40], 0, 0, 0)
     return result_hero
 
 def makeWeapon(name):
@@ -1283,7 +1342,8 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "Roy", "Ryoma", "Saizo", "Sakura", "F!Selena", "Serra", "Setsuna", "Shanna", "Sharena", "Sheena",
                           "Sophia", "Stahl", "Subaki", "Sully", "Takumi", "Tharja", "Y!Tiki", "A!Tiki", "Virion", "Wrys",
 
-                          "Narcian", "F!Robin", "Ursula", "Michalis", "Navarre", "Zephiel", "Xander", "Lloyd", "Camus"
+                          "Narcian", "F!Robin", "Ursula", "Michalis", "Navarre", "Zephiel", "Xander", "Lloyd", "Camus",
+                          "Bruno", "Veronica",
 
                           "Eirika", "Ephraim", "Seliph", "Julia",
                           "Eldigan", "Klein", "Lachesis", "Reinhardt", "Olwen", "Sanaki",
@@ -1305,6 +1365,7 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "Sigurd", "Deirdre", "Tailtiu", "Arvis", "Ayra", "Arden",
                           "H!Henry", "H!Jakob", "H!Sakura", "H!Nowi",
                           "Dorcus", "Lute", "Mia", "Joshua",
+
                           "Fjorm",
                           "Rhajat", "Siegbert", "Shiro", "Soleil",
                           "WI!Chrom", "WI!Lissa", "WI!M!Robin", "WI!Tharja",
@@ -1345,3 +1406,13 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "Surtr", "Ylgr", "Gharnef",
                           "Hríd",
                     ]
+
+# Generics
+generics = ["Sword Fighter", "Lance Fighter", "Axe Fighter",
+            "Sword Cavalier", "Lance Cavalier", "Axe Cavalier",
+            "Sword Flier", "Lance Flier", "Axe Flier",
+            "Sword Knight", "Lance Knight", "Axe Knight",
+            "Red Mage", "Blue Mage", "Green Mage",
+            "Red Cavalier", "Blue Cavalier", "Green Cavalier",
+            "Bow Fighter", "Bow Cavalier", "Thief", "Troubadour", "Cleric"
+            ]

@@ -1,0 +1,41 @@
+{
+    "name": "Prologue 1: Prince with Golden Wings",
+    "terrain": [[0, 0, 0, 2, 2, 2],
+                [0, 0, 1, 2, 2, 2],
+                [2, 0, 2, 2, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 2, 2, 1],
+                [0, 0, 0, 0, 2, 0],
+                [0, 0, 0, 0, 0, 0],
+                [1, 0, 1, 0, 2, 0]],
+    "defensiveTiles": [],
+    "playerStart": [18, 19, 12, 13],
+    "enemyStart": [42, 5, 35],
+    "enemyData":
+    [  {"name": "Lance Fighter",
+       "level": 1,
+       "rarity": 1, 
+       "alt_stats": [16, 2, 6, 1, 0],
+       "weapon": "Iron Lance",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Axe Fighter",
+       "level": 1, 
+       "rarity": 1, 
+       "alt_stats": [16, 2, 6, 1, 0],
+       "weapon": "Iron Axe",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Sword Fighter",
+       "level": 1,
+       "rarity": 1,
+       "alt_stats": [16, 2, 6, 1, 0],
+       "weapon": "Iron Sword",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  
