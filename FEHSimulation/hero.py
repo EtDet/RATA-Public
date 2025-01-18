@@ -1400,7 +1400,7 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "Helbindi", "Laegjarn", "Laevatein",
                           "L!Y!Tiki",
                           "H!Kagero", "H!Niles", "H!Mia", "H!Myrrh", "H!Dorcas",
-                          "Kliff", "Aversa", "Owain", "Loki",
+                          "Kliff", "Aversa", "Owain", "P!Loki",
                           "L!Eirika",
                           "P!M!Corrin", "P!F!Corrin", "Mikoto", "P!Camilla", "P!Azura",
                           "Surtr", "Ylgr", "Gharnef",
