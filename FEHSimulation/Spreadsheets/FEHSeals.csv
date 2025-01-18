@@ -521,6 +521,8 @@ Threat. Spd/Res 1,"At start of turn, inflicts Spd/Res-3 on foes within 2 spaces 
 Threat. Spd/Res 2,"At start of turn, inflicts Spd/Res-4 on foes within 2 spaces through their next actions.",3,C,181,FALSE,,,,,,,,,,,Any,Any
 Threat. Atk/Res 1,"At start of turn, inflicts Atk/Res-3 on foes within 2 spaces through their next actions.",2,C,182,FALSE,,,,,,,,,,,Any,Any
 Threat. Atk/Res 2,"At start of turn, inflicts Atk/Res-4 on foes within 2 spaces through their next actions.",3,C,182,FALSE,,,,,,,,,,,Any,Any
+Threat. Def/Res 1,"At start of turn, inflicts Def/Res-3 on foes within 2 spaces of unit through their next actions.",2,C,236,FALSE,,,,,,,,,,,Any,Any
+Threat. Def/Res 2,"At start of turn, inflicts Def/Res-4 on foes within 2 spaces of unit through their next actions.",3,C,236,FALSE,,,,,,,,,,,Any,Any
 Atk Ploy 1,"At start of turn, inflicts Atk-3 on foes in cardinal directions with Res < unit's Res through their next actions.",1,C,183,FALSE,,,,,,,,,,,Any,Any
 Atk Ploy 2,"At start of turn, inflicts Atk-4 on foes in cardinal directions with Res < unit's Res through their next actions.",2,C,183,FALSE,,,,,,,,,,,Any,Any
 Atk Ploy 3,"At start of turn, inflicts Atk-5 on foes in cardinal directions with Res < unit's Res through their next actions.",3,C,183,FALSE,,,,,,,,,,,Any,Any
@@ -662,6 +664,7 @@ Embla's Ward,Reduces damage dealt to unit to 0.,0,S,10000,FALSE,invincible,1,,,,
 Múspellflame,Reduces damage dealt to unit to 0.,0,S,10001,FALSE,invincible,2,,,,,,,,,Any,Any
 Niðavellir Axiom,Reduces damage dealt to unit to 0.,0,S,10002,FALSE,invincible,5,,,,,,,,,Any,Any
 Gold Perfection,Reduces damage dealt to unit to 0.,0,S,10003,FALSE,invincible,7,,,,,,,,,Any,Any
+Nine-Realm Pact,Reduces damage dealt to unit to 0.,0,S,10017,FALSE,invincible,9,,,,,,,,,Any,Any
 Gullinbursti,Enables [Canto (Rem.)].,0,S,10004,FALSE,,,,,,,,,,,Any,Any
 Røkkr,"Neutralizes damage outside of combat (from skills like Poison Strike, etc.) except damage dealt by Specials that trigger before combat. Unit's HP can be reduced to 0 only by an attack from allied armies. Unit cannot restore its own HP.",0,S,10005,FALSE,,,,,,,,,,,Any,Any
 Guardian Seal,"Units on the opposing team with Range = 2 cannot move through a space adjacent to the holder of this seal. (Does not affect units with Pass.) When foe with this seal is defeated, restores 10 HP to unit that defeated foe and inflicts Special cooldown count+1 on that unit after combat.",0,S,10006,FALSE,,,,,,,,,,,Any,Any

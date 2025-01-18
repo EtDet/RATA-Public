@@ -16,7 +16,9 @@ Bug Fixes:
 -Fixed damage calculation for Moonbow-type specials on defensive terrain.
 -Fixed magical weapons not being affected by defensive terrain.
 -Fixed AOE damage on defensive terrain.
--Fixed Future Sight II's weapon description not displaying.
+-Fixed Future Vision II's weapon description not displaying.
+-Fixed the following refined weapon descriptions: Libra's Inviolable Axe, Flier Hinoka's Warrior Princess, Jamke's Bow of Verdane, Sothe's Peshkatz, Halloween Nowi's Grimoire, Julius' Loptous,
+ Summer Tana's Fruit of Iðunn, Ishtar's Mjölnir, Tailtiu's Tome of Thoron, Female Robin's Tactical Gale, Mikoto's Doting Staff, Young Summer Tiki's Summer's Breath, and Myrrh's Great Flame
 
 1.0.8 (12/27/24)
 
