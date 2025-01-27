@@ -1098,6 +1098,7 @@ class Status(Enum):
     Empathy = 172 # 🔴 Grants Atk/Spd/Def/Res = num unique Bonus effects and Penalty effects currently on map (max 7)
     DivinelyInspiring = 173 # 🔴 Grants Atk/Spd/Def/Res = X * 3, grants -X sp jump to self before foe's first attack, and heals X * 4 HP per hit (X = num allies with this status in 3 spaces, max 2)
     PreemptPulse = 174 # 🔴 Grants -1 sp jump before unit's first attack
+    PotentFollow = 175 # 🔴 If outspeeding by -20, grants 80%/40% Potent hit
 
 class GameMode(Enum):
     Story = 0
