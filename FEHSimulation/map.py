@@ -1,5 +1,5 @@
 from queue import Queue
-
+from pandas import read_csv
 
 class Tile:
     def __init__(self, tile_num, terrain, is_def_terrain, texture):
@@ -194,11 +194,14 @@ class Tile:
 
 
 class Structure:
-    def __init__(self, struct_type, health):
+    def __init__(self, name, occupies_tile, is_targetable, struct_type, health, level):
 
         # structure key
+        self.name = name
 
         # 0 - Common Wall
+        # 1 - AR Structure (O)
+        # 2 - AR Structure (D)
         self.struct_type = struct_type
 
         # How many hits needed to break structure
@@ -207,6 +210,30 @@ class Structure:
         # -1, structure is indestructable
         self.health = health
         self.max_health = health
+
+        self.level = level
+        self.max_level = level
+
+        self.is_targetable = is_targetable
+        self.occupies_tile = occupies_tile
+
+struct_sheet = read_csv('Spreadsheets/FEHStructures.csv')
+
+def makeStruct(name, struct_type):
+    row = struct_sheet.loc[struct_sheet['Name'] == name]
+    n = row.index.values[0]
+
+    name = row.loc[n, 'Name']
+    occupies_tile = row.loc[n, 'Occupies Tile']
+    targetable = row.loc[n, 'Is Targetable']
+    max_level = row.loc[n, 'Max Level']
+    health = row.loc[n, 'Health']
+
+    result_struct = Structure(name, occupies_tile, targetable, struct_type, health, max_level)
+
+    return result_struct
+
+
 
 # class AR_Structure: SUBCLASS
 # level
@@ -291,13 +318,26 @@ class Map:
             walls = map_json["struct_walls"]
 
             for x in walls["static"]:
-                temp_struct = Structure(0, -1)
+                temp_struct = Structure("Obstacle", True, False, 0, -1, 1)
                 self.tiles[x].structure_on = temp_struct
 
             for x in walls["twoBreak"]:
-                temp_struct = Structure(0, 2)
+                temp_struct = Structure("Obstacle", True, True,0, 2, 1)
                 self.tiles[x].structure_on = temp_struct
 
             for x in walls["oneBreak"]:
-                temp_struct = Structure(0, 1)
+                temp_struct = Structure("Obstacle", True, True,0, 1, 1)
                 self.tiles[x].structure_on = temp_struct
+
+        if "mode" in map_json and map_json["mode"] == "aether":
+            fortress_O = makeStruct("Fortress", 1)
+            self.tiles[2].structure_on = fortress_O
+
+            fortress_D = makeStruct("Fortress", 2)
+            self.tiles[27].structure_on = fortress_D
+
+            fountain = makeStruct("Aether Fountain", 2)
+            self.tiles[42].structure_on = fountain
+
+            amphorae = makeStruct("Aether Amphorae", 2)
+            self.tiles[47].structure_on = amphorae

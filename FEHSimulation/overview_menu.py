@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
+from re import sub
+
 import feh_widgets as fehw
 
 # Light mode colors
@@ -328,7 +330,11 @@ def row_selected(event):
         bonus_units_per_tab.append([False] * len([drag_point for drag_point in sim.canvas.unit_drag_points.values() if drag_point.side == 0]))
 
         # Change button frame to display respective gamemode
-        sim.button_frame.gamemode_info.config(text="Gamemode: " + sim.canvas.game_mode.name)
+        gamemode_name = sim.canvas.game_mode.name
+        spaced_name = sub(r'([A-Z])', r' \1', gamemode_name)
+        spaced_name = spaced_name.strip()
+
+        sim.button_frame.gamemode_info.config(text="Gamemode: " + spaced_name)
 
         sim.tab.tab_name_button.config(command=sim.set_focused)
         sim.tab.tab_close_button.config(command=sim.delete_canvas_entry)

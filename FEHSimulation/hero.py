@@ -1400,11 +1400,22 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "Helbindi", "Laegjarn", "Laevatein",
                           "L!Y!Tiki",
                           "H!Kagero", "H!Niles", "H!Mia", "H!Myrrh", "H!Dorcas",
-                          "Kliff", "Aversa", "Owain", "Loki",
+                          "Kliff", "Aversa", "Owain", "P!Loki",
                           "L!Eirika",
                           "P!M!Corrin", "P!F!Corrin", "Mikoto", "P!Camilla", "P!Azura",
                           "Surtr", "Ylgr", "Gharnef",
                           "Hríd",
+
+                          "Eir",
+                          "WI!Eirika", "WI!Ephraim", "WI!Fae", "WI!Cecilia",
+                          "L!Azura",
+                          "NY!Fjorm", "NY!Gunnthrá", "NY!Hríd", "NY!Laegjarn", "NY!Laevatein",
+                          "Leanne", "Tibarn", "Reyson", "Nailah", "Naesala",
+                          "HS!Elise", "HS!Hinoka", "HS!Sakura", "HS!Ryoma", "HS!Camilla",
+                          "Duma",
+                          "V!Ike", "V!Mist", "V!Soren", "V!Titania", "V!Greil",
+                          "Keaton", "Velouria", "Kaden", "Selkie", "Panne",
+                          "L!Roy"
                     ]
 
 # Generics

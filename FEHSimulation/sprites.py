@@ -1,8 +1,18 @@
 # FORMAT FOR GETTING AN IMAGE FILE FROM FANDOM WIKI
 # https://feheroes.fandom.com/wiki/Special:Redirect/file/Alfonse_Prince_of_Askr_Mini_Unit_Ok.png
 
+# 'https://feheroes.fandom.com/wiki/Special:Redirect/file/Seidr_Goddess_of_Hope_Mini_Unit_Ok.png'
+
+#image_url = 'https://feheroes.fandom.com/wiki/Special:Redirect/file/Alfonse_Prince_of_Askr_Mini_Unit_Ok.png'
+#sample_save_path = 'TestSprites\\downloaded_image.png'
+#download_and_save_image(image_url, save_path)
+
+# Importing maps
+# 'https://feheroes.fandom.com/wiki/Special:Redirect/file/Map_Z0096.png'
+
 import requests
-from hero import hero_sheet, Hero, implemented_heroes, generics
+from hero import hero_sheet, implemented_heroes, generics
+from map import struct_sheet
 from PIL import Image
 from io import BytesIO
 import os.path
@@ -122,11 +132,34 @@ while i <= 9:
         j += 1
     i += 1
 
-# 'https://feheroes.fandom.com/wiki/Special:Redirect/file/Seidr_Goddess_of_Hope_Mini_Unit_Ok.png'
+# Aether Raids
+i = 1
+while i <= 18:
+    image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + "Map_K" + str(i).zfill(4) + ".png"
+    download_and_save_image(image_url, "Maps/Aether Raids (Templates)/" + "Map_K" + str(i).zfill(4) + ".png")
+    i += 1
 
-#image_url = 'https://feheroes.fandom.com/wiki/Special:Redirect/file/Alfonse_Prince_of_Askr_Mini_Unit_Ok.png'
-#sample_save_path = 'TestSprites\\downloaded_image.png'
-#download_and_save_image(image_url, save_path)
+download_and_save_image("https://feheroes.fandom.com/wiki/Special:Redirect/file/Field_Offense.png", "Maps/Aether Raids (Templates)/Field_Offense.png")
 
-# Importing maps
-# 'https://feheroes.fandom.com/wiki/Special:Redirect/file/Map_Z0096.png'
+# AR Structures
+names = struct_sheet['Name']
+offense_exists = struct_sheet['Offense Exists']
+defense_exists = struct_sheet['Defense Exists']
+
+i = 1
+while i < len(names):
+    name = normalize_string(names[i])
+
+    if "False" in name:
+        i += 1
+        continue
+
+    image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/Structure_" + name + ".png"
+    download_and_save_image(image_url, "CombatSprites/AR Structures/" + name + ".png")
+
+    if offense_exists[i] and defense_exists[i]:
+        defense_image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/Structure_Enemy_" + name + ".png"
+        download_and_save_image(defense_image_url, "CombatSprites/AR Structures/" + name + "_Enemy.png")
+
+
+    i += 1

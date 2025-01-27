@@ -7,13 +7,14 @@ import textwrap
 from re import sub
 
 from math import trunc
+from math import isnan
 
 import json
 from csv import reader, writer
 import pickle
 
 import pandas as pd
-from math import isnan
+
 from functools import partial
 
 from PIL import Image, ImageTk
@@ -2544,6 +2545,8 @@ class GameplayCanvas(tk.Canvas):
         # Store PhotoImages for later use to not be garbage collected.
         self.liquid = None
         self.terrain = None
+        self.offense_piece = None
+
         self.wall_photos = []
         self.move_tile_photos = []
         self.move_arrow_photos = []
@@ -3280,7 +3283,7 @@ class GameplayCanvas(tk.Canvas):
 
             # Tile holds structure that can be destroyed
             elif self.map.tiles[n].structure_on is not None:
-                if self.map.tiles[n].structure_on.struct_type == 0 and self.map.tiles[n].structure_on.health > 0:
+                if self.map.tiles[n].structure_on.struct_type != S + 1 and self.map.tiles[n].structure_on.health > 0:
                     cur_tile_photo = self.move_tile_photos[TILE_RED]
 
             curTile = self.create_image(cur_pixel_offset_x, cur_pixel_offset_y, anchor=tk.NW, image=cur_tile_photo)
@@ -3305,7 +3308,7 @@ class GameplayCanvas(tk.Canvas):
 
                     # Destroyable structure in range
                     elif self.map.tiles[n].structure_on is not None:
-                        if self.map.tiles[n].structure_on.struct_type == 0 and self.map.tiles[n].structure_on.health > 0:
+                        if self.map.tiles[n].structure_on.health > 0 and self.map.tiles[n].structure_on.struct_type != S + 1:
 
                             if self.map.tiles[n].structure_on not in sdd['targets_and_tiles']:
                                 sdd['targets_and_tiles'][self.map.tiles[n].structure_on] = [m.destination]
@@ -3727,7 +3730,7 @@ class GameplayCanvas(tk.Canvas):
                 self.extras.clear_forecast_banner()
 
         # If moving onto a space with a destroyable structure
-        elif cur_tile_Obj.structure_on is not None and cur_tile_Obj.structure_on.health > 0 and cur_tile_int in self.drag_data['attack_range']:
+        elif cur_tile_Obj.structure_on and cur_tile_Obj.structure_on.health > 0 and cur_tile_Obj.structure_on.struct_type != S + 1 and cur_tile_int in self.drag_data['attack_range']:
 
                 target_tile = self.drag_data['targets_and_tiles'][self.map.tiles[cur_tile_int].structure_on][0]
 
@@ -5227,6 +5230,8 @@ class GameplayCanvas(tk.Canvas):
         if "mode" in json_data:
             if json_data["mode"] == "arena":
                 self.game_mode = hero.GameMode.Arena
+            if json_data["mode"] == "aether":
+                self.game_mode = hero.GameMode.AetherRaids
 
         # Liquid
         liquid_image = Image.open("CombatSprites/" + self.map.liquid_texture)
@@ -5237,18 +5242,17 @@ class GameplayCanvas(tk.Canvas):
 
         # Terrain
         map_path = json_path.replace(".json", ".png")
-
-        difficulty = 0
-        if "Hard_" in map_path:
-            difficulty = 1
-        if "Lunatic_" in map_path:
-            difficulty = 2
-
         map_path = map_path.replace("Normal_", "").replace("Hard_", "").replace("Lunatic_", "")
 
         map_image = Image.open(map_path)
         self.terrain = map_photo = ImageTk.PhotoImage(map_image)
         self.create_image(0, 0, anchor=tk.NW, image=map_photo)
+
+        # AR Field Offense
+        if self.game_mode == hero.GameMode.AetherRaids:
+            offense = Image.open("Maps/Aether Raids (Templates)/Field_Offense.png")
+            self.offense_piece = ImageTk.PhotoImage(offense)
+            self.create_image(-70, 610, anchor=tk.NW, image=self.offense_piece)
 
         # Walls
         self.refresh_walls()
@@ -5276,7 +5280,7 @@ class GameplayCanvas(tk.Canvas):
 
             self.unit_drag_points[starting_space] = _DragPoint(tile_num=starting_space, modifiable=True, side=ENEMY)
 
-        if self.game_mode == hero.GameMode.Arena:
+        if self.game_mode == hero.GameMode.Arena or self.game_mode == hero.GameMode.AetherRaids:
             return
 
         # Load enemies from JSON data
@@ -5472,7 +5476,7 @@ class GameplayCanvas(tk.Canvas):
         wall_texture = Image.open("CombatSprites/" + self.map.wall_texture)
 
         for tile in self.map.tiles:
-            if tile.structure_on:
+            if tile.structure_on and tile.structure_on.struct_type == 0:
                 # crop different parts of wall depending on:
                 # - other wall objects in cardinal directions
                 # - health of the wall
@@ -5517,6 +5521,41 @@ class GameplayCanvas(tk.Canvas):
                 self.wall_sprites.append(img)
 
                 self.move_to_tile(img, tile.tileNum)
+
+            elif tile.structure_on and tile.structure_on.struct_type != 0:
+                struct = tile.structure_on
+
+                SIDE_NONEXCLUSIVE_AR_STRUCTS = ["Fortress", "Bolt Tower", "Tactics Room", "Healing Tower", "Panic Manor", "Catapult", "Light Shrine", "Dark Shrine", "Calling Circle"]
+
+
+                if struct.struct_type == PLAYER + 1:
+                    image_path = "CombatSprites/AR Structures/" + struct.name.replace(" ", "_") + ".png"
+
+                else:
+                    if struct.name in SIDE_NONEXCLUSIVE_AR_STRUCTS or "School" in struct.name:
+                        image_path = "CombatSprites/AR Structures/" + struct.name.replace(" ", "_") + "_Enemy.png"
+                    else:
+                        image_path = "CombatSprites/AR Structures/" + struct.name.replace(" ", "_") + ".png"
+
+
+                if struct.health != 0:
+                    struct_image = Image.open(image_path)
+                    struct_image = struct_image.resize((85, 85))
+                else:
+                    struct_image = wall_texture.crop((1639, 547, 1818, 726))
+                    struct_image = struct_image.resize((90, 90))
+
+
+                struct_photo = ImageTk.PhotoImage(struct_image)
+
+                struct_sprite = self.create_image(85, 85, anchor=tk.CENTER, image=struct_photo)
+
+                self.wall_photos.append(struct_photo)
+                self.wall_sprites.append(struct_sprite)
+
+                self.move_to_tile(struct_sprite, tile.tileNum)
+
+
 
     def refresh_units_prep(self):
         self.all_units = [[], []]
@@ -6977,7 +7016,7 @@ class ExtrasFrame(tk.Frame):
             pic_label.pack()
             name_label.pack(fill=tk.X, padx=5, pady=5)
 
-            if drag_point.side == PLAYER and self.game_mode == hero.GameMode.Arena:
+            if drag_point.side == PLAYER and (self.game_mode == hero.GameMode.Arena or self.game_mode == hero.GameMode.AetherRaids):
                 bonus_button = tk.Button(cur_frame, text="Is Bonus", bg=bonus_button_color, bd=0, command=partial(self.toggle_unit_as_bonus, i-1))
 
                 if self.is_running:
