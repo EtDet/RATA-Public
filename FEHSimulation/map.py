@@ -32,8 +32,8 @@ class Tile:
         # 1 - flame
         # 2 - stone
 
-        self.divine_vein = 0
-        self.divine_vein_owner = 0
+        self.divine_vein = -1
+        self.divine_vein_side = -1
 
         # texture key
         # 0 - green grass / bush / water / trench / pillar
@@ -44,6 +44,7 @@ class Tile:
         # 5 - wood
         self.terrain_texture = texture
 
+    # all tiles exactly n spaces away
     def tilesNSpacesAway(self, n):
         fringe = Queue()  # tiles to visit
         visited = set()  # visited tiles to avoid duplicates
@@ -154,7 +155,7 @@ class Tile:
 
         return tiles_within
 
-    # all tiles within n columns
+    # all tiles within n rows
     def tilesWithinNRows(self, n):
         vertical = [self]
 
@@ -186,12 +187,29 @@ class Tile:
 
         return tiles_within
 
-    def tilesWithinNRowsOrCols(self, n):
-        if self.hero_on is None: return []
-        if n % 2 == 0: return []
+    def tilesWithinNRowsOrCols(self, m, n):
+        if n % 2 == 0 or m % 2 == 0: return []
 
-        return list(set(self.tilesWithinNCols(n)).union(set(self.tilesWithinNRows(n))))
+        return list(set(self.tilesWithinNRows(m)).union(set(self.tilesWithinNCols(n))))
 
+    def tilesWithinNRowsAndCols(self, m, n):
+        if n % 2 == 0 or m % 2 == 0: return []
+
+        return list(set(self.tilesWithinNRows(m)).intersection(set(self.tilesWithinNCols(n))))
+
+# Bolt Tower, Healing Tower
+def get_tower_hp_change(level):
+    if 1 <= level <= 9:
+        return level * 5 + 5
+    else:
+        return level * 2 + 32
+
+# Panic Manor, Tactics Room, Heavy Trap, Hex Trap
+def get_tower_hp_threshold(level):
+    if 1 <= level <= 9:
+        return level * 5 + 35
+    else:
+        return level * 2 + 62
 
 class Structure:
     def __init__(self, name, occupies_tile, is_targetable, struct_type, health, level):
@@ -216,6 +234,94 @@ class Structure:
 
         self.is_targetable = is_targetable
         self.occupies_tile = occupies_tile
+
+    def get_desc(self):
+        if self.name == "Fortress":
+            # DIFFERS FOR D
+            if self.struct_type == 1:
+                return "If structure's level > opponent's Fortress (D) level, grants Atk/Spd/Def/Res+X to all allies. (X = difference in level × 4). Note: Cannot be removed or destroyed."
+            else:
+                return "If structure's level > opponent's Fortress (O) level, grants Atk/Spd/Def/Res+X to all allies. (X = difference in level × 4). Note: Cannot be removed or destroyed."
+        if self.name == "Bolt Tower":
+            if self.struct_type == 1:
+                return "At the start of turn 3, deals " + str(get_tower_hp_change(self.level)) + " damage to foes within 3 columns centered on structure."
+            else:
+                return "At the start of turn 3, deals " + str(get_tower_hp_change(self.level)) + " damage to foes within 7 rows and 3 columns centered on structure."
+        if self.name == "Tactics Room":
+            if self.struct_type == 1:
+                return "At start of turn, if any foes are within the same column as structure and their HP ≤ " + str(get_tower_hp_threshold(self.level)) + " and they use a ranged weapon, inflicts [Gravity] on those foes."
+            else:
+                return "At start of turn, if any foes are within 7 rows and 3 columns centered on structure and their HP ≤ " + str(get_tower_hp_threshold(self.level)) + " and they use a ranged weapon, inflicts [Gravity] on those foes."
+        if self.name == "Healing Tower":
+            if self.struct_type == 1:
+                return "At start of turn, restores " + str(get_tower_hp_change(self.level)) + " HP to allies within 3 rows and 5 columns centered on structure."
+            else:
+                return "At start of turn, restores " + str(get_tower_hp_change(self.level)) + " HP to allies within 5 rows and 5 columns centered on structure."
+        if self.name == "Panic Manor":
+            if self.struct_type == 1:
+                return "At start of turn, if any foes are within 3 columns centered on structure and their HP ≤ " + str(get_tower_hp_threshold(self.level)) + ", inflicts [Panic] on those foes."
+            else:
+                return "At start of turn, if any foes are within 7 rows and 3 columns centered on structure and their HP ≤ " + str(get_tower_hp_threshold(self.level)) + ", inflicts [Panic] on those foes."
+        if self.name == "Catapult":
+            if self.struct_type == 1:
+                return "At start of turn, destroys defensive structures within the same column as this structure if their level ≤ this structure's level. Note: Fortress (D), traps, resources, and ornaments cannot be destroyed."
+            else:
+                return "At start of turn, destroys offensive structures within the same column as this structure if their level ≤ this structure's level. Note: Fortress (O) cannot be destroyed."
+
+        if self.name == "Infantry School":
+            return "At start of turn, inflicts Atk/Spd/Def/Res-" + str(self.level + 1) + " on infantry foes within 3 columns centered on structure through their next actions."
+        if self.name == "Cavalry School":
+            return "At start of turn, inflicts Atk/Spd/Def/Res-" + str(self.level + 1) + " on cavalry foes within 3 columns centered on structure through their next actions."
+        if self.name == "Flier School":
+            return "At start of turn, inflicts Atk/Spd/Def/Res-" + str(self.level + 1) + " on flying foes within 3 columns centered on structure through their next actions."
+        if self.name == "Armor School":
+            return "At start of turn, inflicts Atk/Spd/Def/Res-" + str(self.level + 1) + " on armored foes within 3 columns centered on structure through their next actions."
+
+        if self.name == "Bright Shrine":
+            return "At start of turn, inflicts Atk/Spd-" + str(self.level + 1) + " on foe on the enemy team with the highest Atk+Spd total through its next action."
+        if self.name == "Dark Shrine":
+            return "At start of turn, inflicts Def/Res-" + str(self.level + 1) + " on foe on the enemy team with the highest Def+Res total through its next action."
+
+        if self.name == "Duo's Indulgence":
+            return "The first Duo or Harmonized Skill used between turn 1 and turn " + str(self.level + 2) + " can be used a second time. (Max of two uses. Only one use per turn.)"
+        if self.name == "Duo's Hindrance":
+            return "While a Duo or Harmonized Hero is on the defensive team, foe cannot use Duo or Harmonized Skills between turn 1 and turn " + str(self.level + 2) + "."
+        if self.name == "Escape Ladder":
+            return "A lost battle's Aether cost will be returned. May be used up to " + str(self.level) + " times per season. Cannot be destroyed."
+        if self.name == "Safety Fence":
+            return "Until turn " + str(self.level) + ", after skill activation at start of defensive turn, if raiding party is outside the defensive team's range or is within 2 rows and 7 columns centered on a structure, defensive turn ends immediately."
+        if self.name == "Calling Circle":
+            return "A reinforcement appears on turn 3 and gets an extra action once per turn if a Mythic Hero with Raiding Party Call is in your raiding party."
+
+        if self.name == "Bolt Trap":
+            return "If foe ends movement on this structure's space, deals " + str(self.level * 10) + " damage to target and units within 3 spaces. (Cancels foe's attack, Assist skill, etc.)"
+        if self.name == "Heavy Trap":
+            return "If foe ends movement on this structure's space, restricts movement of target and units within 2 spaces with HP ≤ " + str(self.level * 5 + 35) + " to 1 space through their next actions. (Cancels foe's attack, Assist skills, etc.)"
+        if self.name == "Hex Trap":
+            return "If foe ends movement on this structure's space and foe's HP ≤ " + str(self.level * 5 + 35) + ", cancels foe's attack, Assist skill, etc. and ends that foe's action. (Magic traps cannot be disarmed by Disarm Trap skills.)"
+
+        if "False" in self.name:
+            return "This looks like a " + self.name.replace("False ", "") + ", but it's just a fake."
+
+        if self.name == "Aether Amphorae":
+            return "Stores up to " + str(self.level * 50 + 50) + " Aether. If destroyed in an attack, they restore Aether to the raiding party (if they win). Note: Cannot be removed. Can be destroyed."
+        if self.name == "Aether Fountain":
+            return "Restores " + str(self.level * 10 + 40) + " Aether to the Aether Keep each day. If destroyed in an attack, it restores Aether to the raiding party (if they win). Note: Cannot be removed. Can be destroyed."
+
+        if self.name == "Accessory Shop":
+            return "A structure where Heroes can sample various accessories to find new looks that catch their fancy!"
+        if self.name == "Armory":
+            return "A structure that contains a collection of replica weapons for Heroes to sample. The stock is updated periodically too!"
+        if self.name == "Concert Hall":
+            return "A structure fit for all kinds of song. Famous for its impressive acoustics!"
+        if self.name == "Dining Hall":
+            return "A structure where dishes can be prepared with the ingredients harvested from your field."
+        if self.name == "Field":
+            return "A place where Dragonflowers and food-crop ingredients for the Dining Hall are grown and harvested."
+        if self.name == "Hot Spring":
+            return "A structure where Heroes can relax in a nice hot spring. Apparently it is a natural spring too, which is especially incredible considering it is located within a flying island in the sky."
+        if self.name == "Inn":
+            return "A structure where Heroes can rest. Sometimes Heroes will even dream as they slumber..."
 
 struct_sheet = read_csv('Spreadsheets/FEHStructures.csv')
 
@@ -341,3 +447,25 @@ class Map:
 
             amphorae = makeStruct("Aether Amphorae", 2)
             self.tiles[47].structure_on = amphorae
+
+    def get_heroes_present(self):
+        heroes = []
+
+        for tile in self.tiles:
+            if tile.hero_on:
+                heroes.append(tile.hero_on)
+
+        return heroes
+
+    def get_heroes_present_by_side(self):
+        player_side_heroes = []
+        enemy_side_heroes = []
+
+        for tile in self.tiles:
+            if tile.hero_on:
+                if tile.hero_on.side == 0:
+                    player_side_heroes.append(tile.hero_on)
+                else:
+                    enemy_side_heroes.append(tile.hero_on)
+
+        return player_side_heroes, enemy_side_heroes

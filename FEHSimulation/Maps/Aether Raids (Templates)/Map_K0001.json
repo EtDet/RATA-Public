@@ -10,6 +10,6 @@
                 [0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0]],
     "defensiveTiles": [],
-    "playerStart": [7, 8, 9, 10],
-    "enemyStart": [37, 38, 39, 40]
+    "playerStart": [7, 8, 9, 10, 11],
+    "enemyStart": [36, 37, 38, 39]
   }

@@ -183,6 +183,8 @@ active_gameplay_sims = []
 focused_gameplay_sim = [None]
 bonus_units_per_tab = []
 
+hero_listing.active_sims = active_gameplay_sims
+
 # Singular instance of a running Simulation
 class Simulation:
     def __init__(self, name):
@@ -254,25 +256,36 @@ def display_focused():
     if focused_sim:
         hero_listing.target_widget = focused_sim.canvas
 
+        # Other tabs have their button changed to no color
         for sim in active_gameplay_sims:
             sim.tab.tab_name_button.config(bg=cur_widget_colors["bg"])
 
+        # Change tab color to green (currently selected)
         focused_sim.tab.tab_name_button.config(bg="green")
 
+        # Place current canvas
         focused_sim.canvas.pack()
         focused_sim.button_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Disable Pair Up/Duo or Harmonic Skill/Style
+        focused_sim.button_frame.action_button.config(state='disabled', text='Action\nButton')
 
         extras.player_team_button.config(state="normal")
         extras.enemy_team_button.config(state="normal")
 
+        # Allow forecasts tab to be shown if running
         if sim.canvas.running:
             extras.forecasts_button.config(state="normal")
+
+        if not sim.canvas.running and sim.canvas.game_mode == fehw.hero.GameMode.AetherRaids:
+            extras.building_button.config(state="normal")
+        else:
+            extras.building_button.config(state="disabled")
 
         index = active_gameplay_sims.index(focused_sim)
         cur_bonus_units = bonus_units_per_tab[index]
 
-        extras.setup_tabs(focused_sim.canvas.unit_drag_points, cur_bonus_units, focused_sim.canvas.game_mode, focused_sim.canvas.running)
-
+        extras.setup_tabs(focused_sim.canvas.unit_drag_points, cur_bonus_units, focused_sim.canvas.game_mode, focused_sim.canvas.running, focused_sim.canvas.get_struct_levels())
 
         if not focused_sim.canvas.running:
             extras.show_player_team()
@@ -327,7 +340,7 @@ def row_selected(event):
         sim.canvas.setup_with_file(file_path)
 
         # Setup bonus units
-        bonus_units_per_tab.append([False] * len([drag_point for drag_point in sim.canvas.unit_drag_points.values() if drag_point.side == 0]))
+        bonus_units_per_tab.append([False] * len([drag_point for drag_point in sim.canvas.unit_drag_points.values()]))
 
         # Change button frame to display respective gamemode
         gamemode_name = sim.canvas.game_mode.name
@@ -376,6 +389,8 @@ hero_listing.unit_status = unit_info
 
 # EXTRAS FRAME
 extras = fehw.ExtrasFrame(extras_frame, bg=cur_widget_colors["units_title"], bg_color=cur_widget_colors["maps_bg"], fg=cur_widget_colors["text"])
+extras.cur_sim = focused_gameplay_sim
+
 extras.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
 
 window.mainloop()

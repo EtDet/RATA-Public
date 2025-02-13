@@ -6,9 +6,6 @@ import os
 import textwrap
 from re import sub
 
-from math import trunc
-from math import isnan
-
 import json
 from csv import reader, writer
 import pickle
@@ -22,7 +19,7 @@ from natsort import natsorted
 
 from copy import deepcopy
 
-from map import wall_crops, Map
+from map import wall_crops, Map, struct_sheet, makeStruct
 import hero
 from combat import *
 
@@ -49,6 +46,30 @@ BLESSING_COLORS = ["#e63b10", "#0f93f2", "#9e621e", "#449e1e", "#f2ee6f", "#4b16
 BLESSING_TEXTS  = ["#7a270d", "#b8e6e2", "#dec381", "#a3e89e", "#3f4036", "#e3bee6", "#4f4c44", "#261f23"]
 
 help_text = "Drag heroes from My Units onto the colored squares. Double click to remove them.\nRight click on a placed hero to edit their build (does not affect saved build).\nLeft click an empty colored square to create a new unit for specifically this map."
+
+
+ar_struct_names = []
+
+for index, row in struct_sheet.iterrows():
+    cur_name = row['Name']
+    category = row['Category']
+    offense_exists = row['Offense Exists']
+    defense_exists = row['Defense Exists']
+
+    if category == "AR-STRUCT" or cur_name == "Fortress":
+        if offense_exists:
+            ar_struct_names.append(cur_name + " (O)" if defense_exists else cur_name)
+        if defense_exists:
+            ar_struct_names.append(cur_name + " (D)" if offense_exists else cur_name)
+    elif category != "WALL":
+        ar_struct_names.append(cur_name)
+
+# Panic Manor, Tactics Room, Heavy Trap, Hex Trap
+def get_tower_hp_threshold(level):
+    if 1 <= level <= 9:
+        return level * 5 + 35
+    else:
+        return level * 2 + 62
 
 def _generate_all_units_option():
     names = hero.hero_sheet['Name']
@@ -88,6 +109,7 @@ def _get_valid_weapons(cur_hero):
     exclusive_all = list(zip(exclusive1, exclusive2, exclusive3, exclusive4))
 
     # Purge NaN values
+    # This is a 2D array where exclusive_all[i] is a list of int names of Heroes who can use weapons[i].
     exclusive_all = [[value for value in sublist if not isinstance(value, float) or not isnan(value)] for sublist in exclusive_all]
 
     weapons_of_type = []
@@ -105,15 +127,19 @@ def _get_valid_weapons(cur_hero):
                            "Assault", "Absorb", "Absorb+", "Fear", "Fear+", "Slow", "Slow+", "Gravity", "Gravity+", "Panic", "Panic+", "Pain", "Pain+", "Trilemma", "Trilemma+",
                            "Fire Breath", "Fire Breath+", "Flametongue", "Flametongue+", "Lightning Breath", "Lightning Breath+", "Light Breath", "Light Breath+", "Water Breath", "Water Breath+",
 
+                           "Whelp (Infantry)", "Yearling (Infantry)", "Adult (Infantry)", "Whelp (Cavalry)", "Yearling (Cavalry)", "Adult (Cavalry)",
+                           "Hatchling (Flier)", "Fledgling (Flier)", "Adult (Flier)", "Whelp (Armored)", "Yearling (Armored)", "Adult (Armored)",
+
                            "Wo Dao", "Wo Dao+", "Harmonic Lance", "Harmonic Lance+", "Wo Gùn", "Wo Gùn+",
                            "Firesweep Bow", "Firesweep Bow+", "Firesweep Lance", "Firesweep L+", "Firesweep S", "Firesweep S+",
                            "Rauðrowl", "Rauðrowl+", "Gronnowl", "Gronnowl+", "Blárowl", "Blárowl+",
                            "Zanbato", "Zanbato+", "Ridersbane", "Ridersbane+", "Poleaxe", "Poleaxe+",
                            "Slaying Edge", "Slaying Edge+", "Slaying Lance", "Slaying Lance+", "Slaying Axe", "Slaying Axe+", "Slaying Bow", "Slaying Bow+",
                            "Armorsmasher", "Armorsmasher+", "Slaying Spear", "Slaying Spear+", "Slaying Hammer", "Slaying Hammer+", "Guard Bow", "Guard Bow+",
-                           "Safeguard", "Safeguard+", "Respisal Lance", "Reprisal Lance+", "Barrier Blade", "Barrier Blade+",
+                           "Safeguard", "Safeguard+", "Vanguard", "Vanguard+", "Respisal Lance", "Reprisal Lance+", "Barrier Blade", "Barrier Blade+",
                            "The Cleaner", "The Cleaner+", "Shining Bow", "Shining Bow+",
                            "Flash", "Flash+",
+                           "Gronnserpent", "Gronnserpent+",
 
                            "Keen Rauðrwolf", "Keen Rauðrwolf+", "Keen Blárwolf", "Keen Blárwolf+", "Keen Gronnwolf", "Keen Gronnwolf+",
                            "Blárserpent", "Blárserpent+",
@@ -134,7 +160,13 @@ def _get_valid_weapons(cur_hero):
                            "Shell Lance", "Shell Lance+", "Beach Banner", "Beach Banner+", "Cocobow", "Cocobow+",
                            "Starfish", "Starfish+", "Fishie Bow", "Fishie Bow+", "Juicy Wave", "Juicy Wave+",
                            "Cloud Maiougi", "Cloud Maiougi+", "Sky Maiougi", "Sky Maiougi+", "Dusk Uchiwa", "Dusk Uchiwa+",
-                           "Bottled Juice",  "Bottled Juice+", "Devilish Bow", "Devilish Bow+", "Witchy Wand", "Witchy Wand+", "Hack-o'-Lantern", "Hack-o'-Lantern+"]
+                           "Bottled Juice",  "Bottled Juice+", "Devilish Bow", "Devilish Bow+", "Witchy Wand", "Witchy Wand+", "Hack-o'-Lantern", "Hack-o'-Lantern+",
+                           "Joyous Lantern", "Joyous Lantern+", "Glittering Breath", "Glittering Breath+", "Goodie Boot", "Goodie Boot+",
+                           "Kabura Ya", "Kabura Ya+", "Geishun", "Geishun+", "Kumade", "Kumade+", "Wagasa", "Wagasa+",
+                           "It's Curtains...", "It's Curtains...+", "Grandscratcher", "Grandscratcher+", "Red-Hot Ducks", "Red-Hot Ducks+", "Splashy Bucket", "Splashy Bucket+", "Ouch Pouch", "Ouch Pouch+",
+                           "Faithful Axe", "Faithful Axe+", "Gronnblooms", "Gronnblooms+", "Blárblooms", "Blárblooms+", "Heart's Blade", "Heart's Blade+", "Loyal Wreath", "Loyal Wreath+",
+                           "Ovoid Staff", "Ovoid Staff+", "Flashing Carrot", "Flashing Carrot+", "Pegasus Carrot", "Pegasus Carrot+", "Beguiling Bow", "Beguiling Bow+",
+                           ]
 
     # Remove of different weapon
     i = 0
@@ -168,13 +200,13 @@ def _get_valid_weapons(cur_hero):
     unrefined_prf_weapons = []
     unrefined_weapons = []
 
-    refine_substrings = ["Eff", "Atk", "Spd", "Def", "Res", "Wra", "Daz"]
+    refine_substrings = ["Eff", "Atk", "Spd", "Def", "Res", "Wra", "Daz", "Eff2", "Atk2", "Spd2", "Def2", "Res2", "Wra2", "Daz2",]
 
     # Remove PRF refines
     for string in prf_weapons:
         is_valid = True
         for substring in refine_substrings:
-            if substring in string[-3:]:
+            if substring in string[-3:] or (len(string) > 3 and substring in string[-4:]):
                 is_valid = False
 
         if is_valid:
@@ -204,9 +236,9 @@ def _get_valid_refines(weapon_name):
             row_index = i
             break
 
-    # Get next 5 rows, check for refines
+    # Get next 10 rows, check for refines
     start = min(row_index + 1, len(weapon_names))
-    end = min(row_index + 6, len(weapon_names))
+    end = min(row_index + 11, len(weapon_names))
     next_rows = weapon_names[start:end]
 
     # By default, all weapons can be unrefined
@@ -216,6 +248,9 @@ def _get_valid_refines(weapon_name):
         # If weapon is same as the one currently equipped, add its suffix
         if weapon_name == row[:-3]:
             refine_suffixes.append(row[-3:])
+        if len(weapon_name) > 3 and weapon_name == row[:-4]:
+            refine_suffixes.append(row[-4:])
+
 
     return refine_suffixes
 
@@ -238,8 +273,8 @@ def _get_valid_assists(cur_hero):
     implemented_assists = ["Heal", "Mend", "Reconcile", "Recover", "Recover+", "Martyr", "Martyr+", "Rehabilitate", "Rehabilitate+", "Restore", "Restore+",
                            "Rally Attack", "Rally Speed", "Rally Defence", "Rally Resistance",
                            "Rally Atk/Spd", "Rally Atk/Def", "Rally Atk/Res", "Rally Spd/Def", "Rally Spd/Res", "Rally Def/Res",
-                           "Rally Atk/Spd+", "Rally Spd/Def+",
-                           "Rally Up Atk", "Rally Up Atk+",
+                           "Rally Atk/Spd+"," Rally Atk/Def+", "Rally Spd/Def+", "Rally Def/Res+",
+                           "Rally Up Atk", "Rally Up Atk+", "Rally Up Res", "Rally Up Res+",
                            "Dance", "Sing",
                            "Harsh Command", "Ardent Sacrifice", "Reciprocal Aid",
                            "Draw Back", "Reposition", "Swap", "Pivot", "Shove", "Smite"]
@@ -295,13 +330,14 @@ def _get_valid_specials(cur_hero):
     implemented_specials = ["Glowing Ember", "Bonfire", "Ignis", "Chilling Wind", "Iceberg", "Glacies", "New Moon", "Moonbow", "Luna",
                             "Dragon Gaze", "Draconic Aura", "Dragon Fang", "Night Sky", "Glimmer", "Astra", "Retribution", "Reprisal", "Vengeance",
                             "Daylight", "Noontime", "Sol", "Aether", "Blue Flame",
+                            "Galeforce",
                             "Rising Flame", "Blazing Flame", "Growing Flame",
                             "Rising Light", "Blazing Light", "Growing Light",
                             "Rising Thunder", "Blazing Thunder", "Growing Thunder",
                             "Rising Wind", "Blazing Wind", "Growing Wind",
                             "Buckler", "Escutcheon", "Pavise", "Holy Vestiments", "Sacred Cowl", "Aegis", "Miracle",
                             "Imbue", "Heavenly Light", "Kindled-Fire Balm", "Swift-Winds Balm", "Solid-Earth Balm", "Still-Water Balm",
-                            "Windfire Balm", "Windfire Balm+", "Earthwater Balm", "Earthwater Balm+"]
+                            "Windfire Balm", "Windfire Balm+", "Earthfire Balm", "Earthfire Balm+", "Fireflood Balm", "Fireflood Balm+", "Earthwater Balm", "Earthwater Balm+"]
 
     i = 0
     while i < len(special_names):
@@ -382,6 +418,11 @@ def _get_valid_abc_skills(cur_hero):
             if restr_wpn[i] == "Blue" and cur_hero.wpnType in hero.BLUE_WEAPONS: add_cond = False
             if restr_wpn[i] == "Green" and cur_hero.wpnType in hero.GREEN_WEAPONS: add_cond = False
 
+            if "Colorless" in restr_wpn[i] and cur_hero.wpnType in hero.COLORLESS_WEAPONS: add_cond = False
+            if "Red" in restr_wpn[i] and cur_hero.wpnType in hero.RED_WEAPONS: add_cond = False
+            if "Blue" in restr_wpn[i] and cur_hero.wpnType in hero.BLUE_WEAPONS: add_cond = False
+            if "Green" in restr_wpn[i] and cur_hero.wpnType in hero.GREEN_WEAPONS: add_cond = False
+
             if restr_wpn[i] == "Staff" and cur_hero.wpnType == "Staff": add_cond = False
             if restr_wpn[i] == "NotStaff" and cur_hero.wpnType != "Staff": add_cond = False
             if restr_wpn[i] == "NotDragon" and cur_hero.wpnType not in hero.DRAGON_WEAPONS: add_cond = False
@@ -395,6 +436,7 @@ def _get_valid_abc_skills(cur_hero):
             if restr_wpn[i] == "NotRTome" and cur_hero.wpnType != "RTome": add_cond = False
             if restr_wpn[i] == "NotBTome" and cur_hero.wpnType != "BTome": add_cond = False
             if restr_wpn[i] == "NotGTome" and cur_hero.wpnType != "GTome": add_cond = False
+            if restr_wpn[i] == "NotSwordLanceAxe" and cur_hero.wpnType not in ["Sword", "Lance", "Axe"]: add_cond = False
 
             if "Dragon" in restr_wpn[i] and restr_wpn[i] != "NotDragon" and cur_hero.wpnType in hero.DRAGON_WEAPONS: add_cond = False
             elif "Beast" in restr_wpn[i] and restr_wpn[i] != "NotBeast" and cur_hero.wpnType in hero.BEAST_WEAPONS:  add_cond = False
@@ -528,6 +570,7 @@ class _HeroProxy:
         self.blessing = None
         self.s_support = 0
         self.a_support = None
+        self.pair_up = None
 
         self.weapon = None
         self.refine = ""
@@ -557,6 +600,7 @@ class _HeroProxy:
 
         self.s_support = 0
         self.a_support = None
+        self.pair_up = None
 
         self.weapon = None
         self.refine = ""
@@ -592,8 +636,7 @@ class _HeroProxy:
         apl_hero.set_merges(self.merge)
         apl_hero.set_dragonflowers(self.dflowers)
 
-        if self.emblem != None:
-            self.set_emblem_merges(self.emblem_merge)
+        if self.emblem != None: self.set_emblem_merges(self.emblem_merge)
 
         apl_hero.set_level(self.level)
 
@@ -602,13 +645,17 @@ class _HeroProxy:
         apl_hero.summonerSupport = int(self.s_support)
         apl_hero.set_visible_stats()
 
+        apl_hero.pair_up = self.pair_up
+
         if self.weapon is not None:
             wpn_name = self.weapon.intName
 
-            refine_substrings = ["Eff", "Atk", "Spd", "Def", "Res", "Wra", "Daz"]
+            refine_substrings = ["Eff", "Atk", "Spd", "Def", "Res", "Wra", "Daz", "Eff2", "Atk2", "Spd2", "Def2", "Res2", "Wra2", "Daz2"]
 
             if wpn_name[-3:] in refine_substrings:
                 wpn_name = wpn_name[:-3]
+            elif len(wpn_name) > 3 and wpn_name[-4:] in refine_substrings:
+                wpn_name = wpn_name[:-4]
 
             if self.refine == "None": self.refine = ""
 
@@ -630,7 +677,7 @@ class _HeroProxy:
 # - Stat boosts granted by a Legendary/Mythic hero
 # - Bonus unit status in Arena, Tempest Trials, etc.
 # - Aether Raid Fortress level boosts
-def _apply_battle_stats(team, bonus_arr, mode, season):
+def _apply_battle_stats(team, bonus_arr, mode, season, ar_structs):
 
     if mode == hero.GameMode.Story and team[0].side == ENEMY:
         return
@@ -639,7 +686,7 @@ def _apply_battle_stats(team, bonus_arr, mode, season):
 
     for unit in team:
         # If unit is a legendary or mythic, and current season is of their element
-        if unit.blessing is not None and unit.blessing.boostType != 0 and unit.blessing.element in season:
+        if unit.blessing and unit.blessing.boostType != 0 and unit.blessing.element in season:
 
             # If unit is a legendary
             if unit.blessing.element in hero.ARENA_ELEMENTS:
@@ -661,12 +708,46 @@ def _apply_battle_stats(team, bonus_arr, mode, season):
                 elif unit.blessing.stat == RES:
                     element_boosts[unit.blessing.element][RES] += 4
 
+            elif unit.blessing.element in hero.AETHER_ELEMENTS and mode == hero.GameMode.AetherRaids:
+
+                # Initialize values in element_boosts dict
+                if unit.blessing.element not in element_boosts:
+                    element_boosts[unit.blessing.element] = [0, 0, 0, 0, 0]
+
+                # HP boost
+                element_boosts[unit.blessing.element][HP] += 5
+
+                # Other stats boost
+                if unit.blessing.stat == ATK:
+                    element_boosts[unit.blessing.element][ATK] += 3
+                elif unit.blessing.stat == SPD:
+                    element_boosts[unit.blessing.element][SPD] += 4
+                elif unit.blessing.stat == DEF:
+                    element_boosts[unit.blessing.element][DEF] += 5
+                elif unit.blessing.stat == RES:
+                    element_boosts[unit.blessing.element][RES] += 5
+
     for unit in team:
         unit.battle_stat_mods = [0] * 5
 
         if unit.blessing is not None and unit.blessing.boostType == 0 and unit.blessing.element in element_boosts:
             unit.battle_stat_mods = element_boosts[unit.blessing.element]
             unit.set_visible_stats()
+
+    ar_o_fortress = 1
+    ar_d_fortress = 1
+
+    for struct in ar_structs:
+        if struct.name == "Fortress":
+            if struct.struct_type == PLAYER + 1:
+                ar_o_fortress = struct.level
+            elif struct.struct_type == ENEMY + 1:
+                ar_d_fortress = struct.level
+
+    if team[0].side == PLAYER:
+        difference = max(0, ar_o_fortress - ar_d_fortress)
+    else:
+        difference = max(0, ar_d_fortress - ar_o_fortress)
 
     i = 0
     while i < len(team):
@@ -679,8 +760,28 @@ def _apply_battle_stats(team, bonus_arr, mode, season):
             unit.battle_stat_mods[DEF] += 4
             unit.battle_stat_mods[RES] += 4
 
-        i += 1
+        if mode == hero.GameMode.AetherRaids:
+            unit.battle_stat_mods[ATK] += 4 * difference
+            unit.battle_stat_mods[SPD] += 4 * difference
+            unit.battle_stat_mods[DEF] += 4 * difference
+            unit.battle_stat_mods[RES] += 4 * difference
 
+        if unit.pair_up_obj:
+            unit.battle_stat_mods[ATK] += max(min(trunc(unit.pair_up_obj.visible_stats[ATK] - 25) / 10, 4), 0)
+            unit.battle_stat_mods[SPD] += max(min(trunc(unit.pair_up_obj.visible_stats[SPD] - 10) / 10, 4), 0)
+            unit.battle_stat_mods[DEF] += max(min(trunc(unit.pair_up_obj.visible_stats[DEF] - 10) / 10, 4), 0)
+            unit.battle_stat_mods[RES] += max(min(trunc(unit.pair_up_obj.visible_stats[RES] - 10) / 10, 4), 0)
+
+            unit.pair_up_obj.battle_stat_mods[ATK] += max(min(trunc(unit.visible_stats[ATK] - 25) / 10, 4), 0)
+            unit.pair_up_obj.battle_stat_mods[SPD] += max(min(trunc(unit.visible_stats[SPD] - 10) / 10, 4), 0)
+            unit.pair_up_obj.battle_stat_mods[DEF] += max(min(trunc(unit.visible_stats[DEF] - 10) / 10, 4), 0)
+            unit.pair_up_obj.battle_stat_mods[RES] += max(min(trunc(unit.visible_stats[RES] - 10) / 10, 4), 0)
+
+            unit.pair_up_obj.set_visible_stats()
+
+        unit.set_visible_stats()
+
+        i += 1
 
 # Scrollable frame compatitble with ttk.Comboboxes
 class MyScrollableFrame(ctk.CTkScrollableFrame):
@@ -713,6 +814,8 @@ class HeroListing(tk.Frame):
 
         self.target_widget = None
         self.default_target_widget = None
+
+        self.active_sims = []
 
         self.drag_data = None
         self.dragging_from_text = False
@@ -747,6 +850,8 @@ class HeroListing(tk.Frame):
         self.move_icon_img = None
 
         self.creation_make_button = None
+
+        self.list_of_build_names = []
 
         # Talking with other widgets
         self.unit_status = None
@@ -831,6 +936,8 @@ class HeroListing(tk.Frame):
         self.button_frame.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
         self.command_frame.pack(side=tk.BOTTOM, pady=5)
 
+        self.within_widget = False
+
     def refresh_buttons(self, use_search_str):
         self.edit_button.config(state="disabled")
         self.delete_button.config(state="disabled")
@@ -898,7 +1005,29 @@ class HeroListing(tk.Frame):
 
         self.unit_status.update_from_obj(make_hero_from_pd_row(row_data, PLAYER))
 
+        # Disable Pair Up/Duo or Harmonic Skill/Style
+        for sim in self.active_sims:
+            sim.button_frame.action_button.config(state='disabled', text='Action\nButton')
+
+    def on_drag(self, event):
+
+        target_widget = event.widget.winfo_containing(event.x_root, event.y_root)
+
+        if target_widget == self.target_widget and target_widget != self.default_target_widget and not self.within_widget:
+            self.within_widget = True
+
+            self.target_widget.toggle_valid_ar_start_spaces()
+
+        elif target_widget != self.target_widget and self.within_widget:
+            self.within_widget = False
+
+            self.target_widget.toggle_valid_ar_start_spaces()
+
+
     def on_release(self, event):
+        if self.within_widget:
+            self.target_widget.toggle_valid_ar_start_spaces()
+            self.within_widget = False
 
         target_widget = event.widget.winfo_containing(event.x_root, event.y_root)
 
@@ -921,8 +1050,6 @@ class HeroListing(tk.Frame):
             # Calculate relative positions
             widget_x = x + button_root_x - widget_root_x
             widget_y = y + button_root_y - widget_root_y
-
-            #print(widget_x, widget_y)
 
             target_widget.place_unit_from_frame(self.drag_data, widget_x, widget_y)
 
@@ -989,22 +1116,25 @@ class HeroListing(tk.Frame):
                     sSupport = int(hero_to_add.summonerSupport)
                     aSupport = None
 
-                    dflowers = 0
+                    dflowers = hero_to_add.flowers
                     resp = False
                     emblem = None
                     emblem_merges = 0
+
+                    aided = False
+                    pair_up = hero_to_add.pair_up
+
                     cheats = False
 
                     data = [name, cur_build_name,
                             weapon, assist, special, askill, bskill, cskill, sSeal, xskill,
-                            level, merges, rarity, asset, flaw, asc, sSupport, aSupport, blessing, dflowers, resp, emblem, emblem_merges, cheats]
+                            level, merges, rarity, asset, flaw, asc, sSupport, aSupport, blessing, dflowers, resp, emblem, emblem_merges, aided, pair_up, cheats]
 
                     my_units_file = "my_units.csv"
                     names = pd.read_csv(my_units_file, encoding='cp1252')['Build Name'].tolist()
 
                     # Ensure build name is unique
-                    if cur_build_name not in names:
-
+                    if cur_build_name not in names and cur_build_name != "None":
                         try:
                             my_units_file = "my_units.csv"
 
@@ -1039,7 +1169,7 @@ class HeroListing(tk.Frame):
                             print(f"Error: Permission denied when writing to file. Please close {my_units_file} and try again.")
 
                     else:
-                        self.error_text.config(fg='#d60408', text="Error: Build Name Already Exists")
+                        self.error_text.config(fg='#d60408', text="Error: Duplicate/Invalid Build Name")
                 else:
                     self.error_text.config(fg='#d60408', text='Error: No Unit Selected or Build Name Empty')
 
@@ -1135,6 +1265,11 @@ class HeroListing(tk.Frame):
             left_dropbox_frame = tk.Frame(dropbox_frame, bg="#a5b7c2")
             right_dropbox_frame = tk.Frame(dropbox_frame, bg="#a5b7c2")
 
+            self.list_of_build_names.clear()
+
+            my_units = pd.read_csv("my_units.csv", encoding='cp1252')["Build Name"]
+            self.list_of_build_names = list(my_units)
+
             # Handles unit creation
             self.hero_proxy = _HeroProxy()
             self.created_hero = None
@@ -1198,6 +1333,11 @@ class HeroListing(tk.Frame):
                     combo1['textvariable'] = None
                     combo1.bind("<<ComboboxSelected>>", self.handle_selection_change_summsupport)
 
+                # PAIR UP
+                if row == 6:
+                    combo1['textvariable'] = None
+                    combo1.bind("<<ComboboxSelected>>", self.handle_selection_change_pairup)
+
                 # WEAPON
                 if row == 7:
                     combo1['textvariable'] = None
@@ -1239,6 +1379,11 @@ class HeroListing(tk.Frame):
                     combo1['textvariable'] = None
                     combo1['values'] = list(reversed(numbers[1:41]))
                     combo1.bind("<<ComboboxSelected>>", self.handle_selection_change_level)
+
+                # DRAGONFLOWERS
+                if row == 2:
+                    combo1['textvariable'] = None
+                    combo1.bind("<<ComboboxSelected>>", self.handle_selection_change_dflowers)
 
                 # FLAW
                 if row == 3:
@@ -1314,15 +1459,35 @@ class HeroListing(tk.Frame):
         # Set default level
         self.creation_str_vars[14].set(min(40, self.hero_proxy.level))
 
+        # Set Blessing
         if self.created_hero.blessing is None:
             self.creation_str_vars[4].set("None")
-            self.creation_comboboxes[4]['values'] = ["None", "Fire", "Water", "Earth", "Wind"]
+            self.creation_comboboxes[4]['values'] = ["None", "Fire", "Water", "Earth", "Wind", "Light", "Dark", "Astra", "Anima"]
         else:
             if self.created_hero.blessing.boostType != 0:
                 self.creation_str_vars[4].set(self.created_hero.blessing.toString())
             self.creation_comboboxes[4]['values'] = []
 
         self.hero_proxy.blessing = self.created_hero.blessing
+
+        # Set Pair Up
+        if self.created_hero.blessing and self.created_hero.blessing.boostType == 2 and self.created_hero.blessing.element < 4:
+            self.creation_comboboxes[6]['values'] = ["None"] + self.list_of_build_names
+
+            if not self.creation_str_vars[6].get():
+                self.creation_str_vars[6].set("None")
+
+        else:
+            self.creation_comboboxes[6]['values'] = ["None"]
+            self.creation_str_vars[6].set("None")
+
+        # Set Dragonflowers
+        if self.creation_str_vars[15].get() and int(self.creation_str_vars[15].get()) > self.created_hero.flower_limit:
+            self.creation_str_vars[15].set(self.created_hero.flower_limit)
+        elif not self.creation_str_vars[15].get():
+            self.creation_str_vars[15].set(0)
+
+        self.creation_comboboxes[15]['values'] = list(range(0, self.created_hero.flower_limit + 1))
 
         # Generate all possible weapons for selected Hero
         weapons = _get_valid_weapons(self.created_hero)
@@ -1446,7 +1611,6 @@ class HeroListing(tk.Frame):
 
         self.creation_comboboxes[5]['values'] = ["None", "Rank C", "Rank B", "Rank A", "Rank S"]
 
-        # handle_selection_change_name.created_hero = madeHero
         self.hero_proxy.apply_proxy(self.created_hero)
 
         move_icons = []
@@ -1538,10 +1702,28 @@ class HeroListing(tk.Frame):
         self.hero_proxy.merge = int(selected_value)
 
         if self.created_hero is not None:
-
             merge_str = ""
             if self.hero_proxy.merge > 0:
                 merge_str = "+" + selected_value
+
+            self.unit_stats.set(f"Lv. {self.hero_proxy.level}{merge_str}\n+{self.hero_proxy.dflowers} Flowers")
+
+            self.hero_proxy.apply_proxy(self.created_hero)
+
+            i = 0
+            while i < 5:
+                self.creation_stats[i].set(self.stat_strings[i] + str(self.created_hero.visible_stats[i]))
+                i += 1
+
+    def handle_selection_change_dflowers(self, event=None):
+        selected_value = self.creation_str_vars[15].get()
+
+        self.hero_proxy.dflowers = int(selected_value)
+
+        if self.created_hero is not None:
+            merge_str = ""
+            if self.hero_proxy.merge > 0:
+                merge_str = "+" + str(self.hero_proxy.merge)
 
             self.unit_stats.set(f"Lv. {self.hero_proxy.level}{merge_str}\n+{self.hero_proxy.dflowers} Flowers")
 
@@ -1647,6 +1829,16 @@ class HeroListing(tk.Frame):
             while i < 5:
                 self.creation_stats[i].set(self.stat_strings[i] + str(self.created_hero.visible_stats[i]))
                 i += 1
+
+    def handle_selection_change_pairup(self, event=None):
+        selected_value = self.creation_str_vars[6].get()
+
+        if selected_value == "None":
+            self.hero_proxy.pair_up = None
+        else:
+            self.hero_proxy.pair_up = selected_value
+
+        self.hero_proxy.apply_proxy(self.created_hero)
 
     def handle_selection_change_weapon(self, event=None):
         selected_value = self.creation_str_vars[7].get()
@@ -1864,6 +2056,11 @@ class HeroListing(tk.Frame):
         self.creation_comboboxes[2].set(merges)
         self.handle_selection_change_merge()
 
+        # Merges
+        flowers = row["Dragonflowers"]
+        self.creation_comboboxes[15].set(flowers)
+        self.handle_selection_change_dflowers()
+
         # Blessings
         blessing = row["Blessing"]
         if pd.isnull(blessing):
@@ -1909,6 +2106,17 @@ class HeroListing(tk.Frame):
 
             self.creation_comboboxes[16].set(flaw)
             self.handle_selection_change_flaw()
+
+        # Pair Up
+        pair_up = row["PairUp"]
+        if pd.isnull(pair_up):
+            pair_up = "None"
+
+        self.creation_comboboxes[6].set(pair_up)
+        if row["Build Name"] in self.creation_comboboxes[6]['values']:
+            self.creation_comboboxes[6]['values'] = tuple(item for item in self.creation_comboboxes[6]['values'] if item != row["Build Name"])
+
+        self.handle_selection_change_pairup()
 
         # Weapon
         weapon = row["Weapon"]
@@ -2039,6 +2247,11 @@ class HeroListing(tk.Frame):
         self.creation_comboboxes[2].set(merges)
         self.handle_selection_change_merge()
 
+        # Dragonflowers
+        flowers = unit.flowers
+        self.creation_comboboxes[15].set(flowers)
+        self.handle_selection_change_dflowers()
+
         # Blessings
         blessing = unit.blessing
         if blessing is None:
@@ -2068,6 +2281,14 @@ class HeroListing(tk.Frame):
 
         self.creation_comboboxes[5].set(s_str)
         self.handle_selection_change_summsupport()
+
+        # Pair Up
+        pair_up = unit.pair_up
+        if pair_up is None:
+            pair_up = "None"
+
+        self.creation_comboboxes[6].set(pair_up)
+        self.handle_selection_change_pairup()
 
         # Asset & Flaw
         asset = STAT_STR[unit.asset]
@@ -2189,18 +2410,35 @@ class HeroListing(tk.Frame):
             index = self.unit_buttons.index(self.selected_button)
 
             data = pd.read_csv("my_units.csv", encoding='cp1252')
+            build_name = data.loc[index, "Build Name"]
             data = data.drop(index)
+            data.loc[data["PairUp"] == build_name, "PairUp"] = None
             data.to_csv("my_units.csv", index=False, encoding='cp1252')
 
-            self.selected_button.forget()
+            self.delete_inactive_pairup(build_name)
 
+            self.selected_button.forget()
             self.selected_button = None
 
             self.edit_button.config(state="normal")
             self.delete_button.config(state="normal")
 
+            self.refresh_buttons(False)
+
             if self.creation_menu:
                 self.unit_creation_cancel()
+
+    def update_active_pairups(self, old_build_name, new_build_name):
+        for sim in self.active_sims:
+            for drag_point in sim.canvas.unit_drag_points.values():
+                if drag_point.hero and drag_point.hero.pair_up == old_build_name:
+                    drag_point.hero.pair_up = new_build_name
+
+    def delete_inactive_pairup(self, removed_build_name):
+        for sim in self.active_sims:
+            for drag_point in sim.canvas.unit_drag_points.values():
+                if drag_point.hero and drag_point.hero.pair_up == removed_build_name:
+                    drag_point.hero.pair_up = None
 
     def button_deletion_cancel(self):
         if self.confirm_deletion_popup:
@@ -2243,21 +2481,26 @@ class HeroListing(tk.Frame):
             sSupport = int(hero_to_add.summonerSupport)
             aSupport = None
 
-            dflowers = 0
+            dflowers = hero_to_add.flowers
             resp = False
             emblem = None
             emblem_merges = 0
+
+            aided = False
+
+            pair_up = hero_to_add.pair_up
+
             cheats = False
 
             data = [name, cur_build_name,
                     weapon, assist, special, askill, bskill, cskill, sSeal, xskill,
-                    level, merges, rarity, asset, flaw, asc, sSupport, aSupport, blessing, dflowers, resp, emblem, emblem_merges, cheats]
+                    level, merges, rarity, asset, flaw, asc, sSupport, aSupport, blessing, dflowers, resp, emblem, emblem_merges, aided, pair_up, cheats]
 
             my_units_file = "my_units.csv"
             names = pd.read_csv(my_units_file, encoding='cp1252')['Build Name'].tolist()
 
             # Ensure build name is unique, or name is unchanged
-            if cur_build_name not in names or names[index] == cur_build_name:
+            if (cur_build_name not in names or names[index] == cur_build_name) and cur_build_name != "None":
 
                 try:
                     my_units_file = "my_units.csv"
@@ -2266,11 +2509,22 @@ class HeroListing(tk.Frame):
                         f_reader = reader(file)
                         read_data = list(f_reader)
 
+                    # If any Pair Up units have this unit as their cohort, modify the name in that pair-up
+                    old_build_name = read_data[index + 1][1]
+
                     read_data[index + 1] = data
+
+                    i = 1
+                    while i < len(read_data):
+                        if read_data[i][-2] == old_build_name:
+                            read_data[i][-2] = cur_build_name
+                        i += 1
 
                     with open(my_units_file, mode="w", newline='', encoding="cp1252") as file:
                         f_writer = writer(file)
                         f_writer.writerows(read_data)
+
+                    self.update_active_pairups(old_build_name, cur_build_name)
 
                     # Go back to unit selection screen
                     self.unit_creation_cancel()
@@ -2298,7 +2552,7 @@ class HeroListing(tk.Frame):
                     print(f"Error: Permission denied when writing to file. Please close {my_units_file} and try again.")
 
             else:
-                self.error_text.config(fg='#d60408', text="Error: Build Name Already Exists")
+                self.error_text.config(fg='#d60408', text="Error: Duplicate/Invalid Build Name")
         else:
             self.error_text.config(fg='#d60408', text='Error: No Unit Selected or Build Name Empty')
 
@@ -2321,6 +2575,14 @@ class _DragPoint:
         self.tile = tile_num
         self.modifiable = modifiable
         self.side = side
+
+def get_row_from_build_name(build_name):
+    df = pd.read_csv("my_units.csv", encoding='cp1252')
+    df = df.set_index("Build Name")
+    if build_name in df.index:
+        return df.loc[build_name]
+    else:
+        return None
 
 def make_hero_from_pd_row(row_data, side):
     unit = hero.makeHero(row_data["IntName"])
@@ -2346,6 +2608,12 @@ def make_hero_from_pd_row(row_data, side):
         unit.summonerSupport = 0
 
     unit.set_visible_stats()
+
+    if not pd.isnull(row_data["PairUp"]):
+        unit.pair_up = row_data["PairUp"]
+
+    if side == ENEMY:
+        unit.pair_up = None
 
     if not pd.isnull(row_data["Weapon"]):
         curWpn = hero.makeWeapon(row_data["Weapon"])
@@ -2411,7 +2679,10 @@ class UnitState:
         self.cur_hp = unit.HPcur
         self.cur_sp = unit.specialCount
 
-        self.cur_position = unit.tile.tileNum
+        if unit.tile:
+            self.cur_position = unit.tile.tileNum
+        else:
+            self.cur_position = -1
 
         self.cur_buffs = unit.buffs[:]
         self.cur_debuffs = unit.debuffs[:]
@@ -2422,6 +2693,8 @@ class UnitState:
         self.nsp_galeforce = unit.nonspecial_galeforce_triggered
 
         self.canto = unit.canto_ready
+
+        self.transformed = unit.transformed
 
         self.num_combats = unit.unitCombatInitiates
         self.num_assists_self = unit.assistTargetedSelf
@@ -2463,9 +2736,13 @@ class MapState:
 def create_mapstate(p_units, e_units, c_map, units_to_move, turn_num):
     unit_states = {}
 
-    for unit in p_units + e_units:
+    for unit in c_map.get_heroes_present():
         cur_unit_state = UnitState(unit)
         unit_states[unit] = cur_unit_state
+
+        if unit.pair_up_obj:
+            cohort_state = UnitState(unit.pair_up_obj)
+            unit_states[unit.pair_up_obj] = cohort_state
 
     struct_states = {}
 
@@ -2509,24 +2786,41 @@ class GameplayCanvas(tk.Canvas):
         self.canto = None # set to the current unit performing a canto action
         self.swap_mode = False # true if currently in swap mode, false otherwise
 
-        self.all_units = [[], []]
-        self.current_units = [[], []]
+        self.all_units = [[], []] # all units ever present in a map
+        self.current_units = [[], []] # units leading a cohort and if that cohort is on the map
+
+        self.drag_point_units = [[], []]
+
+        self.all_cohorts = []
 
         self.unit_photos = [[], []]
         self.unit_sprites = [[], []]
-
-        self.unit_photos_gs = [[], []]
+        self.unit_photos_gs = [[], []] # grayscale
         self.unit_sprites_gs = [[], []]
 
-        self.unit_photos_trans = [[], []]
+        self.unit_photos_trans = [[], []] # transformed
         self.unit_sprites_trans = [[], []]
-
-        self.unit_photos_gs_trans = [[], []]
+        self.unit_photos_gs_trans = [[], []] # grayscale, transformed
         self.unit_sprites_gs_trans = [[], []]
 
         self.unit_weapon_icon_photos = [[], []]
         self.unit_weapon_icon_sprites = [[], []]
 
+        # Cohort Sprites
+        self.cohort_photos = []
+        self.cohort_sprites = []
+        self.cohort_photos_gs = []
+        self.cohort_sprites_gs = []
+
+        self.cohort_photos_trans = []
+        self.cohort_sprites_trans = []
+        self.cohort_photos_gs_trans = []
+        self.cohort_sprites_gs_trans = []
+
+        self.cohort_weapon_icon_photos = [[], []]
+        self.cohort_weapon_icon_sprites = [[], []]
+
+        # Count Labels
         self.unit_sp_count_labels = [[], []]
         self.unit_hp_count_labels = [[], []]
 
@@ -2537,7 +2831,13 @@ class GameplayCanvas(tk.Canvas):
 
         self.unit_tags = [[], []]
 
+        self.ar_structs = []
+        self.ar_struct_tiles = []
+        self.ar_struct_sprites = []
+
         self.game_mode = hero.GameMode.Story
+
+        self.season = []
 
         # Preparation variables
         self.unit_drag_points = {}
@@ -2622,6 +2922,8 @@ class GameplayCanvas(tk.Canvas):
 
         self.canto_tile_imgs = []
 
+        self.structure_grayout_img = []
+
         self.bind("<Button-1>", self.on_click)
         self.bind("<Double-Button-1>", self.on_double_click)
         self.bind("<B1-Motion>", self.on_drag)
@@ -2663,14 +2965,25 @@ class GameplayCanvas(tk.Canvas):
             self.button_frame.end_turn_button.config(state="disabled")
             self.button_frame.swap_spaces_button.config(state="disabled", text="Swap\nSpaces", bg="#75f216")
             self.button_frame.undo_button.config(state="disabled")
+            self.button_frame.action_button.config(state='disabled', text='Action\nButton')
+
+            # Re-Enable Aether Raids Building Tab
+            if self.game_mode == hero.GameMode.AetherRaids:
+                self.extras.building_button.config(state='normal')
 
             self.map_states.clear()
 
             self.running = False
             self.swap_mode = False
 
+
             for tile in self.starting_tile_photos:
-                self.itemconfigure(tile, state='normal')
+                index = self.starting_tile_photos.index(tile)
+
+                cur_drag = list(self.unit_drag_points.keys())[index]
+
+                if not self.map.tiles[cur_drag].structure_on:
+                    self.itemconfigure(tile, state='normal')
 
             self.button_frame.state_info.config(text="EDITING")
             self.button_frame.help_info.config(text=help_text, font=("Helvetica", 9), fg=self.button_frame.text_color)
@@ -2687,6 +3000,7 @@ class GameplayCanvas(tk.Canvas):
             self.extras.forecasts_button.config(state="disabled")
             self.extras.show_player_team()
 
+            # Remove units from the tiles
             for tile in self.map.tiles:
                 tile.hero_on = None
 
@@ -2696,6 +3010,8 @@ class GameplayCanvas(tk.Canvas):
             self.current_units[ENEMY].clear()
 
             self.units_to_move.clear()
+
+            self.all_cohorts.clear()
 
             for tile in self.map.tiles:
                 if tile.structure_on:
@@ -2713,6 +3029,8 @@ class GameplayCanvas(tk.Canvas):
         # Allow End Turn and Swap Spaces buttons to be used
         self.button_frame.end_turn_button.config(state="normal")
         self.button_frame.swap_spaces_button.config(state="normal")
+
+        self.extras.building_button.config(state='disabled')
 
         self.running = True
 
@@ -2743,13 +3061,21 @@ class GameplayCanvas(tk.Canvas):
         enemy_drag_points = [drag_point for drag_point in self.unit_drag_points.values() if drag_point.side == ENEMY]
 
         bonus_units = self.extras.bonus_units
-        result_bonus_units = []
+        result_bonus_units_player = []
+        result_bonus_units_enemy = []
 
         i = 0
         while i < len(player_drag_points):
             if player_drag_points[i].hero:
-                result_bonus_units.append(bonus_units[i])
+                result_bonus_units_player.append(bonus_units[i])
             i += 1
+
+        j = 0
+        while i < len(player_drag_points + enemy_drag_points) and j < len(self.all_units[ENEMY]):
+            result_bonus_units_enemy.append(bonus_units[i])
+
+            i += 1
+            j += 1
 
         season = []
 
@@ -2760,9 +3086,9 @@ class GameplayCanvas(tk.Canvas):
             if key in elem_str + aether_str:
                 season.append(BLESSINGS_DICT[key])
 
-        _apply_battle_stats(self.all_units[PLAYER], result_bonus_units, self.game_mode, season)
-        _apply_battle_stats(self.all_units[ENEMY], [False] * len(self.all_units[ENEMY]), self.game_mode, season)
+        pair_up_modes = [hero.GameMode.Story, hero.GameMode.Mjolnir, hero.GameMode.Rokkr, hero.GameMode.Allegiance]
 
+        # Place player units in first available slot
         i = 0
         while i < len(self.all_units[PLAYER]):
             tile_int = player_drag_points[i].tile
@@ -2775,21 +3101,59 @@ class GameplayCanvas(tk.Canvas):
 
             self.current_units[PLAYER].append(self.all_units[PLAYER][i])
 
+            # Prepare cohorts
+            if self.game_mode in pair_up_modes and self.all_units[PLAYER][i].pair_up:
+                build_pd_row = get_row_from_build_name(self.all_units[PLAYER][i].pair_up)
+                cohort_obj = make_hero_from_pd_row(build_pd_row, PLAYER)
+                self.all_cohorts.append(cohort_obj)
+
+                # Pairing can reference each other directly
+                self.all_units[PLAYER][i].pair_up_obj = cohort_obj
+                cohort_obj.pair_up_obj = self.all_units[PLAYER][i]
+
+            else:
+                self.all_cohorts.append(None)
+
             i += 1
 
-        i = 0
-        while i < len(self.all_units[ENEMY]):
-            tile_int = enemy_drag_points[i].tile
+        # Place units in the space they are currently if Aether Raids, otherwise place in first available slot
+        if self.game_mode != hero.GameMode.AetherRaids:
+            i = 0
+            while i < len(self.all_units[ENEMY]):
+                tile_int = enemy_drag_points[i].tile
 
-            self.map.tiles[tile_int].hero_on = self.all_units[ENEMY][i]
-            self.all_units[ENEMY][i].tile = self.map.tiles[tile_int]
+                self.map.tiles[tile_int].hero_on = self.all_units[ENEMY][i]
+                self.all_units[ENEMY][i].tile = self.map.tiles[tile_int]
 
-            self.move_visuals_to_tile(ENEMY, i, tile_int)
-            self.refresh_unit_visuals(ENEMY, i)
+                self.move_visuals_to_tile(ENEMY, i, tile_int)
+                self.refresh_unit_visuals(ENEMY, i)
 
-            self.current_units[ENEMY].append(self.all_units[ENEMY][i])
+                self.current_units[ENEMY].append(self.all_units[ENEMY][i])
 
-            i += 1
+                i += 1
+        else:
+            i = 0
+            for drag_point in self.unit_drag_points.values():
+                if drag_point.hero and drag_point.side == ENEMY:
+                    tile_int = drag_point.tile
+
+                    self.map.tiles[tile_int].hero_on = self.all_units[ENEMY][i]
+                    self.all_units[ENEMY][i].tile = self.map.tiles[tile_int]
+
+                    self.move_visuals_to_tile(ENEMY, i, tile_int)
+                    self.refresh_unit_visuals(ENEMY, i)
+
+                    self.current_units[ENEMY].append(self.all_units[ENEMY][i])
+
+                    i += 1
+
+        # Apply stats present only within gameplay
+        _apply_battle_stats(self.all_units[PLAYER], result_bonus_units_player, self.game_mode, season, self.ar_structs)
+        _apply_battle_stats(self.all_units[ENEMY], result_bonus_units_enemy, self.game_mode, season, self.ar_structs)
+
+        self.season = season[:]
+
+        self.set_cohort_sprites()
 
         for unit in self.current_units[PLAYER]:
             self.units_to_move.append(unit)
@@ -2800,12 +3164,46 @@ class GameplayCanvas(tk.Canvas):
 
         self.initial_mapstate = create_mapstate(self.all_units[PLAYER], self.all_units[ENEMY], self.map, self.units_to_move, self.turn_info[0])
 
+        print("------------------- START OF NEW SIMULATION -------------------")
+        print()
         print("---- PLAYER PHASE ----")
 
         # Start of turn skills
-        damage, heals = feh.start_of_turn(self.current_units[PLAYER], self.current_units[ENEMY], 1)
+        current_player_units, current_enemy_units = self.map.get_heroes_present_by_side()
+
+        damage, heals = feh.start_of_turn(current_player_units, current_enemy_units, 1, self.season, self.game_mode, self.ar_struct_tiles)
+        self.refresh_walls()
 
         for unit in self.current_units[PLAYER] + self.current_units[ENEMY]:
+
+            # Update transformation sprites
+            S = unit.side
+            unit_index = self.all_units[S].index(unit)
+
+            if unit.transformed:
+                if unit in self.units_to_move or unit.side != self.turn_info[1]:
+                    self.itemconfig(self.unit_sprites[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_gs[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_trans[S][unit_index], state='normal')
+                    self.itemconfig(self.unit_sprites_gs_trans[S][unit_index], state='hidden')
+                else:
+                    self.itemconfig(self.unit_sprites[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_gs[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_trans[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_gs_trans[S][unit_index], state='normal')
+            else:
+                if unit in self.units_to_move or unit.side != self.turn_info[1]:
+                    self.itemconfig(self.unit_sprites[S][unit_index], state='normal')
+                    self.itemconfig(self.unit_sprites_gs[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_trans[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_gs_trans[S][unit_index], state='hidden')
+                else:
+                    self.itemconfig(self.unit_sprites[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_gs[S][unit_index], state='normal')
+                    self.itemconfig(self.unit_sprites_trans[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_gs_trans[S][unit_index], state='hidden')
+
+            # Distribute heals/damage
             heal_amount = 0
             damage_amount = 0
             if unit in heals:
@@ -2831,7 +3229,8 @@ class GameplayCanvas(tk.Canvas):
         self.map_states.append(mapstate)
 
     def end_turn_button(self):
-        if self.animation: return
+        if self.animation:
+            return
 
         self.canto = None
 
@@ -2843,7 +3242,8 @@ class GameplayCanvas(tk.Canvas):
         return
 
     def undo_action_button(self):
-        if self.animation: return
+        if self.animation:
+            return
 
         if len(self.map_states) > 1:
             if not self.canto:
@@ -2851,6 +3251,8 @@ class GameplayCanvas(tk.Canvas):
             self.apply_mapstate(self.map_states[-1])
         else:
             self.apply_mapstate(self.map_states[0])
+
+        self.button_frame.action_button.config(state='disabled', text='Action\nButton')
 
         if len(self.map_states) == 1:
             self.button_frame.swap_spaces_button.config(state="normal")
@@ -2862,13 +3264,51 @@ class GameplayCanvas(tk.Canvas):
         self.swap_mode = not self.swap_mode
 
         if self.swap_mode:
+            unit_needs_switch = []
+
+            # Update Swap Button
             self.button_frame.swap_spaces_button.config(text="Swap\nDone", bg="green3")
 
+            active_units = []
+            for unit in self.all_units[PLAYER]:
+                if unit.tile:
+                    active_units.append(unit)
+                else:
+                    active_units.append(unit.pair_up_obj)
+
+            for unit in active_units:
+                if self.initial_mapstate.unit_states[unit].cur_position == -1:
+                    unit_needs_switch.append(True)
+                else:
+                    unit_needs_switch.append(False)
+
+            # Apply the initial mapstate
             self.apply_mapstate(self.initial_mapstate)
 
+            applied_active_units = []
             for unit in self.all_units[PLAYER]:
+                if unit.tile:
+                    applied_active_units.append(unit)
+                else:
+                    applied_active_units.append(unit.pair_up_obj)
+
+            i = 0
+            while i < len(unit_needs_switch):
+                if unit_needs_switch[i]:
+                    self.switch_pairing(applied_active_units[i])
+                i += 1
+
+            final_active_units = []
+            for unit in self.all_units[PLAYER]:
+                if unit.tile:
+                    final_active_units.append(unit)
+                else:
+                    final_active_units.append(unit.pair_up_obj)
+
+            for unit in final_active_units:
                 self.update_unit_graphics(unit)
 
+            # Draw green spaces
             for tile in self.unit_drag_points.keys():
                 if self.unit_drag_points[tile].side == PLAYER:
                     drawnTile = self.create_image(0, 0, image=self.move_tile_photos[4])
@@ -2876,7 +3316,14 @@ class GameplayCanvas(tk.Canvas):
                     self.move_to_tile(drawnTile, tile)
 
                     if self.map.tiles[tile].hero_on:
-                        self.tag_lower(drawnTile, self.unit_sprites[PLAYER][self.all_units[PLAYER].index(self.map.tiles[tile].hero_on)])
+                        if self.map.tiles[tile].hero_on in self.all_units[PLAYER]:
+                            index = self.all_units[PLAYER].index(self.map.tiles[tile].hero_on)
+                            sprite = self.unit_sprites[PLAYER][index]
+                        else:
+                            index = self.all_cohorts.index(self.map.tiles[tile].hero_on)
+                            sprite = self.cohort_sprites[index]
+
+                        self.tag_lower(drawnTile, sprite)
 
         else:
             self.button_frame.swap_spaces_button.config(text="Swap\nSpaces", bg="#75f216")
@@ -2890,9 +3337,48 @@ class GameplayCanvas(tk.Canvas):
             self.initial_mapstate = create_mapstate(self.all_units[PLAYER], self.all_units[ENEMY], self.map, self.units_to_move, self.turn_info[0])
 
             print("---- PLAYER PHASE ----")
-            damage, heals = feh.start_of_turn(self.current_units[PLAYER], self.current_units[ENEMY], 1)
 
-            for unit in self.current_units[PLAYER] + self.current_units[ENEMY]:
+            current_player_units, current_enemy_units = self.map.get_heroes_present_by_side()
+
+            damage, heals = feh.start_of_turn(current_player_units, current_enemy_units, 1, self.season, self.game_mode, self.ar_struct_tiles)
+            self.refresh_walls()
+
+            for unit in current_player_units + current_enemy_units:
+                # Update transformation sprites
+                S = unit.side
+
+                if unit in self.all_units[S]:
+                    unit_index = self.all_units[S].index(unit)
+                else:
+                    unit_index = self.all_cohorts.index(unit)
+
+                self.update_unit_graphics(unit)
+
+                """
+                if unit.transformed:
+                    if unit in self.units_to_move or unit.side != self.turn_info[1]:
+                        self.itemconfig(self.unit_sprites[S][unit_index], state='hidden')
+                        self.itemconfig(self.unit_sprites_gs[S][unit_index], state='hidden')
+                        self.itemconfig(self.unit_sprites_trans[S][unit_index], state='normal')
+                        self.itemconfig(self.unit_sprites_gs_trans[S][unit_index], state='hidden')
+                    else:
+                        self.itemconfig(self.unit_sprites[S][unit_index], state='hidden')
+                        self.itemconfig(self.unit_sprites_gs[S][unit_index], state='hidden')
+                        self.itemconfig(self.unit_sprites_trans[S][unit_index], state='hidden')
+                        self.itemconfig(self.unit_sprites_gs_trans[S][unit_index], state='normal')
+                else:
+                    if unit in self.units_to_move or unit.side != self.turn_info[1]:
+                        self.itemconfig(self.unit_sprites[S][unit_index], state='normal')
+                        self.itemconfig(self.unit_sprites_gs[S][unit_index], state='hidden')
+                        self.itemconfig(self.unit_sprites_trans[S][unit_index], state='hidden')
+                        self.itemconfig(self.unit_sprites_gs_trans[S][unit_index], state='hidden')
+                    else:
+                        self.itemconfig(self.unit_sprites[S][unit_index], state='hidden')
+                        self.itemconfig(self.unit_sprites_gs[S][unit_index], state='normal')
+                        self.itemconfig(self.unit_sprites_trans[S][unit_index], state='hidden')
+                        self.itemconfig(self.unit_sprites_gs_trans[S][unit_index], state='hidden')
+                """
+
                 heal_amount = 0
                 damage_amount = 0
                 if unit in heals:
@@ -2908,29 +3394,21 @@ class GameplayCanvas(tk.Canvas):
                     unit.HPcur = min(unit.visible_stats[HP], unit.HPcur + (heal_amount - damage_amount))
                     self.animate_heal_popup(abs(heal_amount - damage_amount), unit.tile.tileNum)
 
-                self.set_hp_visual(unit, unit.HPcur)
+                #self.set_hp_visual(unit, unit.HPcur)
+                self.refresh_unit_visuals_obj(unit)
 
                 unit.unitCombatInitiates = 0
                 unit.assistTargetedOther = 0
                 unit.assistTargetedSelf = 0
 
-            i = 0
-            while i < len(self.current_units[PLAYER]):
-                if self.current_units[PLAYER][i].specialCount != -1:
-                    self.itemconfig(self.unit_sp_count_labels[PLAYER][i], text=self.current_units[PLAYER][i].specialCount)
+                unit.canto_ready = True
 
-                self.current_units[PLAYER][i].canto_ready = True
-
-                i += 1
-
-            i = 0
-            while i < len(self.current_units[ENEMY]):
-                if self.current_units[ENEMY][i].specialCount != -1:
-                    self.itemconfig(self.unit_sp_count_labels[ENEMY][i], text=self.current_units[ENEMY][i].specialCount)
-                i += 1
 
             self.map_states.clear()
             self.map_states.append(create_mapstate(self.all_units[PLAYER], self.all_units[ENEMY], self.map, self.units_to_move, self.turn_info[0]))
+
+        # Reset Action Button
+        self.button_frame.action_button.config(state='disabled', text='Action\nButton')
 
     def apply_mapstate(self, mapstate):
         self.canto = None
@@ -2959,21 +3437,43 @@ class GameplayCanvas(tk.Canvas):
         for unit in mapstate.units_to_move:
             self.units_to_move.append(unit)
 
+        for tile in self.map.tiles:
+            if tile.hero_on:
+                tile.hero_on.tile = None
+
+            tile.hero_on = None
+
         # Move units to correct tile
         for unit in mapstate.unit_states.keys():
             unit.HPcur = mapstate.unit_states[unit].cur_hp
 
             # Revive fallen unit, placing back and retaining unit ordering
-            obj_index = self.all_units[unit.side].index(unit)
+            if unit in self.all_units[unit.side]:
+                obj_index = self.all_units[unit.side].index(unit)
+                is_cohort = False
+            else:
+                obj_index = self.all_cohorts.index(unit)
+                is_cohort = True
+
             found = False
 
-            if len(self.current_units[unit.side]) == 0:
-                self.current_units[unit.side].append(unit)
+            # If no other unit alive, can just add
+            if unit.HPcur > 0 and len(self.current_units[unit.side]) == 0:
+                if not is_cohort:
+                    self.current_units[unit.side].append(unit)
+                else:
+                    self.current_units[unit.side].append(unit.pair_up_obj)
 
+            # If other units are alive
             elif unit.HPcur > 0 and unit not in self.current_units[unit.side]:
+
+                # Iterate over all current units (can only be non-cohort units)
                 for i in range(len(self.current_units[unit.side])):
                     if self.all_units[unit.side].index(self.current_units[unit.side][i]) > obj_index:
-                        self.current_units[unit.side].insert(i, unit)
+                        if not is_cohort:
+                            self.current_units[unit.side].insert(i, unit)
+                        else:
+                            self.current_units[unit.side].insert(i, unit.pair_up_obj)
                         found = True
                         break
 
@@ -2991,16 +3491,17 @@ class GameplayCanvas(tk.Canvas):
             unit.nonspecial_galeforce_triggered = mapstate.unit_states[unit].nsp_galeforce
             unit.canto_ready = mapstate.unit_states[unit].canto
 
-            unit.tile.hero_on = None
+            if unit.tile:
+                unit.tile.hero_on = None
 
             unit.unitCombatInitiates = mapstate.unit_states[unit].num_combats
             unit.assistTargetedSelf = mapstate.unit_states[unit].num_assists_self
             unit.assistTargetedOther = mapstate.unit_states[unit].num_assists_other
 
-            #self.refresh_unit_visuals(unit)
+            unit.transformed = mapstate.unit_states[unit].transformed
 
         for unit in mapstate.unit_states.keys():
-            if unit.HPcur > 0:
+            if unit.HPcur > 0 and mapstate.unit_states[unit].cur_position != -1:
 
                 tile_num_to_move = mapstate.unit_states[unit].cur_position
                 tile_Obj_to_move = self.map.tiles[tile_num_to_move]
@@ -3016,6 +3517,7 @@ class GameplayCanvas(tk.Canvas):
 
     def next_phase(self):
 
+        self.button_frame.action_button.config(state='disabled', text='Action\nButton')
         self.button_frame.swap_spaces_button.config(state="disabled")
         self.button_frame.undo_button.config(state="normal")
 
@@ -3026,6 +3528,8 @@ class GameplayCanvas(tk.Canvas):
         while self.units_to_move:
             self.units_to_move.pop()
 
+        current_player_units, current_enemy_units = self.map.get_heroes_present_by_side()
+
         # clear banner
 
         if self.turn_info[1] == PLAYER:
@@ -3033,31 +3537,31 @@ class GameplayCanvas(tk.Canvas):
             print("---- PLAYER PHASE ----")
 
             self.turn_info[0] += 1
-
             self.button_frame.help_info.config(text="Turn " + str(self.turn_info[0]) + ": Player Phase", font=("Helvetica", 16), fg="DodgerBlue2")
 
             # EDIT BUTTON FRAME TEXT TO DISPLAY TURN NUMBER
 
-            for x in self.current_units[PLAYER]:
+            for x in current_player_units:
                 self.units_to_move.append(x)
                 x.statusPos = []
-                x.buffs[0] * 5
+                x.buffs = [0] * 5
                 x.special_galeforce_triggered = False
                 x.canto_ready = True
 
-            for x in self.current_units[ENEMY]:
+                if x.pair_up_obj:
+                    x.pair_up_obj.statusPos = []
+                    x.pair_up_obj.buffs = [0] * 5
+                    x.pair_up_obj.special_galeforce_triggered = False
+                    x.pair_up_obj.canto_ready = True
+
+            for x in current_enemy_units:
                 if x in units_to_move_CACHE:
                     x.statusNeg = []
                     x.debuffs = [0] * 5
 
-            i = 0
-            for x in self.all_units[ENEMY]:
-                if x.HPcur > 0:
-                    self.itemconfig(self.unit_sprites_gs[ENEMY][i], state='hidden')
-                    self.itemconfig(self.unit_sprites[ENEMY][i], state='normal')
-                i += 1
+            damage, heals = feh.start_of_turn(current_player_units, current_enemy_units, self.turn_info[0], self.season, self.game_mode, self.ar_struct_tiles)
 
-            damage, heals = feh.start_of_turn(self.current_units[PLAYER], self.current_units[ENEMY], self.turn_info[0])
+            self.refresh_walls()
 
         if self.turn_info[1] == ENEMY:
             print("---- ENEMY PHASE ----")
@@ -3066,41 +3570,69 @@ class GameplayCanvas(tk.Canvas):
 
             # EDIT BUTTON FRAME TEXT TO DISPLAY TURN NUMBER
 
-            for x in self.current_units[ENEMY]:
+            for x in current_enemy_units:
                 self.units_to_move.append(x)
                 x.statusPos = []
                 x.buffs = [0] * 5
                 x.special_galeforce_triggered = False
                 x.canto_ready = True
 
-            for x in self.current_units[PLAYER]:
+            # Clear debuffs of units yet to move, treat them as moved
+            for x in current_player_units:
                 if x in units_to_move_CACHE:
                     x.statusNeg = []
                     x.debuffs = [0] * 5
 
-            i = 0
-            for x in self.all_units[PLAYER]:
-                if x.HPcur > 0:
-                    self.itemconfig(self.unit_sprites_gs[PLAYER][i], state='hidden')
-                    self.itemconfig(self.unit_sprites[PLAYER][i], state='normal')
-                i += 1
+                    if x.pair_up_obj:
+                        x.pair_up_obj.statusNeg = []
+                        x.pair_up_obj.debuffs = [0] * 5
 
-            damage, heals = feh.start_of_turn(self.current_units[ENEMY], self.current_units[PLAYER], self.turn_info[0])
+            damage, heals = feh.start_of_turn(current_enemy_units, current_player_units, self.turn_info[0], self.season, self.game_mode, self.ar_struct_tiles)
+            self.refresh_walls()
 
-        # Reset visual sp Charges of all units
-        i = 0
-        while i < len(self.all_units[PLAYER]):
-            if self.all_units[PLAYER][i].specialCount != -1:
-                self.itemconfig(self.unit_sp_count_labels[PLAYER][i], text=str(int(self.all_units[PLAYER][i].specialCount)))
-            i += 1
+        for unit in current_player_units + current_enemy_units:
+            # Update transformation sprites
+            S = unit.side
 
-        i = 0
-        while i < len(self.all_units[ENEMY]):
-            if self.all_units[ENEMY][i].specialCount != -1:
-                self.itemconfig(self.unit_sp_count_labels[ENEMY][i], text=str(int(self.all_units[ENEMY][i].specialCount)))
-            i += 1
+            if unit in self.all_units[S]:
+                unit_index = self.all_units[S].index(unit)
 
-        for unit in self.current_units[PLAYER] + self.current_units[ENEMY]:
+                unit_sprite = self.unit_sprites[S][unit_index]
+                unit_sprite_gs = self.unit_sprites_gs[S][unit_index]
+                unit_sprite_trans = self.unit_sprites_trans[S][unit_index]
+                unit_sprite_gs_trans = self.unit_sprites_gs_trans[S][unit_index]
+
+            else:
+                unit_index = self.all_cohorts.index(unit)
+
+                unit_sprite = self.cohort_sprites[unit_index]
+                unit_sprite_gs = self.cohort_sprites_gs[unit_index]
+                unit_sprite_trans = self.cohort_sprites_trans[unit_index]
+                unit_sprite_gs_trans = self.cohort_sprites_gs_trans[unit_index]
+
+            if unit.transformed:
+                if unit in self.units_to_move or unit.side != self.turn_info[1]:
+                    self.itemconfig(unit_sprite, state='hidden')
+                    self.itemconfig(unit_sprite_gs, state='hidden')
+                    self.itemconfig(unit_sprite_trans, state='normal')
+                    self.itemconfig(unit_sprite_gs_trans, state='hidden')
+                else:
+                    self.itemconfig(unit_sprite, state='hidden')
+                    self.itemconfig(unit_sprite_gs, state='hidden')
+                    self.itemconfig(unit_sprite_trans, state='hidden')
+                    self.itemconfig(unit_sprite_gs_trans, state='normal')
+            else:
+                if unit in self.units_to_move or unit.side != self.turn_info[1]:
+                    self.itemconfig(unit_sprite, state='normal')
+                    self.itemconfig(unit_sprite_gs, state='hidden')
+                    self.itemconfig(unit_sprite_trans, state='hidden')
+                    self.itemconfig(unit_sprite_gs_trans, state='hidden')
+                else:
+                    self.itemconfig(unit_sprite, state='hidden')
+                    self.itemconfig(unit_sprite_gs, state='normal')
+                    self.itemconfig(unit_sprite_trans, state='hidden')
+                    self.itemconfig(unit_sprite_gs_trans, state='hidden')
+
             heal_amount = 0
             damage_amount = 0
             if unit in heals:
@@ -3116,20 +3648,35 @@ class GameplayCanvas(tk.Canvas):
                 unit.HPcur = min(unit.visible_stats[HP], unit.HPcur + (heal_amount - damage_amount))
                 self.animate_heal_popup(abs(heal_amount - damage_amount), unit.tile.tileNum)
 
-            self.refresh_unit_visuals(unit.side, self.all_units[unit.side].index(unit))
+            # Visually update Special and HP bar/count
+            self.refresh_unit_visuals_obj(unit)
 
             unit.unitCombatInitiates = 0
             unit.assistTargetedSelf = 0
             unit.assistTargetedOther = 0
+
+            if unit.pair_up_obj:
+                unit.pair_up_obj.unitCombatInitiates = 0
+                unit.pair_up_obj.assistTargetedSelf = 0
+                unit.pair_up_obj.assistTargetedOther = 0
 
         mapstate = create_mapstate(self.all_units[PLAYER], self.all_units[ENEMY], self.map, self.units_to_move, self.turn_info[0])
         self.map_states.append(mapstate)
 
         return
 
+    def create_rectangle_alpha(self, x1, y1, x2, y2, **kwargs):
+        if 'alpha' in kwargs and 'fill' in kwargs:
+            alpha = int(kwargs.pop('alpha') * 255)
+            fill = kwargs.pop('fill')
+            fill = self.winfo_rgb(fill) + (alpha,)
+            image = Image.new('RGBA', (x2 - x1, y2 - y1), fill)
+            self.structure_grayout_img.append(ImageTk.PhotoImage(image))
+            cur_photo = self.create_image(x1, y1, image=self.structure_grayout_img[-1], anchor='nw')
+            return cur_photo
+        #self.create_rectangle(x1, y1, x2, y2, **kwargs)
+
     def on_click(self, event):
-
-
         x_comp = event.x // self.TILE_SIZE
         y_comp = ((self.GAMEPLAY_WIDTH - event.y) // 90)
         tile = x_comp + 6 * y_comp
@@ -3138,7 +3685,7 @@ class GameplayCanvas(tk.Canvas):
 
         # Create menu to build unit on empty space
         if not self.running and not self.hero_listing.creation_menu:
-            if tile in self.unit_drag_points and not self.unit_drag_points[tile].hero:
+            if tile in self.unit_drag_points and not self.unit_drag_points[tile].hero and not self.map.tiles[tile].structure_on:
                 self.hero_listing.create_creation_popup()
                 self.hero_listing.creation_make_button.config(command=partial(self.place_unit_object, event.x, event.y))
 
@@ -3150,17 +3697,161 @@ class GameplayCanvas(tk.Canvas):
             if tile in self.unit_drag_points and self.unit_drag_points[tile].hero:
                 self.unit_status.update_from_obj(self.unit_drag_points[tile].hero)
 
+        # Move Units withing Drag Points
+        if not self.running and tile in self.unit_drag_points and self.unit_drag_points[tile].hero:
+            S = self.unit_drag_points[tile].side
+
+            index = self.drag_point_units[S].index(self.unit_drag_points[tile].hero)
+
+            self.drag_data = {
+                            'cur_x': event.x,
+                            'cur_y': event.y,
+                            'start_tile': tile,
+                            'prep_unit_id': self.unit_tags[S][index],
+                            'side': S
+                            }
+
+            self.tag_raise(self.unit_sprites[S][index])
+            self.tag_raise(self.unit_sprites_gs[S][index])
+            self.tag_raise(self.unit_sprites_trans[S][index])
+            self.tag_raise(self.unit_sprites_gs_trans[S][index])
+            self.tag_raise(self.unit_weapon_icon_sprites[S][index])
+            self.tag_raise(self.unit_hp_count_labels[S][index])
+            self.tag_raise(self.unit_sp_count_labels[S][index])
+            self.tag_raise(self.unit_hp_bars_bg[S][index])
+            self.tag_raise(self.unit_hp_bars_fg[S][index])
+
+            if self.game_mode == hero.GameMode.AetherRaids:
+                for starting_tile in self.starting_tile_photos:
+                    self.itemconfigure(starting_tile, state='hidden')
+
+                valid_unit_moves = []
+
+                for cur_tile in self.map.tiles:
+                    x_move = 90 * (cur_tile.tileNum % 6)
+                    y_move = 90 * (7 - (cur_tile.tileNum // 6))
+
+                    # CASE 1: Moving Offense Side
+                    if S == PLAYER:
+                        if 6 < cur_tile.tileNum < 12:
+                            swapable_img = self.create_image(x_move, y_move, anchor=tk.NW, image=self.move_tile_photos[5])
+                            self.tag_lower(swapable_img, 6)
+                            self.tile_sprites.append(swapable_img)
+                            valid_unit_moves.append(cur_tile.tileNum)
+                        else:
+                            cur_dark_tile = self.create_rectangle_alpha(0, 0, 90, 90, fill='black', alpha=0.5, anchor=tk.CENTER)
+                            self.tag_lower(cur_dark_tile, 6)
+                            self.coords(cur_dark_tile, x_move, y_move)
+                            self.tile_sprites.append(cur_dark_tile)
+
+                    # CASE 2: Moving Defense Side
+                    else:
+                        if 35 < cur_tile.tileNum < 48:
+                            swapable_img = self.create_image(x_move, y_move, anchor=tk.NW, image=self.move_tile_photos[5])
+                            self.tag_lower(swapable_img, 6)
+                            self.tile_sprites.append(swapable_img)
+                            valid_unit_moves.append(cur_tile.tileNum)
+                        else:
+                            cur_dark_tile = self.create_rectangle_alpha(0, 0, 90, 90, fill='black', alpha=0.5, anchor=tk.CENTER)
+                            self.tag_lower(cur_dark_tile, 6)
+                            self.coords(cur_dark_tile, x_move, y_move)
+                            self.tile_sprites.append(cur_dark_tile)
+            else:
+                valid_unit_moves = []
+
+                for cur_tile in self.map.tiles:
+                    if cur_tile.tileNum in self.unit_drag_points and self.unit_drag_points[cur_tile.tileNum].side == S:
+                        valid_unit_moves.append(cur_tile.tileNum)
+
+            self.drag_data['valid_moves'] = valid_unit_moves
+
+        # Move Aether Raids structures
+        if not self.running and self.map.tiles[tile].structure_on and self.map.tiles[tile].structure_on.struct_type != 0:
+
+            for starting_tile in self.starting_tile_photos:
+                self.itemconfigure(starting_tile, state='hidden')
+
+            valid_struct_moves = []
+
+            # CASE 1: Struct is within top 2 rows
+            if tile >= 36:
+                for cur_tile in self.map.tiles:
+                    x_move = 90 * (cur_tile.tileNum % 6)
+                    y_move = 90 * (7 - (cur_tile.tileNum // 6))
+
+                    if cur_tile.terrain != 0:
+                        cur_dark_tile = self.create_rectangle_alpha(0, 0, 90, 90, fill='black', alpha=0.5, anchor=tk.CENTER)
+                        self.tag_lower(cur_dark_tile, 6)
+                        self.coords(cur_dark_tile, x_move, y_move)
+                        self.tile_sprites.append(cur_dark_tile)
+                    elif cur_tile.tileNum > 11:
+                        swapable_img = self.create_image(x_move, y_move, anchor=tk.NW, image=self.move_tile_photos[5])
+                        self.tag_lower(swapable_img, 6)
+                        self.tile_sprites.append(swapable_img)
+                        valid_struct_moves.append(cur_tile.tileNum)
+                    else:
+                        cur_dark_tile = self.create_rectangle_alpha(0, 0, 90, 90, fill='black', alpha=0.5, anchor=tk.CENTER)
+                        self.tag_lower(cur_dark_tile, 6)
+                        self.coords(cur_dark_tile, x_move, y_move)
+                        self.tile_sprites.append(cur_dark_tile)
+
+            # CASE 2: Struct is within lower 4 rows
+            elif 11 < tile < 36:
+                for cur_tile in self.map.tiles:
+                    x_move = 90 * (cur_tile.tileNum % 6)
+                    y_move = 90 * (7 - (cur_tile.tileNum // 6))
+
+                    if cur_tile.terrain != 0 or (cur_tile.tileNum > 35 and self.unit_drag_points[cur_tile.tileNum].hero):
+                        cur_dark_tile = self.create_rectangle_alpha(0, 0, 90, 90, fill='black', alpha=0.5, anchor=tk.CENTER)
+                        self.tag_lower(cur_dark_tile, 6)
+                        self.coords(cur_dark_tile, x_move, y_move)
+                        self.tile_sprites.append(cur_dark_tile)
+                    elif 11 < cur_tile.tileNum < 36 or cur_tile.tileNum >= 36 and not self.unit_drag_points[cur_tile.tileNum].hero:
+                        swapable_img = self.create_image(x_move, y_move, anchor=tk.NW, image=self.move_tile_photos[5])
+                        self.tag_lower(swapable_img, 6)
+                        self.tile_sprites.append(swapable_img)
+                        valid_struct_moves.append(cur_tile.tileNum)
+                    else:
+                        cur_dark_tile = self.create_rectangle_alpha(0, 0, 90, 90, fill='black', alpha=0.5, anchor=tk.CENTER)
+                        self.tag_lower(cur_dark_tile, 6)
+                        self.coords(cur_dark_tile, x_move, y_move)
+                        self.tile_sprites.append(cur_dark_tile)
+
+            # CASE 3: Struct is on button row (offense structures)
+            elif tile < 6:
+                for cur_tile in self.map.tiles:
+                    x_move = 90 * (cur_tile.tileNum % 6)
+                    y_move = 90 * (7 - (cur_tile.tileNum // 6))
+
+                    if cur_tile.tileNum < 6:
+                        swapable_img = self.create_image(x_move, y_move, anchor=tk.NW, image=self.move_tile_photos[5])
+                        self.tag_lower(swapable_img, 6)
+                        self.tile_sprites.append(swapable_img)
+                        valid_struct_moves.append(cur_tile.tileNum)
+                    else:
+                        cur_dark_tile = self.create_rectangle_alpha(0, 0, 90, 90, fill='black', alpha=0.5, anchor=tk.CENTER)
+                        self.tag_lower(cur_dark_tile, 6)
+                        self.coords(cur_dark_tile, x_move, y_move)
+                        self.tile_sprites.append(cur_dark_tile)
+
+            self.drag_data = {
+                              'cur_x': event.x,
+                              'cur_y': event.y,
+                              'start_tile': tile,
+                              'struct_id': self.ar_structs.index(self.map.tiles[tile].structure_on),
+                              'valid_moves': valid_struct_moves
+                              }
+
+            self.tag_raise(self.ar_struct_sprites[self.drag_data['struct_id']])
+
+        cur_struct = self.map.tiles[tile].structure_on
+
+        if cur_struct:
+            self.unit_status.update_from_struct(cur_struct)
+
         # Nothing else if not running
         if not self.running:
             return
-
-        # YAY I GET TO COPY AND PASTE THE MAIN SIM CODE HERE!!! WEEEEEE!!!!!!
-
-        # End Turn Button code here
-
-        # Swap Spaces Button code here
-
-        # Undo Action Button code here
 
         cur_hero = self.map.tiles[tile].hero_on
 
@@ -3168,17 +3859,33 @@ class GameplayCanvas(tk.Canvas):
             return
 
         S = cur_hero.side
-        item_index = self.all_units[S].index(cur_hero)
+
+        if cur_hero in self.all_units[S]:
+            item_index = self.all_units[S].index(cur_hero)
+            is_cohort = False
+        else:
+            item_index = self.all_cohorts.index(cur_hero)
+            is_cohort = True
 
         # Unit Status frame set to current hero
         self.unit_status.update_from_obj(cur_hero)
 
+        # If this movement is as a canto move and currently selecting the canto-enabled unit
+        is_canto_move = self.canto == cur_hero
+
+        # Enable Pair Up Button
+        if S == PLAYER and self.all_cohorts[item_index]:
+            self.button_frame.action_button.config(text='Swap\nCohort')
+            if self.turn_info[1] == PLAYER and feh.can_be_on_tile(cur_hero.tile, self.all_cohorts[item_index].move) and not self.swap_mode and not is_canto_move:
+                self.button_frame.action_button.config(state='normal', command=partial(self.switch_pairing, cur_hero))
+            else:
+                self.button_frame.action_button.config(state='disabled')
+        else:
+            self.button_frame.action_button.config(state='disabled', text='Action\nButton')
+
         # Not this side's phase, no movement allowed
         if cur_hero.side != self.turn_info[1]:
             return
-
-        # If this movement is as a canto move and currently selecting the canto-enabled unit
-        is_canto_move = self.canto == cur_hero
 
         # Hero already moved, cannot be moved again
         if cur_hero not in self.units_to_move or (self.canto is not None and self.canto != cur_hero):
@@ -3189,8 +3896,11 @@ class GameplayCanvas(tk.Canvas):
                           'cur_tile': tile,
                           'start_x_comp': x_comp,
                           'start_y_comp': y_comp,
+
                           'index': item_index,
                           'side': S,
+                          'cohort': is_cohort,
+
                           'item': self.unit_sprites[S][item_index]
                           }
 
@@ -3210,8 +3920,10 @@ class GameplayCanvas(tk.Canvas):
 
         # Get possible tiles to move to, shortest path to get to that tile, and objects of each move
 
-        unit_team = self.current_units[S]
-        other_team = self.current_units[S - 1]
+        current_units = self.map.get_heroes_present_by_side()
+
+        unit_team = current_units[S]
+        other_team = current_units[S - 1]
 
         if is_canto_move:
             sdd['moves'], sdd['paths'], moves_obj_array = feh.get_canto_moves(cur_hero, unit_team, other_team, self.distance, self.spaces_allowed, self.chosen_action, self.turn_info[0])
@@ -3283,14 +3995,13 @@ class GameplayCanvas(tk.Canvas):
 
             # Tile holds structure that can be destroyed
             elif self.map.tiles[n].structure_on is not None:
-                if self.map.tiles[n].structure_on.struct_type != S + 1 and self.map.tiles[n].structure_on.health > 0:
+                if self.map.tiles[n].structure_on.struct_type != S + 1 and self.map.tiles[n].structure_on.health > 0 and "Trap" not in self.map.tiles[n].structure_on.name:
                     cur_tile_photo = self.move_tile_photos[TILE_RED]
 
             curTile = self.create_image(cur_pixel_offset_x, cur_pixel_offset_y, anchor=tk.NW, image=cur_tile_photo)
             self.tile_sprites.append(curTile)
 
         # find all points to attack all enemies from, fill canvas.drag_data['targets_and_tiles']
-
         if cur_hero.weapon is not None:
             for m in moves_obj_array:
                 atk_arr = self.map.tiles[m.destination].tilesNSpacesAway(cur_hero.weapon.range)
@@ -3308,7 +4019,7 @@ class GameplayCanvas(tk.Canvas):
 
                     # Destroyable structure in range
                     elif self.map.tiles[n].structure_on is not None:
-                        if self.map.tiles[n].structure_on.health > 0 and self.map.tiles[n].structure_on.struct_type != S + 1:
+                        if self.map.tiles[n].structure_on.health > 0 and self.map.tiles[n].structure_on.struct_type != S + 1 and "Trap" not in self.map.tiles[n].structure_on.name:
 
                             if self.map.tiles[n].structure_on not in sdd['targets_and_tiles']:
                                 sdd['targets_and_tiles'][self.map.tiles[n].structure_on] = [m.destination]
@@ -3393,12 +4104,15 @@ class GameplayCanvas(tk.Canvas):
 
                                     valid_shove = not unit_on_dest and can_traverse_dest
 
+                                # Then, check if smite is possible
                                 if final_dest != -1:
                                     unit_on_dest = self.map.tiles[final_dest].hero_on is not None and self.map.tiles[final_dest].hero_on != cur_hero
                                     can_traverse_dest = feh.can_be_on_tile(self.map.tiles[final_dest], ally.move)
 
                                     foe_on_skip = self.map.tiles[skip_over].hero_on is not None and self.map.tiles[skip_over].hero_on.side != cur_hero.side
-                                    can_skip = self.map.tiles[skip_over].terrain != 4 and not foe_on_skip
+                                    struct_on_skip = self.map.tiles[skip_over].structure_on and "Trap" not in self.map.tiles[skip_over].structure_on.name and self.map.tiles[skip_over].structure_on.health != 0
+
+                                    can_skip = self.map.tiles[skip_over].terrain != 4 and not foe_on_skip and not struct_on_skip
 
                                     valid_smite = not unit_on_dest and can_traverse_dest and can_skip
 
@@ -3529,6 +4243,14 @@ class GameplayCanvas(tk.Canvas):
             self.tag_raise(self.unit_sprites_trans[S - 1][i])
             self.tag_raise(self.unit_sprites_gs_trans[S - 1][i])
             self.tag_raise(self.unit_weapon_icon_sprites[S - 1][i])
+
+            if S == ENEMY:
+                if self.cohort_sprites[i]: self.tag_raise(self.cohort_sprites[i])
+                if self.cohort_sprites_gs[i]: self.tag_raise(self.cohort_sprites_gs[i])
+                if self.cohort_sprites_trans[i]: self.tag_raise(self.cohort_sprites_trans[i])
+                if self.cohort_sprites_gs_trans[i]: self.tag_raise(self.cohort_sprites_gs_trans[i])
+                if self.cohort_weapon_icon_sprites[i]: self.tag_raise(self.cohort_weapon_icon_sprites[i])
+
             self.tag_raise(self.unit_hp_count_labels[S - 1][i])
             self.tag_raise(self.unit_sp_count_labels[S - 1][i])
             self.tag_raise(self.unit_hp_bars_bg[S - 1][i])
@@ -3547,6 +4269,14 @@ class GameplayCanvas(tk.Canvas):
             self.tag_raise(self.unit_sprites_trans[S][i])
             self.tag_raise(self.unit_sprites_gs_trans[S][i])
             self.tag_raise(self.unit_weapon_icon_sprites[S][i])
+
+            if S == PLAYER:
+                if self.cohort_sprites[i]: self.tag_raise(self.cohort_sprites[i])
+                if self.cohort_sprites_gs[i]: self.tag_raise(self.cohort_sprites_gs[i])
+                if self.cohort_sprites_trans[i]: self.tag_raise(self.cohort_sprites_trans[i])
+                if self.cohort_sprites_gs_trans[i]: self.tag_raise(self.cohort_sprites_gs_trans[i])
+                if self.cohort_weapon_icon_sprites[i]: self.tag_raise(self.cohort_weapon_icon_sprites[i])
+
             self.tag_raise(self.unit_hp_count_labels[S][i])
             self.tag_raise(self.unit_sp_count_labels[S][i])
             self.tag_raise(self.unit_hp_bars_bg[S][i])
@@ -3559,6 +4289,14 @@ class GameplayCanvas(tk.Canvas):
         self.tag_raise(self.unit_sprites_trans[S][item_index])
         self.tag_raise(self.unit_sprites_gs_trans[S][item_index])
         self.tag_raise(self.unit_weapon_icon_sprites[S][item_index])
+
+        if is_cohort:
+            self.tag_raise(self.cohort_sprites[item_index])
+            self.tag_raise(self.cohort_sprites_gs[item_index])
+            self.tag_raise(self.cohort_sprites_trans[item_index])
+            self.tag_raise(self.cohort_sprites_gs_trans[item_index])
+            self.tag_raise(self.cohort_weapon_icon_sprites[item_index])
+
         self.tag_raise(self.unit_hp_count_labels[S][item_index])
         self.tag_raise(self.unit_sp_count_labels[S][item_index])
         self.tag_raise(self.unit_hp_bars_bg[S][item_index])
@@ -3577,22 +4315,53 @@ class GameplayCanvas(tk.Canvas):
         if not self.swap_mode:
             first_path = self.create_image(pixel_offset_x, pixel_offset_y, anchor=tk.NW, image=self.move_arrow_photos[14])
             self.tag_lower(first_path, self.unit_sprites[S][item_index])
-            #self.tag_lower(first_path, self.unit_sprites_trans[S][item_index])
 
             self.drag_data['arrow_path'] = [first_path]
+
+        if self.tile_sprites:
+            for ar_sprite in self.ar_struct_sprites:
+                self.tag_lower(ar_sprite, self.tile_sprites[0])
 
         return
 
     def on_drag(self, event):
-        if self.animation or not self.running or not self.drag_data: return
+        if self.animation or not self.drag_data: return
+
+        # AR Structures
+        if not self.running and 'struct_id' in self.drag_data:
+            delta_x = event.x - self.drag_data['cur_x']
+            delta_y = event.y - self.drag_data['cur_y']
+
+            self.move(self.ar_struct_sprites[self.drag_data['struct_id']], delta_x, delta_y)
+
+            self.drag_data['cur_x'] = event.x
+            self.drag_data['cur_y'] = event.y
+
+            return
+
+        if not self.running and 'prep_unit_id' in self.drag_data:
+            delta_x = event.x - self.drag_data['cur_x']
+            delta_y = event.y - self.drag_data['cur_y']
+
+            self.move(self.drag_data['prep_unit_id'], delta_x, delta_y)
+
+            self.drag_data['cur_x'] = event.x
+            self.drag_data['cur_y'] = event.y
+
+            return
 
         delta_x = event.x - self.drag_data['cur_x']
         delta_y = event.y - self.drag_data['cur_y']
 
         item_index = self.drag_data['index']
         S = self.drag_data['side']
+        is_cohort = self.drag_data['cohort']
 
-        cur_hero = self.all_units[S][item_index]
+        if not is_cohort:
+            cur_hero = self.all_units[S][item_index]
+        else:
+            cur_hero = self.all_cohorts[item_index]
+
         tag: str = self.unit_tags[S][item_index]
 
         self.move(tag, delta_x, delta_y)
@@ -3730,7 +4499,8 @@ class GameplayCanvas(tk.Canvas):
                 self.extras.clear_forecast_banner()
 
         # If moving onto a space with a destroyable structure
-        elif cur_tile_Obj.structure_on and cur_tile_Obj.structure_on.health > 0 and cur_tile_Obj.structure_on.struct_type != S + 1 and cur_tile_int in self.drag_data['attack_range']:
+        elif (cur_tile_Obj.structure_on and cur_tile_Obj.structure_on.health > 0 and cur_tile_Obj.structure_on.struct_type != S + 1
+              and cur_tile_int in self.drag_data['attack_range'] and "Trap" not in cur_tile_Obj.structure_on.name):
 
                 target_tile = self.drag_data['targets_and_tiles'][self.map.tiles[cur_tile_int].structure_on][0]
 
@@ -3966,7 +4736,87 @@ class GameplayCanvas(tk.Canvas):
         return
 
     def on_release(self, event):
+        # Delete all colored movement tiles
+        for tile in self.tile_sprites:
+            self.delete(tile)
+        self.tile_sprites.clear()
+
         sdd = self.drag_data
+
+        if not self.running and sdd and 'prep_unit_id' in sdd:
+            x_comp = event.x // 90
+            y_comp = ((720 - event.y) // 90)
+            destination_tile = x_comp + y_comp * 6
+            start_tile = sdd['start_tile']
+
+            if destination_tile in sdd['valid_moves'] and start_tile != destination_tile and 539 > event.x > 0 and 720 > event.y > 0:
+                # CASE 1: destination_tile has nothing on it
+                if not self.unit_drag_points[destination_tile].hero and not self.map.tiles[destination_tile].structure_on:
+                    self.unit_drag_points[destination_tile].hero = self.unit_drag_points[start_tile].hero
+                    self.unit_drag_points[start_tile].hero = None
+                elif self.unit_drag_points[destination_tile].hero:
+                    cur = self.unit_drag_points[start_tile].hero
+
+                    self.unit_drag_points[start_tile].hero = self.unit_drag_points[destination_tile].hero
+                    self.unit_drag_points[destination_tile].hero = cur
+                else:
+                    self.unit_drag_points[destination_tile].hero = self.unit_drag_points[start_tile].hero
+                    self.unit_drag_points[start_tile].hero = None
+
+                    self.map.tiles[start_tile].structure_on = self.map.tiles[destination_tile].structure_on
+                    self.map.tiles[destination_tile].structure_on = None
+
+            self.refresh_units_prep()
+            self.refresh_walls()
+
+            for tile in self.starting_tile_photos:
+                index = self.starting_tile_photos.index(tile)
+                cur_drag = list(self.unit_drag_points.keys())[index]
+
+                if not self.map.tiles[cur_drag].structure_on:
+                    self.itemconfigure(tile, state='normal')
+
+            self.drag_data = None
+
+        if not self.running and sdd and 'struct_id' in sdd:
+            x_comp = event.x // 90
+            y_comp = ((720 - event.y) // 90)
+            destination_tile = x_comp + y_comp * 6
+            start_tile = sdd['start_tile']
+
+            if destination_tile in sdd['valid_moves'] and start_tile != destination_tile and 539 > event.x > 0 and 720 > event.y > 0:
+                # CASE 1: destination_tile has nothing on it
+                if (destination_tile not in self.unit_drag_points or not self.unit_drag_points[destination_tile].hero) and not self.map.tiles[destination_tile].structure_on:
+
+                    self.map.tiles[destination_tile].structure_on = self.map.tiles[start_tile].structure_on
+                    self.map.tiles[start_tile].structure_on = None
+
+                # CASE 2: destination_tile has structure on it
+                elif self.map.tiles[destination_tile].structure_on:
+                    temp = self.map.tiles[start_tile].structure_on
+
+                    self.map.tiles[start_tile].structure_on = self.map.tiles[destination_tile].structure_on
+                    self.map.tiles[destination_tile].structure_on = temp
+                # CASE 3: destination_tile has hero on it
+                elif destination_tile in self.unit_drag_points and self.unit_drag_points[destination_tile].hero:
+                    self.unit_drag_points[start_tile].hero = self.unit_drag_points[destination_tile].hero
+                    self.unit_drag_points[destination_tile].hero = None
+
+                    self.map.tiles[destination_tile].structure_on = self.map.tiles[start_tile].structure_on
+                    self.map.tiles[start_tile].structure_on = None
+
+                    self.refresh_units_prep()
+
+            self.refresh_walls()
+
+            for tile in self.starting_tile_photos:
+                index = self.starting_tile_photos.index(tile)
+                cur_drag = list(self.unit_drag_points.keys())[index]
+
+                if not self.map.tiles[cur_drag].structure_on:
+                    self.itemconfigure(tile, state='normal')
+
+            self.drag_data = None
 
         if sdd is None or not self.running: return
 
@@ -3989,7 +4839,12 @@ class GameplayCanvas(tk.Canvas):
 
         item_index = sdd['index']
         S = sdd['side']
-        cur_unit = self.all_units[S][item_index]
+        is_cohort = sdd['cohort']
+
+        if not is_cohort:
+            cur_unit = self.all_units[S][item_index]
+        else:
+            cur_unit = self.all_cohorts[item_index]
 
         within_bounds = 539 > event.x > 0 and 720 > event.y > 0
 
@@ -4008,16 +4863,12 @@ class GameplayCanvas(tk.Canvas):
             # not in movement range, set back to the start
             final_destination = recalc_tile
 
-        self.all_units[S][item_index].tile.hero_on = None
-        self.all_units[S][item_index].tile = self.map.tiles[final_destination]
-        self.map.tiles[final_destination].hero_on = self.all_units[S][item_index]
+        cur_unit.tile.hero_on = None
+        cur_unit.tile = self.map.tiles[final_destination]
+        self.map.tiles[final_destination].hero_on = cur_unit
 
-        self.move_visuals_to_tile(S, item_index, final_destination)
-
-        # Delete all colored movement tiles
-        for tile in self.tile_sprites:
-            self.delete(tile)
-        self.tile_sprites.clear()
+        # Move all of this unit's graphics to the final tile
+        self.move_visuals_to_tile_obj(cur_unit, final_destination)
 
         # Delete all arrows
         for arrow in sdd['arrow_path']:
@@ -4054,10 +4905,9 @@ class GameplayCanvas(tk.Canvas):
                 self.map.tiles[unit_final_position].hero_on = cur_unit
                 self.map.tiles[ally_final_position].hero_on = ally
 
-                self.move_visuals_to_tile(S, item_index, unit_final_position)
-                self.move_visuals_to_tile(S, self.all_units[S].index(ally), ally_final_position)
+                self.move_visuals_to_tile_obj(cur_unit, unit_final_position)
+                self.move_visuals_to_tile_obj(ally, ally_final_position)
 
-                self.drag_data = None
             else:
                 unit_final_position = release_tile
 
@@ -4067,7 +4917,9 @@ class GameplayCanvas(tk.Canvas):
 
                 self.map.tiles[unit_final_position].hero_on = cur_unit
 
-                self.move_visuals_to_tile(S, item_index, unit_final_position)
+                self.move_visuals_to_tile_obj(cur_unit, unit_final_position)
+
+            self.drag_data = None
 
             return
 
@@ -4086,14 +4938,27 @@ class GameplayCanvas(tk.Canvas):
         # Sets the given unit's visibility from the board to hidden, called when they die
         def set_unit_death(unit):
             U_side = unit.side
-            unit_index = self.all_units[U_side].index(unit)
 
-            self.itemconfig(self.unit_sprites[U_side][unit_index], state='hidden')
-            self.itemconfig(self.unit_sprites_gs[U_side][unit_index], state='hidden')
-            self.itemconfig(self.unit_sprites_trans[U_side][unit_index], state='hidden')
-            self.itemconfig(self.unit_sprites_gs_trans[U_side][unit_index], state='hidden')
+            if unit in self.all_units[U_side]:
+                unit_index = self.all_units[U_side].index(unit)
+                is_cohort = False
+            else:
+                unit_index = self.all_cohorts.index(unit)
+                is_cohort = True
 
-            self.itemconfig(self.unit_weapon_icon_sprites[U_side][unit_index], state='hidden')
+            if not is_cohort:
+                self.itemconfig(self.unit_sprites[U_side][unit_index], state='hidden')
+                self.itemconfig(self.unit_sprites_gs[U_side][unit_index], state='hidden')
+                self.itemconfig(self.unit_sprites_trans[U_side][unit_index], state='hidden')
+                self.itemconfig(self.unit_sprites_gs_trans[U_side][unit_index], state='hidden')
+                self.itemconfig(self.unit_weapon_icon_sprites[U_side][unit_index], state='hidden')
+            else:
+                self.itemconfig(self.cohort_sprites[unit_index], state='hidden')
+                self.itemconfig(self.cohort_sprites_gs[unit_index], state='hidden')
+                self.itemconfig(self.cohort_sprites_trans[unit_index], state='hidden')
+                self.itemconfig(self.cohort_sprites_gs_trans[unit_index], state='hidden')
+                self.itemconfig(self.cohort_weapon_icon_sprites[unit_index], state='hidden')
+
             self.itemconfig(self.unit_sp_count_labels[U_side][unit_index], state='hidden')
             self.itemconfig(self.unit_hp_count_labels[U_side][unit_index], state='hidden')
             self.itemconfig(self.unit_hp_bars_bg[U_side][unit_index], state='hidden')
@@ -4103,8 +4968,12 @@ class GameplayCanvas(tk.Canvas):
             U_side = unit.side
             unit_index = self.all_units[U_side].index(unit)
 
-            self.itemconfig(self.unit_sprites[U_side][unit_index], state='normal')
-            #self.itemconfig(self.unit_sprites_trans[U_side][unit_index], state='normal') --- IF TRANSFORMED
+            if unit.transformed:
+                self.itemconfig(self.unit_sprites_trans[U_side][unit_index], state='normal')
+                self.itemconfig(self.unit_sprites[U_side][unit_index], state='hidden')
+            else:
+                self.itemconfig(self.unit_sprites_trans[U_side][unit_index], state='hidden')
+                self.itemconfig(self.unit_sprites[U_side][unit_index], state='normal')
 
             self.itemconfig(self.unit_weapon_icon_sprites[U_side][unit_index], state='normal')
             self.itemconfig(self.unit_sp_count_labels[U_side][unit_index], state='normal')
@@ -4115,17 +4984,27 @@ class GameplayCanvas(tk.Canvas):
         # Sets a unit grayscale once their action is done
         def set_unit_actability(unit):
             U_side = unit.side
-            unit_index = self.all_units[U_side].index(unit)
+            unit_is_cohort = unit in self.all_cohorts
 
-            #unit_sprite = self.unit_sprites[U_side][unit_index]
-            #unit_sprite_gs = grayscale_IDs[U_side][unit_index]
+            if not unit_is_cohort:
+                unit_index = self.all_units[U_side].index(unit)
+            else:
+                unit_index = self.all_cohorts.index(unit)
 
-            self.itemconfig(self.unit_sprites[U_side][unit_index], state='hidden')
-            #self.itemconfig(self.unit_sprites_trans[U_side][unit_index], state='hidden') --- IF TRANSFORMED
-
-
-            self.itemconfig(self.unit_sprites_gs[U_side][unit_index], state='normal')
-            #self.itemconfig(self.unit_sprites_gs_trans[U_side][unit_index], state='normal') --- IF TRANSFORMED
+            if not unit_is_cohort:
+                if unit.transformed:
+                    self.itemconfig(self.unit_sprites_trans[U_side][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_gs_trans[U_side][unit_index], state='normal')
+                else:
+                    self.itemconfig(self.unit_sprites[U_side][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_gs[U_side][unit_index], state='normal')
+            else:
+                if unit.transformed:
+                    self.itemconfig(self.cohort_sprites_trans[unit_index], state='hidden')
+                    self.itemconfig(self.cohort_sprites_gs_trans[unit_index], state='normal')
+                else:
+                    self.itemconfig(self.cohort_sprites[unit_index], state='hidden')
+                    self.itemconfig(self.cohort_sprites_gs[unit_index], state='normal')
 
         is_targeting_object = sdd['target_path'] != "NONE"
         is_targeting_hero = release_unit is not None
@@ -4136,11 +5015,46 @@ class GameplayCanvas(tk.Canvas):
         distance = abs(destination_tile % 6 - sdd["start_x_comp"]) + abs(destination_tile // 6 - sdd["start_y_comp"])
         self.distance = distance
 
-        # Galeforce/Canto Variables
+        # Galeforce
         galeforce_triggered = False
 
+        # Trap triggered
+        trap_triggered = False
+        hex_trap_triggered_after_action = False
+
+        final_dest_struct = self.map.tiles[final_destination].structure_on
+        if final_dest_struct and "Trap" in final_dest_struct.name and destination_unit.side == PLAYER and final_dest_struct.health != 0:
+            final_dest_struct.health = 0
+            self.refresh_walls()
+
+            if "False" not in final_dest_struct.name:
+                if final_dest_struct.name == "Bolt Trap":
+                    disarm_lvl = destination_unit.get("disarmTrap", 0)
+
+                    if final_dest_struct.level > disarm_lvl:
+                        trap_triggered = True
+
+                        for unit in self.map.tiles[final_destination].unitsWithinNSpaces(3):
+                            unit.HPcur = max(1, unit.HPcur - final_dest_struct.level * 10)
+                            self.animate_damage_popup(final_dest_struct.level * 10, unit.tile.tileNum)
+
+                            self.set_hp_visual(unit, unit.HPcur)
+
+                elif final_dest_struct.name == "Heavy Trap":
+                    disarm_lvl = destination_unit.get("disarmTrap", 0)
+
+                    if final_dest_struct.level > disarm_lvl:
+                        trap_triggered = True
+
+                        for unit in self.map.tiles[final_destination].unitsWithinNSpaces(2):
+                            if unit.HPcur <= get_tower_hp_threshold(final_dest_struct.level):
+                                unit.inflictStatus(Status.Gravity)
+
+                elif final_dest_struct.name == "Hex Trap" and destination_unit.HPcur <= get_tower_hp_threshold(final_dest_struct.level):
+                    trap_triggered = True
+
         # ATTAAAAAAAAAAAAAAAAAAAAAAACK!!!!!!!!!!!!!!!!!!
-        if is_targeting_object and is_targeting_hero and destination_unit.isEnemyOf(release_unit):
+        if is_targeting_object and is_targeting_hero and destination_unit.isEnemyOf(release_unit) and not trap_triggered:
 
             # Begin initiating an attack animation
             self.animation = True
@@ -4197,12 +5111,17 @@ class GameplayCanvas(tk.Canvas):
                 initiated_enemy = enemy
 
 
-
             # player sprites to be used for combat
-            player_index = self.all_units[S].index(cur_unit)
+            if cur_unit in self.all_units[S]:
+                player_index = self.all_units[S].index(cur_unit)
 
-            player_sprite = self.unit_sprites[S][item_index]
-            player_sprite_trans = self.unit_sprites[S][item_index]
+                player_sprite = self.unit_sprites[S][item_index] if not player.transformed else self.unit_sprites_trans[S][item_index]
+            else:
+                player_index = self.all_cohorts.index(cur_unit)
+
+                player_sprite = self.cohort_sprites[item_index] if not player.transformed else self.cohort_sprites_trans[item_index]
+
+
 
             player_weapon_icon = self.unit_weapon_icon_sprites[S][item_index]
             player_hp_label = self.unit_hp_count_labels[S][item_index]
@@ -4213,12 +5132,17 @@ class GameplayCanvas(tk.Canvas):
             # enemy sprites to be used for combat
             E_side = enemy.side
 
-            enemy_index = self.all_units[E_side].index(initiated_enemy)
+            if initiated_enemy in self.all_units[E_side]:
+                enemy_index = self.all_units[E_side].index(initiated_enemy)
 
-            enemy_sprite = self.unit_sprites[E_side][enemy_index]
-            enemy_sprite_trans = self.unit_sprites[E_side][enemy_index]
+                enemy_sprite = self.unit_sprites[E_side][enemy_index] if not initiated_enemy.transformed else self.unit_sprites_trans[E_side][enemy_index]
+                enemy_weapon_icon = self.unit_weapon_icon_sprites[E_side][enemy_index]
+            else:
+                enemy_index = self.all_cohorts.index(initiated_enemy)
 
-            enemy_weapon_icon = self.unit_weapon_icon_sprites[E_side][enemy_index]
+                enemy_sprite = self.cohort_sprites[enemy_index] if not initiated_enemy.transformed else self.cohort_sprites_trans[enemy_index]
+                enemy_weapon_icon = self.cohort_weapon_icon_sprites[enemy_index]
+
             enemy_hp_label = self.unit_hp_count_labels[E_side][enemy_index]
             enemy_sp_label = self.unit_sp_count_labels[E_side][enemy_index]
             enemy_hp_bar_fg = self.unit_hp_bars_fg[E_side][enemy_index]
@@ -4270,7 +5194,6 @@ class GameplayCanvas(tk.Canvas):
                 self.after(aoe_present + 100, set_unit_death, enemy)
 
                 self.after(aoe_present + 100, self.move_to_tile, enemy_sprite, enemy_tile)
-                self.after(aoe_present + 100, self.move_to_tile, enemy_sprite_trans, enemy_tile)
                 self.after(aoe_present + 100, self.move_to_tile_wp,enemy_weapon_icon, enemy_tile)
                 self.after(aoe_present + 100, self.move_to_tile_hp, enemy_hp_label, enemy_tile)
                 self.after(aoe_present + 100, self.move_to_tile_sp, enemy_sp_label, enemy_tile)
@@ -4388,6 +5311,7 @@ class GameplayCanvas(tk.Canvas):
             # Finalized finish time, animation will end here
             finish_time = 500 * (i + 1) + 200 + aoe_present + burn_present + 2 * savior_present
 
+            # Move savior unit back
             if savior_unit:
                 self.after(finish_time - 100, set_unit_show, enemy)
 
@@ -4406,11 +5330,16 @@ class GameplayCanvas(tk.Canvas):
             player.statusNeg = []
             player.debuffs = [0, 0, 0, 0, 0]
 
+            if player.pair_up_obj:
+                player.pair_up_obj.statusNeg = []
+                player.pair_up_obj.debuffs = [0, 0, 0, 0, 0]
+
             # Get exact changes to be enacted by post-combat effects
+            current_player_units, current_enemy_units = self.map.get_heroes_present_by_side()
             damage_taken, heals_given, sp_charges = feh.end_of_combat(atk_effects, def_effects, player, targeted_enemy, savior_unit)
 
             # Post combat damage/healing/sp charges across the field
-            for x in self.current_units[PLAYER] + self.current_units[ENEMY]:
+            for x in current_player_units + current_enemy_units:
                 hp_change = 0
                 if x in damage_taken:
                     hp_change -= damage_taken[x]
@@ -4427,7 +5356,12 @@ class GameplayCanvas(tk.Canvas):
                     x.chargeSpecial(sp_charges[x])
 
                 x_side = x.side
-                x_index = self.all_units[x_side].index(x)
+
+                if x in self.all_units[x_side]:
+                    x_index = self.all_units[x_side].index(x)
+                else:
+                    x_index = self.all_cohorts.index(x)
+
                 x_hp_label = self.unit_hp_count_labels[x_side][x_index]
                 x_hp_bar = self.unit_hp_bars_fg[x_side][x_index]
                 x_sp_label = self.unit_sp_count_labels[x_side][x_index]
@@ -4488,45 +5422,108 @@ class GameplayCanvas(tk.Canvas):
                 player.tile.hero_on = player
                 enemy.tile.hero_on = enemy
 
-                self.move_visuals_to_tile(S, item_index, player_move_pos)
-                self.move_visuals_to_tile(E_side, enemy_index, enemy_move_pos)
+                self.after(finish_time, self.move_visuals_to_tile_obj, player, player_move_pos)
+                self.after(finish_time, self.move_visuals_to_tile_obj, enemy, enemy_move_pos)
+
+            # If moving onto traps after combat
+            player_struct = player.tile.structure_on
+            enemy_struct = enemy.tile.structure_on
+
+            if player_struct and "Trap" in player_struct.name and player.side == PLAYER and player_struct.health != 0 and player.HPcur != 0:
+                player_struct.health = 0
+                self.after(finish_time, self.refresh_walls)
+
+                if "False" not in player_struct.name:
+                    if player_struct.name == "Bolt Trap":
+                        disarm_lvl = player.get("disarmTrap", 0)
+
+                        if final_dest_struct.level > disarm_lvl:
+                            for trap_unit in player.tile.unitsWithinNSpaces(3):
+                                trap_unit.HPcur = max(1, trap_unit.HPcur - player_struct.level * 10)
+
+                                if damage_taken or heals_given:
+                                    self.after(finish_time + 450, self.animate_damage_popup, player_struct.level * 10, trap_unit.tile.tileNum)
+                                    self.after(finish_time + 450, self.set_hp_visual, trap_unit, trap_unit.HPcur)
+                                else:
+                                    self.after(finish_time, self.animate_damage_popup, player_struct.level * 10, trap_unit.tile.tileNum)
+                                    self.after(finish_time, self.set_hp_visual, trap_unit, trap_unit.HPcur)
+
+                    elif player_struct.name == "Heavy Trap":
+                        disarm_lvl = player.get("disarmTrap", 0)
+
+                        if final_dest_struct.level > disarm_lvl:
+                            for trap_unit in player.tile.unitsWithinNSpaces(2):
+                                if trap_unit.HPcur <= get_tower_hp_threshold(player_struct.level):
+                                    trap_unit.inflictStatus(Status.Gravity)
+
+                    elif player_struct.name == "Hex Trap" and player.HPcur <= get_tower_hp_threshold(player_struct.level):
+                        hex_trap_triggered_after_action = True
+
+            if enemy_struct and "Trap" in enemy_struct.name and enemy.side == PLAYER and enemy_struct.health != 0 and enemy.HPcur != 0:
+                enemy_struct.health = 0
+                self.after(finish_time, self.refresh_walls)
+
+                if "False" not in enemy_struct.name:
+                    if enemy_struct.name == "Bolt Trap":
+                        disarm_lvl = enemy.get("disarmTrap", 0)
+
+                        if final_dest_struct.level > disarm_lvl:
+                            for trap_unit in enemy.tile.unitsWithinNSpaces(3):
+                                trap_unit.HPcur = max(1, trap_unit.HPcur - enemy_struct.level * 10)
+
+                                if damage_taken or heals_given:
+                                    self.after(finish_time + 450, self.animate_damage_popup, enemy_struct.level * 10, trap_unit.tile.tileNum)
+                                    self.after(finish_time + 450, self.set_hp_visual, trap_unit, trap_unit.HPcur)
+                                else:
+                                    self.after(finish_time, self.animate_damage_popup, enemy_struct.level * 10, trap_unit.tile.tileNum)
+                                    self.after(finish_time, self.set_hp_visual, trap_unit, trap_unit.HPcur)
+
+                    elif enemy_struct.name == "Heavy Trap":
+                        disarm_lvl = enemy.get("disarmTrap", 0)
+
+                        if final_dest_struct.level > disarm_lvl:
+                            for trap_unit in enemy.tile.unitsWithinNSpaces(2):
+                                if trap_unit.HPcur <= get_tower_hp_threshold(enemy_struct.level):
+                                    trap_unit.inflictStatus(Status.Gravity)
+
 
             # EXTRA ACTION FROM COMBAT
+            if not hex_trap_triggered_after_action:
 
-            # Share Spoils
-            if Status.ShareSpoils in initiated_enemy.statusNeg and initiated_enemy.HPcur == 0:
-                galeforce_triggered = True
+                # Share Spoils
+                if Status.ShareSpoils in initiated_enemy.statusNeg and initiated_enemy.HPcur == 0:
+                    galeforce_triggered = True
 
-            elif "lone_wolf" in player.getSkills() and player.assistTargetedOther == 0 and player.assistTargetedSelf == 0:
-                player.nonspecial_galeforce_triggered = True
-                galeforce_triggered = True
+                elif "lone_wolf" in player.getSkills() and player.assistTargetedOther == 0 and player.assistTargetedSelf == 0:
+                    player.nonspecial_galeforce_triggered = True
+                    galeforce_triggered = True
 
-            elif "override" in player.getSkills() and num_aoe_targets >= 2:
-                player.nonspecial_galeforce_triggered = True
-                galeforce_triggered = True
+                elif "override" in player.getSkills() and num_aoe_targets >= 2:
+                    player.nonspecial_galeforce_triggered = True
+                    galeforce_triggered = True
 
-            # Calling Circle goes here...?
+                # Calling Circle goes here...?
 
-            # Galeforce conditions
-            # Should trigger if:
-            # - Hasn't already triggered
-            # - Special is currently Galeforce
-            # - Sp Count is at 0
-            elif "galeforce" in player.getSkills() and player.specialCount == 0 and not player.special_galeforce_triggered:
-                player.special_galeforce_triggered = True
-                galeforce_triggered = True
-                player.specialCount = player.specialMax
-                self.after(finish_time, self.update_unit_graphics, player)
+                # Galeforce conditions
+                # Should trigger if:
+                # - Hasn't already triggered
+                # - Special is currently Galeforce
+                # - Sp Count is at 0
+                elif "galeforce" in player.getSkills() and player.specialCount == 0 and not player.special_galeforce_triggered:
+                    player.special_galeforce_triggered = True
+                    galeforce_triggered = True
+                    player.specialCount = player.specialMax
+                    self.after(finish_time, self.update_unit_graphics, player)
 
             # If the dragged unit dies in combat, remove them from the map
             if player.HPcur == 0:
                 self.after(finish_time, set_unit_death, player)
 
                 # remove from list of units
-                if player.side == 0:
-                    self.current_units[PLAYER].remove(player)
+                if player in self.current_units[player.side]:
+                    self.current_units[player.side].remove(player)
                 else:
-                    self.current_units[ENEMY].remove(player)
+                    self.current_units[player.side].remove(player.pair_up_obj)
 
                 # take unit off map
                 player.tile.hero_on = None
@@ -4534,18 +5531,25 @@ class GameplayCanvas(tk.Canvas):
                 # self.after(finish_time, clear_banner)
                 self.after(finish_time, self.unit_status.clear)
 
-            # If the foe dies in combat, remove them from the map
+                if player.side == PLAYER:
+                    self.after(finish_time, partial(self.button_frame.action_button.config, state='disabled', text='Action\nButton'))
+
+            else:
+                self.after(finish_time, self.unit_status.update_from_obj, player)
+
+            # If the targeted unit dies in combat, remove them from the map
             if initiated_enemy.HPcur == 0:
                 self.after(finish_time, set_unit_death, initiated_enemy)
 
                 # remove from list of units
-                if initiated_enemy.side == 0:
-                    self.current_units[PLAYER].remove(initiated_enemy)
+                if initiated_enemy in self.current_units[initiated_enemy.side]:
+                    self.current_units[initiated_enemy.side].remove(initiated_enemy)
                 else:
-                    self.current_units[ENEMY].remove(initiated_enemy)
+                    self.current_units[initiated_enemy.side].remove(initiated_enemy.pair_up_obj)
 
                 # take unit off map
                 initiated_enemy.tile.hero_on = None
+
 
             # Remove forecast
             self.after(finish_time, self.extras.clear_forecast_banner)
@@ -4554,7 +5558,7 @@ class GameplayCanvas(tk.Canvas):
             self.after(finish_time, animation_done)
 
         # ASSIIIIIIIIIIIIIIIIIIIIIIST!!!!!!!!!!!!!!!!!!!!
-        elif is_targeting_object and is_targeting_hero and destination_unit.isAllyOf(release_unit):
+        elif is_targeting_object and is_targeting_hero and destination_unit.isAllyOf(release_unit) and not trap_triggered:
             action = ASSIST
 
             player = destination_unit
@@ -4566,15 +5570,10 @@ class GameplayCanvas(tk.Canvas):
             # Determines if unit should keep their action upon using an assist
             assist_galeforce = False
 
-            ally_index = self.all_units[S].index(ally)
-
-            ally_sprite = self.unit_sprites[S][ally_index]
-            ally_grayscale = self.unit_sprites_gs[S][ally_index]
-            ally_weapon_icon = self.unit_weapon_icon_sprites[S][ally_index]
-            ally_hp_label = self.unit_hp_count_labels[S][ally_index]
-            ally_sp_label = self.unit_sp_count_labels[S][ally_index]
-            ally_hp_bar_fg = self.unit_hp_bars_fg[S][ally_index]
-            ally_hp_bar_bg = self.unit_hp_bars_bg[S][ally_index]
+            if ally in self.all_units[S]:
+                ally_index = self.all_units[S].index(ally)
+            else:
+                ally_index = self.all_cohorts.index(ally)
 
             unit_final_position = -1
             ally_final_position = -1
@@ -4742,34 +5741,21 @@ class GameplayCanvas(tk.Canvas):
                 self.animate_heal_popup(hp_healed_ally, ally.tile.tileNum)
 
                 # Get/Update HP assets
-                ally_index = self.all_units[S].index(ally)
-                ally_hp_label = self.unit_hp_count_labels[S][ally_index]
-                ally_hp_bar = self.unit_hp_bars_fg[S][ally_index]
-
-                hp_percentage = ally.HPcur / ally.visible_stats[HP]
-
-                self.set_text_val(ally_hp_label, ally.HPcur)
-                self.set_hp_bar_length(ally_hp_bar, hp_percentage)
+                self.refresh_unit_visuals_obj(ally)
 
                 # Display self heal (only if amount healed > 0)
                 if hp_healed_self > 0:
                     self.animate_heal_popup(hp_healed_self, player.tile.tileNum)
 
-                    player_hp_label = self.unit_hp_count_labels[S][item_index]
-                    player_hp_bar_fg = self.unit_hp_bars_fg[S][item_index]
-
-                    # Update HP assets
-                    hp_percentage = player.HPcur / player.visible_stats[HP]
-                    self.set_text_val(player_hp_label, player.HPcur)
-                    self.set_hp_bar_length(player_hp_bar_fg, hp_percentage)
+                    self.refresh_unit_visuals_obj(player)
 
                 # Charge own special for Staff assist use
                 if staff_special_triggered:
                     player.specialCount = player.specialMax
-                    self.set_text_val(self.unit_sp_count_labels[S][item_index], player.specialCount)
+                    self.refresh_unit_visuals_obj(player)
                 elif player.specialCount != -1:
                     player.specialCount = max(player.specialCount - 1, 0)
-                    self.set_text_val(self.unit_sp_count_labels[S][item_index], player.specialCount)
+                    self.refresh_unit_visuals_obj(player)
 
             # Dance/Sing/Play
             elif "refresh" in player.assist.effects:
@@ -4779,9 +5765,24 @@ class GameplayCanvas(tk.Canvas):
                 # Grant ally another action
                 self.units_to_move.append(ally)
 
-                ally_index = self.all_units[S].index(ally)
-                ally_sprite = self.unit_sprites[S][ally_index]
-                ally_gs_sprite = self.unit_sprites_gs[S][ally_index]
+                if ally in self.all_units[S]:
+                    ally_index = self.all_units[S].index(ally)
+
+                    if not ally.transformed:
+                        ally_sprite = self.unit_sprites[S][ally_index]
+                        ally_gs_sprite = self.unit_sprites_gs[S][ally_index]
+                    else:
+                        ally_sprite = self.unit_sprites_trans[S][ally_index]
+                        ally_gs_sprite = self.unit_sprites_gs_trans[S][ally_index]
+                else:
+                    ally_index = self.all_cohorts.index(ally)
+
+                    if not ally.transformed:
+                        ally_sprite = self.cohort_sprites[ally_index]
+                        ally_gs_sprite = self.cohort_sprites_gs[ally_index]
+                    else:
+                        ally_sprite = self.cohort_sprites_trans[ally_index]
+                        ally_gs_sprite = self.cohort_sprites_gs_trans[ally_index]
 
                 self.itemconfig(ally_sprite, state='normal')
                 self.itemconfig(ally_gs_sprite, state='hidden')
@@ -4796,6 +5797,23 @@ class GameplayCanvas(tk.Canvas):
                     while i <= 4:
                         ally.inflictStat(i, playerSkills["spectrumRefresh"])
                         i += 1
+
+                if "azureMove" in playerSkills and (ally.move == 0 or ally.move == 2):
+                    ally.inflictStatus(Status.MobilityUp)
+
+                if "azureMoveNP" in playerSkills and (ally.move == 0 or ally.move == 2):
+                    ally.inflictStatus(Status.MobilityUp)
+                    ally.inflictStatus(Status.NullPanic)
+
+                # Prayer Wheel - L!Azura
+                if "azuraBonusEnhance" in playerSkills:
+                    highest_bonus = max(ally.buffs)
+
+                    if highest_bonus:
+                        ally.inflictStat(ATK, highest_bonus)
+                        ally.inflictStat(SPD, highest_bonus)
+                        ally.inflictStat(DEF, highest_bonus)
+                        ally.inflictStat(RES, highest_bonus)
 
             # Rally
             if "rallyAtk" in player.assist.effects:
@@ -4892,13 +5910,16 @@ class GameplayCanvas(tk.Canvas):
                 self.map.tiles[unit_final_position].hero_on = player
                 self.map.tiles[ally_final_position].hero_on = ally
 
-                self.move_visuals_to_tile(S, item_index, unit_final_position)
-                self.move_visuals_to_tile(S, ally_index, ally_final_position)
+                self.move_visuals_to_tile_obj(player, unit_final_position)
+                self.move_visuals_to_tile_obj(ally, ally_final_position)
 
             # Clear status effects, action taken
             player.statusNeg = []
             player.debuffs = [0, 0, 0, 0, 0]
-            #set_banner(player)
+
+            if player.pair_up_obj:
+                player.pair_up_obj.statusNeg = []
+                player.pair_up_obj.debuffs = [0, 0, 0, 0, 0]
 
             # Skills that grant effects when assist skills are used
 
@@ -4907,19 +5928,14 @@ class GameplayCanvas(tk.Canvas):
                 playerSkills = player.getSkills()
                 allySkills = ally.getSkills()
 
+                # Update if Shigure uses on another of himself?
                 if "shigureLink" in playerSkills or "shigureLink" in allySkills:
                     for hero in [player, ally]:
                         hero.HPcur = min(hero.visible_stats[HP], ally.HPcur + 10)
                         self.animate_heal_popup(10, hero.tile.tileNum)
 
                         # Get/Update HP assets
-                        hero_index = self.all_units[S].index(hero)
-                        hero_hp_label = self.unit_hp_count_labels[S][hero_index]
-                        hero_hp_bar = self.unit_hp_bars_fg[S][hero_index]
-
-                        hp_percentage = hero.HPcur / hero.visible_stats[HP]
-                        self.set_text_val(hero_hp_label, hero.HPcur)
-                        self.set_hp_bar_length(hero_hp_bar, hp_percentage)
+                        self.refresh_unit_visuals_obj(hero)
 
                 if "atkSpdLink" in playerSkills or "atkSpdLink" in allySkills:
                     stat_boost = max(playerSkills.get("atkSpdLink", 0), allySkills.get("atkSpdLink", 0))
@@ -4941,6 +5957,13 @@ class GameplayCanvas(tk.Canvas):
                     for hero in [player, ally]:
                         hero.inflictStat(ATK, stat_boost * 2)
                         hero.inflictStat(RES, stat_boost * 2)
+
+                if "spdDefLink" in playerSkills or "spdDefLink" in allySkills:
+                    stat_boost = max(playerSkills.get("spdDefLink", 0), allySkills.get("spdDefLink", 0))
+
+                    for hero in [player, ally]:
+                        hero.inflictStat(SPD, stat_boost * 2)
+                        hero.inflictStat(DEF, stat_boost * 2)
 
                 if "spdResLink" in playerSkills or "spdResLink" in allySkills:
                     stat_boost = max(playerSkills.get("spdResLink", 0), allySkills.get("spdResLink", 0))
@@ -4997,6 +6020,51 @@ class GameplayCanvas(tk.Canvas):
                     for hero in [player, ally]:
                         hero.inflictStatus(Status.Pursual)
 
+                # Saberooth Fang (Base) - Mordecai
+                if "mordecaiLink" in playerSkills or "mordecaiLink" in allySkills:
+                    affected_units = []
+                    affected_units += feh.foes_within_n(player, 2)
+                    affected_units += feh.foes_within_n(ally, 2)
+
+                    affected_units = list(set(affected_units))
+
+                    for foe in affected_units:
+                        foe.inflictStat(ATK, -4)
+                        foe.inflictStat(SPD, -4)
+                        foe.inflictStat(DEF, -4)
+                        foe.inflictStat(RES, -4)
+
+                # Saberooth Fang (Refine Base) - Mordecai
+                if "mordecaiRefineLink" in playerSkills or "mordecaiRefineLink" in allySkills:
+                    affected_units = []
+                    affected_units += feh.foes_within_n(player, 2)
+                    affected_units += feh.foes_within_n(ally, 2)
+
+                    affected_units = list(set(affected_units))
+
+                    for foe in affected_units:
+                        foe.inflictStat(ATK, -5)
+                        foe.inflictStat(SPD, -5)
+                        foe.inflictStat(DEF, -5)
+                        foe.inflictStat(RES, -5)
+
+                # Sabertooth Fang (Refine Eff) - Mordecai
+                if "mordecaiSPJump" in playerSkills or "mordecaiSPJump" in allySkills:
+                    total_jump = 0
+
+                    if "mordecaiSPJump" in playerSkills: total_jump += 1
+                    if "mordecaiSPJump" in allySkills: total_jump += 1
+
+                    affected_units = []
+                    affected_units += feh.foes_within_n(player, 2)
+                    affected_units += feh.foes_within_n(ally, 2)
+
+                    affected_units = list(set(affected_units))
+
+                    for foe in affected_units:
+                        foe.chargeSpecial(-total_jump)
+                        self.refresh_unit_visuals_obj(foe)
+
             # Feint Skills
             if player.assist.type == "Rally":
                 playerSkills = player.getSkills()
@@ -5026,10 +6094,70 @@ class GameplayCanvas(tk.Canvas):
             if ("selfAssistRefresh" in player.assist.effects or "lucinaRefresh" in player.assist.effects) and player.assistTargetedOther == 1:
                 galeforce_triggered = True
 
+            # Trap triggered after assist skill usage
+
+            player_struct = player.tile.structure_on
+            ally_struct = ally.tile.structure_on
+
+            if player_struct and "Trap" in player_struct.name and player.side == PLAYER and player_struct.health != 0:
+                player_struct.health = 0
+                self.refresh_walls()
+
+                if "False" not in player_struct.name:
+                    if player_struct.name == "Bolt Trap":
+                        disarm_lvl = player.get("disarmTrap", 0)
+
+                        if final_dest_struct.level > disarm_lvl:
+                            for trap_unit in player.tile.unitsWithinNSpaces(3):
+                                trap_unit.HPcur = max(1, trap_unit.HPcur - player_struct.level * 10)
+                                self.animate_damage_popup(player_struct.level * 10, trap_unit.tile.tileNum)
+
+                                self.set_hp_visual(trap_unit, trap_unit.HPcur)
+
+                    elif player_struct.name == "Heavy Trap":
+                        disarm_lvl = player.get("disarmTrap", 0)
+
+                        if final_dest_struct.level > disarm_lvl:
+                            for trap_unit in player.tile.unitsWithinNSpaces(2):
+                                if trap_unit.HPcur <= get_tower_hp_threshold(player_struct.level):
+                                    trap_unit.inflictStatus(Status.Gravity)
+
+                    elif player_struct.name == "Hex Trap" and player.HPcur <= get_tower_hp_threshold(player_struct.level):
+                        hex_trap_triggered_after_action = True
+
+            if ally_struct and "Trap" in ally_struct.name and ally.side == PLAYER and ally_struct.health != 0:
+                ally_struct.health = 0
+                self.refresh_walls()
+
+                if "False" not in ally_struct.name:
+                    if ally_struct.name == "Bolt Trap":
+                        disarm_lvl = ally.get("disarmTrap", 0)
+
+                        if final_dest_struct.level > disarm_lvl:
+                            for trap_unit in ally.tile.unitsWithinNSpaces(3):
+                                trap_unit.HPcur = max(1, trap_unit.HPcur - ally_struct.level * 10)
+                                self.animate_damage_popup(ally_struct.level * 10, trap_unit.tile.tileNum)
+
+                                self.set_hp_visual(trap_unit, trap_unit.HPcur)
+
+                    elif ally_struct.name == "Heavy Trap":
+                        disarm_lvl = ally.get("disarmTrap", 0)
+
+                        if final_dest_struct.level > disarm_lvl:
+                            for trap_unit in ally.tile.unitsWithinNSpaces(2):
+                                if trap_unit.HPcur <= get_tower_hp_threshold(ally_struct.level):
+                                    trap_unit.inflictStatus(Status.Gravity)
+
+                    elif ally_struct.name == "Hex Trap" and ally.HPcur <= get_tower_hp_threshold(ally_struct.level):
+                        if ally in self.units_to_move:
+                            self.units_to_move.remove(ally)
+
+                        set_unit_actability(ally)
+
             self.extras.clear_forecast_banner()
 
         # DESTROOOOOOOOOOOOOOOOYYYY!!!!!!!!!!!!!!!!!
-        elif is_targeting_object and not is_targeting_hero and is_targeting_struct and release_struct.health > 0:
+        elif is_targeting_object and not is_targeting_hero and is_targeting_struct and release_struct.health > 0 and not trap_triggered:
             action = BREAK
 
             # Break selected wall
@@ -5042,6 +6170,7 @@ class GameplayCanvas(tk.Canvas):
 
         # DO NOTHIIIIIIIIIIIIIIING!!!!!
         else:
+            self.extras.clear_forecast_banner()
             action = MOVE
 
         # If any action was taken, manage those things here
@@ -5049,30 +6178,41 @@ class GameplayCanvas(tk.Canvas):
 
             # Clears debuffs if no action has occured, or
             if action != ATTACK and action != ASSIST:
-                cur_unit.statusNeg = []
-                cur_unit.debuffs = [0, 0, 0, 0, 0]
+                if not trap_triggered:
+                    cur_unit.statusNeg = []
+                    cur_unit.debuffs = [0, 0, 0, 0, 0]
+
+                    if cur_unit.pair_up_obj:
+                        cur_unit.pair_up_obj.statusNeg = []
+                        cur_unit.pair_up_obj.debuffs = [0, 0, 0, 0, 0]
 
                 self.unit_status.update_from_obj(cur_unit)
 
             if action == ASSIST:
                 self.unit_status.update_from_obj(cur_unit)
 
-            if action != MOVE and not galeforce_triggered and cur_unit.canto_ready and cur_unit.HPcur != 0:
+            if action != MOVE and not galeforce_triggered and cur_unit.canto_ready and cur_unit.HPcur != 0 and not hex_trap_triggered_after_action:
 
-                canto_moves = feh.get_canto_moves(cur_unit, self.current_units[S], self.current_units[S-1], self.distance, self.spaces_allowed, action, self.turn_info[0])[2]
+                current_units = self.map.get_heroes_present_by_side()
+
+                canto_moves = feh.get_canto_moves(cur_unit, current_units[S], current_units[S-1], self.distance, self.spaces_allowed, action, self.turn_info[0])[2]
 
                 # If there are any valid tiles to use Canto to, activate canto mode
                 if canto_moves:
                     self.canto = cur_unit
-                    cur_unit.canto_ready = False # Canto officially used
+                    cur_unit.canto_ready = False # Canto officially used up
+
+                    # Disable Pair Up during Canto
+                    if player.side == PLAYER:
+                        self.after(finish_time, partial(self.button_frame.action_button.config, state='disabled', text='Action\nButton'))
 
                     # moving again with canto removes all debuffs, because sure why not
-                    for foe in self.current_units[S-1]:
+                    for foe in current_units[S-1]:
                         if "cantoControlW" in foe.getSkills() and cur_unit in feh.foes_within_n(foe, 4):
                             cur_unit.inflictStatus(Status.CantoControl)
 
                     # Check Canto Moves after Canto Control is given out
-                    moves_obj_array = feh.get_canto_moves(cur_unit, self.current_units[S], self.current_units[S-1], self.distance, self.spaces_allowed, action, self.turn_info[0])[2]
+                    moves_obj_array = feh.get_canto_moves(cur_unit, current_units[S], current_units[S-1], self.distance, self.spaces_allowed, action, self.turn_info[0])[2]
 
                     if moves_obj_array:
                         # Hide Swap buttons
@@ -5103,7 +6243,6 @@ class GameplayCanvas(tk.Canvas):
                             self.after(finish_time, create_tile, x1, y1, z1)
                     else:
                         self.canto = None
-
 
             elif not cur_unit.canto_ready:
                 self.canto = None
@@ -5188,6 +6327,11 @@ class GameplayCanvas(tk.Canvas):
 
                     cur_hero.statusNeg = []
                     cur_hero.debuffs = [0, 0, 0, 0, 0]
+
+                    if cur_hero.pair_up_obj:
+                        cur_hero.pair_up_obj.statusNeg = []
+                        cur_hero.pair_up_obj.debuffs = [0, 0, 0, 0, 0]
+
                     #set_banner(cur_hero)
 
                     if cur_hero == self.canto:
@@ -5197,15 +6341,19 @@ class GameplayCanvas(tk.Canvas):
                             self.delete(blue_tile_id)
                         self.canto_tile_imgs.clear()
 
-                    self.itemconfig(self.unit_sprites[S][item_index], state='hidden')
-                    self.itemconfig(self.unit_sprites_gs[S][item_index], state='normal')
-
-                    if not self.units_to_move:
-                        self.next_phase()
-
+                    if cur_hero.transformed:
+                        self.itemconfig(self.unit_sprites_trans[S][item_index], state='hidden')
+                        self.itemconfig(self.unit_sprites_gs_trans[S][item_index], state='normal')
                     else:
-                        mapstate = create_mapstate(self.all_units[PLAYER], self.all_units[ENEMY], self.map, self.units_to_move, self.turn_info[0])
-                        self.map_states.append(mapstate)
+                        self.itemconfig(self.unit_sprites[S][item_index], state='hidden')
+                        self.itemconfig(self.unit_sprites_gs[S][item_index], state='normal')
+
+                if not self.units_to_move:
+                    self.next_phase()
+
+                else:
+                    mapstate = create_mapstate(self.all_units[PLAYER], self.all_units[ENEMY], self.map, self.units_to_move, self.turn_info[0])
+                    self.map_states.append(mapstate)
 
         return
 
@@ -5214,7 +6362,7 @@ class GameplayCanvas(tk.Canvas):
         y_comp = ((self.GAMEPLAY_WIDTH - event.y) // 90)
         selected_tile = x_comp + 6 * y_comp
 
-        if not self.running:
+        if not self.running and not self.drag_data:
             if selected_tile in self.unit_drag_points and self.unit_drag_points[selected_tile].hero and self.unit_drag_points[selected_tile].hero.epithet != "Generic":
                 self.hero_listing.create_edit_popup_from_unit(self.unit_drag_points[selected_tile].hero)
                 self.hero_listing.creation_make_button.config(text="Save", command=partial(self.place_unit_object, event.x, event.y))
@@ -5226,6 +6374,11 @@ class GameplayCanvas(tk.Canvas):
 
         # Specify map terrain, structures, and starting positions with JSON file.
         self.map.define_map(json_data)
+
+        for tile in self.map.tiles:
+            if tile.structure_on and tile.structure_on.struct_type != 0:
+                self.ar_structs.append(tile.structure_on)
+                self.ar_struct_tiles.append(tile)
 
         if "mode" in json_data:
             if json_data["mode"] == "arena":
@@ -5273,12 +6426,25 @@ class GameplayCanvas(tk.Canvas):
 
             self.unit_drag_points[starting_space] = _DragPoint(tile_num=starting_space, modifiable=True, side=PLAYER)
 
-        for starting_space in self.map.enemy_start_spaces:
-            cur_tile = self.create_image(0, 0, image=self.move_tile_photos[2])
-            self.starting_tile_photos.append(cur_tile)
-            self.move_to_tile(cur_tile, starting_space)
+        if self.game_mode != hero.GameMode.AetherRaids:
+            for starting_space in self.map.enemy_start_spaces:
+                cur_tile = self.create_image(0, 0, image=self.move_tile_photos[2])
+                self.starting_tile_photos.append(cur_tile)
+                self.move_to_tile(cur_tile, starting_space)
 
-            self.unit_drag_points[starting_space] = _DragPoint(tile_num=starting_space, modifiable=True, side=ENEMY)
+                self.unit_drag_points[starting_space] = _DragPoint(tile_num=starting_space, modifiable=True, side=ENEMY)
+
+        else:
+            for starting_space in range(36, 48):
+                cur_tile = self.create_image(0, 0, image=self.move_tile_photos[2])
+                self.starting_tile_photos.append(cur_tile)
+                self.move_to_tile(cur_tile, starting_space)
+
+                if self.map.tiles[starting_space].structure_on:
+                    self.itemconfig(cur_tile, state='hidden')
+
+                self.unit_drag_points[starting_space] = _DragPoint(tile_num=starting_space, modifiable=True, side=ENEMY)
+
 
         if self.game_mode == hero.GameMode.Arena or self.game_mode == hero.GameMode.AetherRaids:
             return
@@ -5367,6 +6533,7 @@ class GameplayCanvas(tk.Canvas):
 
         self.moveto(sprite, x_move - 18, y_move + 29)
 
+    # AVOID USING
     def move_visuals_to_tile(self, side, index, tile_int):
         self.move_to_tile(self.unit_sprites[side][index], tile_int)
         self.move_to_tile(self.unit_sprites_gs[side][index], tile_int)
@@ -5378,9 +6545,48 @@ class GameplayCanvas(tk.Canvas):
         self.move_to_tile_bar(self.unit_hp_bars_bg[side][index], tile_int)
         self.move_to_tile_bar(self.unit_hp_bars_fg[side][index], tile_int)
 
+    # Move a unit's visuals to a given tile
+    def move_visuals_to_tile_obj(self, unit, tile_int):
+        side = unit.side
+        is_cohort = unit in self.all_cohorts
+
+        if not is_cohort:
+            unit_index = self.all_units[side].index(unit)
+        else:
+            unit_index = self.all_cohorts.index(unit)
+
+        if not is_cohort:
+            self.move_to_tile(self.unit_sprites[side][unit_index], tile_int)
+            self.move_to_tile(self.unit_sprites_gs[side][unit_index], tile_int)
+            self.move_to_tile(self.unit_sprites_trans[side][unit_index], tile_int)
+            self.move_to_tile(self.unit_sprites_gs_trans[side][unit_index], tile_int)
+            self.move_to_tile_wp(self.unit_weapon_icon_sprites[side][unit_index], tile_int)
+            self.move_to_tile_sp(self.unit_sp_count_labels[side][unit_index], tile_int)
+            self.move_to_tile_hp(self.unit_hp_count_labels[side][unit_index], tile_int)
+            self.move_to_tile_bar(self.unit_hp_bars_bg[side][unit_index], tile_int)
+            self.move_to_tile_bar(self.unit_hp_bars_fg[side][unit_index], tile_int)
+        else:
+            self.move_to_tile(self.cohort_sprites[unit_index], tile_int)
+            self.move_to_tile(self.cohort_sprites_gs[unit_index], tile_int)
+            self.move_to_tile(self.cohort_sprites_trans[unit_index], tile_int)
+            self.move_to_tile(self.cohort_sprites_gs_trans[unit_index], tile_int)
+            self.move_to_tile_wp(self.cohort_weapon_icon_sprites[unit_index], tile_int)
+            self.move_to_tile_sp(self.unit_sp_count_labels[side][unit_index], tile_int)
+            self.move_to_tile_hp(self.unit_hp_count_labels[side][unit_index], tile_int)
+            self.move_to_tile_bar(self.unit_hp_bars_bg[side][unit_index], tile_int)
+            self.move_to_tile_bar(self.unit_hp_bars_fg[side][unit_index], tile_int)
+
+    # Sets a unit's health to a given value
     def set_hp_visual(self, unit, cur_HP):
         S = unit.side
-        unit_index = self.all_units[S].index(unit)
+
+        is_cohort = unit in self.all_cohorts
+
+        if not is_cohort:
+            unit_index = self.all_units[S].index(unit)
+        else:
+            unit_index = self.all_cohorts.index(unit)
+
         unit_hp_label = self.unit_hp_count_labels[S][unit_index]
         unit_hp_bar = self.unit_hp_bars_fg[S][unit_index]
 
@@ -5417,61 +6623,167 @@ class GameplayCanvas(tk.Canvas):
 
         self.coords(unit_hp_bar, coords)
 
+    # Sets unit's HP/Special Count to what they are currently, but cooler
+    def refresh_unit_visuals_obj(self, unit):
+        side = unit.side
+
+        if unit in self.all_units[side]:
+            index = self.all_units[side].index(unit)
+        else:
+            index = self.all_cohorts.index(unit)
+
+        unit_hp_label = self.unit_hp_count_labels[side][index]
+        unit_sp_label = self.unit_sp_count_labels[side][index]
+        unit_hp_bar = self.unit_hp_bars_fg[side][index]
+
+        # HP Count
+        self.itemconfig(unit_hp_label, text=str(int(unit.HPcur)))
+
+        # Sp Count
+        if unit.specialCount != -1:
+            self.itemconfig(unit_sp_label, text=str(int(unit.specialCount)))
+
+        # HP Bar
+        hp_percentage = unit.HPcur / unit.visible_stats[HP]
+        new_length = int(60 * hp_percentage)
+
+        if new_length == 0:
+            self.itemconfig(unit_hp_bar, state='hidden')
+            return
+
+        coords = self.coords(unit_hp_bar)
+
+        coords[2] = coords[0] + new_length
+
+        self.coords(unit_hp_bar, coords)
+
     # Update unit position graphics, when unit object has just been transferred to onto a new space
+    # Unit must be alive
     def update_unit_graphics(self, unit):
         S = unit.side
-        unit_index = self.all_units[S].index(unit)
-        cur_tile = unit.tile.tileNum
+        is_cohort = unit in self.all_cohorts
 
-        self.move_visuals_to_tile(S, unit_index, cur_tile)
+        # Get leader's weapon sprite icon
+        if not is_cohort:
+            unit_index = self.all_units[S].index(unit)
+            leader_weapon_sprite = self.unit_weapon_icon_sprites[S][unit_index]
+        else:
+            unit_index = self.all_cohorts.index(unit)
+            leader_weapon_sprite = self.cohort_weapon_icon_sprites[unit_index]
 
-        '''
-        unit_sprite = sprite_IDs[S][unit_index]
-        unit_gs_sprite = grayscale_IDs[S][unit_index]
-        unit_wp_sprite = weapon_IDs[S][unit_index]
-        unit_hp_label = hp_labels[S][unit_index]
-        unit_sp_label = special_labels[S][unit_index]
-        unit_hp_bar_fg = hp_bar_fgs[S][unit_index]
-        unit_hp_bar_bg = hp_bar_bgs[S][unit_index]
+        cur_tile_Obj = unit.tile
 
-        move_to_tile(canvas, unit_sprite, cur_tile)
-        move_to_tile(canvas, unit_gs_sprite, cur_tile)
-        move_to_tile_wp(canvas, unit_wp_sprite, cur_tile)
-        move_to_tile_hp(canvas, unit_hp_label, cur_tile)
-        move_to_tile_sp(canvas, unit_sp_label, cur_tile)
-        move_to_tile_fg_bar(canvas, unit_hp_bar_fg, cur_tile)
-        move_to_tile_fg_bar(canvas, unit_hp_bar_bg, cur_tile)
-        '''
+        # If unit is currently on map
+        if cur_tile_Obj:
+            cur_tile = cur_tile_Obj.tileNum
 
-        self.itemconfig(self.unit_weapon_icon_sprites[S][unit_index], state='normal')
-        self.itemconfig(self.unit_hp_count_labels[S][unit_index], state='normal')
-        self.itemconfig(self.unit_sp_count_labels[S][unit_index], state='normal')
+            self.move_visuals_to_tile_obj(unit, cur_tile)
 
-        self.itemconfig(self.unit_hp_bars_fg[S][unit_index], state='normal')
-        self.itemconfig(self.unit_hp_bars_bg[S][unit_index], state='normal')
+            self.itemconfig(leader_weapon_sprite, state='normal')
 
-        # I don't know why, when hiding the HP bars, they are moved really far away
-        # These lines place them back to the right place
-        self.move_to_tile_bar(self.unit_hp_bars_fg[S][unit_index], cur_tile)
-        self.move_to_tile_bar(self.unit_hp_bars_bg[S][unit_index], cur_tile)
+            if unit.side == PLAYER:
+                if not is_cohort and self.cohort_weapon_icon_sprites[unit_index]:
+                    self.itemconfig(self.cohort_weapon_icon_sprites[unit_index], state='hidden')
+                elif is_cohort:
+                    self.itemconfig(self.unit_weapon_icon_sprites[unit.side][unit_index], state='hidden')
 
+            self.itemconfig(self.unit_hp_count_labels[S][unit_index], state='normal')
+            self.itemconfig(self.unit_sp_count_labels[S][unit_index], state='normal')
+
+            self.itemconfig(self.unit_hp_bars_fg[S][unit_index], state='normal')
+            self.itemconfig(self.unit_hp_bars_bg[S][unit_index], state='normal')
+
+            # I don't know why, when hiding the HP bars, they are moved really far away
+            # These lines place them back to the right place
+            self.move_to_tile_bar(self.unit_hp_bars_fg[S][unit_index], cur_tile)
+            self.move_to_tile_bar(self.unit_hp_bars_bg[S][unit_index], cur_tile)
+
+        else:
+            self.itemconfig(leader_weapon_sprite, state='hidden')
+            self.itemconfig(self.unit_hp_count_labels[S][unit_index], state='hidden')
+            self.itemconfig(self.unit_sp_count_labels[S][unit_index], state='hidden')
+
+            self.itemconfig(self.unit_hp_bars_fg[S][unit_index], state='hidden')
+            self.itemconfig(self.unit_hp_bars_bg[S][unit_index], state='hidden')
+
+        # Set special count to its correct value
         if unit.specialCount != -1:
             self.set_text_val(self.unit_sp_count_labels[S][unit_index], unit.specialCount)
-        #else:
-        #    self.set_text_val(self.unit_sp_count_labels[S][unit_index], 999)
 
+        # Set HP bar and count to its correct value
         self.set_hp_visual(unit, unit.HPcur)
 
-        if unit in self.units_to_move or unit.side != self.turn_info[1]:
-            self.itemconfig(self.unit_sprites[S][unit_index], state='normal')
-            self.itemconfig(self.unit_sprites_gs[S][unit_index], state='hidden')
+        if not is_cohort:
+            if unit.transformed:
+                if unit in self.units_to_move or unit.side != self.turn_info[1]:
+                    self.itemconfig(self.unit_sprites[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_gs[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_trans[S][unit_index], state='normal')
+                    self.itemconfig(self.unit_sprites_gs_trans[S][unit_index], state='hidden')
+
+                else:
+                    self.itemconfig(self.unit_sprites[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_gs[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_trans[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_gs_trans[S][unit_index], state='normal')
+
+            else:
+                if unit in self.units_to_move or unit.side != self.turn_info[1]:
+                    self.itemconfig(self.unit_sprites[S][unit_index], state='normal')
+                    self.itemconfig(self.unit_sprites_gs[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_trans[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_gs_trans[S][unit_index], state='hidden')
+
+                else:
+                    self.itemconfig(self.unit_sprites[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_gs[S][unit_index], state='normal')
+                    self.itemconfig(self.unit_sprites_trans[S][unit_index], state='hidden')
+                    self.itemconfig(self.unit_sprites_gs_trans[S][unit_index], state='hidden')
+
+            # Hide cohort sprites if player side only
+            if unit.side == PLAYER:
+                self.itemconfig(self.cohort_sprites[unit_index], state='hidden')
+                self.itemconfig(self.cohort_sprites_gs[unit_index], state='hidden')
+                self.itemconfig(self.cohort_sprites_trans[unit_index], state='hidden')
+                self.itemconfig(self.cohort_sprites_gs_trans[unit_index], state='hidden')
         else:
+            if unit.transformed:
+                if unit in self.units_to_move or unit.side != self.turn_info[1]:
+
+
+                    self.itemconfig(self.cohort_sprites[unit_index], state='hidden')
+                    self.itemconfig(self.cohort_sprites_gs[unit_index], state='hidden')
+                    self.itemconfig(self.cohort_sprites_trans[unit_index], state='normal')
+                    self.itemconfig(self.cohort_sprites_gs_trans[unit_index], state='hidden')
+                else:
+                    self.itemconfig(self.cohort_sprites[unit_index], state='hidden')
+                    self.itemconfig(self.cohort_sprites_gs[unit_index], state='hidden')
+                    self.itemconfig(self.cohort_sprites_trans[unit_index], state='hidden')
+                    self.itemconfig(self.cohort_sprites_gs_trans[unit_index], state='normal')
+            else:
+                if unit in self.units_to_move or unit.side != self.turn_info[1]:
+                    self.itemconfig(self.cohort_sprites[unit_index], state='normal')
+                    self.itemconfig(self.cohort_sprites_gs[unit_index], state='hidden')
+                    self.itemconfig(self.cohort_sprites_trans[unit_index], state='hidden')
+                    self.itemconfig(self.cohort_sprites_gs_trans[unit_index], state='hidden')
+                else:
+                    self.itemconfig(self.cohort_sprites[unit_index], state='hidden')
+                    self.itemconfig(self.cohort_sprites_gs[unit_index], state='normal')
+                    self.itemconfig(self.cohort_sprites_trans[unit_index], state='hidden')
+                    self.itemconfig(self.cohort_sprites_gs_trans[unit_index], state='hidden')
+
             self.itemconfig(self.unit_sprites[S][unit_index], state='hidden')
-            self.itemconfig(self.unit_sprites_gs[S][unit_index], state='normal')
+            self.itemconfig(self.unit_sprites_gs[S][unit_index], state='hidden')
+            self.itemconfig(self.unit_sprites_trans[S][unit_index], state='hidden')
+            self.itemconfig(self.unit_sprites_gs_trans[S][unit_index], state='hidden')
 
     def refresh_walls(self):
         self.wall_photos.clear()
         self.wall_sprites.clear()
+
+        self.ar_structs.clear()
+        self.ar_struct_tiles.clear()
+        self.ar_struct_sprites.clear()
 
         wall_texture = Image.open("CombatSprites/" + self.map.wall_texture)
 
@@ -5524,19 +6836,19 @@ class GameplayCanvas(tk.Canvas):
 
             elif tile.structure_on and tile.structure_on.struct_type != 0:
                 struct = tile.structure_on
+                self.ar_structs.append(struct)
+                self.ar_struct_tiles.append(tile)
 
-                SIDE_NONEXCLUSIVE_AR_STRUCTS = ["Fortress", "Bolt Tower", "Tactics Room", "Healing Tower", "Panic Manor", "Catapult", "Light Shrine", "Dark Shrine", "Calling Circle"]
-
+                SIDE_NONEXCLUSIVE_AR_STRUCTS = ["Fortress", "Bolt Tower", "Tactics Room", "Healing Tower", "Panic Manor", "Catapult", "Bright Shrine", "Dark Shrine", "Calling Circle"]
 
                 if struct.struct_type == PLAYER + 1:
-                    image_path = "CombatSprites/AR Structures/" + struct.name.replace(" ", "_") + ".png"
+                    image_path = "CombatSprites/AR Structures/" + struct.name.replace(" ", "_").replace("'", "") + ".png"
 
                 else:
                     if struct.name in SIDE_NONEXCLUSIVE_AR_STRUCTS or "School" in struct.name:
                         image_path = "CombatSprites/AR Structures/" + struct.name.replace(" ", "_") + "_Enemy.png"
                     else:
-                        image_path = "CombatSprites/AR Structures/" + struct.name.replace(" ", "_") + ".png"
-
+                        image_path = "CombatSprites/AR Structures/" + struct.name.replace(" ", "_").replace("'", "").replace("False_", "") + ".png"
 
                 if struct.health != 0:
                     struct_image = Image.open(image_path)
@@ -5544,7 +6856,6 @@ class GameplayCanvas(tk.Canvas):
                 else:
                     struct_image = wall_texture.crop((1639, 547, 1818, 726))
                     struct_image = struct_image.resize((90, 90))
-
 
                 struct_photo = ImageTk.PhotoImage(struct_image)
 
@@ -5555,11 +6866,22 @@ class GameplayCanvas(tk.Canvas):
 
                 self.move_to_tile(struct_sprite, tile.tileNum)
 
+                self.ar_struct_sprites.append(struct_sprite)
 
+                if self.unit_sprites[PLAYER]:
+                    for sprite in self.wall_sprites:
+                        self.tag_lower(sprite, self.unit_sprites[PLAYER][0])
 
+                if self.unit_sprites[ENEMY]:
+                    for sprite in self.wall_sprites:
+                        self.tag_lower(sprite, self.unit_sprites[ENEMY][0])
+
+    # Refresh unit graphics and objects while in preparation mode
     def refresh_units_prep(self):
         self.all_units = [[], []]
         self.current_units = [[], []]
+
+        self.drag_point_units = [[], []]
 
         self.unit_photos = [[], []]
         self.unit_sprites = [[], []]
@@ -5596,16 +6918,34 @@ class GameplayCanvas(tk.Canvas):
 
         self.unit_tags = [[], []]
 
+        self.cohort_photos = []
+        self.cohort_sprites = []
+
+        self.cohort_photos_gs = []
+        self.cohort_sprites_gs = []
+
+        self.cohort_photos_trans = []
+        self.cohort_sprites_trans = []
+
+        self.cohort_photos_gs_trans = []
+        self.cohort_sprites_gs_trans = []
+
+        self.cohort_weapon_icon_photos = []
+        self.cohort_weapon_icon_sprites = []
+
         i = 0
         j = 0
         for drag_point in self.unit_drag_points.values():
             if drag_point.hero:
+
                 unit = deepcopy(drag_point.hero)
                 unit.side = drag_point.side
 
                 S = unit.side
 
                 self.all_units[S].append(unit)
+
+                self.drag_point_units[S].append(drag_point.hero)
 
                 respString = "-R" if unit.resp else ""
                 cur_image = Image.open("TestSprites/" + unit.intName + respString + ".png")
@@ -5624,6 +6964,7 @@ class GameplayCanvas(tk.Canvas):
 
                 if unit.wpnType in hero.BEAST_WEAPONS:
                     cur_image_tr = Image.open("TestSprites/" + unit.intName + "-Tr" + ".png")
+                    if S == ENEMY: cur_image_tr = cur_image_tr.transpose(Image.FLIP_LEFT_RIGHT)
                     resized_image_tr = cur_image_tr.resize((int(cur_image_tr.width / 2.1), int(cur_image_tr.height / 2.1)), Image.LANCZOS)
                     cur_photo_tr = ImageTk.PhotoImage(resized_image_tr)
 
@@ -5711,9 +7052,6 @@ class GameplayCanvas(tk.Canvas):
                 self.move_to_tile_bar(hp_bar_fg, drag_point.tile)
                 self.unit_hp_bars_fg[S].append(hp_bar_fg)
 
-
-
-
             if drag_point.side == PLAYER: i += 1
             elif drag_point.side == ENEMY: j += 1
 
@@ -5732,7 +7070,149 @@ class GameplayCanvas(tk.Canvas):
         else:
             self.button_frame.start_button.config(state="disabled")
 
-        self.extras.setup_tabs(self.unit_drag_points, None, None, False)
+        self.extras.setup_tabs(self.unit_drag_points, None, self.game_mode, self.running, self.get_struct_levels())
+
+    # Generate sprites for cohort units, if any
+    def set_cohort_sprites(self):
+        self.cohort_photos = []
+        self.cohort_sprites = []
+
+        self.cohort_photos_gs = []
+        self.cohort_sprites_gs = []
+
+        self.cohort_photos_trans = []
+        self.cohort_sprites_trans = []
+
+        self.cohort_photos_gs_trans = []
+        self.cohort_sprites_gs_trans = []
+
+        self.cohort_weapon_icon_photos = []
+        self.cohort_weapon_icon_sprites = []
+
+        i = 0
+        for cohort in self.all_cohorts:
+            if cohort:
+                S = cohort.side
+
+                leader = self.all_units[PLAYER][i]
+                leader_tag = self.unit_tags[PLAYER][i]
+
+
+                respString = "-R" if cohort.resp else ""
+                cur_image = Image.open("TestSprites/" + cohort.intName + respString + ".png")
+                resized_image = cur_image.resize((int(cur_image.width / 2.1), int(cur_image.height / 2.1)), Image.LANCZOS)
+                cur_photo = ImageTk.PhotoImage(resized_image)
+
+                self.cohort_photos.append(cur_photo)
+
+                grayscale_image = resized_image.convert("L")
+                transparent_image = Image.new("RGBA", resized_image.size, (0, 0, 0, 0))
+                transparent_image.paste(grayscale_image, (0, 0), mask=resized_image.split()[3])
+                grayscale_photo = ImageTk.PhotoImage(transparent_image)
+
+                self.cohort_photos_gs.append(grayscale_photo)
+
+                if cohort.wpnType in hero.BEAST_WEAPONS:
+                    cur_image_tr = Image.open("TestSprites/" + cohort.intName + "-Tr" + ".png")
+                    resized_image_tr = cur_image_tr.resize((int(cur_image_tr.width / 2.1), int(cur_image_tr.height / 2.1)), Image.LANCZOS)
+                    cur_photo_tr = ImageTk.PhotoImage(resized_image_tr)
+
+                    self.cohort_photos_trans.append(cur_photo_tr)
+
+                    grayscale_image_tr = resized_image_tr.convert("L")
+                    transparent_image_tr = Image.new("RGBA", resized_image_tr.size, (0, 0, 0, 0))
+                    transparent_image_tr.paste(grayscale_image_tr, (0, 0), mask=resized_image_tr.split()[3])
+                    grayscale_photo_tr = ImageTk.PhotoImage(transparent_image_tr)
+
+                    self.cohort_photos_gs_trans.append(grayscale_photo_tr)
+
+                else:
+                    cur_photo_tr = cur_photo
+                    grayscale_photo_tr = grayscale_photo
+
+                    self.cohort_photos_trans.append(cur_photo_tr)
+                    self.cohort_photos_gs_trans.append(grayscale_photo_tr)
+
+                # Sprites on canvas
+
+                # Player sprite
+                item_id = self.create_image(100 * i, 200, anchor='center', image=cur_photo, tags=leader_tag)
+                self.move_to_tile(item_id, leader.tile.tileNum)
+                self.cohort_sprites.append(item_id)
+
+                # Player sprite - grayscale
+                gs_item_id = self.create_image(100 * i, 200, anchor='center', image=grayscale_photo, tags=leader_tag)
+                self.itemconfig(gs_item_id, state='hidden')
+                self.move_to_tile(gs_item_id, leader.tile.tileNum)
+                self.cohort_sprites_gs.append(gs_item_id)
+
+                # Player sprite - transformed
+                item_id_tr = self.create_image(100 * i, 200, anchor='center', image=cur_photo_tr, tags=leader_tag)
+                self.itemconfig(item_id_tr, state='hidden')
+                self.move_to_tile(item_id_tr, leader.tile.tileNum)
+                self.cohort_sprites_trans.append(item_id_tr)
+
+                # Player sprite - grayscale & transformed
+                gs_item_id_tr = self.create_image(100 * i, 200, anchor='center', image=grayscale_photo_tr, tags=leader_tag)
+                self.itemconfig(gs_item_id_tr, state='hidden')
+                self.move_to_tile(gs_item_id_tr, leader.tile.tileNum)
+                self.cohort_sprites_gs_trans.append(gs_item_id_tr)
+
+
+                # Weapon icon
+                wpn_num = hero.weapons[cohort.wpnType][0]
+                wp_photo = ImageTk.PhotoImage(make_weapon_sprite(wpn_num))
+                self.cohort_weapon_icon_photos.append(wp_photo)
+
+                weapon_id = self.create_image(160, 50, anchor=tk.NW, image=wp_photo, tags=leader_tag)
+                self.move_to_tile_wp(weapon_id, leader.tile.tileNum)
+                self.cohort_weapon_icon_sprites.append(weapon_id)
+
+                # Hide everything
+                self.itemconfig(item_id, state='hidden')
+                self.itemconfig(weapon_id, state='hidden')
+
+            else:
+                self.cohort_photos.append(None)
+                self.cohort_photos_gs.append(None)
+                self.cohort_photos_trans.append(None)
+                self.cohort_photos_gs_trans.append(None)
+
+                self.cohort_sprites.append(None)
+                self.cohort_sprites_gs.append(None)
+                self.cohort_sprites_trans.append(None)
+                self.cohort_sprites_gs_trans.append(None)
+
+                self.cohort_weapon_icon_photos.append(None)
+                self.cohort_weapon_icon_sprites.append(None)
+
+            i += 1
+
+    # Switch which unit is leading an a Pair Up
+    def switch_pairing(self, leader):
+        if self.animation:
+            return
+
+        tile = leader.tile
+        cohort = leader.pair_up_obj
+
+        # The Switch
+        tile.hero_on = cohort
+        cohort.tile = tile
+        leader.tile = None
+
+        # Update button to reflect who the leader is
+        self.button_frame.action_button.config(state='normal', command=partial(self.switch_pairing, cohort))
+
+        self.unit_status.update_from_obj(cohort)
+
+        # Make cohort actionable
+        if leader in self.units_to_move:
+            self.units_to_move.remove(leader)
+            self.units_to_move.append(cohort)
+
+        self.update_unit_graphics(leader)
+        self.update_unit_graphics(cohort)
 
     def set_text_val(self, label, num):
         self.itemconfig(label, text=str(int(num)))
@@ -5747,6 +7227,33 @@ class GameplayCanvas(tk.Canvas):
         coords = self.coords(rect)
         coords[2] = coords[0] + new_length
         self.coords(rect, coords)
+
+    def refresh_valid_ar_start_spaces(self):
+        for starting_space in self.unit_drag_points:
+            cur_tile = self.create_image(0, 0, image=self.move_tile_photos[2])
+            self.starting_tile_photos.append(cur_tile)
+            self.move_to_tile(cur_tile, starting_space)
+
+            self.unit_drag_points[starting_space] = _DragPoint(tile_num=starting_space, modifiable=True, side=ENEMY)
+
+    def toggle_valid_ar_start_spaces(self):
+        if self.game_mode != hero.GameMode.AetherRaids: return
+
+        if not self.tile_sprites:
+
+            for tile in self.map.tiles:
+                x_move = 90 * (tile.tileNum % 6)
+                y_move = 90 * (7 - (tile.tileNum // 6))
+
+                cur_dark_tile = self.create_rectangle_alpha(0, 0, 90, 90, fill='black', alpha=0.5, anchor=tk.CENTER)
+                self.tag_lower(cur_dark_tile, 6)
+                self.coords(cur_dark_tile, x_move, y_move)
+                self.tile_sprites.append(cur_dark_tile)
+
+        else:
+            for tile in self.tile_sprites:
+                self.delete(tile)
+            self.tile_sprites.clear()
 
     # Move a sprite towards one direction, then return them to their original position
     def animate_sprite_atk(self, item_ID, move_hori, move_vert, damage, text_tile):
@@ -5839,6 +7346,8 @@ class GameplayCanvas(tk.Canvas):
 
         tile = tile_x_coord + tile_y_coord * 6
 
+        if self.map.tiles[tile].structure_on: return
+
         if tile in self.unit_drag_points and self.unit_drag_points[tile].modifiable and not self.running:
 
             made_hero = make_hero_from_pd_row(row_data, self.unit_drag_points[tile].side)
@@ -5851,6 +7360,55 @@ class GameplayCanvas(tk.Canvas):
 
             if made_hero.side == ENEMY:
                 self.unit_status.update_from_obj(made_hero)
+
+    def get_struct_levels(self):
+        result_dict = dict(zip(ar_struct_names, [1] * len(ar_struct_names)))
+
+        SIDE_NONEXCLUSIVE_AR_STRUCTS = ["Fortress", "Bolt Tower", "Tactics Room", "Healing Tower", "Panic Manor", "Catapult", "Bright Shrine", "Dark Shrine", "Calling Circle"]
+
+        for tile in self.map.tiles:
+            if tile.structure_on and tile.structure_on.struct_type != 0:
+                if tile.structure_on.name in SIDE_NONEXCLUSIVE_AR_STRUCTS or "School" in tile.structure_on.name:
+                    if tile.structure_on.struct_type == PLAYER + 1:
+                        cur_struct_name = tile.structure_on.name + " (O)"
+                    else:
+                        cur_struct_name = tile.structure_on.name + " (D)"
+                else:
+                    cur_struct_name = tile.structure_on.name
+
+                result_dict[cur_struct_name] = tile.structure_on.level
+
+        return result_dict
+
+    def get_struct_by_name(self, struct_id):
+        for tile in self.map.tiles:
+            if tile.structure_on:
+                if tile.structure_on.name == struct_id:
+                    return tile.structure_on
+                elif tile.structure_on.name in struct_id:
+                    if tile.structure_on.struct_type == PLAYER + 1 and "(O)" in struct_id:
+                        return tile.structure_on
+                    elif tile.structure_on.struct_type == ENEMY + 1 and "(D)" in struct_id:
+                        return tile.structure_on
+
+        return None
+
+    def get_struct_tile_by_name(self, struct_id):
+        for tile in self.map.tiles:
+            if tile.structure_on:
+                if tile.structure_on.name == struct_id:
+                    return tile
+                elif tile.structure_on.name in struct_id:
+                    if tile.structure_on.struct_type == PLAYER + 1 and "(O)" in struct_id:
+                        return tile
+                    elif tile.structure_on.struct_type == ENEMY + 1 and "(D)" in struct_id:
+                        return tile
+
+        return None
+
+    def update_struct_status(self, struct):
+        if struct == self.unit_status.cur_hero:
+            self.unit_status.update_from_struct(struct)
 
 class GameplayButtonFrame(tk.Frame):
     def __init__(self, master, fg, inner_bg, **kw):
@@ -6057,6 +7615,8 @@ class FileTree(ttk.Treeview):
     def on_hover_timeout(self, item, event, map_data):
         if self.preview_window: return
         if not item: return
+
+        if len(self.bbox(item)) != 4: return
 
         x, y, cx, cy = self.bbox(item)
         x = x + self.winfo_rootx() + event.x
@@ -6435,11 +7995,17 @@ class UnitInfoDisplay(tk.Frame):
         self.asupport_label.pack(side=tk.LEFT)
 
 
-        self.cur_hero = False
+        self.cur_hero = None
+
+        self.just_name_label = tk.Label(self.inner_menu, font=(None, inner_font), bg=bg_color, fg=fg, highlightthickness=1)
+        self.just_desc_label = tk.Label(self.inner_menu, font=(None, inner_font), bg=bg_color, fg=fg, highlightthickness=1, width=60, wraplength=520, justify="left")
 
     def update_from_obj(self, unit: hero.Hero):
         if not self.cur_hero:
             self.clear()
+
+        self.just_name_label.forget()
+        self.just_desc_label.forget()
 
         self.cur_hero = unit
 
@@ -6537,10 +8103,30 @@ class UnitInfoDisplay(tk.Frame):
 
         self.aided_label.config(text=aided_str)
 
-        CreateToolTip(self.pairup_label, text="This hero does not have access to Pair Up.", side="right")
+        pairup_info = '''This hero can use Pair Up in the following modes:
+        -Story
+        -Paralogues
+        -Allegiance Battles
+        -Røkkr Sieges
+        -Mjölnir's Strike'''
+
+        # Pair Up
+        if unit.blessing and unit.blessing.element < 4 and unit.blessing.boostType == 2:
+            pair_up_text = "Currently paired with build: " + (unit.pair_up if unit.pair_up else "None") + "\n\n"
+
+            if unit.pair_up_obj:
+                pair_up_text += "Pair Up hero: " + unit.pair_up_obj.name + ": " + unit.pair_up_obj.epithet + "\n\n"
+
+            pair_up_text += pairup_info
+
+        elif unit.pair_up_obj:
+                pair_up_text = "Pair Up hero: " + unit.pair_up_obj.name + ": " + unit.pair_up_obj.epithet
+        else:
+            pair_up_text = "This hero does not have access to Pair Up."
+
+        CreateToolTip(self.pairup_label, text=pair_up_text, side="right")
 
         elements = ["Fire", "Water", "Earth", "Wind", "Light", "Dark", "Astra", "Anima"]
-
 
         if unit.blessing:
             if unit.blessing.boostType != 0:
@@ -6586,16 +8172,35 @@ class UnitInfoDisplay(tk.Frame):
 
             elif blessing.boostType == 1:
                 blessing_text += "During " + elements[element].capitalize() + " season, grants the following stat boosts to deployed allies with a " + elements[element].capitalize()
-                blessing_text += " blessing conferred:\n\nHP+3, "
 
-                if blessing.stat == hero.ATK:
-                    blessing_text += "Atk+2"
-                elif blessing.stat == hero.SPD:
-                    blessing_text += "Spd+3"
-                elif blessing.stat == hero.DEF:
-                    blessing_text += "Def+4"
-                elif blessing.stat == hero.RES:
-                    blessing_text += "Res+4"
+                if unit.blessing.element < 4:
+                    blessing_text += " blessing conferred:\n\nHP+3, "
+
+                    if blessing.stat == hero.ATK:
+                        blessing_text += "Atk+2"
+                    elif blessing.stat == hero.SPD:
+                        blessing_text += "Spd+3"
+                    elif blessing.stat == hero.DEF:
+                        blessing_text += "Def+4"
+                    elif blessing.stat == hero.RES:
+                        blessing_text += "Res+4"
+                else:
+                    blessing_text += " blessing conferred:\n\nHP+5, "
+
+                    if blessing.stat == hero.ATK:
+                        blessing_text += "Atk+3"
+                    elif blessing.stat == hero.SPD:
+                        blessing_text += "Spd+4"
+                    elif blessing.stat == hero.DEF:
+                        blessing_text += "Def+5"
+                    elif blessing.stat == hero.RES:
+                        blessing_text += "Res+5"
+
+            elif blessing.boostType == 2:
+                blessing_text += "During " + elements[element].capitalize() + " season, grants the following stat boosts to deployed allies with a " + elements[element].capitalize()
+
+                if unit.blessing.element < 4:
+                    blessing_text += " blessing conferred:\n\nHP+3\n\nEnables usage of Pair Up in select modes."
 
         CreateToolTip(self.blessing_label, blessing_text)
 
@@ -6634,7 +8239,7 @@ class UnitInfoDisplay(tk.Frame):
         self.res_stat_label.config(fg=fills[RES])
 
         fills = ['white'] * 5
-        stats = unit.visible_stats[:]
+        stats = unit.getStats()
 
         panic_factor = 1
         if hero.Status.Panic in unit.statusNeg: panic_factor = -1
@@ -6676,7 +8281,7 @@ class UnitInfoDisplay(tk.Frame):
             statuses_str += "--- POSITIVE STATUSES --- \n"
             positive_header_used = True
 
-            statuses_str += "Stat Boosts:"
+            statuses_str += "Stat Boosts: "
             if unit.buffs[ATK] > 0:
                 statuses_str += "Atk+" + str(unit.buffs[ATK]) + "/"
             if unit.buffs[SPD] > 0:
@@ -6709,7 +8314,7 @@ class UnitInfoDisplay(tk.Frame):
             statuses_str += "--- NEGATIVE STATUSES --- \n"
             negative_header_used = True
 
-            statuses_str += "Inverted Stat Bonuses:"
+            statuses_str += "Inverted Stat Bonuses: "
             if unit.buffs[ATK] > 0:
                 statuses_str += "Atk-" + str(unit.buffs[ATK]) + "/"
             if unit.buffs[SPD] > 0:
@@ -6729,7 +8334,7 @@ class UnitInfoDisplay(tk.Frame):
                 statuses_str += "--- NEGATIVE STATUSES --- \n"
                 negative_header_used = True
 
-            statuses_str += "Stat Penalties:"
+            statuses_str += "Stat Penalties: "
             if unit.debuffs[ATK] < 0:
                 statuses_str += "Atk" + str(unit.debuffs[ATK]) + "/"
             if unit.debuffs[SPD] < 0:
@@ -6758,6 +8363,9 @@ class UnitInfoDisplay(tk.Frame):
 
             statuses_str += '\n'
 
+        if statuses_str and statuses_str[-1] == '\n':
+            statuses_str = statuses_str[:-1]
+
         CreateToolTip(self.status_label, statuses_str)
 
         # Skills
@@ -6765,7 +8373,7 @@ class UnitInfoDisplay(tk.Frame):
         weapon_desc = ""
 
         wpn_txt_color = "black"
-        refine_substrings = ("Eff", "Atk", "Spd", "Def", "Res", "Wra", "Daz")
+        refine_substrings = ("Eff", "Atk", "Spd", "Def", "Res", "Wra", "Daz", "Eff2", "Atk2", "Spd2", "Def2", "Res2", "Wra2", "Daz2")
 
         if unit.weapon:
             wpn_str = unit.weapon.name
@@ -6850,6 +8458,37 @@ class UnitInfoDisplay(tk.Frame):
         self.and_you.pack(anchor=tk.NW)
         self.middle_frame.pack()
 
+    def update_from_struct(self, struct):
+        self.clear()
+
+        # If struct is a regular wall, do nothing
+        if struct.struct_type == 0: return
+
+        if not self.cur_hero:
+            self.clear()
+
+        self.cur_hero = struct
+
+        banner_color = "#18284f" if struct.struct_type == PLAYER + 1 else "#541616"
+
+        self.inner_menu.config(bg=banner_color)
+        self.middle_frame.config(bg=banner_color)
+
+        self.just_name_label.pack(anchor=tk.NW, padx=5, pady=5)
+        self.just_desc_label.pack(anchor=tk.NW, padx=5, pady=5)
+
+        SIDE_NONEXCLUSIVE_AR_STRUCTS = ["Fortress", "Bolt Tower", "Tactics Room", "Healing Tower", "Panic Manor", "Catapult", "Bright Shrine", "Dark Shrine", "Calling Circle"]
+
+        name_str = struct.name
+        if struct.name in SIDE_NONEXCLUSIVE_AR_STRUCTS or "School" in struct.name:
+            if struct.struct_type == PLAYER + 1:
+                name_str += " (O)"
+            else:
+                name_str += " (D)"
+
+        self.just_name_label.config(text=name_str + "        Lv. " + str(struct.level))
+        self.just_desc_label.config(text=struct.get_desc())
+
     def clear(self):
         self.inner_menu.config(bg=self.default_bg)
 
@@ -6909,7 +8548,7 @@ class ExtrasFrame(tk.Frame):
         self.player_team_tab = tk.Frame(self.body_frame, bg="#18284f")
         self.enemy_team_tab = tk.Frame(self.body_frame, bg="#541616")
         self.forecast_tab = tk.Frame(self.body_frame, bg="#1a1f26")
-        self.building_tab = tk.Frame(self.body_frame, bg="mint cream")
+        self.building_tab = tk.Frame(self.body_frame, bg="#031e21")
 
         tk.Label(self.player_team_tab, text="Player Side Heroes Deployed:", bg=bg_color, fg=fg, font=("Helvetica", 14)).pack(anchor=tk.NW, padx=10, pady=10)
         tk.Label(self.enemy_team_tab, text="Enemy Side Heroes Deployed:", bg=bg_color, fg=fg, font=("Helvetica", 14)).pack(anchor=tk.NW, padx=10, pady=10)
@@ -6939,14 +8578,203 @@ class ExtrasFrame(tk.Frame):
         self.icons = []
         self.labels = []
 
+        tk.Label(self.building_tab, text="AR Structures:", bg=bg_color, fg=fg, font=("Helvetica", 14)).pack(anchor=tk.NW, padx=10, pady=10)
+
+        self.scrolling_frame = MyScrollableFrame(self.building_tab)
+        self.scrolling_frame.pack(expand=True, fill=tk.BOTH, padx=10, pady=(0, 10))
+
+        divider_colors = ["#ed8f13", "#13ed96", "#683e94", "#b3b533", "#68edd9"]
+
+        offensive_frame = tk.Frame(self.scrolling_frame, bg="#ed8f13")
+        defensive_frame = tk.Frame(self.scrolling_frame, bg="#13ed96")
+        traps_frame = tk.Frame(self.scrolling_frame, bg="#683e94")
+        ornaments_frame = tk.Frame(self.scrolling_frame, bg="#b3b533")
+        resources_frame = tk.Frame(self.scrolling_frame, bg="#68edd9")
+
+        self.divider_frames = [offensive_frame, defensive_frame, traps_frame, ornaments_frame, resources_frame]
+        self.divider_labels = ["Offense Sturctures", "Defense Structures", "Traps", "Ornaments", "Resources"]
+
+        off_structs = []
+        def_structs = []
+        traps = []
+        ornaments = []
+        resources = []
+
+        struct_lists = [off_structs, def_structs, traps, ornaments, resources]
+
+        for index, row in struct_sheet.iterrows():
+            cur_name = row['Name']
+            category = row['Category']
+            offense_exists = row['Offense Exists']
+            defense_exists = row['Defense Exists']
+
+            if category == "AR-STRUCT" or cur_name == "Fortress":
+                if offense_exists:
+                    off_structs.append(cur_name + " (O)" if defense_exists else cur_name)
+                if defense_exists:
+                    def_structs.append(cur_name + " (D)" if offense_exists else cur_name)
+            elif category in {"AR-TRAP", "AR-FTRAP"}:
+                traps.append(cur_name)
+            elif category == "AR-DECOR":
+                ornaments.append(cur_name)
+            elif cur_name == "Aether Fountain" or cur_name == "Aether Amphorae":
+                resources.append(cur_name)
+
+        self.struct_imgs = []
+
+        self.struct_levels = {}
+        self.struct_labels = {}
+        self.struct_buttons = {}
+
+        self.num_offense = 1
+        self.num_defense = 1
+        self.num_traps = 0
+        self.num_false_traps = 0
+        self.num_ornaments = 0
+        self.num_resources = 0
+
+        not_added_yet = ["Duo's Indulgence", "Duo's Hindrance", "Safety Fence", "Calling Circle (O)", "Calling Circle (D)"]
+
+        i = 0
+        for frame in self.divider_frames:
+            frame.pack(pady=3, anchor=tk.W, fill=tk.X, expand=True)
+
+            cur_label = tk.Label(frame, text=self.divider_labels[i], font=(None, 15, 'bold'), bg=divider_colors[i], fg="white")
+            cur_label.pack(padx=5, side=tk.LEFT)
+
+            for struct in struct_lists[i]:
+
+                if struct in not_added_yet: continue
+
+                cur_struct_frame = tk.Frame(self.scrolling_frame, bg=divider_colors[i])
+                cur_struct_frame.pack(pady=3, anchor=tk.W, fill=tk.X, expand=True)
+
+                cur_name = struct.replace(" (D)", "_Enemy").replace(" (O)", "").replace(" ", "_").replace("'", "").replace("False_", "")
+
+                image_path = "CombatSprites/AR Structures/" + cur_name + ".png"
+                struct_image = Image.open(image_path).resize((45, 45))
+
+                struct_photo = ImageTk.PhotoImage(struct_image)
+
+                self.struct_imgs.append(struct_photo)
+
+                struct_pic_frame = tk.Label(cur_struct_frame, image=struct_photo, bg=divider_colors[i])
+                struct_pic_frame.pack(side=tk.LEFT, padx=5)
+
+                cur_struct_label = tk.Label(cur_struct_frame, text=struct, font=(None, 12, 'bold'), bg=divider_colors[i], fg="white")
+                cur_struct_label.pack(side=tk.LEFT)
+
+                toggle_presence_button = tk.Button(cur_struct_frame, text="Add", bg="sky blue", width=10, command=partial(self.toggle_struct, struct))
+                toggle_presence_button.pack(side=tk.RIGHT, padx=5)
+
+                if "Fortress" in struct or struct == "Aether Fountain" or struct == "Aether Amphorae":
+                    toggle_presence_button.config(state="disabled", text="Remove", bg="#eb3d57")
+
+                level = 1
+                cur_level_label = tk.Label(cur_struct_frame, text="Lv. " + str(level), font=(None, 12, 'bold'), bg=divider_colors[i], fg="white", width=5)
+
+                self.struct_levels[struct] = level
+                self.struct_labels[struct] = cur_level_label
+                self.struct_buttons[struct] = toggle_presence_button
+
+                if i != 3:
+                    add_level_button = tk.Button(cur_struct_frame, text="+", fg="green", width=2, command=partial(self.change_level, struct, +1))
+                    add_level_button.pack(side=tk.RIGHT, padx=5)
+
+                    cur_level_label.pack(side=tk.RIGHT)
+
+                    subtract_level_button = tk.Button(cur_struct_frame, text="-", fg="red", width=2, command=partial(self.change_level, struct, -1))
+                    subtract_level_button.pack(side=tk.RIGHT, padx=5)
+
+            i += 1
+
+        self.num_player_units = 0
+
         self.game_mode = None
         self.is_running = None
+
+        self.cur_sim = None
+
+    def toggle_struct(self, struct_id):
+        if self.cur_sim and self.cur_sim[0].canvas.get_struct_by_name(struct_id):
+
+            self.struct_buttons[struct_id].config(text="Add", bg="sky blue")
+
+            if self.cur_sim[0].canvas.unit_status.cur_hero == self.cur_sim[0].canvas.get_struct_by_name(struct_id):
+                self.cur_sim[0].canvas.unit_status.clear()
+
+            tile_containing_struct = self.cur_sim[0].canvas.get_struct_tile_by_name(struct_id)
+            tile_containing_struct.structure_on = None
+
+            self.cur_sim[0].canvas.refresh_walls()
+
+        else:
+            general_id = struct_id.replace(" (O)", "").replace(" (D)", "")
+            side = 1 if "(O)" in struct_id or struct_id in ["Escape Ladder", "Duo's Indulgence", "Safety Fence"] else 2
+
+            ex_struct = makeStruct(general_id, side)
+            ex_struct.level = self.struct_levels[struct_id]
+
+            placed = False
+
+            if side == 1:
+                for tile in self.cur_sim[0].canvas.map.tiles[0:6]:
+                    if not tile.structure_on:
+                        tile.structure_on = ex_struct
+                        placed = True
+                        break
+            else:
+                for tile in self.cur_sim[0].canvas.map.tiles[12:48]:
+                    not_occupied_drag_point = (tile.tileNum not in self.cur_sim[0].canvas.unit_drag_points or
+                                               (tile.tileNum in self.cur_sim[0].canvas.unit_drag_points and not self.cur_sim[0].canvas.unit_drag_points[tile.tileNum].hero))
+
+                    if not tile.structure_on and not_occupied_drag_point and tile.terrain == 0:
+                        tile.structure_on = ex_struct
+                        placed = True
+                        break
+
+            if placed:
+                self.cur_sim[0].canvas.unit_status.update_from_struct(ex_struct)
+                self.struct_buttons[struct_id].config(text="Remove", bg="#eb3d57")
+
+            self.cur_sim[0].canvas.refresh_walls()
+
+        for tile in self.cur_sim[0].canvas.starting_tile_photos:
+            index = self.cur_sim[0].canvas.starting_tile_photos.index(tile)
+            cur_drag = list(self.cur_sim[0].canvas.unit_drag_points.keys())[index]
+
+            if not self.cur_sim[0].canvas.map.tiles[cur_drag].structure_on:
+                self.cur_sim[0].canvas.itemconfigure(tile, state='normal')
+            else:
+                self.cur_sim[0].canvas.itemconfigure(tile, state='hidden')
+
+        # Show in preview the object added, if currently previewed object was removed, hide it
+
+    def change_level(self, struct_id, change):
+        general_id = struct_id.replace(" (O)", "").replace(" (D)", "")
+
+        ex_struct = makeStruct(general_id, 1 if "(O)" in struct_id else 2)
+
+        self.struct_levels[struct_id] = min(max(1, self.struct_levels[struct_id] + change), ex_struct.max_level)
+
+        self.struct_labels[struct_id].config(text="Lv. " + str(self.struct_levels[struct_id]))
+
+        if self.cur_sim and self.cur_sim[0].canvas.get_struct_by_name(struct_id):
+            struct_on_map = self.cur_sim[0].canvas.get_struct_by_name(struct_id)
+
+            struct_on_map.level = self.struct_levels[struct_id]
+
+            self.cur_sim[0].canvas.update_struct_status(struct_on_map)
+
+        # If this struct is currently being displayed, show in preview
+
 
     def reset_tab_buttons(self):
         for button in self.buttons:
             button.config(bg=self.default_bg)
 
-    def setup_tabs(self, drag_points, bonus_labels, game_mode, is_running):
+    # Called when units are modified on canvas OR tabs are switched
+    def setup_tabs(self, drag_points, bonus_labels, game_mode, is_running, struct_levels_dict):
         for label in self.player_labels + self.enemy_labels:
             label.destroy()
 
@@ -6970,8 +8798,11 @@ class ExtrasFrame(tk.Frame):
 
         i = 1
         j = 1
+
         for drag_point in drag_points.values():
+            # If hero is present on drag point, get their sprite from file
             if drag_point.hero:
+
                 unit = drag_point.hero
                 unit.side = drag_point.side
 
@@ -6987,6 +8818,7 @@ class ExtrasFrame(tk.Frame):
                 else:
                     self.enemy_sprites.append(cur_photo)
 
+            # Assign which frame gets the menu components
             if drag_point.side == PLAYER:
                 master = self.player_label_frame
                 adding_list = self.player_labels
@@ -6994,11 +8826,17 @@ class ExtrasFrame(tk.Frame):
                 master = self.enemy_label_frame
                 adding_list = self.enemy_labels
 
+            # Create new frame for this unit
             cur_frame = tk.Label(master, bg="gray10")
-            cur_frame.pack(padx=10, pady=10, side=tk.LEFT)
-            adding_list.append(cur_frame)
-
             unit_count = i if drag_point.side == PLAYER else j
+
+            # Place frame onto grid (If in Aether Raids, only put down enemy frames if they are present)
+            if not(drag_point.side == ENEMY and game_mode == hero.GameMode.AetherRaids):
+                cur_frame.grid(row=(unit_count - 1) // 4, column=(unit_count - 1) % 4, padx=10, pady=10)
+                adding_list.append(cur_frame)
+            elif drag_point.hero:
+                cur_frame.grid(row=(unit_count - 1) // 4, column=(unit_count - 1) % 4, padx=10, pady=10)
+                adding_list.append(cur_frame)
 
             if drag_point.hero:
                 pic_label = tk.Label(cur_frame, width=100, height=100, image=cur_photo, bg="gray10")
@@ -7009,18 +8847,24 @@ class ExtrasFrame(tk.Frame):
 
             bonus_button_color = "gray35"
 
-            if drag_point.side == PLAYER and self.bonus_units[i-1]:
+            if (drag_point.side == PLAYER and self.bonus_units[i-1]) or (drag_point.side == ENEMY and self.bonus_units[i + j - 2]):
                 bonus_button_color = "gold"
 
             adding_list.append(pic_label)
             pic_label.pack()
             name_label.pack(fill=tk.X, padx=5, pady=5)
 
-            if drag_point.side == PLAYER and (self.game_mode == hero.GameMode.Arena or self.game_mode == hero.GameMode.AetherRaids):
-                bonus_button = tk.Button(cur_frame, text="Is Bonus", bg=bonus_button_color, bd=0, command=partial(self.toggle_unit_as_bonus, i-1))
+            if (drag_point.side == PLAYER and self.game_mode == hero.GameMode.Arena) or self.game_mode == hero.GameMode.AetherRaids and (drag_point.side == PLAYER or drag_point.hero):
+                button_pos = i-1 if drag_point.side == PLAYER else i + j - 2
+
+                bonus_button = tk.Button(cur_frame, text="Is Bonus", bg=bonus_button_color, bd=0, command=partial(self.toggle_unit_as_bonus, button_pos))
 
                 if self.is_running:
                     bonus_button.config(state="disabled")
+                    self.building_button.config(state='disabled')
+
+                if (not self.is_running) and self.game_mode == hero.GameMode.AetherRaids:
+                    self.building_button.config(state='normal')
 
                 bonus_button.pack(fill=tk.X)
                 self.bonus_units_buttons.append(bonus_button)
@@ -7028,7 +8872,29 @@ class ExtrasFrame(tk.Frame):
             if drag_point.side == PLAYER:
                 i += 1
             else:
-                j += 1
+                if game_mode != hero.GameMode.AetherRaids or (game_mode == hero.GameMode.AetherRaids and drag_point.hero):
+                    j += 1
+
+            if j == 1:
+                self.enemy_label_frame.forget()
+            else:
+                self.enemy_label_frame.pack(anchor=tk.NW, padx=10, pady=10)
+
+        self.num_player_units = i
+        self.struct_levels = struct_levels_dict
+
+        not_added_yet = ["Duo's Indulgence", "Duo's Hindrance", "Safety Fence", "Calling Circle (O)", "Calling Circle (D)"]
+
+        for key in self.struct_levels:
+            if key in not_added_yet: continue
+
+            self.struct_labels[key].config(text="Lv. " + str(self.struct_levels[key]))
+
+            if self.cur_sim[0].canvas.get_struct_by_name(key):
+                self.struct_buttons[key].config(text="Remove", bg="#eb3d57")
+            else:
+                self.struct_buttons[key].config(text="Add", bg="sky blue")
+
 
     def toggle_unit_as_bonus(self, button_num):
         if self.bonus_units[button_num]:
@@ -7515,8 +9381,10 @@ class ExtrasFrame(tk.Frame):
 
     def show_building(self):
         self.reset_tab_buttons()
-
-        #print("moe")
+        self.building_button.config(bg="green")
 
         if self.active_tab:
             self.active_tab.forget()
+
+        self.building_tab.pack(fill=tk.BOTH, expand=True)
+        self.active_tab = self.building_tab

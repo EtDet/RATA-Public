@@ -51,30 +51,30 @@ Life and Death 3,Grants Atk/Spd+5. Inflicts Def/Res-5.,3,A,19,TRUE,atkBoost,5,sp
 Still Water 1,Grants Atk/Res+3. Inflicts Def-3.,1,A,20,TRUE,atkBoost,3,resBoost,3,defBoost,-3,,,,,Any,Any
 Still Water 2,Grants Atk/Res+4. Inflicts Def-4.,2,A,20,TRUE,atkBoost,4,resBoost,4,defBoost,-4,,,,,Any,Any
 Still Water 3,Grants Atk/Res+5. Inflicts Def-5.,3,A,20,TRUE,atkBoost,5,resBoost,5,defBoost,-5,,,,,Any,Any
-Death Blow 1,"If unit initiates combat, grants Atk+2 during combat.",1,A,21,TRUE,atkBlow,1,,,,,,,,,Any,Staff
-Death Blow 2,"If unit initiates combat, grants Atk+4 during combat.",2,A,21,TRUE,atkBlow,2,,,,,,,,,Any,Staff
-Death Blow 3,"If unit initiates combat, grants Atk+6 during combat.",3,A,21,TRUE,atkBlow,3,,,,,,,,,Any,Staff
-Darting Blow 1,"If unit initiates combat, grants Spd+2 during combat.",1,A,22,TRUE,spdBlow,1,,,,,,,,,Any,Staff
-Darting Blow 2,"If unit initiates combat, grants Spd+4 during combat.",2,A,22,TRUE,spdBlow,2,,,,,,,,,Any,Staff
-Darting Blow 3,"If unit initiates combat, grants Spd+6 during combat.",3,A,22,TRUE,spdBlow,3,,,,,,,,,Any,Staff
-Armored Blow 1,"If unit initiates combat, grants Def+2 during combat.",1,A,23,TRUE,defBlow,1,,,,,,,,,Any,Staff
-Armored Blow 2,"If unit initiates combat, grants Def+4 during combat.",2,A,23,TRUE,defBlow,2,,,,,,,,,Any,Staff
-Armored Blow 3,"If unit initiates combat, grants Def+6 during combat.",3,A,23,TRUE,defBlow,3,,,,,,,,,Any,Staff
-Warding Blow 1,"If unit initiates combat, grants Res+2 during combat.",1,A,24,TRUE,resBlow,1,,,,,,,,,Any,Staff
-Warding Blow 2,"If unit initiates combat, grants Res+4 during combat.",2,A,24,TRUE,resBlow,2,,,,,,,,,Any,Staff
-Warding Blow 3,"If unit initiates combat, grants Res+6 during combat.",3,A,24,TRUE,resBlow,3,,,,,,,,,Any,Staff
-Swift Sparrow 1,"If unit initiates combat, grants Atk/Spd+2 during combat. ",2,A,25,TRUE,atkBlow,1,spdBlow,1,,,,,,,Any,Staff
-Swift Sparrow 2,"If unit initiates combat, grants Atk/Spd+4 during combat.",3,A,25,TRUE,atkBlow,2,spdBlow,2,,,,,,,Any,Staff
-Sturdy Blow 1,"If unit initiates combat, grants Atk/Def+2 during combat. ",2,A,26,TRUE,atkBlow,1,defBlow,1,,,,,,,Any,Staff
-Sturdy Blow 2,"If unit initiates combat, grants Atk/Def+4 during combat. ",3,A,26,TRUE,atkBlow,2,defBlow,2,,,,,,,Any,Staff
-Mirror Strike 1,"If unit initiates combat, grants Atk/Res+2 during combat. ",2,A,27,TRUE,atkBlow,1,resBlow,1,,,,,,,Any,Staff
-Mirror Strike 2,"If unit initiates combat, grants Atk/Res+4 during combat. ",3,A,27,TRUE,atkBlow,2,resBlow,2,,,,,,,Any,Staff
-Steady Blow 1,"If unit initiates combat, grants Spd/Def+2 during combat.",2,A,28,TRUE,spdBlow,1,defBlow,1,,,,,,,Any,Staff
-Steady Blow 2,"If unit initiates combat, grants Spd/Def+4 during combat.",3,A,28,TRUE,spdBlow,2,defBlow,2,,,,,,,Any,Staff
-Swift Strike 1,"If unit initiates combat, grants Spd/Res+2 during combat.",2,A,29,TRUE,spdBlow,1,resBlow,1,,,,,,,Any,Staff
-Swift Strike 2,"If unit initiates combat, grants Spd/Res+4 during combat.",3,A,29,TRUE,spdBlow,2,resBlow,2,,,,,,,Any,Staff
-Bracing Blow 1,"If unit initiates combat, grants Def/Res+2 during combat.",2,A,30,TRUE,defBlow,1,resBlow,1,,,,,,,Any,Staff
-Bracing Blow 2,"If unit initiates combat, grants Def/Res+4 during combat.",3,A,30,TRUE,defBlow,2,resBlow,2,,,,,,,Any,Staff
+Death Blow 1,"If unit initiates combat, grants Atk+2 during combat.",1,A,21,TRUE,atkBlow,2,,,,,,,,,Any,Staff
+Death Blow 2,"If unit initiates combat, grants Atk+4 during combat.",2,A,21,TRUE,atkBlow,4,,,,,,,,,Any,Staff
+Death Blow 3,"If unit initiates combat, grants Atk+6 during combat.",3,A,21,TRUE,atkBlow,6,,,,,,,,,Any,Staff
+Darting Blow 1,"If unit initiates combat, grants Spd+2 during combat.",1,A,22,TRUE,spdBlow,2,,,,,,,,,Any,Staff
+Darting Blow 2,"If unit initiates combat, grants Spd+4 during combat.",2,A,22,TRUE,spdBlow,4,,,,,,,,,Any,Staff
+Darting Blow 3,"If unit initiates combat, grants Spd+6 during combat.",3,A,22,TRUE,spdBlow,6,,,,,,,,,Any,Staff
+Armored Blow 1,"If unit initiates combat, grants Def+2 during combat.",1,A,23,TRUE,defBlow,2,,,,,,,,,Any,Staff
+Armored Blow 2,"If unit initiates combat, grants Def+4 during combat.",2,A,23,TRUE,defBlow,4,,,,,,,,,Any,Staff
+Armored Blow 3,"If unit initiates combat, grants Def+6 during combat.",3,A,23,TRUE,defBlow,6,,,,,,,,,Any,Staff
+Warding Blow 1,"If unit initiates combat, grants Res+2 during combat.",1,A,24,TRUE,resBlow,2,,,,,,,,,Any,Staff
+Warding Blow 2,"If unit initiates combat, grants Res+4 during combat.",2,A,24,TRUE,resBlow,4,,,,,,,,,Any,Staff
+Warding Blow 3,"If unit initiates combat, grants Res+6 during combat.",3,A,24,TRUE,resBlow,6,,,,,,,,,Any,Staff
+Swift Sparrow 1,"If unit initiates combat, grants Atk/Spd+2 during combat. ",2,A,25,TRUE,atkBlow,2,spdBlow,2,,,,,,,Any,Staff
+Swift Sparrow 2,"If unit initiates combat, grants Atk/Spd+4 during combat.",3,A,25,TRUE,atkBlow,4,spdBlow,4,,,,,,,Any,Staff
+Sturdy Blow 1,"If unit initiates combat, grants Atk/Def+2 during combat. ",2,A,26,TRUE,atkBlow,2,defBlow,2,,,,,,,Any,Staff
+Sturdy Blow 2,"If unit initiates combat, grants Atk/Def+4 during combat. ",3,A,26,TRUE,atkBlow,4,defBlow,4,,,,,,,Any,Staff
+Mirror Strike 1,"If unit initiates combat, grants Atk/Res+2 during combat. ",2,A,27,TRUE,atkBlow,2,resBlow,2,,,,,,,Any,Staff
+Mirror Strike 2,"If unit initiates combat, grants Atk/Res+4 during combat. ",3,A,27,TRUE,atkBlow,4,resBlow,4,,,,,,,Any,Staff
+Steady Blow 1,"If unit initiates combat, grants Spd/Def+2 during combat.",2,A,28,TRUE,spdBlow,2,defBlow,2,,,,,,,Any,Staff
+Steady Blow 2,"If unit initiates combat, grants Spd/Def+4 during combat.",3,A,28,TRUE,spdBlow,4,defBlow,4,,,,,,,Any,Staff
+Swift Strike 1,"If unit initiates combat, grants Spd/Res+2 during combat.",2,A,29,TRUE,spdBlow,2,resBlow,2,,,,,,,Any,Staff
+Swift Strike 2,"If unit initiates combat, grants Spd/Res+4 during combat.",3,A,29,TRUE,spdBlow,4,resBlow,4,,,,,,,Any,Staff
+Bracing Blow 1,"If unit initiates combat, grants Def/Res+2 during combat.",2,A,30,TRUE,defBlow,2,resBlow,2,,,,,,,Any,Staff
+Bracing Blow 2,"If unit initiates combat, grants Def/Res+4 during combat.",3,A,30,TRUE,defBlow,4,resBlow,4,,,,,,,Any,Staff
 Fierce Stance 1,"If foe initiates combat, grants Atk+2 during combat.",1,A,31,FALSE,,,,,,,,,,,Any,Any
 Fierce Stance 2,"If foe initiates combat, grants Atk+4 during combat.",2,A,31,FALSE,,,,,,,,,,,Any,Any
 Fierce Stance 3,"If foe initiates combat, grants Atk+6 during combat.",3,A,31,FALSE,,,,,,,,,,,Any,Any
@@ -284,6 +284,9 @@ Atk/Res Finish 3,"If unit is within 3 spaces of an ally, grants Atk/Res+6 to uni
 Spd/Res Finish 1,"If unit is within 3 spaces of an ally, grants Spd/Res+2 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +1 damage during combat. (Except when dealing damage with area-of-effect Specials.)",1,A,94,FALSE,,,,,,,,,,,Any,Any
 Spd/Res Finish 2,"If unit is within 3 spaces of an ally, grants Spd/Res+4 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +3 damage during combat. (Except when dealing damage with area-of-effect Specials.)",2,A,94,FALSE,,,,,,,,,,,Any,Any
 Spd/Res Finish 3,"If unit is within 3 spaces of an ally, grants Spd/Res+6 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +5 damage during combat. (Except when dealing damage with area-of-effect Specials.)",3,A,94,FALSE,,,,,,,,,,,Any,Any
+Atk/Spd Prime 1,"If [Bonus] is active on unit, grants Atk/Spd+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 3).",1,A,237,FALSE,,,,,,,,,,,Any,Any
+Atk/Spd Prime 2,"If [Bonus] is active on unit, grants Atk/Spd+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 5).",2,A,237,FALSE,,,,,,,,,,,Any,Any
+Atk/Spd Prime 3,"If [Bonus] is active on unit, grants Atk/Spd+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 7).",3,A,237,FALSE,,,,,,,,,,,Any,Any
 Atk/Def Prime 1,"If [Bonus] is active on unit, grants Atk/Def+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 3).",1,A,231,FALSE,,,,,,,,,,,Any,Any
 Atk/Def Prime 2,"If [Bonus] is active on unit, grants Atk/Def+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 5).",2,A,231,FALSE,,,,,,,,,,,Any,Any
 Atk/Def Prime 3,"If [Bonus] is active on unit, grants Atk/Def+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 7).",3,A,231,FALSE,,,,,,,,,,,Any,Any
@@ -498,6 +501,9 @@ Res Tactic 3,"At start of turn, grants Res+6 to allies within 2 spaces for 1 tur
 Infantry Rush 1,"Infantry allies within 2 spaces gain: ""If unit's Atk ≥ foe's Atk+5, grants Special cooldown charge +1 per unit's attack. (Only highest value applied. Does not stack.)""",1,C,173,FALSE,,,,,,,,,,,Any,Any
 Infantry Rush 2,"Infantry allies within 2 spaces gain: ""If unit's Atk ≥ foe's Atk+3, grants Special cooldown charge +1 per unit's attack. (Only highest value applied. Does not stack.)""",2,C,173,FALSE,,,,,,,,,,,Any,Any
 Infantry Rush 3,"Infantry allies within 2 spaces gain: ""If unit's Atk > foe's Atk, grants Special cooldown charge +1 per unit's attack. (Only highest value applied. Does not stack.)""",3,C,173,FALSE,,,,,,,,,,,Any,Any
+Time's Pulse 1,,1,C,238,FALSE,,,,,,,,,,,Any,Any
+Time's Pulse 2,,2,C,238,FALSE,,,,,,,,,,,Any,Any
+Time's Pulse 3,,3,C,238,FALSE,,,,,,,,,,,Any,Any
 Inf. Hexblade 1,"If adjacent infantry allies use sword, lance, axe, bow, or dagger, calculates their damage using the lower of foe's Def or Res during combat. (Does not affect damage dealt by Specials that trigger before combat.)",1,C,174,FALSE,,,,,,,,,,,Any,Any
 Inf. Hexblade 2,"If adjacent infantry allies use sword, lance, axe, bow, or dagger, grants Atk/Spd+1 to those allies and calculates their damage using the lower of foe's Def or Res during combat. (Does not affect damage dealt by Specials that trigger before combat.)",2,C,174,FALSE,,,,,,,,,,,Any,Any
 Inf. Hexblade 3,"If adjacent infantry allies use sword, lance, axe, bow, or dagger, grants Atk/Spd+2 to those allies and calculates their damage using the lower of foe's Def or Res during combat. (Does not affect damage dealt by Specials that trigger before combat.)",3,C,174,FALSE,,,,,,,,,,,Any,Any

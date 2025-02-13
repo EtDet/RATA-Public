@@ -238,6 +238,9 @@ class Hero:
 
         self.blessing = None
 
+        self.pair_up = None
+        self.pair_up_obj = None
+
         self.pair_skill = None
 
         self.resp: bool = False
@@ -275,7 +278,7 @@ class Hero:
 
         self.assist_galeforce_triggered = False
 
-        self.beast_trans_condition = False
+        self.transformed = False
 
         self.tile = None # current tile unit is standing on
         self.attacking_tile = None # used for forecasts
@@ -673,7 +676,6 @@ class Hero:
         # Reset stats
         self.set_visible_stats()
 
-
     def set_visible_stats(self):
         i = 0
 
@@ -702,8 +704,13 @@ class Hero:
         panic_factor = 1
         if Status.Panic in self.statusNeg: panic_factor = -1
         if Status.NullPanic in self.statusPos: panic_factor = 1
+
         buff_applied_stat = self.visible_stats[STAT] + self.buffs[STAT] * panic_factor + self.debuffs[STAT]
-        return buff_applied_stat
+
+        if self.transformed and STAT == ATK:
+            buff_applied_stat += 2
+
+        return min(max(buff_applied_stat, 0), 99)
 
     def inflictStatus(self, status):
         # Positive status
@@ -786,6 +793,7 @@ class Hero:
 
     def getSkills(self):
         heroSkills = {}
+
         if self.weapon is not None:
             heroSkills = {x: heroSkills.get(x, 0) + self.weapon.effects.get(x, 0) for x in set(heroSkills).union(self.weapon.effects)}
         if self.assist is not None:
@@ -824,7 +832,13 @@ class Hero:
         if self.emblem == "Byleth": return {"teach us": 16}
 
     def getStats(self):
-        return self.visible_stats[:]
+
+        stats = self.visible_stats[:]
+
+        if self.transformed:
+            stats[ATK] = min(max(0, stats[ATK] + 2), 99)
+
+        return stats
 
     def getSpName(self):
         if self.special is None: return "Nil Special"
@@ -850,6 +864,16 @@ class Hero:
         if other is None: return False
         return other.allySupport == self.intName
 
+    def get_transform_conditions(self):
+        if self.wpnType not in BEAST_WEAPONS or not self.weapon:
+            return []
+
+        return ["DEFAULT-BEAST"]
+
+    # "ASKR-BEAST"
+    # "MUARIM-BEAST"
+    # "FORTUNE-BEAST"
+
     def __str__(self):
         return self.intName
 
@@ -861,7 +885,6 @@ class Skill:
         self.tier = tier
         self.effects = effects
         self.exc_users = exc_users
-
 
     def __str__(self):
         return self.name + "\n" + self.desc
@@ -925,6 +948,7 @@ class Blessing:
         # 2 - legendary effect 2 - pair up
         #     OR mythic effect 2 - stat boost + extra slot
         # 3 - legendary effect 3 - stat boost + pair up
+        #     OR mythic effect 3 - stat boost + extra slot + reinforcement
         self.boostType = args[1]
 
         # 0 - none
@@ -936,8 +960,6 @@ class Blessing:
         type_str = " Legend, " if self.element < 4 else " Mythic, "
 
         boost_str = ""
-
-        # print(self.element, self.boostType, self.stat)
 
         if self.element < 4:
             if self.boostType == 1:
@@ -960,6 +982,34 @@ class Blessing:
                     boost_str = "D/Pair"
                 if self.stat == RES:
                     boost_str = "R/Pair"
+        else:
+            if self.boostType == 1:
+                if self.stat == ATK:
+                    boost_str = "Atk"
+                if self.stat == SPD:
+                    boost_str = "Spd"
+                if self.stat == DEF:
+                    boost_str = "Def"
+                if self.stat == RES:
+                    boost_str = "Res"
+            elif self.boostType == 2:
+                if self.stat == ATK:
+                    boost_str = "A/Slot"
+                if self.stat == SPD:
+                    boost_str = "S/Slot"
+                if self.stat == DEF:
+                    boost_str = "D/Slot"
+                if self.stat == RES:
+                    boost_str = "R/Slot"
+            elif self.boostType == 3:
+                if self.stat == ATK:
+                    boost_str = "A/Reinf."
+                if self.stat == SPD:
+                    boost_str = "S/Reinf."
+                if self.stat == DEF:
+                    boost_str = "D/Reinf."
+                if self.stat == RES:
+                    boost_str = "R/Reinf."
 
         return elem_str + type_str + boost_str
 
@@ -976,7 +1026,21 @@ blessing_dict = {
     "L!Marth":    (FIRE,  1, RES),
     "L!Y!Tiki":   (EARTH, 1, DEF),
     "L!Eirika":   (WATER, 1, ATK),
-    "Hríd":       (WIND,  1, DEF)
+    "Hríd":       (WIND,  1, DEF),
+    "L!Azura":    (WATER, 1, RES),
+    "L!Roy":      (FIRE,  2, 0),
+    "L!Alm":      (EARTH, 2, 0),
+    "L!Eliwood":  (WIND,  2, 0),
+    "L!Julia":    (EARTH, 2, 0),
+    "L!Leif":     (WATER, 2, 0),
+
+    "Eir":        (LIGHT, 1, RES),
+    "Duma":       (ANIMA, 1, ATK),
+    "Yune":       (DARK,  1, SPD),
+    "Naga":       (ASTRA, 1, DEF),
+    "Sothis":     (DARK,  1, RES),
+    "Thrasir":    (ANIMA, 1, DEF),
+    "Altina":     (ASTRA, 1, ATK),
 }
 
 def create_specialized_blessing(int_name):
@@ -1043,62 +1107,64 @@ class Status(Enum):
     TriAdept = 22  # 🔴 Triangle Adept 3, weapon tri adv/disadv affected by 20%
     CancelAction = 23  # 🟢 After start of turn skills trigger, unit's action ends immediately (cancels active units in Summoner Duels)
 
-    # positive, unsorted (will sort once there exists a skill that depends on it)
-    MobilityUp = 103  # 🔵 Movement increased by 1, cancelled by Gravity
-    Orders = 106  # 🔵 Unit can move to space adjacent to ally within 2 spaces
-    EffDragons = 107  # 🔴 Gain effectiveness against dragons
-    BonusDoubler = 109  # 🔴 Gain atk/spd/def/res boost by current bonus on stat, canceled by Panic
-    NullEffDragons = 110  # 🔴 Gain immunity to "eff against dragons"
-    NullEffArmors = 111  # 🔴 Gain immunity to "eff against armors"
+    # positive, sorted
+    ResonanceBlades = 100  # 🔴 Grants Atk/Spd+4 during combat
+    ResonanceShields = 101  # 🔴 Grants Def/Res+4 during combat and foe cannot make a follow-up attack in unit's first combat
+    RallySpectrum = 102  # 🔴 Grants Atk/Spd/Def/Res+5 and grants special -X before unit's first hit (X = 1 if unit has brave or slaying, 2 otherwise)
+    Incited = 103  # 🔴 If initiating combat, grants Atk/Spd/Def/Res = num spaces moved, max 3
+    BonusDoubler = 104  # 🔴 Gain atk/spd/def/res boost by current bonus on stat, canceled by Panic
+    FoePenaltyDoubler = 105  # 🔴 Inflicts atk/spd/def/res -X on foe equal to current penalty on each stat
+    GrandStrategy = 106  # 🔴 If negative penalty is present on self, grants atk/spd/def/res during combat equal to penalty * 2 for each stat
+    FutureWitness = 107  # 🔴 Canto 2, Atk/Spd/Def/Res+5, reduce first attacks by 7, and sp halt +1 on foe before foe's first attack
+    Dosage = 108  # 🔴 Atk/Spd/Def/Res+5, 10HP healed after combat, disables effects that steal bonuses, and clears all bonuses from foes that attempt to steal bonuses
+    Empathy = 109  # 🔴 Grants Atk/Spd/Def/Res = num unique Bonus effects and Penalty effects currently on map (max 7)
+    DivinelyInspiring = 110  # 🔴 Grants Atk/Spd/Def/Res = X * 3, grants -X sp jump to self before foe's first attack, and heals X * 4 HP per hit (X = num allies with this status in 3 spaces, max 2)
+    Anathema = 111  # 🔴 Inflicts Spd/Def/Res-4 on foes within 3 spaces
     Dominance = 112  # 🔴 Deal true damage = number of stat penalties on foe (including Panic-reversed Bonus)
-    ResonanceBlades = 113  # 🔴 Grants Atk/Spd+4 during combat
-    Desperation = 114  # 🔴 If unit initiates combat and can make follow-up attack, makes follow-up attack before foe can counter
-    ResonanceShields = 115  # 🔴 Grants Def/Res+4 during combat and foe cannot make a follow-up attack in unit's first combat
-    Vantage = 116  # 🔴 Unit counterattacks before foe's first attack in enemy phase
-    FallenStar = 118  # 🔴 Reduces damage from foe's first attack by 80% in unit's first combat in player phase and first combat in enemy phase
-    DenyFollowUp = 119  # 🔴 Foe cannot make a follow-up attack
-    NullEffFlyers = 120  # 🔴 Gain immunity to "eff against flyers"
-    Dodge = 121  # 🔴 If unit's spd > foe's spd, reduces combat & non-Røkkr AoE damage by X%, X = (unit's spd - foe's spd) * 4, max of 40%
-    Pursual = 122  # 🔴 Unit makes follow-up attack when initiating combat
-    TriAttack = 123  # 🔴 If within 2 spaces of 2 allies with TriAttack and initiating combat, unit attacks twice
-    NullPanic = 124  # 🔴 Nullifies Panic
-    CancelAffinity = 125  # 🔴 Cancel Affinity 3, reverses weapon triangle to neutral if Triangle Adept-having unit/foe has advantage
-    NullFollowUp = 127  # 🔴 Disables skills that guarantee foe's follow-ups or prevent unit's follow-ups
-    Pathfinder = 128  # 🔵 Unit's space costs 0 to move to by allies
-    NullBonuses = 130  # 🔴 Neutralizes foe's bonuses in combat
-    GrandStrategy = 131  # 🔴 If negative penalty is present on self, grants atk/spd/def/res during combat equal to penalty * 2 for each stat
-    EnGarde = 133  # 🔴 Neutralizes damage outside of combat, minus AoE damage
-    SpecialCharge = 134  # 🔴 Special charge +1 per hit during combat
-    Treachery = 135  # 🔴 Deal true damage = number of stat bonuses on unit (not including Panic + Bonus)
-    WarpBubble = 136  # 🔵 Foes cannot warp onto spaces within 4 spaces of unit (does not affect pass skills)
-    Charge = 137  # 🔵 Unit can move to any space up to 3 spaces away in cardinal direction, terrain/skills that halt (not slow) movement still apply, treated as warp movement
-    Canto1 = 139  # 🔵 Can move 1 space after combat (not writing all the canto jargon here)
-    FoePenaltyDoubler = 140  # 🔴 Inflicts atk/spd/def/res -X on foe equal to current penalty on each stat
-    DualStrike = 143  # 🔴 If unit initiates combat and is adjacent to unit with DualStrike, unit attacks twice
-    TraverseTerrain = 144  # 🔵 Ignores terrain which slows unit (bushes/trenches)
-    ReduceAreaOfEffect = 145  # 🔴 Reduces non-Røkkr AoE damage taken by 80%
-    NullPenalties = 146  # 🔴 Neutralizes unit's penalties in combat
-    Hexblade = 147  # 🔴 Damage inflicted using lower of foe's def or res (applies to AoE skills)
-    RallySpectrum = 150 # 🔴 Grants Atk/Spd/Def/Res+5 and grants special -X before unit's first hit (X = 1 if unit has brave or slaying, 2 otherwise)
-    AssignDecoy = 151 # 🔴 Unit is granted Savior effect for their range, fails if unit currently has savior skill
-    DeepStar = 152 # 🔴 In unit's first combat where foe initiates combat, reduces first hit(s) by 80%
-    TimesGate = 156 # 🔵 Allies within 4 spaces can warp to a space adjacent to unit
-    Incited = 157 # 🔴 If initiating combat, grants Atk/Spd/Def/Res = num spaces moved, max 3
-    FirstReduce40 = 158 # 🔴 If initiating combat, reduces damage from first attack received by 40%
-    HalfDamageReduction = 159 # 🔴 Cuts foe's non-special damage reduction skill efficacy in half
-    EssenceDrain = 163 # 🔴 If unit attacks, steals positive bonuses from foes within 2 spaces of target and gives to self and all allies with this status. If foe defeated, restores 10HP to self and allies with this status.
-    Bonded = 164 # 🔴 Activates different effects depending on skills present in battle
-    Bulwark = 165 # 🔵 Foes cannot move through spaces within X spaces of unit, X = foe's range
-    DivineNectar = 166 # 🔴 Neutralizes Deep Wounds, restores 20HP as combat begins, and reduces damage by 10
-    Paranoia = 167 # 🔴 If unit's HP >= 99%, grants Atk+5, Desperation, and if either # foe negative statuses >= 3 or foe is of same range, grants Vantage
-    Gallop = 168 # 🔵 Movement increased by 2, cancelled by Gravity, does not stack with MobilityUp
-    Anathema = 169 # 🔴 Inflicts Spd/Def/Res-4 on foes within 3 spaces
-    FutureWitness = 170 # 🔴 Canto 2, Atk/Spd/Def/Res+5, reduce first attacks by 7, and sp halt +1 on foe before foe's first attack
-    Dosage = 171 # 🔴 Atk/Spd/Def/Res+5, 10HP healed after combat, disables effects that steal bonuses, and clears all bonuses from foes that attempt to steal bonuses
-    Empathy = 172 # 🔴 Grants Atk/Spd/Def/Res = num unique Bonus effects and Penalty effects currently on map (max 7)
-    DivinelyInspiring = 173 # 🔴 Grants Atk/Spd/Def/Res = X * 3, grants -X sp jump to self before foe's first attack, and heals X * 4 HP per hit (X = num allies with this status in 3 spaces, max 2)
-    PreemptPulse = 174 # 🔴 Grants -1 sp jump before unit's first attack
-    PotentFollow = 175 # 🔴 If outspeeding by -20, grants 80%/40% Potent hit
+    Treachery = 113  # 🔴 Deal true damage = number of stat bonuses on unit (not including Panic + Bonus)
+    AOEReduce80 = 114  # 🔴 Reduces non-Røkkr AoE damage taken by 80%
+    Dodge = 115  # 🔴 If unit's spd > foe's spd, reduces combat & non-Røkkr AoE damage by X%, X = (unit's spd - foe's spd) * 4, max of 40%
+    FirstReduce40 = 116  # 🔴 If initiating combat, reduces damage from first attack received by 40%
+    FallenStar = 117  # 🔴 Reduces damage from foe's first attack by 80% in unit's first combat in player phase and first combat in enemy phase
+    DeepStar = 118  # 🔴 In unit's first combat where foe initiates combat, reduces first hit(s) by 80%
+    NullBonuses = 119  # 🔴 Neutralizes foe's bonuses in combat
+    NullPenalties = 120  # 🔴 Neutralizes unit's penalties in combat
+    EnGarde = 121  # 🔴 Neutralizes damage outside of combat, minus AoE damage
+    NullPanic = 122  # 🔴 Nullifies Panic
+    NullFollowUp = 123  # 🔴 Disables skills that guarantee foe's follow-ups or prevent unit's follow-ups
+    DamageReductionPierce50 = 124  # 🔴 Cuts foe's non-special damage reduction skill efficacy in half
+    WarpBubble = 125  # 🔵 Foes cannot warp onto spaces within 4 spaces of unit (does not affect pass skills)
+    DivineNectar = 126  # 🔴 Neutralizes Deep Wounds, restores 20HP as combat begins, and reduces damage by 10
+    EffDragons = 127  # 🔴 Gain effectiveness against dragons
+    NullEffDragons = 128  # 🔴 Gain immunity to "eff against dragons"
+    NullEffArmors = 129  # 🔴 Gain immunity to "eff against armors"
+    NullEffFlyers = 130  # 🔴 Gain immunity to "eff against flyers"
+    MobilityUp = 131  # 🔵 Movement increased by 1, cancelled by Gravity
+    Gallop = 132  # 🔵 Movement increased by 2, cancelled by Gravity, does not stack with MobilityUp
+    Charge = 133  # 🔵 Unit can move to any space up to 3 spaces away in cardinal direction, terrain/skills that halt (not slow) movement still apply, treated as warp movement
+    Pathfinder = 134  # 🔵 Unit's space costs 0 to move to by allies
+    Canto1 = 135  # 🔵 Can move 1 space after combat (not writing all the canto jargon here)
+    TraverseTerrain = 136  # 🔵 Ignores terrain which slows unit (bushes/trenches)
+    Orders = 137  # 🔵 Unit can move to space adjacent to ally within 2 spaces
+    TimesGate = 138  # 🔵 Allies within 4 spaces can warp to a space adjacent to unit
+    Hexblade = 139  # 🔴 Damage inflicted using lower of foe's def or res (applies to AoE skills)
+    SpecialCharge = 140  # 🔴 Special charge +1 per hit during combat
+    PreemptPulse = 141  # 🔴 Grants -1 sp jump before unit's first attack
+    Pursual = 142  # 🔴 Unit makes follow-up attack when initiating combat
+    DenyFollowUp = 143  # 🔴 Foe cannot make a follow-up attack
+    Outspeeding = 144  # Increases Spd difference needed for foe to make follow-up by 10
+    PotentFollow = 145 # 🔴 If being outsped by 20 or less, grants 80/40 Potent hit
+    Desperation = 146  # 🔴 If unit initiates combat and can make follow-up attack, makes follow-up attack before foe can counter
+    Vantage = 147  # 🔴 Unit counterattacks before foe's first attack in enemy phase
+    Paranoia = 148  # 🔴 If unit's HP >= 99%, grants Atk+5, Desperation, and if either # foe negative statuses >= 3 or foe is of same range, grants Vantage
+    Bulwark = 149  # 🔵 Foes cannot move through spaces within X spaces of unit, X = foe's range
+    AssignDecoy = 150  # 🔴 Unit is granted Savior effect for their range, fails if unit currently has savior skill
+    CancelAffinity = 151  # 🔴 Cancel Affinity 3, reverses weapon triangle to neutral if Triangle Adept-having unit/foe has advantage
+    TriAttack = 152  # 🔴 If within 2 spaces of 2 allies with TriAttack and initiating combat, unit attacks twice
+    DualStrike = 153  # 🔴 If unit initiates combat and is adjacent to unit with DualStrike, unit attacks twice
+    EssenceDrain = 154 # 🔴 If unit attacks, steals positive bonuses from foes within 2 spaces of target and gives to self and all allies with this status. If foe defeated, restores 10HP to self and allies with this status.
+    Bonded = 155 # 🔴 Activates different effects depending on skills present in battle
+
 
 class GameMode(Enum):
     Story = 0
@@ -1106,6 +1172,10 @@ class GameMode(Enum):
 
     Arena = 2
     AetherRaids = 3
+
+    Allegiance = 10
+    Rokkr = 11
+    Mjolnir = 12
 
 
 print("Reading Unit & Skill Data...")
@@ -1416,7 +1486,34 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "Duma",
                           "V!Ike", "V!Mist", "V!Soren", "V!Titania", "V!Greil",
                           "Keaton", "Velouria", "Kaden", "Selkie", "Panne",
-                          "L!Roy"
+                          "L!Roy",
+                          "Idunn", "Lugh", "Sue", "Thea", "Rutger",
+                          "SP!Palla", "SP!Marisa", "SP!Bruno", "SP!Veronica", "SP!Loki",
+                          "Yune",
+                          "Ranulf", "Lethe", "Mordecai", "Caineghis", "Haar"
+                          "SP!Felicia", "SP!Flora", "SP!Genny", "SP!Lukas", "SP!Leo",
+                          "L!Alm",
+                          "FA!Berkut", "FA!F!Corrin", "FA!Mareeta", "FA!Y!Tiki", "FA!Delthea",
+                          "BR!Fjorm", "BR!Sigrun", "BR!Tanith", "BR!Pent", "B!Louise",
+                          "Naga",
+                          "Brady", "Kjelle", "Nah", "Yarne", "Cynthia",
+                          "SU!Gunnthrá", "SU!Helbindi", "SU!Laegjarn", "SU!Laevatein", "SU!Ylgr",
+                          "L!Eliwood",
+                          "SU!Lilina", "SU!Lyn", "SU!Ursula", "SU!Wolt", "SU!Fiora",
+                          "M!Byleth", "F!Byleth", "Edelgard", "Dimitri", "Claude", "Kronya",
+                          "Sothis",
+                          "Hilda", "Hubert", "Mercedes", "Petra", "Death Knight",
+                          "B!Alm", "B!Camilla", "B!Eliwood", "B!Micaiah", "Sigrun",
+                          "L!Julia",
+                          "DA!Berkut", "DA!Ishtar", "DA!Nephenee", "DA!Reinhardt", "DA!Rinea",
+                          "Bantu", "Nagi", "Phina", "Sirius", "Astram",
+                          "Thrasir",
+                          "H!Dozla", "H!Ilyana", "H!L'Arachel", "H!Rolf", "H!Hector",
+                          "P!Catria", "Forsyth", "Python", "Silque", "Valdar", "Conrad",
+                          "L!Leif",
+                          "P!Ephraim", "Ewan", "Gerik", "Tethys", "Ross", "Cormag",
+                          "Echidna", "Igrene", "Larum", "Perceval", "Chad", "Brunnya",
+                          "Altina"
                     ]
 
 # Generics

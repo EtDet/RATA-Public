@@ -1,3 +1,26 @@
+2.1.0 (2/XX/25)
+New Features:
+-Added all 137 heroes introduced in Year 3.
+-Aether Raids Maps! You can use the building tab in Extras to place, remove, and change the level of structures. No restrictions on how many types of structures can be placed as well!
+-Pair Up is now available for use in story maps! Cohorts can be set to saved builds and will be loaded upon starting a simulation.
+-Dragonflowers can now be used when building a unit.
+-Mythic Heroes arrive, as well as Light, Dark, Astra, and Anima blessings.
+-Heroes can be swapped around during preparation.
+
+Bug Fixes:
+-Fixed an issue causing unit creation to appear while dragging units around.
+-Fixed an issue causing player-side units' visible stat buffs not being removed at the start of a turn.
+-Fixed the restrictions of Duel skills to only include their correct color of units.
+-Fixed an issue causing Galeforce not to appear when selecting a special.
+-Fixed an incorrect terrain tile in stage 1-3-2.
+-Fixed an incorrect weapon in stage 1-6-2.
+-Fixed an incorrect enemy starting position in stage 1-3-3.
+-Fixed movement-aligned Ward skills.
+-Juicy Wave+'s Atk refine now has the proper Mt value.
+-Blow-type skills as Seals will now give the correct amount of stats in combat.
+-Post-combat effects from Veronica's Hliðskjálf are now distributed properly.
+-Start-of-turn damage from Gharnef and FA!Takumi's weapons should now be distributed correctly.
+
 2.0.0 (1/17/25)
 
 New Features:
@@ -24,7 +47,7 @@ Bug Fixes:
 
 Bug Fixes:
 -Fixed damage calculation in terms of special damage and defensive terrain.
--Fixed Feud effects (currently only in Lyn's refined Swift Mulagir) to not disable the effects produced by the foe.
+-Fixed Feud effects (currently only in Legendary Lyn's refined Swift Mulagir) to not disable the effects produced by the foe.
 -Fixed an issue causing Push skills to perform 2 post-combat damage instead of 1.
 -Fixed skills like Bonfire/Ignis calculating special damage to use Def instead of Spd.
 

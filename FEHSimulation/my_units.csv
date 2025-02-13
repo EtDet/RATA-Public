@@ -1,10 +1,16 @@
-IntName,Build Name,Weapon,Assist,Special,ASkill,BSkill,CSkill,SSeal,XSkill,Level,Merges,Rarity,Asset,Flaw,Ascended,SSupport,ASupport,Blessing,Dragonflowers,Resplendent,Emblem,EmblemMerges,Cheats
-Lucina,Sample Lucina,Sealed FalchionEff,Reposition,,Armored Blow 3,Axebreaker 3,Breath of Life 3,,,38,2,3,1,3,1,0,,2.0,0,False,,0,False
-M!Robin,Sample Robin,Tactical BoltSpd,,,Armored Blow 3,,Hone Spd 3,,,40,0,5,2,3,2,0,,,0,False,,0,False
-Mia,Sample Mia,Resolute BladeEff,Reposition,Moonbow,Death Blow 3,Dull Close 3,Def Smoke 3,,,40,0,5,0,0,0,0,,,0,False,,0,False
-P!F!Corrin,Sample Corrin,Draconic RageEff,Draw Back,Miracle,Fury 3,Desperation 3,Breath of Life 3,,,40,0,5,0,0,0,0,,,0,False,,0,False
-Sharena,Sample Sharena,FensalirEff,Reposition,Noontime,Darting Blow 3,Vantage 3,Fortify Def 3,,,40,0,5,0,0,0,0,,,0,False,,0,False
-V!Eliwood,Sample Eliwood,Berkut's Lance+Spd,Swap,Bonfire,Atk/Def Solo 4,Bold Fighter 3,Threat. Atk/Def 2,,,40,10,5,1,0,1,0,,,0,False,,0,False
-L!Ike,Sample Ike,RagnellEff,Reposition,Radiant Aether II,Warding Breath,Quick Riposte 3,Drive Def 2,,,40,0,5,2,0,2,0,,,0,False,,0,False
-Alfonse,Fire Emblem Hero,Fólkvangr,,,,,,,,40,0,5,0,0,0,0,,,0,False,,0,False
-Micaiah,micky,Thani,Sacrifice,,,,,,,40,0,5,0,0,0,0,,,0,False,,0,False
+IntName,Build Name,Weapon,Assist,Special,ASkill,BSkill,CSkill,SSeal,XSkill,Level,Merges,Rarity,Asset,Flaw,Ascended,SSupport,ASupport,Blessing,Dragonflowers,Resplendent,Emblem,EmblemMerges,Aided,PairUp,Cheats
+Lucina,Sample Lucina,Sealed FalchionEff,Reposition,,Armored Blow 3,Axebreaker 3,Breath of Life 3,,,38,2,3,1,3,1,4,,2.0,0,False,,0,False,,False
+M!Robin,Sample Robin,Tactical BoltSpd,,,Armored Blow 3,,Hone Spd 3,,,40,0,5,2,3,2,0,,,0,False,,0,False,,False
+Mia,Sample Mia,Resolute BladeEff,Reposition,Moonbow,Death Blow 3,Dull Close 3,Def Smoke 3,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
+P!F!Corrin,Sample Corrin,Draconic RageEff,Draw Back,Miracle,Fury 3,Desperation 3,Breath of Life 3,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
+Sharena,Sample Sharena,FensalirEff,Reposition,Noontime,Darting Blow 3,Vantage 3,Fortify Def 3,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
+V!Eliwood,Sample Eliwood,Berkut's Lance+Spd,Swap,Bonfire,Atk/Def Solo 4,Bold Fighter 3,Threat. Atk/Def 2,,,40,10,5,1,0,1,0,,,0,False,,0,False,,False
+L!Ike,Sample Ike,RagnellEff,Reposition,Radiant Aether II,Warding Breath,Quick Riposte 3,Drive Def 2,,,40,0,5,2,0,2,0,,,0,False,,0,False,,False
+Alfonse,Fire Emblem Hero,Fólkvangr,,,,,,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
+Micaiah,micky,Thani,Sacrifice,,,,,,,40,0,5,0,0,0,0,,4.0,0,False,,0,False,,False
+V!Mist,Mist,Keen Gronnwolf+Spd,Draw Back,Blazing Flame,Swift Sparrow 3,Desperation 3,Spd Smoke 3,Death Blow 3,,40,10,5,2,0,2,0,,,0,False,,0,False,,False
+Eir,EIR!!!,Lyfjaberg,Smite,,Armored Blow 3,,,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
+L!Ephraim,canto tester 2000,Flame Siegmund,Reposition,,,Solar Brace II,,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
+L!Roy,Roy,Dragonbind,,Moonbow,,,,,,40,0,5,0,0,0,0,,,0,False,,0,False,Woof,False
+Velouria,Woof,Wolfpup Fang,,Galeforce,,Hit and Run,Drive Spd 2,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
+P!Azura,az,,Sing,,,,,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
