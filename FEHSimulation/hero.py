@@ -1,3 +1,4 @@
+import json
 from math import trunc, isnan
 from itertools import islice
 from enum import Enum
@@ -11,6 +12,8 @@ ATK = 1
 SPD = 2
 DEF = 3
 RES = 4
+
+OMNI = 10
 
 WEAPON = 0
 ASSIST = 1
@@ -241,7 +244,8 @@ class Hero:
         self.pair_up = None
         self.pair_up_obj = None
 
-        self.pair_skill = None
+        self.duo_skill = None
+        self.duo_cooldown = 0
 
         self.resp: bool = False
         self.has_resp: bool = False
@@ -712,6 +716,15 @@ class Hero:
 
         return min(max(buff_applied_stat, 0), 99)
 
+    def get_phantom_stat(self, STAT):
+        if STAT == ATK: return self.getSkills().get('phantomAtk', 0)
+        elif STAT == SPD: return self.getSkills().get('phantomSpd', 0)
+        elif STAT == DEF: return self.getSkills().get('phantomDef', 0)
+        elif STAT == RES: return self.getSkills().get('phantomRes', 0)
+
+        else:
+            return 0
+
     def inflictStatus(self, status):
         # Positive status
         if status.value > 100 and status not in self.statusPos:
@@ -760,7 +773,7 @@ class Hero:
         print(self.name + " takes " + str(damage) + " damage out of combat.")
 
     def hasBonus(self):
-        return (sum(self.buffs) > 0 and Status.Panic not in self.statusNeg) or len(self.statusPos) > 0
+        return (sum(self.buffs) > 0 and Status.Panic not in self.statusNeg) or self.statusPos
 
     def hasPenalty(self):
         return sum(self.debuffs) < 0 or self.statusNeg
@@ -1050,26 +1063,12 @@ def create_specialized_blessing(int_name):
         return Blessing(blessing_dict[int_name])
 
 class DuoSkill:
-    def __init__(self, effect):
-        # 0 - 20 non-special AOE damage to enemies within 3 columns
-        # 1 - Inf & Arm allies within 2 spaces and self gain MobilityUp
-        # 2 - Grants Atk/Spd/Def/Res+3 and BonusDoubler to Arm and Fly allies within 3 rows
-        # 3 - Special cooldown -2 to self and Inf allies within 3 rows and columns
-        # 4 - Neutralizes stat penalties and negative penalties, restores 30HP, and grants to Atk/Spd+6 on self and allies within 5 rows and columns
-        # 5 - Grants Def/Res+6 and grants NullEffDragons and NullEffArmors to self and allies within 5 rows and columns
-        # 6 - Grants MobilityUp to self and adjacent Fly allies
-        # 7 - Grants Dominance to self and allies within 3 columns and inflicts Def/Res-7 on foes within 3 columns
-        # 8 - Grants Desperation to self and allies within 2 spaces (WAIT NO THERE'S MORE THAN ONE TYPE OF REUSABLE DUO SKILL COME BACK TO THIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIISSSS)
-        # 9 - Moves adjacent allies to other side of unit, if space is available for targeted unit
-
-        effect = effect
-        oncePerMap = False if effect in [8, 9] else True
-
-class HarmonicSkill(DuoSkill):
-    def __init__(self, hEffect, secondGame, effect):
-        super().__init__(effect)
-        hEffect = hEffect
-        secondGame = secondGame
+    def __init__(self, name, desc, skill_type, skill_refresh, effects):
+        self.user_name = name
+        self.desc = desc
+        self.type = skill_type
+        self.skill_refresh = skill_refresh
+        self.effects = effects
 
 # STATUS EFFECTS
 
@@ -1185,6 +1184,7 @@ assist_sheet = pd.read_csv('Spreadsheets/FEHAssists.csv')
 special_sheet = pd.read_csv('Spreadsheets/FEHSpecials.csv')
 skills_sheet = pd.read_csv('Spreadsheets/FEHABCXSkills.csv')
 seals_sheet = pd.read_csv("Spreadsheets/FEHSeals.csv")
+with open('Spreadsheets/FEHDuoSkills.json', encoding="utf-8") as read_file: duoskills_sheet = json.load(read_file)
 
 # Skills currently present for use
 # Yeah this was not properly thought out
@@ -1235,6 +1235,8 @@ def makeHero(name):
 
     # Assign specialized blessing type if unit is Legendary/Mythic
     result_hero.blessing = create_specialized_blessing(int_name)
+
+    result_hero.duo_skill = makeDuoSkill(int_name)
 
     return result_hero
 
@@ -1378,6 +1380,17 @@ def makeSeal(name):
 
     return Skill(name, desc, letter, tier, effects, users)
 
+def makeDuoSkill(name):
+    if name not in duoskills_sheet:
+        return None
+
+    desc = duoskills_sheet[name]['desc']
+    skill_type = duoskills_sheet[name]['type']
+    skill_refresh = duoskills_sheet[name]['skill_refresh']
+    effects = duoskills_sheet[name]['skills']
+
+    return DuoSkill(name, desc, skill_type, skill_refresh, effects)
+
 #veyle = makeHero("Veyle")
 #obscurité = Weapon("Obscurité", "idk", 14, 2, {"stuff":10})
 
@@ -1455,7 +1468,7 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "P!Hinoka", "Shigure", "F!Kana", "Kaze", "M!Kana",
                           "L!Lyn",
                           "Ares", "Lene", "Ishtar", "Julius",
-                          "BR!Ninian", "BR!Sanaki", "BR!Tharja", "BR!Marth",
+                          "BR!Ninian", "BR!Sanaki", "BR!Tharja", "GR!Marth",
                           "L!Ryoma",
                           "Karla", "Legault", "P!Nino", "Linus", "Canas",
                           "SU!Cordelia", "SU!Noire", "SU!Tana", "SU!Innes",
@@ -1494,7 +1507,7 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "SP!Felicia", "SP!Flora", "SP!Genny", "SP!Lukas", "SP!Leo",
                           "L!Alm",
                           "FA!Berkut", "FA!F!Corrin", "FA!Mareeta", "FA!Y!Tiki", "FA!Delthea",
-                          "BR!Fjorm", "BR!Sigrun", "BR!Tanith", "BR!Pent", "B!Louise",
+                          "BR!Fjorm", "BR!Sigrun", "BR!Tanith", "GR!Pent", "B!Louise",
                           "Naga",
                           "Brady", "Kjelle", "Nah", "Yarne", "Cynthia",
                           "SU!Gunnthrá", "SU!Helbindi", "SU!Laegjarn", "SU!Laevatein", "SU!Ylgr",
@@ -1502,7 +1515,7 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "SU!Lilina", "SU!Lyn", "SU!Ursula", "SU!Wolt", "SU!Fiora",
                           "M!Byleth", "F!Byleth", "Edelgard", "Dimitri", "Claude", "Kronya",
                           "Sothis",
-                          "Hilda", "Hubert", "Mercedes", "Petra", "Death Knight",
+                          "TH!Hilda", "Hubert", "Mercedes", "Petra", "Death Knight",
                           "B!Alm", "B!Camilla", "B!Eliwood", "B!Micaiah", "Sigrun",
                           "L!Julia",
                           "DA!Berkut", "DA!Ishtar", "DA!Nephenee", "DA!Reinhardt", "DA!Rinea",

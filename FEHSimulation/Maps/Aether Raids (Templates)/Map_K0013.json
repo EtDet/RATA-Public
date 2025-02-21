@@ -1,0 +1,21 @@
+{
+    "name": "AR 13: Hel Castle",
+    "wall": "Wallpattern_inside.png",
+    "mode": "aether",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "struct_walls": {
+      "static": [],
+      "twoBreak": [],
+      "oneBreak": [21, 26, 27, 32]
+    },
+    "playerStart": [7, 8, 9, 10, 11],
+    "enemyStart": [36, 37, 38, 39]
+  }

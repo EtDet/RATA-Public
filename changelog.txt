@@ -1,25 +1,36 @@
-2.1.0 (2/XX/25)
+2.1.0 (2/21/25)
 New Features:
 -Added all 137 heroes introduced in Year 3.
 -Aether Raids Maps! You can use the building tab in Extras to place, remove, and change the level of structures. No restrictions on how many types of structures can be placed as well!
 -Pair Up is now available for use in story maps! Cohorts can be set to saved builds and will be loaded upon starting a simulation.
--Dragonflowers can now be used when building a unit.
+-Duo Skills present on Duo Units are also here! Currently only on Halloween Hector and Duo Ephraim, with plenty more to come.
 -Mythic Heroes arrive, as well as Light, Dark, Astra, and Anima blessings.
+-Dragonflowers can now be used when building a unit.
 -Heroes can be swapped around during preparation.
+
+Changes:
+-Marth: Altean Groom has had his internal name changed. Please redownload their images and delete any saved builds of them you may have.
 
 Bug Fixes:
 -Fixed an issue causing unit creation to appear while dragging units around.
 -Fixed an issue causing player-side units' visible stat buffs not being removed at the start of a turn.
 -Fixed the restrictions of Duel skills to only include their correct color of units.
 -Fixed an issue causing Galeforce not to appear when selecting a special.
--Fixed an incorrect terrain tile in stage 1-3-2.
--Fixed an incorrect weapon in stage 1-6-2.
--Fixed an incorrect enemy starting position in stage 1-3-3.
+-Fixed certain heroes with Sing or Dance from not being able to equip that skill.
+-Fixed an incorrect terrain tile in Story 1-3-2.
+-Fixed an incorrect weapon in Story 1-6-2.
+-Fixed an incorrect enemy starting position in Story 1-3-3.
 -Fixed movement-aligned Ward skills.
 -Juicy Wave+'s Atk refine now has the proper Mt value.
+-Brazen-type skills' descriptions have been corrected.
 -Blow-type skills as Seals will now give the correct amount of stats in combat.
--Post-combat effects from Veronica's Hliðskjálf are now distributed properly.
--Start-of-turn damage from Gharnef and FA!Takumi's weapons should now be distributed correctly.
+-Close/Distant Guard will now give stats when allies initiate combat.
+-Post-combat effects from Brave Veronica's Hliðskjálf are now distributed properly.
+-Start-of-turn damage from Gharnef and Fallen Takumi's weapons should now be distributed correctly.
+-Debuffs given from Male Morgan's Grima's Truth should now be distributed correctly.
+-Healing from Shigure's Azure Lance now stacks properly with other sources of healing.
+-Healing from Shigure's Azure Lance now works with Rally skills.
+-Fixed follow-up denial given by Legendary Marth's Binding Shield II.
 
 2.0.0 (1/17/25)
 

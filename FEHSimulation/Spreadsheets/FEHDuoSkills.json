@@ -1,0 +1,50 @@
+{
+  "H!Hector": {
+    "desc": "Deals 20 damage to foes within 3 columns centered on unit.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {"effect": "damage",
+       "degree": 20,
+       "targets": "foes",
+       "area": "within_3_columns"}
+    ]
+  },
+  "P!Ephraim": {
+    "desc": "Infantry and armored allies within 2 spaces of unit (including unit) can move 1 extra space. (That turn only. Does not stack.)",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {"effect": "status",
+       "degree": "MobilityUp",
+       "targets": "self_and_allies_infantry_armored",
+       "area": "within_2_spaces"}
+    ]
+  },
+  "WI!Marth": {
+    "desc": "Grants Atk/Spd/Def/Res+3 and [Bonus Doubler] to armored and flying allies within 3 rows centered on unit. (That turn only. Does not stack.)",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {"effect": "buff_spectrum",
+       "degree": 3,
+       "targets": "self_and_allies_flying_armored",
+       "area": "within_3_rows"},
+      {"effect": "status",
+       "degree": "BonusDoubler",
+       "targets": "self_and_allies_flying_armored",
+       "area": "within_3_rows"}
+    ]
+  },
+  "SU!Mia": {
+    "desc": "Grants [Resonance: Blades] to unit and allies from the same titles as unit.",
+    "type": "harmonic",
+    "skill_refresh": 3,
+    "skills": [
+      {"effect": "status",
+       "degree": "ResonanceBlades",
+       "targets": "self_and_same_game_allies",
+       "area": "global"}
+    ]
+  }
+}

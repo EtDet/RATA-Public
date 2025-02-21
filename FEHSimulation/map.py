@@ -123,6 +123,15 @@ class Tile:
 
         return arr
 
+    def unitsWithinNCols(self, n):
+        within_n_tiles = self.tilesWithinNCols(n)
+        arr = []
+        for x in within_n_tiles:
+            if x.hero_on is not None:
+                arr.append(x.hero_on)
+
+        return arr
+
     # all tiles within n columns
     def tilesWithinNCols(self, n):
         horizontal = [self]
@@ -440,7 +449,11 @@ class Map:
             self.tiles[2].structure_on = fortress_O
 
             fortress_D = makeStruct("Fortress", 2)
-            self.tiles[27].structure_on = fortress_D
+
+            if not self.tiles[27].structure_on and self.tiles[27].terrain == 0:
+                self.tiles[27].structure_on = fortress_D
+            else:
+                self.tiles[28].structure_on = fortress_D
 
             fountain = makeStruct("Aether Fountain", 2)
             self.tiles[42].structure_on = fountain

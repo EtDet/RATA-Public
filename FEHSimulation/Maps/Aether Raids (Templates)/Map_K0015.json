@@ -1,0 +1,21 @@
+{
+    "name": "AR 15: Jötunheimr Castle",
+    "wall": "Wallpattern_inside.png",
+    "mode": "aether",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [25, 28, 31, 34],
+    "struct_walls": {
+      "static": [],
+      "twoBreak": [25, 28],
+      "oneBreak": []
+    },
+    "playerStart": [7, 8, 9, 10, 11],
+    "enemyStart": [36, 37, 38, 39]
+  }
