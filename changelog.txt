@@ -1,4 +1,4 @@
-2.1.0 (2/21/25)
+2.1.0 (2/25/25)
 New Features:
 -Added all 137 heroes introduced in Year 3.
 -Aether Raids Maps! You can use the building tab in Extras to place, remove, and change the level of structures. No restrictions on how many types of structures can be placed as well!
@@ -20,7 +20,7 @@ Bug Fixes:
 -Fixed an incorrect terrain tile in Story 1-3-2.
 -Fixed an incorrect weapon in Story 1-6-2.
 -Fixed an incorrect enemy starting position in Story 1-3-3.
--Fixed movement-aligned Ward skills.
+-Fixed movement-aligned Ward skills (Ward Fliers, etc.).
 -Juicy Wave+'s Atk refine now has the proper Mt value.
 -Brazen-type skills' descriptions have been corrected.
 -Blow-type skills as Seals will now give the correct amount of stats in combat.
@@ -31,6 +31,8 @@ Bug Fixes:
 -Healing from Shigure's Azure Lance now stacks properly with other sources of healing.
 -Healing from Shigure's Azure Lance now works with Rally skills.
 -Fixed follow-up denial given by Legendary Marth's Binding Shield II.
+-Fixed the conditions of Genny's refined Springtime Staff for enemy phase.
+-Fixed the conditions for Julius's refined Loptous for enemy phase.
 
 2.0.0 (1/17/25)
 

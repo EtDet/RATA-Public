@@ -6393,13 +6393,13 @@ class GameplayCanvas(tk.Canvas):
             if not galeforce_triggered:
                 self.units_to_move.remove(cur_hero)
 
-                if self.units_to_move and cur_unit.HPcur != 0:
-
+                if self.units_to_move: #or any(x.pair_up_obj for x in self.map.get_heroes_present_by_side()[S]) or any(x.duo_skill for x in self.map.get_heroes_present_by_side()[S])) and cur_unit.HPcur != 0 :
                     self.after(finish_time, set_unit_actability, cur_unit)
 
             # Capture the mapstate
             mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0])
 
+            #if (self.units_to_move or any(x.pair_up_obj for x in self.map.get_heroes_present_by_side()[S]) or any(x.duo_skill for x in self.map.get_heroes_present_by_side()[S])):
             if self.units_to_move:
                 self.map_states.append(mapstate)
 
@@ -6416,11 +6416,11 @@ class GameplayCanvas(tk.Canvas):
 
         # cause next phase to start either immediately or after combat
 
-        if not self.units_to_move:
+        if not self.units_to_move: #and not any(x.pair_up_obj for x in self.map.get_heroes_present_by_side()[S]) and not any(x.duo_skill for x in self.map.get_heroes_present_by_side()[S]):
             if not self.animation:
                 self.next_phase()
 
-            if self.animation:
+            else:
                 self.after(finish_time, self.next_phase)
 
         self.drag_data = None

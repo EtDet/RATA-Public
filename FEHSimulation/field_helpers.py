@@ -430,7 +430,7 @@ def create_combat_fields(player_team, enemy_team):
             range = within_2_space
             condition = lambda s: lambda o: True
             affect_same_side = True
-            effects = {"toastyField_f": 3}
+            effects = {"defStance": 3, "resStance": 3}
 
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
@@ -1971,7 +1971,7 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, ar_struc
                     add_debuff(foe, i, -7)
                     add_status(foe, Status.Panic)
 
-                    for ally in allies_within_n_spaces(foe, 2):
+                    for ally in allies_within_n(foe, 2):
                         add_debuff(ally, i, -7)
 
                     i += 1
@@ -2214,8 +2214,8 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, ar_struc
             for foe in nearest_foes_within_n(unit, 5):
                 add_status(foe, Status.Exposure)
 
-                for ally in allies_within_n_spaces(foe, 2):
-                    add_status(foe, Status.Exposure)
+                for ally in allies_within_n(foe, 2):
+                    add_status(ally, Status.Exposure)
 
         if "lokiRanged" in unitSkills:
             for foe in [tile.hero_on for tile in tiles_within_1_row_or_column if unit.isEnemyOf(tile.hero_on)]:

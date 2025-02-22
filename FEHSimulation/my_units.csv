@@ -8,4 +8,4 @@ V!Eliwood,Sample Eliwood,Berkut's Lance+Spd,Swap,Bonfire,Atk/Def Solo 4,Bold Fig
 L!Ike,Sample Ike,RagnellEff,Reposition,Radiant Aether II,Warding Breath,Quick Riposte 3,Drive Def 2,,,40,0,5,2,0,2,0,,,0,False,,0,False,,False
 Alfonse,Fire Emblem Hero,Fólkvangr,,,,,,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
 Micaiah,micky,Thani,Sacrifice,,,,,,,40,0,5,0,0,0,0,,4.0,0,False,,0,False,,False
-L!Roy,Sample Pair-Up,Dragonbind,,Moonbow,,,,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
+L!Roy,Sample Pair-Up,Dragonbind,,Moonbow,,,,,,40,0,5,0,0,0,0,,,0,False,,0,False,micky,False
