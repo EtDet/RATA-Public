@@ -666,35 +666,43 @@ Armored Boots,"At start of turn, if unit's HP = 100%, unit can move 1 extra spac
 Dist. Counter (D),Unit can counterattack regardless of foe's range.,1,S,226,FALSE,,,,,,,,,,,Any,Any
 Dist. Counter (M),Unit can counterattack regardless of foe's range.,1,S,227,FALSE,,,,,,,,,,,Any,Any
 Beast,Removes the condition to transform.,1,S,228,FALSE,,,,,,,,,,,Any,Any
-Embla's Ward,Reduces damage dealt to unit to 0.,0,S,10000,FALSE,invincible,1,,,,,,,,,Any,Any
-Múspellflame,Reduces damage dealt to unit to 0.,0,S,10001,FALSE,invincible,2,,,,,,,,,Any,Any
-Niðavellir Axiom,Reduces damage dealt to unit to 0.,0,S,10002,FALSE,invincible,5,,,,,,,,,Any,Any
-Gold Perfection,Reduces damage dealt to unit to 0.,0,S,10003,FALSE,invincible,7,,,,,,,,,Any,Any
-Nine-Realm Pact,Reduces damage dealt to unit to 0.,0,S,10017,FALSE,invincible,9,,,,,,,,,Any,Any
-Gullinbursti,Enables [Canto (Rem.)].,0,S,10004,FALSE,,,,,,,,,,,Any,Any
-Røkkr,"Neutralizes damage outside of combat (from skills like Poison Strike, etc.) except damage dealt by Specials that trigger before combat. Unit's HP can be reduced to 0 only by an attack from allied armies. Unit cannot restore its own HP.",0,S,10005,FALSE,,,,,,,,,,,Any,Any
-Guardian Seal,"Units on the opposing team with Range = 2 cannot move through a space adjacent to the holder of this seal. (Does not affect units with Pass.) When foe with this seal is defeated, restores 10 HP to unit that defeated foe and inflicts Special cooldown count+1 on that unit after combat.",0,S,10006,FALSE,,,,,,,,,,,Any,Any
-Blade Seal,"When the holder of this seal is defeated, restores 10 HP to unit that defeats holder, inflicts Special cooldown count+1 on that unit after combat, and a [Special Blade] drops.",0,S,10007,FALSE,,,,,,,,,,,Any,Any
-Charm Seal,"When the holder of this seal is defeated, restores 10 HP to unit that defeats holder, inflicts Special cooldown count+1 on that unit after combat, and a [Lightning Charm] drops.",0,S,10008,FALSE,,,,,,,,,,,Any,Any
-Elixir Seal,"When the holder of this seal is defeated, restores 10 HP to unit that defeats holder, inflicts Special cooldown count+1 on that unit after combat, and an [Elixir] drops.",0,S,10009,FALSE,,,,,,,,,,,Any,Any
-Boots Seal,"When the holder of this seal is defeated, restores 10 HP to unit that defeats holder, inflicts Special cooldown count+1 on that unit after combat, and [Infantry Boots] drop.",0,S,10010,FALSE,,,,,,,,,,,Any,Any
-Veil Seal,"When the holder of this seal is defeated, restores 10 HP to unit that defeats holder, inflicts Special cooldown count+1 on that unit after combat, and a [Dancer's Veil] drops.",0,S,10011,FALSE,,,,,,,,,,,Any,Any
-Horn Seal,"When the holder of this seal is defeated, restores 10 HP to unit that defeats holder, inflicts Special cooldown count+1 on that unit after combat, and a [Fortifying Horn] drops.",0,S,10012,FALSE,,,,,,,,,,,Any,Any
+Askr's Protection,Reduces damage dealt to unit to 0.,0,S,10000,FALSE,invincible,1,,,,,,,,,Any,Any
+Embla's Ward,Reduces damage dealt to unit to 0.,0,S,10001,FALSE,invincible,1,,,,,,,,,Any,Any
+Niflfrost,Reduces damage dealt to unit to 0.,0,S,10002,FALSE,invincible,2,,,,,,,,,Any,Any
+Múspellflame,Reduces damage dealt to unit to 0.,0,S,10003,FALSE,invincible,2,,,,,,,,,Any,Any
+Life Overflowing,Reduces damage dealt to unit to 0.,0,S,10004,FALSE,invincible,3,,,,,,,,,Any,Any
+Hel's Persistance,Reduces damage dealt to unit to 0.,0,S,10005,FALSE,invincible,3,,,,,,,,,Any,Any
+Unending Dream,Reduces damage dealt to unit to 0.,0,S,10006,FALSE,invincible,4,,,,,,,,,Any,Any
+Eternal Nightmare,Reduces damage dealt to unit to 0.,0,S,10007,FALSE,invincible,4,,,,,,,,,Any,Any
+Niðavellir Axiom,Reduces damage dealt to unit to 0.,0,S,10008,FALSE,invincible,5,,,,,,,,,Any,Any
+Jötunheimr Apex,Reduces damage dealt to unit to 0.,0,S,10009,FALSE,invincible,5,,,,,,,,,Any,Any
+Gold Perfection,Reduces damage dealt to unit to 0.,0,S,10010,FALSE,invincible,7,,,,,,,,,Any,Any
+Aegis of Yggdrasil,Reduces damage dealt to unit to 0.,0,S,10011,FALSE,invincible,8,,,,,,,,,Any,Any
+Nine-Realm Pact,Reduces damage dealt to unit to 0.,0,S,10012,FALSE,invincible,9,,,,,,,,,Any,Any
+Gullinbursti,Enables [Canto (Rem.)].,0,S,10013,FALSE,,,,,,,,,,,Any,Any
+Røkkr,"Neutralizes damage outside of combat (from skills like Poison Strike, etc.) except damage dealt by Specials that trigger before combat. Unit's HP can be reduced to 0 only by an attack from allied armies. Unit cannot restore its own HP.",0,S,10014,FALSE,,,,,,,,,,,Any,Any
+Guardian Seal,"Units on the opposing team with Range = 2 cannot move through a space adjacent to the holder of this seal. (Does not affect units with Pass.) When foe with this seal is defeated, restores 10 HP to unit that defeated foe and inflicts Special cooldown count+1 on that unit after combat.",0,S,10015,FALSE,,,,,,,,,,,Any,Any
+Blade Seal,"When the holder of this seal is defeated, restores 10 HP to unit that defeats holder, inflicts Special cooldown count+1 on that unit after combat, and a [Special Blade] drops.",0,S,10016,FALSE,,,,,,,,,,,Any,Any
+Charm Seal,"When the holder of this seal is defeated, restores 10 HP to unit that defeats holder, inflicts Special cooldown count+1 on that unit after combat, and a [Lightning Charm] drops.",0,S,10017,FALSE,,,,,,,,,,,Any,Any
+Elixir Seal,"When the holder of this seal is defeated, restores 10 HP to unit that defeats holder, inflicts Special cooldown count+1 on that unit after combat, and an [Elixir] drops.",0,S,10018,FALSE,,,,,,,,,,,Any,Any
+Boots Seal,"When the holder of this seal is defeated, restores 10 HP to unit that defeats holder, inflicts Special cooldown count+1 on that unit after combat, and [Infantry Boots] drop.",0,S,10019,FALSE,,,,,,,,,,,Any,Any
+Veil Seal,"When the holder of this seal is defeated, restores 10 HP to unit that defeats holder, inflicts Special cooldown count+1 on that unit after combat, and a [Dancer's Veil] drops.",0,S,10020,FALSE,,,,,,,,,,,Any,Any
+Horn Seal,"When the holder of this seal is defeated, restores 10 HP to unit that defeats holder, inflicts Special cooldown count+1 on that unit after combat, and a [Fortifying Horn] drops.",0,S,10021,FALSE,,,,,,,,,,,Any,Any
 R Time Traveler,"Against a foe equipped with this Sacred Seal, grants player's unit one of the following advantages or inflicts one of the following disadvantages based on that unit's color:
    - If blue, grants major advantage: unit deals damage = 20% of unit's Atk and reduces damage from attacks by 20% of foe's Atk during combat (excluding area-of-effect Specials), and reduces damage from foe's area-of-effect Specials by 80%.
    - If colorless, grants minor advantage: unit deals damage = 10% of unit's Atk during combat (excluding area-of-effect Specials).
-   - If green, inflicts major disadvantage: foe deals damage = 20% of foe's Atk and reduces damage from attacks by 20% of unit's Atk during combat (excluding area-of-effect Specials), and reduces damage from unit's area-of-effect Specials by 80%.",0,S,10013,FALSE,,,,,,,,,,,Any,Any
+   - If green, inflicts major disadvantage: foe deals damage = 20% of foe's Atk and reduces damage from attacks by 20% of unit's Atk during combat (excluding area-of-effect Specials), and reduces damage from unit's area-of-effect Specials by 80%.",0,S,10022,FALSE,,,,,,,,,,,Any,Any
 B Time Traveler,"Against a foe equipped with this Sacred Seal, grants player's unit one of the following advantages or inflicts one of the following disadvantages based on that unit's color:
    - If green, grants major advantage: unit deals damage = 20% of unit's Atk and reduces damage from attacks by 20% of foe's Atk during combat (excluding area-of-effect Specials), and reduces damage from foe's area-of-effect Specials by 80%.
    - If colorless, grants minor advantage: unit deals damage = 10% of unit's Atk during combat (excluding area-of-effect Specials).
-   - If red, inflicts major disadvantage: foe deals damage = 20% of foe's Atk and reduces damage from attacks by 20% of unit's Atk during combat (excluding area-of-effect Specials), and reduces damage from unit's area-of-effect Specials by 80%.",0,S,10014,FALSE,,,,,,,,,,,Any,Any
+   - If red, inflicts major disadvantage: foe deals damage = 20% of foe's Atk and reduces damage from attacks by 20% of unit's Atk during combat (excluding area-of-effect Specials), and reduces damage from unit's area-of-effect Specials by 80%.",0,S,10023,FALSE,,,,,,,,,,,Any,Any
 G Time Traveler,"Against a foe equipped with this Sacred Seal, grants player's unit one of the following advantages or inflicts one of the following disadvantages based on that unit's color:
    - If red, grants major advantage: unit deals damage = 20% of unit's Atk and reduces damage from attacks by 20% of foe's Atk during combat (excluding area-of-effect Specials), and reduces damage from foe's area-of-effect Specials by 80%.
    - If colorless, grants minor advantage: unit deals damage = 10% of unit's Atk during combat (excluding area-of-effect Specials).
-   - If blue, inflicts major disadvantage: foe deals damage = 20% of foe's Atk and reduces damage from attacks by 20% of unit's Atk during combat (excluding area-of-effect Specials), and reduces damage from unit's area-of-effect Specials by 80%.",0,S,10015,FALSE,,,,,,,,,,,Any,Any
+   - If blue, inflicts major disadvantage: foe deals damage = 20% of foe's Atk and reduces damage from attacks by 20% of unit's Atk during combat (excluding area-of-effect Specials), and reduces damage from unit's area-of-effect Specials by 80%.",0,S,10024,FALSE,,,,,,,,,,,Any,Any
 C Time Traveler,"Against a foe equipped with this Sacred Seal, grants player's unit one of the following advantages or inflicts one of the following disadvantages based on that unit's color:
    - If red, blue, or green, grants advantage: unit deals damage = 20% of unit's Atk during combat (excluding area-of-effect Specials).
-   - If colorless, inflicts extreme disadvantage: foe deals damage = 40% of foe's Atk and reduces damage from attacks by 40% of unit's Atk during combat (excluding area-of-effect Specials), and reduces damage from unit's area-of-effect Specials by 80%.",0,S,10016,FALSE,,,,,,,,,,,Any,Any
+   - If colorless, inflicts extreme disadvantage: foe deals damage = 40% of foe's Atk and reduces damage from attacks by 40% of unit's Atk during combat (excluding area-of-effect Specials), and reduces damage from unit's area-of-effect Specials by 80%.",0,S,10025,FALSE,,,,,,,,,,,Any,Any
 Initiate Seal HP 1,Grants +3 to max HP.,1,S,5000,FALSE,,,,,,,,,,,Any,Any
 Initiate Seal HP 2,Grants +4 to max HP.,2,S,5000,FALSE,,,,,,,,,,,Any,Any
 Initiate Seal HP 3,Grants +5 to max HP.,3,S,5000,FALSE,,,,,,,,,,,Any,Any

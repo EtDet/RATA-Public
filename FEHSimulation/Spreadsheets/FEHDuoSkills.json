@@ -26,7 +26,7 @@
     "type": "duo",
     "skill_refresh": -1,
     "skills": [
-      {"effect": "buff_spectrum",
+      {"effect": "buff_omni",
        "degree": 3,
        "targets": "self_and_allies_flying_armored",
        "area": "within_3_rows"},
@@ -34,6 +34,116 @@
        "degree": "BonusDoubler",
        "targets": "self_and_allies_flying_armored",
        "area": "within_3_rows"}
+    ]
+  },
+  "NY!Alfonse": {
+    "desc": "Grants Special cooldown count-2 to unit and infantry allies within 3 rows and 3 columns centered on unit.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {"effect": "sp_charge",
+       "degree": 2,
+       "targets": "self_and_allies_infantry",
+       "area": "within_3_rows_or_cols"}
+    ]
+  },
+  "V!Alm": {
+    "desc": "Neutralizes any [Penalty], restores 30 HP, and grants Atk/Spd+6 to unit and allies within 5 rows and 5 columns centered on unit for 1 turn.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "clear_penalties",
+        "targets": "self_and_allies",
+        "area": "within_5_rows_and_cols"
+      },
+      {
+        "effect": "heal",
+        "degree": 30,
+        "targets": "self_and_allies",
+        "area": "within_5_rows_and_cols"
+      },
+      {
+        "effect": "buff_atk",
+        "degree": 6,
+        "targets": "self_and_allies",
+        "area": "within_5_rows_and_cols"
+      },
+      {
+        "effect": "buff_spd",
+        "degree": 6,
+        "targets": "self_and_allies",
+        "area": "within_5_rows_and_cols"
+      }
+    ]
+  },
+  "SP!Idunn": {
+    "desc": "Grants Def/Res+6 and the following status to unit and allies within 5 rows and 5 columns centered on unit for 1 turn: \"Neutralizes 'effective against dragons' bonuses and 'effective against armored' bonuses.\"",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "NullEffDragons",
+        "targets": "self_and_allies",
+        "area": "within_5_rows_and_cols"
+      },
+      {
+        "effect": "status",
+        "degree": "NullEffArmors",
+        "targets": "self_and_allies",
+        "area": "within_5_rows_and_cols"
+      },
+      {
+        "effect": "buff_def",
+        "degree": 6,
+        "targets": "self_and_allies",
+        "area": "within_5_rows_and_cols"
+      },
+      {
+        "effect": "buff_res",
+        "degree": 6,
+        "targets": "self_and_allies",
+        "area": "within_5_rows_and_cols"
+      }
+    ]
+  },
+  "CH!Palla": {
+    "desc": "Unit and adjacent flying allies can move 1 extra space. (Unit can move 1 extra space even if adjacent ally is not a flying ally. That turn only. Does not stack.)\n\nOnce used, Duo Skill cannot be activated again right away. At start of odd-numbered turns, if Duo Skill has already been used, unit can use Duo Skill again.",
+    "type": "duo",
+    "skill_refresh": 2,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "MobilityUp",
+        "targets": "self_and_allies_flying",
+        "area": "within_1_spaces"
+      }
+    ]
+  },
+  "BR!Micaiah": {
+    "desc": "Grants [Dominance] to unit and allies within 3 columns centered on unit. Inflicts Def/Res-7 on foes within 3 columns centered on unit through their next actions.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+       "degree": "Dominance",
+       "targets": "self_and_allies",
+       "area": "within_3_columns"
+      },
+      {
+        "effect": "debuff_def",
+       "degree": 7,
+       "targets": "foes",
+       "area": "within_3_columns"
+      },
+      {
+        "effect": "debuff_res",
+       "degree": 7,
+       "targets": "foes",
+       "area": "within_3_columns"
+      }
     ]
   },
   "SU!Mia": {

@@ -1,3 +1,18 @@
+2.2.0 (XX/XX/25)
+New Features:
+-Added all 140 heroes introduced in Year 4.
+-Added the following Story maps:
+-Added the following Paralogue maps:
+
+Bug Fixes:
+-Fallen Female Corrin's weapon will now work properly.
+-Naga's Divine Fang(+) will now work properly.
+-Inf. Hexblade will now work properly.
+-Ranulf's Covert Cat Fang and Yarne's Bunny Fang will now give a +3 boost to HP with the Eff refine.
+-Infantry Pulse and Velouria's Wolfpup Fang now properly charge the specials of allies.
+-Sothis' Sublime Surge now has a description for refined versions of the weapon.
+-Lyon's Naglfar will now inflict debuffs on the foe instead of himself when initiated.
+
 2.1.0 (2/25/25)
 New Features:
 -Added all 137 heroes introduced in Year 3.

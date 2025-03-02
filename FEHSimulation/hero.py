@@ -86,7 +86,7 @@ def change_highest_two(array, opp):
 
 # Hero object
 class Hero:
-    def __init__(self, name, intName, epithet, game, wpnType, move, stats, growths, flower_limit, BVID, refresh_type):
+    def __init__(self, name, intName, epithet, primary_game, secondary_game, wpnType, move, stats, growths, flower_limit, BVID, refresh_type):
         # Unit's name (Julia, Corrin, Ratatoskr, etc.)
         self.name: str = name
 
@@ -117,7 +117,7 @@ class Hero:
         # 17 - Engage
         # 69 - Tokyo Mirage Sessions ♯FE
         # 99 - Other
-        self.game: int = game
+        self.primary_game: int = primary_game
 
         # Rarity of hero, 1-5 Stars. Affects base stats.
         self.rarity: int = 5
@@ -161,7 +161,6 @@ class Hero:
 
         # field debuffs for different stats, can only be negative
         # Harsh Command converts into buff, removes debuff values from units
-
         self.debuffs: list[int] = [0, 0, 0, 0, 0]
 
         # Additional stats that are granted by a skill.
@@ -725,9 +724,41 @@ class Hero:
         else:
             return 0
 
+    def get_total_buff(self, STAT):
+        self_panic = Status.Panic in self.statusNeg and Status.NullPanic not in self.statusPos
+
+        if self_panic:
+            return 0
+        else:
+            return self.buffs[STAT]
+
+    def get_bonus_total(self):
+        self_panic = Status.Panic in self.statusNeg and Status.NullPanic not in self.statusPos
+
+        if self_panic:
+            return 0
+        else:
+            return sum(self.buffs)
+
+    def get_total_debuff(self, STAT):
+        self_panic = Status.Panic in self.statusNeg and Status.NullPanic not in self.statusPos
+
+        if self_panic:
+            return self.debuffs[STAT] - self.buffs[STAT]
+        else:
+            return self.debuffs[STAT]
+
+    def get_penalty_total(self):
+        self_panic = Status.Panic in self.statusNeg and Status.NullPanic not in self.statusPos
+
+        if self_panic:
+            return sum(self.debuffs) - sum(self.buffs)
+        else:
+            return sum(self.debuffs)
+
     def inflictStatus(self, status):
         # Positive status
-        if status.value > 100 and status not in self.statusPos:
+        if status.value >= 100 and status not in self.statusPos:
             self.statusPos.append(status)
             print(self.name + " receives " + status.name + " (+).")
 
@@ -876,6 +907,18 @@ class Hero:
     def isSupportOf(self, other):
         if other is None: return False
         return other.allySupport == self.intName
+
+    def isSameGameAs(self, other):
+        if self.primary_game == other.primary_game:
+            return True
+        elif self.primary_game == other.secondary_game:
+            return True
+        elif self.secondary_game == other.primary_game:
+            return True
+        elif self.secondary_game == other.secondary_game and self.secondary_game != -1:
+            return True
+        else:
+            return False
 
     def get_transform_conditions(self):
         if self.wpnType not in BEAST_WEAPONS or not self.weapon:
@@ -1046,6 +1089,12 @@ blessing_dict = {
     "L!Eliwood":  (WIND,  2, 0),
     "L!Julia":    (EARTH, 2, 0),
     "L!Leif":     (WATER, 2, 0),
+    "L!Celica":   (FIRE,  2, 0),
+    "L!Chrom":    (WATER, 2, 0),
+    "L!Edelgard": (FIRE,  2, 0),
+    "L!Seliph":   (EARTH, 2, 0),
+    "L!F!Corrin": (WIND,  2, 0),
+    "L!Dimitri":  (WATER, 2, 0),
 
     "Eir":        (LIGHT, 1, RES),
     "Duma":       (ANIMA, 1, ATK),
@@ -1054,6 +1103,15 @@ blessing_dict = {
     "Sothis":     (DARK,  1, RES),
     "Thrasir":    (ANIMA, 1, DEF),
     "Altina":     (ASTRA, 1, ATK),
+    "Peony":      (LIGHT, 1, SPD),
+    "Líf":        (ANIMA, 1, SPD),
+    "Bramimond":  (DARK,  1, ATK),
+    "Mila":       (LIGHT, 1, DEF),
+    "Mirabilis":  (ANIMA, 1, RES),
+    "Hel":        (DARK,  1, DEF),
+    "Plumeria":   (ASTRA, 1, SPD),
+    "Triandra":   (DARK,  1, SPD),
+    "Freyja":     (LIGHT, 1, ATK)
 }
 
 def create_specialized_blessing(int_name):
@@ -1103,7 +1161,7 @@ class Status(Enum):
     CantoControl = 19  # 🔵 If range = 1 Canto skill becomes Canto 1, if range = 2, turn ends when canto triggers
     Guard = 20  # 🔴 Special charge -1
     Frozen = 21  # 🔴 Increases/decreases speed difference needed to make follow up for unit/foe by max(2 * Δdef + 10, 10)
-    TriAdept = 22  # 🔴 Triangle Adept 3, weapon tri adv/disadv affected by 20%
+    TriangleAdept = 22  # 🔴 Triangle Adept 3, weapon tri adv/disadv affected by 20%
     CancelAction = 23  # 🟢 After start of turn skills trigger, unit's action ends immediately (cancels active units in Summoner Duels)
 
     # positive, sorted
@@ -1118,63 +1176,76 @@ class Status(Enum):
     Dosage = 108  # 🔴 Atk/Spd/Def/Res+5, 10HP healed after combat, disables effects that steal bonuses, and clears all bonuses from foes that attempt to steal bonuses
     Empathy = 109  # 🔴 Grants Atk/Spd/Def/Res = num unique Bonus effects and Penalty effects currently on map (max 7)
     DivinelyInspiring = 110  # 🔴 Grants Atk/Spd/Def/Res = X * 3, grants -X sp jump to self before foe's first attack, and heals X * 4 HP per hit (X = num allies with this status in 3 spaces, max 2)
-    Anathema = 111  # 🔴 Inflicts Spd/Def/Res-4 on foes within 3 spaces
-    Dominance = 112  # 🔴 Deal true damage = number of stat penalties on foe (including Panic-reversed Bonus)
-    Treachery = 113  # 🔴 Deal true damage = number of stat bonuses on unit (not including Panic + Bonus)
-    AOEReduce80 = 114  # 🔴 Reduces non-Røkkr AoE damage taken by 80%
-    Dodge = 115  # 🔴 If unit's spd > foe's spd, reduces combat & non-Røkkr AoE damage by X%, X = (unit's spd - foe's spd) * 4, max of 40%
-    FirstReduce40 = 116  # 🔴 If initiating combat, reduces damage from first attack received by 40%
-    FallenStar = 117  # 🔴 Reduces damage from foe's first attack by 80% in unit's first combat in player phase and first combat in enemy phase
-    DeepStar = 118  # 🔴 In unit's first combat where foe initiates combat, reduces first hit(s) by 80%
-    NullBonuses = 119  # 🔴 Neutralizes foe's bonuses in combat
-    NullPenalties = 120  # 🔴 Neutralizes unit's penalties in combat
-    EnGarde = 121  # 🔴 Neutralizes damage outside of combat, minus AoE damage
-    NullPanic = 122  # 🔴 Nullifies Panic
-    NullFollowUp = 123  # 🔴 Disables skills that guarantee foe's follow-ups or prevent unit's follow-ups
-    DamageReductionPierce50 = 124  # 🔴 Cuts foe's non-special damage reduction skill efficacy in half
-    WarpBubble = 125  # 🔵 Foes cannot warp onto spaces within 4 spaces of unit (does not affect pass skills)
-    DivineNectar = 126  # 🔴 Neutralizes Deep Wounds, restores 20HP as combat begins, and reduces damage by 10
-    EffDragons = 127  # 🔴 Gain effectiveness against dragons
-    NullEffDragons = 128  # 🔴 Gain immunity to "eff against dragons"
-    NullEffArmors = 129  # 🔴 Gain immunity to "eff against armors"
-    NullEffFlyers = 130  # 🔴 Gain immunity to "eff against flyers"
-    MobilityUp = 131  # 🔵 Movement increased by 1, cancelled by Gravity
-    Gallop = 132  # 🔵 Movement increased by 2, cancelled by Gravity, does not stack with MobilityUp
-    Charge = 133  # 🔵 Unit can move to any space up to 3 spaces away in cardinal direction, terrain/skills that halt (not slow) movement still apply, treated as warp movement
-    Pathfinder = 134  # 🔵 Unit's space costs 0 to move to by allies
-    Canto1 = 135  # 🔵 Can move 1 space after combat (not writing all the canto jargon here)
-    TraverseTerrain = 136  # 🔵 Ignores terrain which slows unit (bushes/trenches)
-    Orders = 137  # 🔵 Unit can move to space adjacent to ally within 2 spaces
-    TimesGate = 138  # 🔵 Allies within 4 spaces can warp to a space adjacent to unit
-    Hexblade = 139  # 🔴 Damage inflicted using lower of foe's def or res (applies to AoE skills)
-    SpecialCharge = 140  # 🔴 Special charge +1 per hit during combat
-    PreemptPulse = 141  # 🔴 Grants -1 sp jump before unit's first attack
-    Pursual = 142  # 🔴 Unit makes follow-up attack when initiating combat
-    DenyFollowUp = 143  # 🔴 Foe cannot make a follow-up attack
-    Outspeeding = 144  # Increases Spd difference needed for foe to make follow-up by 10
-    PotentFollow = 145 # 🔴 If being outsped by 20 or less, grants 80/40 Potent hit
-    Desperation = 146  # 🔴 If unit initiates combat and can make follow-up attack, makes follow-up attack before foe can counter
-    Vantage = 147  # 🔴 Unit counterattacks before foe's first attack in enemy phase
-    Paranoia = 148  # 🔴 If unit's HP >= 99%, grants Atk+5, Desperation, and if either # foe negative statuses >= 3 or foe is of same range, grants Vantage
-    Bulwark = 149  # 🔵 Foes cannot move through spaces within X spaces of unit, X = foe's range
-    AssignDecoy = 150  # 🔴 Unit is granted Savior effect for their range, fails if unit currently has savior skill
-    CancelAffinity = 151  # 🔴 Cancel Affinity 3, reverses weapon triangle to neutral if Triangle Adept-having unit/foe has advantage
-    TriAttack = 152  # 🔴 If within 2 spaces of 2 allies with TriAttack and initiating combat, unit attacks twice
-    DualStrike = 153  # 🔴 If unit initiates combat and is adjacent to unit with DualStrike, unit attacks twice
-    EssenceDrain = 154 # 🔴 If unit attacks, steals positive bonuses from foes within 2 spaces of target and gives to self and all allies with this status. If foe defeated, restores 10HP to self and allies with this status.
-    Bonded = 155 # 🔴 Activates different effects depending on skills present in battle
+    Salvage = 111  # 🔵 UPDATE WITH PROPER POSITION - Can move 2 spaces after combat with Canto. If Canto Control applied, base Canto movement is instead set to 2 for Melee units, 1 for Ranged units.
+    Anathema = 112  # 🔴 Inflicts Spd/Def/Res-4 on foes within 3 spaces
+    Dominance = 113  # 🔴 Deal true damage = number of stat penalties on foe (including Panic-reversed Bonus)
+    Treachery = 114  # 🔴 Deal true damage = number of stat bonuses on unit (not including Panic + Bonus)
+    AOEReduce80 = 115  # 🔴 Reduces non-Røkkr AoE damage taken by 80%
+    Dodge = 116  # 🔴 If unit's spd > foe's spd, reduces combat & non-Røkkr AoE damage by X%, X = (unit's spd - foe's spd) * 4, max of 40%
+    FirstReduce40 = 117  # 🔴 If initiating combat, reduces damage from first attack received by 40%
+    FallenStar = 118  # 🔴 Reduces damage from foe's first attack by 80% in unit's first combat in player phase and first combat in enemy phase
+    DeepStar = 119  # 🔴 In unit's first combat where foe initiates combat, reduces first hit(s) by 80%
+    NullBonuses = 120  # 🔴 Neutralizes foe's bonuses in combat
+    NullPenalties = 121  # 🔴 Neutralizes unit's penalties in combat
+    EnGarde = 122  # 🔴 Neutralizes damage outside of combat, minus AoE damage
+    NullPanic = 123  # 🔴 Nullifies Panic
+    NullFollowUp = 124  # 🔴 Disables skills that guarantee foe's follow-ups or prevent unit's follow-ups
+    DamageReductionPierce50 = 125  # 🔴 Cuts foe's non-special damage reduction skill efficacy in half
+    WarpBubble = 126  # 🔵 Foes cannot warp onto spaces within 4 spaces of unit (does not affect pass skills)
+    DivineNectar = 127  # 🔴 Neutralizes Deep Wounds, restores 20HP as combat begins, and reduces damage by 10
+    EffDragons = 128  # 🔴 Gain effectiveness against dragons
+    NullEffDragons = 129  # 🔴 Gain immunity to "eff against dragons"
+    NullEffArmors = 130  # 🔴 Gain immunity to "eff against armors"
+    NullEffFlyers = 131  # 🔴 Gain immunity to "eff against flyers"
+    MobilityUp = 132  # 🔵 Movement increased by 1, cancelled by Gravity
+    Gallop = 133  # 🔵 Movement increased by 2, cancelled by Gravity, does not stack with MobilityUp
+    Charge = 134  # 🔵 Unit can move to any space up to 3 spaces away in cardinal direction, terrain/skills that halt (not slow) movement still apply, treated as warp movement
+    Pathfinder = 135  # 🔵 Unit's space costs 0 to move to by allies
+    Canto1 = 136  # 🔵 Can move 1 space after combat with Canto
+    TraverseTerrain = 137  # 🔵 Ignores terrain which slows unit (bushes/trenches)
+    Orders = 138  # 🔵 Unit can move to space adjacent to ally within 2 spaces
+    TimesGate = 139  # 🔵 Allies within 4 spaces can warp to a space adjacent to unit
+    Hexblade = 140  # 🔴 Damage inflicted using lower of foe's def or res (applies to AoE skills)
+    SpecialCharge = 141  # 🔴 Special charge +1 per hit during combat
+    PreemptPulse = 142  # 🔴 Grants -1 sp jump before unit's first attack
+    Pursual = 143  # 🔴 Unit makes follow-up attack when initiating combat
+    DenyFollowUp = 144  # 🔴 Foe cannot make a follow-up attack
+    Outspeeding = 145  # Increases Spd difference needed for foe to make follow-up by 10
+    PotentFollow = 146 # 🔴 If being outsped by 20 or less, grants 80/40 Potent hit
+    Desperation = 147  # 🔴 If unit initiates combat and can make follow-up attack, makes follow-up attack before foe can counter
+    Vantage = 148  # 🔴 Unit counterattacks before foe's first attack in enemy phase
+    Paranoia = 149  # 🔴 If unit's HP >= 99%, grants Atk+5, Desperation, and if either # foe negative statuses >= 3 or foe is of same range, grants Vantage
+    Bulwark = 150  # 🔵 Foes cannot move through spaces within X spaces of unit, X = foe's range
+    AssignDecoy = 151  # 🔴 Unit is granted Savior effect for their range, fails if unit currently has savior skill
+    CancelAffinity = 152  # 🔴 Cancel Affinity 3, reverses weapon triangle to neutral if Triangle Adept-having unit/foe has advantage
+    TriAttack = 153  # 🔴 If within 2 spaces of 2 allies with TriAttack and initiating combat, unit attacks twice
+    DualStrike = 154  # 🔴 If unit initiates combat and is adjacent to unit with DualStrike, unit attacks twice
+    EssenceDrain = 155 # 🔴 If unit attacks, steals positive bonuses from foes within 2 spaces of target and gives to self and all allies with this status. If foe defeated, restores 10HP to self and allies with this status.
+    Bonded = 156 # 🔴 Activates different effects depending on skills present in battle
 
 
 class GameMode(Enum):
+    # PVE
     Story = 0
     HeroBattle = 1
 
+    # PVP
     Arena = 2
     AetherRaids = 3
+    Allegiance = 4
 
-    Allegiance = 10
+    # Special
+    Special = 5
+
+    # Event
     Rokkr = 11
     Mjolnir = 12
+    Resonant = 13
+
+    # Large Map
+    RivalDomains = 100
+    RelayDefense = 101
+    SummonerDuels = 102
 
 
 print("Reading Unit & Skill Data...")
@@ -1212,6 +1283,7 @@ def makeHero(name):
     int_name = row.loc[n, 'IntName']
     epithet = row.loc[n, 'Epithet']
     game = row.loc[n, 'Game']
+    secondary_game = row.loc[n, 'Secondary Game']
     wpnType = row.loc[n, 'Weapon Type']
     moveType = row.loc[n, 'Movement']
     u_hp = row.loc[n, 'HP']
@@ -1228,7 +1300,7 @@ def makeHero(name):
     bvid = row.loc[n, 'BVID']
     refreshType = row.loc[n, 'RefreshType']
 
-    result_hero = Hero(name, int_name, epithet, game, wpnType, moveType, [u_hp, u_atk, u_spd, u_def, u_res], [g_hp, g_atk, g_spd, g_def, g_res], dfl, bvid, refreshType)
+    result_hero = Hero(name, int_name, epithet, game, secondary_game, wpnType, moveType, [u_hp, u_atk, u_spd, u_def, u_res], [g_hp, g_atk, g_spd, g_def, g_res], dfl, bvid, refreshType)
 
     # Set ally support from supports.pkl
     result_hero.allySupport = get_ally_support(int_name)
@@ -1263,7 +1335,7 @@ def get_generic_move(name):
     return 0
 
 def makeGeneric(name):
-    result_hero = Hero(name, name, "Generic", 0, get_generic_weapon(name), get_generic_move(name), [20, 20, 20, 20, 20], [40, 40, 40, 40, 40], 0, 0, 0)
+    result_hero = Hero(name, name, "Generic", 0, 0, get_generic_weapon(name), get_generic_move(name), [20, 20, 20, 20, 20], [40, 40, 40, 40, 40], 0, 0, 0)
     return result_hero
 
 def makeWeapon(name):
@@ -1526,7 +1598,48 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "L!Leif",
                           "P!Ephraim", "Ewan", "Gerik", "Tethys", "Ross", "Cormag",
                           "Echidna", "Igrene", "Larum", "Perceval", "Chad", "Brunnya",
-                          "Altina"
+                          "Altina",
+
+                          "Peony",
+                          "Eyvel", "Mareeta", "Osian", "Tanya", "Kempf",
+                          "WI!Nino", "WI!Sothis", "WI!Zephiel", "WI!Marth", "WI!Jaffar",
+                          "L!Celica",
+                          "NY!Anna", "NY!Lethe", "NY!Selkie", "NY!Alfonse", "NY!Eir",
+                          "Altena", "Ced", "Larcei", "Shannan", "Travant",
+                          "Eleonora", "Kiria", "Mamori", "Tsubasa", "Itsuki",
+                          "Líf",
+                          "V!Alm", "V!Conrad", "V!Faye", "V!Rudolf", "V!Silque",
+                          "Fiona", "Nils", "Leila", "Rath", "Heath",
+                          "L!Chrom",
+                          "Annette", "Bernadetta", "Ferdinand", "Lysithea", "Flame Emperor",
+                          "SP!Est", "SP!Narcian", "SP!Fir", "SP!Idunn", "SP!Bartre",
+                          "Bramimond",
+                          "Forrest", "Midori", "Rinkah", "Lilith", "Iago",
+                          "CH!Marth", "CH!Caeda", "CH!Palla", "CH!Minerva", "CH!Merric",
+                          "L!Edelgard",
+                          "FA!M!Corrin", "FA!Lyon", "FA!Julia", "FA!Ike", "Ashnard",
+                          "BR!Micaiah", "BR!Nailah", "BR!Oboro", "GR!Rafielf", "GR!Hinata",
+                          "Mila",
+                          "P!Anna", "Emmeryn", "Mustafa", "Say'ri", "Gangrel",
+                          "Mirabilis",
+                          "SU!Joshua", "SU!Lute", "SU!SS!Selena", "SU!Mia", "SU!Rhys",
+                          "L!Seliph",
+                          "SU!Ingrid", "SU!Sylvain", "SU!Dorothea", "SU!F!Byleth", "SU!Lorenz",
+                          "Julian", "Lena", "M!Kris", "F!Kris", "Eremiya",
+                          "Hel",
+                          "PI!Brigid", "PI!Geese", "PI!Tibarn", "PI!Veronica", "PI!Darros",
+                          "B!Edelgard", "B!Dimitri", "B!Claude", "B!Lysithea", "Jorge",
+                          "L!F!Corrin",
+                          "DA!Eldigan", "DA!Ethlyn", "DA!Lachesis", "DA!Quan", "DA!Sigurd",
+                          "Gatrie", "Ilyana", "Jill", "Shinon", "Petrine",
+                          "Plumeria",
+                          "H!Dheginsea", "H!F!Grima", "H!Y!Tiki", "H!Xane", "H!Ena",
+                          "Catherine", "Shamir", "Flayn", "Seteth", "Nemesis",
+                          "L!Dimitri",
+                          "NI!Laevatein", "NI!Navarre", "NI!Hana", "NI!Zihark", "NI!Lyn",
+                          "Dieck", "Guinivere", "Melady", "Merlinus", "Galle",
+                          "Triandra", "Freyja"
+
                     ]
 
 # Generics

@@ -124,7 +124,7 @@ while i <= 3:
 
 # Main Story
 i = 1
-while i <= 9:
+while i <= 13:
     j = 1
     while j <= 5:
         image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + "Map_S" + str(i+1).zfill(2) + str(j).zfill(2) + ".png"
