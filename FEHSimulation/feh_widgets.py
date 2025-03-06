@@ -1487,6 +1487,22 @@ class HeroListing(tk.Frame):
         # Set default Asc Asset
         # creation_str_vars[16].set(STAT_STR[curProxy.asc_asset])
 
+        # Set default level
+        self.creation_str_vars[14].set(min(40, self.hero_proxy.level))
+
+        print(self.created_hero.blessing)
+
+        # Set Blessing
+        if self.created_hero.blessing is None:
+            self.creation_str_vars[4].set("None")
+            self.creation_comboboxes[4]['values'] = ["None", "Fire", "Water", "Earth", "Wind", "Light", "Dark", "Astra", "Anima"]
+        else:
+            if self.created_hero.blessing.boostType != 0:
+                self.creation_str_vars[4].set(self.created_hero.blessing.toString())
+            self.creation_comboboxes[4]['values'] = []
+
+        self.hero_proxy.blessing = self.created_hero.blessing
+
         # Resplendant status
         cur_hero_row = hero.hero_sheet.loc[hero.hero_sheet["IntName"] == cur_intName]
 
@@ -1503,20 +1519,6 @@ class HeroListing(tk.Frame):
             self.creation_comboboxes[13].set('False')
 
         self.handle_selection_change_resp()
-
-        # Set default level
-        self.creation_str_vars[14].set(min(40, self.hero_proxy.level))
-
-        # Set Blessing
-        if self.created_hero.blessing is None:
-            self.creation_str_vars[4].set("None")
-            self.creation_comboboxes[4]['values'] = ["None", "Fire", "Water", "Earth", "Wind", "Light", "Dark", "Astra", "Anima"]
-        else:
-            if self.created_hero.blessing.boostType != 0:
-                self.creation_str_vars[4].set(self.created_hero.blessing.toString())
-            self.creation_comboboxes[4]['values'] = []
-
-        self.hero_proxy.blessing = self.created_hero.blessing
 
         # Set Pair Up
         if self.created_hero.blessing and self.created_hero.blessing.boostType == 2 and self.created_hero.blessing.element < 4:
