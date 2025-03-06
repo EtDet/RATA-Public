@@ -146,8 +146,46 @@
       }
     ]
   },
+  "SU!F!Byleth": {
+    "desc": "Grants [Desperation] to unit and allies within 2 spaces.\n\nAt start of every third turn, if Duo Skill has already been used, unit can use Duo Skill again.",
+    "type": "duo",
+    "skill_refresh": 3,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "Desperation",
+        "targets": "self_and_allies",
+        "area": "within_2_spaces"
+      }
+    ]
+  },
+  "DA!Sigurd": {
+    "desc": "Moves allies adjacent to unit to opposite side of unit. If an ally cannot move to the target space (if another ally or foe is occupying the space) ally will not move.\n\nOnce used, Duo Skill cannot be activated again right away. At start of odd-numbered turns, if Duo Skill has already been used, unit can use Duo Skill again.",
+    "type": "duo",
+    "skill_refresh": 2,
+    "skills": [
+      {
+        "effect": "repo",
+        "targets": "allies",
+        "area": "within_1_spaces"
+      }
+    ]
+  },
+  "NI!Lyn": {
+    "desc": "Grants unit another action. (May be used only if unit has already entered combat during the current turn.)",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "galeforce",
+        "targets": "self",
+        "area": "one"
+
+      }
+    ]
+  },
   "SU!Mia": {
-    "desc": "Grants [Resonance: Blades] to unit and allies from the same titles as unit.",
+    "desc": "Grants [Resonance: Blades] to unit and allies from the same titles as unit.\n\nOnce used, Harmonized Skill cannot be activated again right away. At start of every third turn, if Harmonized Skill has already been used, unit can use Harmonized Skill again.",
     "type": "harmonic",
     "skill_refresh": 3,
     "skills": [
@@ -155,6 +193,36 @@
        "degree": "ResonanceBlades",
        "targets": "self_and_same_game_allies",
        "area": "global"}
+    ]
+  },
+  "PI!Veronica": {
+    "desc": "Grants [Resonance: Shields] to unit and allies from the same titles as unit.\n\nOnce used, Harmonized Skill cannot be activated again right away. At start of every third turn, if Harmonized Skill has already been used, unit can use Harmonized Skill again.",
+    "type": "harmonic",
+    "skill_refresh": 3,
+    "skills": [
+      {"effect": "status",
+       "degree": "ResonanceShields",
+       "targets": "self_and_same_game_allies",
+       "area": "global"}
+    ]
+  },
+  "H!Y!Tiki": {
+    "desc": "Grants [Resonance: Blades] to unit and allies from the same titles as unit.\n\nGrants another action to ally with the highest HP that is within 2 spaces, has already acted, and is from the same titles as unit (excluding unit). (Allies with Sing or Dance can be granted this effect as well. If multiple units meet the conditions, effect will not trigger.)",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "dance",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "within_2_spaces"
+      }
     ]
   }
 }

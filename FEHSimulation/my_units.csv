@@ -1,5 +1,5 @@
 IntName,Build Name,Weapon,Assist,Special,ASkill,BSkill,CSkill,SSeal,XSkill,Level,Merges,Rarity,Asset,Flaw,Ascended,SSupport,ASupport,Blessing,Dragonflowers,Resplendent,Emblem,EmblemMerges,Aided,PairUp,Cheats
-Lucina,Sample Lucina,Sealed FalchionEff,Reposition,,Armored Blow 3,Axebreaker 3,Breath of Life 3,,,38,2,3,1,3,1,4,,2.0,0,False,,0,False,,False
+Lucina,Sample Lucina,Sealed FalchionEff,Reposition,,Armored Blow 3,Axebreaker 3,Breath of Life 3,,,38,2,5,1,3,1,4,,2,30,True,,0,False,,False
 M!Robin,Sample Robin,Tactical BoltSpd,Rally Atk/Def+,Blazing Flame,Brazen Spd/Res 3,Spd/Res Ruse 3,Joint Hone Spd,,,40,0,5,2,3,2,0,,,0,False,,0,False,,False
 Mia,Sample Mia,Resolute BladeEff,Reposition,Moonbow,Death Blow 3,Dull Close 3,Def Smoke 3,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
 P!F!Corrin,Sample Corrin,Draconic RageEff,Draw Back,Miracle,Fury 3,Desperation 3,Breath of Life 3,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
@@ -8,6 +8,4 @@ V!Eliwood,Sample Eliwood,Berkut's Lance+Spd,Swap,Bonfire,Atk/Def Solo 4,Bold Fig
 L!Ike,Sample Ike,RagnellEff,Reposition,Radiant Aether II,Warding Breath,Quick Riposte 3,Drive Def 2,,,40,0,5,2,0,2,0,,,0,False,,0,False,,False
 Alfonse,Fire Emblem Hero,Fólkvangr,,,,,,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
 Micaiah,micky,Thani,Sacrifice,,,,,,,40,0,5,0,0,0,0,,4.0,0,False,,0,False,,False
-L!Roy,Sample Pair-Up,Dragonbind,,Moonbow,,,,,,40,0,5,0,0,0,0,,,0,False,,0,False,micky,False
-Bramimond,l,Void Tome,,,Darting Blow 4,Mystic Boost 3,Impenetrable Void,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
-SU!Mia,harmonic,,,,,,,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
+L!Roy,Sample Pair-Up,DragonbindEff,,Moonbow,Bonus Doubler 3,Spurn 3,Human Virtue II,,,40,0,5,0,0,0,0,,,0,False,,0,False,micky,False

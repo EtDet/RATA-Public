@@ -1074,7 +1074,7 @@ def get_valid_specials(cur_hero):
                             "Rising Light", "Blazing Light", "Growing Light",
                             "Rising Thunder", "Blazing Thunder", "Growing Thunder",
                             "Rising Wind", "Blazing Wind", "Growing Wind",
-                            "Buckler", "Escutcheon", "Pavise", "Holy Vestiments", "Sacred Cowl", "Aegis", "Miracle",
+                            "Buckler", "Escutcheon", "Pavise", "Holy Vestments", "Sacred Cowl", "Aegis", "Miracle",
                             "Imbue", "Heavenly Light", "Kindled-Fire Balm", "Swift-Winds Balm", "Solid-Earth Balm", "Still-Water Balm",
                             "Windfire Balm", "Windfire Balm+", "Earthwater Balm", "Earthwater Balm+"]
 

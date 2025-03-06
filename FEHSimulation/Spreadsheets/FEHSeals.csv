@@ -413,9 +413,9 @@ Spd/Def Tempo 3,"Inflicts Spd/Def-3 on foe and neutralizes effects that grant ""
 Spd/Res Tempo 1,"Inflicts Spd/Res-1 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",1,B,233,FALSE,,,,,,,,,,,Any,Any
 Spd/Res Tempo 2,"Inflicts Spd/Res-2 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",2,B,233,FALSE,,,,,,,,,,,Any,Any
 Spd/Res Tempo 3,"Inflicts Spd/Res-3 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",3,B,233,FALSE,,,,,,,,,,,Any,Any
-Breath of Life 1,"If unit initiates combat, restores 3 HP to adjacent allies after combat.",1,C,136,FALSE,,,,,,,,,,,Any,Any
-Breath of Life 2,"If unit initiates combat, restores 5 HP to adjacent allies after combat.",2,C,136,FALSE,,,,,,,,,,,Any,Any
-Breath of Life 3,"If unit initiates combat, restores 7 HP to adjacent allies after combat.",3,C,136,FALSE,,,,,,,,,,,Any,Any
+Breath of Life 1,"If unit initiates combat, restores 3 HP to adjacent allies after combat.",1,C,136,TRUE,breath_of_life,3,,,,,,,,,Any,Any
+Breath of Life 2,"If unit initiates combat, restores 5 HP to adjacent allies after combat.",2,C,136,TRUE,breath_of_life,5,,,,,,,,,Any,Any
+Breath of Life 3,"If unit initiates combat, restores 7 HP to adjacent allies after combat.",3,C,136,TRUE,breath_of_life,7,,,,,,,,,Any,Any
 Savage Blow 1,"If unit initiates combat, deals 3 damage to foes within 2 spaces of target after combat.",1,C,137,FALSE,,,,,,,,,,,Any,Any
 Savage Blow 2,"If unit initiates combat, deals 5 damage to foes within 2 spaces of target after combat.",2,C,137,FALSE,,,,,,,,,,,Any,Any
 Savage Blow 3,"If unit initiates combat, deals 7 damage to foes within 2 spaces of target after combat.",3,C,137,FALSE,,,,,,,,,,,Any,Any
@@ -529,9 +529,9 @@ Threat. Atk/Res 1,"At start of turn, inflicts Atk/Res-3 on foes within 2 spaces 
 Threat. Atk/Res 2,"At start of turn, inflicts Atk/Res-4 on foes within 2 spaces through their next actions.",3,C,182,FALSE,,,,,,,,,,,Any,Any
 Threat. Def/Res 1,"At start of turn, inflicts Def/Res-3 on foes within 2 spaces of unit through their next actions.",2,C,236,FALSE,,,,,,,,,,,Any,Any
 Threat. Def/Res 2,"At start of turn, inflicts Def/Res-4 on foes within 2 spaces of unit through their next actions.",3,C,236,FALSE,,,,,,,,,,,Any,Any
-Atk Ploy 1,"At start of turn, inflicts Atk-3 on foes in cardinal directions with Res < unit's Res through their next actions.",1,C,183,FALSE,,,,,,,,,,,Any,Any
-Atk Ploy 2,"At start of turn, inflicts Atk-4 on foes in cardinal directions with Res < unit's Res through their next actions.",2,C,183,FALSE,,,,,,,,,,,Any,Any
-Atk Ploy 3,"At start of turn, inflicts Atk-5 on foes in cardinal directions with Res < unit's Res through their next actions.",3,C,183,FALSE,,,,,,,,,,,Any,Any
+Atk Ploy 1,"At start of turn, inflicts Atk-3 on foes in cardinal directions with Res < unit's Res through their next actions.",1,C,183,TRUE,atkPloyS,,,,,,,,,,Any,Any
+Atk Ploy 2,"At start of turn, inflicts Atk-4 on foes in cardinal directions with Res < unit's Res through their next actions.",2,C,183,TRUE,atkPloyS,,,,,,,,,,Any,Any
+Atk Ploy 3,"At start of turn, inflicts Atk-5 on foes in cardinal directions with Res < unit's Res through their next actions.",3,C,183,TRUE,atkPloyS,,,,,,,,,,Any,Any
 Spd Ploy 1,"At start of turn, inflicts Spd-3 on foes in cardinal directions with Res < unit's Res through their next actions.",1,C,184,FALSE,,,,,,,,,,,Any,Any
 Spd Ploy 2,"At start of turn, inflicts Spd-4 on foes in cardinal directions with Res < unit's Res through their next actions.",2,C,184,FALSE,,,,,,,,,,,Any,Any
 Spd Ploy 3,"At start of turn, inflicts Spd-5 on foes in cardinal directions with Res < unit's Res through their next actions.",3,C,184,FALSE,,,,,,,,,,,Any,Any

@@ -17,7 +17,7 @@
        "rarity": 4,
        "alt_stats": [36, 27, 28, 21, 29],
        "weapon": "Silver Sword",
-       "special": "Holy Vestiments",
+       "special": "Holy Vestments",
        "bskill": "Escape Route 2",
        "startMove": 1,
        "wallBreak": true

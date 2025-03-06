@@ -11,6 +11,7 @@ from csv import reader, writer
 import pickle
 
 import pandas as pd
+from math import isnan
 
 from functools import partial
 
@@ -22,7 +23,6 @@ from copy import deepcopy
 from map import wall_crops, Map, struct_sheet, makeStruct
 import hero
 from combat import *
-
 import field_helpers as feh
 
 # CONSTANTS
@@ -135,17 +135,19 @@ def _get_valid_weapons(cur_hero):
                            "Wo Dao", "Wo Dao+", "Harmonic Lance", "Harmonic Lance+", "Wo Gùn", "Wo Gùn+", "Short Bow", "Short Bow+",
                            "Firesweep Bow", "Firesweep Bow+", "Firesweep Lance", "Firesweep L+", "Firesweep S", "Firesweep S+", "Firesweep Axe", "Firesweep Axe+",
                            "Rauðrowl", "Rauðrowl+", "Gronnowl", "Gronnowl+", "Blárowl", "Blárowl+",
-                           "Zanbato", "Zanbato+", "Ridersbane", "Ridersbane+", "Poleaxe", "Poleaxe+",
+                           "Zanbato", "Zanbato+", "Ridersbane", "Ridersbane+", "Poleaxe", "Poleaxe+", "Caltrop Dagger", "Caltrop Dagger+"
                            "Slaying Edge", "Slaying Edge+", "Slaying Lance", "Slaying Lance+", "Slaying Axe", "Slaying Axe+", "Slaying Bow", "Slaying Bow+",
                            "Keen Rauðrwolf", "Keen Rauðrwolf+", "Keen Blárwolf", "Keen Blárwolf+", "Keen Gronnwolf", "Keen Gronnwolf+",
                            "Armorsmasher", "Armorsmasher+", "Slaying Spear", "Slaying Spear+", "Slaying Hammer", "Slaying Hammer+", "Guard Bow", "Guard Bow+",
                            "Respisal Lance", "Reprisal Lance+",
                            "Safeguard", "Safeguard+", "Vanguard", "Vanguard+", "Rearguard", "Readguard+",
                            "Barrier Blade", "Barrier Blade+", "Barrier Lance", "Barrier Lance+", "Barrier Axe", "Barrier Axe+",
-                           "The Cleaner", "The Cleaner+", "Shining Bow", "Shining Bow+", "Dragonslasher", "Dragonslasher+", "Spendthrift Bow", "Spendthrift Bow+"
+                           "The Cleaner", "The Cleaner+", "Shining Bow", "Shining Bow+", "Dragonslasher", "Dragonslasher+", "Spendthrift Bow", "Spendthrift Bow+",
                            "Flash", "Flash+", "Melancholy", "Melancholy+",
                            "Rauðrserpent", "Rauðrserpent+", "Blárserpent", "Blárserpent+", "Gronnserpent", "Gronnserpent+",
-                           "Rauðrfox", "Rauðrfox+",
+                           "Rauðrfox", "Rauðrfox+", "Blárfox", "Blárfox+",
+                           "Spirited Spear", "Spirited Spear+",
+                           "Instant Lance", "Instant Lance+",
 
                            "Guard Sword", "Guard Sword+", "Guard Lance", "Guard Lance+", "Guard Axe", "Guard Axe+",
 
@@ -182,7 +184,12 @@ def _get_valid_weapons(cur_hero):
                            "Melee Bouquet", "Melee Bouquet+", "Budding Bow", "Budding Bow+", "Rapport Wand", "Rapport Wand+",
                            "Gilt Fork", "Gilt Fork+", "Carrot Cudgel", "Carrot Cudgel+",
                            "Pledged Blade", "Pledged Blade+", "Huge Fan", "Huge Fan+",
-                           "Coral Bow", "Coral Bow+", "Flora Guide", "Flora Guide+", "Palm Staff", "Palm Staff+"
+                           "Coral Bow", "Coral Bow+", "Flora Guide", "Flora Guide+", "Palm Staff", "Palm Staff+",
+                           "Melon Float", "Melon Float+", "Hidden Thorns", "Hidden Thorns+", "Conch Bouquet", "Conch Bouquet+",
+                           "Flowing Lance", "Flowing Lance+", "Helm Bow", "Helm Bow+", "Deck Swabber", "Deck Swabber+",
+                           "Courtly Bow", "Courtly Bow+", "Courtly Mask", "Courtly Mask+", "Courtly Fan", "Courtly Fan+", "Courtly Candle", "Courtly Candle+",
+                           "Blackfire Breath", "Blackfire Breath+", "Pale Breath", "Pale Breath+",
+                           "Ninja Katana", "Ninja Katana+", "Ninja Yari", "Ninja Yari+", "Ninja Masakari", "Ninja Masakari+"
                            ]
 
     # Remove of different weapon
@@ -288,11 +295,12 @@ def _get_valid_assists(cur_hero):
     prf_assists = []
 
     implemented_assists = ["Heal", "Mend", "Reconcile", "Recover", "Recover+", "Martyr", "Martyr+", "Rehabilitate", "Rehabilitate+", "Restore", "Restore+",
+                           "Rescue", "Rescue+",
                            "Rally Attack", "Rally Speed", "Rally Defence", "Rally Resistance",
                            "Rally Atk/Spd", "Rally Atk/Def", "Rally Atk/Res", "Rally Spd/Def", "Rally Spd/Res", "Rally Def/Res",
                            "Rally Atk/Spd+", "Rally Atk/Def+", "Rally Atk/Res+", "Rally Spd/Def+", "Rally Spd/Res+", "Rally Def/Res+",
-                           "Rally Up Atk", "Rally Up Atk+", "Rally Up Res", "Rally Up Res+",
-                           "Dance", "Sing",
+                           "Rally Up Atk", "Rally Up Atk+", "Rally Up Spd", "Rally Up Spd+", "Rally Up Res", "Rally Up Res+",
+                           "Dance", "Sing", "Play",
                            "Harsh Command", "Harsh Command+", "Ardent Sacrifice", "Reciprocal Aid",
                            "Draw Back", "Reposition", "Swap", "Pivot", "Shove", "Smite"]
 
@@ -302,7 +310,7 @@ def _get_valid_assists(cur_hero):
             prf_assists.append(assist_names[i])
 
         elif assist_names[i] in implemented_assists:
-            if (len(exclusive_all[i]) == 0):
+            if (len(exclusive_all[i]) == 0) and cur_hero.wpnType != "Staff":
                 standard_assists.append(assist_names[i])
 
             elif cur_hero.intName in exclusive_all[i]:
@@ -346,15 +354,17 @@ def _get_valid_specials(cur_hero):
     # Implemented Specials
     implemented_specials = ["Glowing Ember", "Bonfire", "Ignis", "Chilling Wind", "Iceberg", "Glacies", "New Moon", "Moonbow", "Luna",
                             "Dragon Gaze", "Draconic Aura", "Dragon Fang", "Night Sky", "Glimmer", "Astra", "Retribution", "Reprisal", "Vengeance",
-                            "Daylight", "Noontime", "Sol", "Aether", "Blue Flame", "Ruptured Sky",
+                            "Daylight", "Noontime", "Sol", "Aether",
+                            "Blue Flame", "Ruptured Sky", "Deadeye",
                             "Galeforce",
                             "Rising Flame", "Blazing Flame", "Growing Flame",
                             "Rising Light", "Blazing Light", "Growing Light",
                             "Rising Thunder", "Blazing Thunder", "Growing Thunder",
                             "Rising Wind", "Blazing Wind", "Growing Wind",
-                            "Buckler", "Escutcheon", "Pavise", "Holy Vestiments", "Sacred Cowl", "Aegis", "Miracle",
+                            "Buckler", "Escutcheon", "Pavise", "Holy Vestments", "Sacred Cowl", "Aegis", "Miracle",
                             "Imbue", "Heavenly Light", "Kindled-Fire Balm", "Swift-Winds Balm", "Solid-Earth Balm", "Still-Water Balm",
-                            "Windfire Balm", "Windfire Balm+", "Earthfire Balm", "Earthfire Balm+", "Fireflood Balm", "Fireflood Balm+", "Earthwater Balm", "Earthwater Balm+"]
+                            "Windfire Balm", "Windfire Balm+", "Earthfire Balm", "Earthfire Balm+", "Fireflood Balm", "Fireflood Balm+",
+                            "Deluge Balm", "Deluge Balm+", "Earthwater Balm", "Earthwater Balm+"]
 
     i = 0
     while i < len(special_names):
@@ -633,7 +643,8 @@ class _HeroProxy:
         self.emblem_merge = 0
 
     def apply_proxy(self, apl_hero):
-        if apl_hero is None: return
+        if apl_hero is None:
+            return
 
         # Neutral Input
 
@@ -643,8 +654,6 @@ class _HeroProxy:
 
         if self.asc_asset == -1:
             self.asc_asset = self.asset
-
-        apl_hero.resp = self.resplendent
 
         apl_hero.emblem = self.emblem
 
@@ -660,6 +669,8 @@ class _HeroProxy:
         apl_hero.allySupport = _intName_dict[self.a_support]
 
         apl_hero.summonerSupport = int(self.s_support)
+        apl_hero.resp = self.resplendent
+
         apl_hero.set_visible_stats()
 
         apl_hero.pair_up = self.pair_up
@@ -1135,11 +1146,11 @@ class HeroListing(tk.Frame):
                     aSupport = None
 
                     dflowers = hero_to_add.flowers
-                    resp = False
+                    resp = hero_to_add.resp
                     emblem = None
                     emblem_merges = 0
 
-                    aided = False
+                    aided = hero_to_add.aided
                     pair_up = hero_to_add.pair_up
 
                     cheats = False
@@ -1392,6 +1403,11 @@ class HeroListing(tk.Frame):
                 self.creation_str_vars.append(cur_str_var)
                 self.creation_comboboxes.append(combo1)
 
+                # RESPLENDENT
+                if row == 0:
+                    combo1['textvariable'] = None
+                    combo1.bind("<<ComboboxSelected>>", self.handle_selection_change_resp)
+
                 # LEVEL
                 if row == 1:
                     combo1['textvariable'] = None
@@ -1458,21 +1474,35 @@ class HeroListing(tk.Frame):
         self.created_hero: hero.Hero = hero.makeHero(cur_intName)
 
         # Set default value in ComboBoxes upon first Hero selection
-
-        # Set default rarity
         self.creation_str_vars[1].set(min(5, self.hero_proxy.rarity))
-
-        # Set default merge
         self.creation_str_vars[2].set(max(0, self.hero_proxy.merge))
 
-        # Set default Asset
-        self.creation_str_vars[3].set(STAT_STR[self.hero_proxy.asset])
-
-        # Set default Flaw
-        self.creation_str_vars[16].set(STAT_STR[self.hero_proxy.flaw])
+        if self.hero_proxy.asset != self.hero_proxy.flaw:
+            self.creation_str_vars[3].set(STAT_STR[self.hero_proxy.asset])
+            self.creation_str_vars[16].set(STAT_STR[self.hero_proxy.flaw])
+        else:
+            self.creation_str_vars[3].set("None")
+            self.creation_str_vars[16].set("None")
 
         # Set default Asc Asset
         # creation_str_vars[16].set(STAT_STR[curProxy.asc_asset])
+
+        # Resplendant status
+        cur_hero_row = hero.hero_sheet.loc[hero.hero_sheet["IntName"] == cur_intName]
+
+        if cur_hero_row.iloc[0]["HasResp"]:
+            self.creation_comboboxes[13]['values'] = ['True', 'False']
+
+            if self.hero_proxy.resplendent:
+                self.creation_comboboxes[13].set('True')
+            else:
+                self.creation_comboboxes[13].set('False')
+
+        else:
+            self.creation_comboboxes[13]['values'] = ['False']
+            self.creation_comboboxes[13].set('False')
+
+        self.handle_selection_change_resp()
 
         # Set default level
         self.creation_str_vars[14].set(min(40, self.hero_proxy.level))
@@ -1582,6 +1612,32 @@ class HeroListing(tk.Frame):
             self.hero_proxy.cskill = None
             self.creation_str_vars[22].set("None")
 
+        # Autofill kit
+
+        if self.creation_str_vars[7].get() == "None" and pd.notnull(cur_hero_row.iloc[0]["BaseWeapon"]):
+            self.creation_str_vars[7].set(cur_hero_row.iloc[0]["BaseWeapon"])
+            self.handle_selection_change_weapon(cur_hero_row.iloc[0]["BaseWeapon"])
+
+        if self.creation_str_vars[9].get() == "None" and pd.notnull(cur_hero_row.iloc[0]["BaseAssist"]):
+            self.creation_str_vars[9].set(cur_hero_row.iloc[0]["BaseAssist"])
+            self.handle_selection_change_assist(cur_hero_row.iloc[0]["BaseAssist"])
+
+        if self.creation_str_vars[10].get() == "None" and pd.notnull(cur_hero_row.iloc[0]["BaseSpecial"]):
+            self.creation_str_vars[10].set(cur_hero_row.iloc[0]["BaseSpecial"])
+            self.handle_selection_change_special(cur_hero_row.iloc[0]["BaseSpecial"])
+
+        if self.creation_str_vars[20].get() == "None" and pd.notnull(cur_hero_row.iloc[0]["BaseA"]):
+            self.creation_str_vars[20].set(cur_hero_row.iloc[0]["BaseA"])
+            self.handle_selection_change_askill(cur_hero_row.iloc[0]["BaseA"])
+
+        if self.creation_str_vars[21].get() == "None" and pd.notnull(cur_hero_row.iloc[0]["BaseB"]):
+            self.creation_str_vars[21].set(cur_hero_row.iloc[0]["BaseB"])
+            self.handle_selection_change_bskill(cur_hero_row.iloc[0]["BaseB"])
+
+        if self.creation_str_vars[22].get() == "None" and pd.notnull(cur_hero_row.iloc[0]["BaseC"]):
+            self.creation_str_vars[22].set(cur_hero_row.iloc[0]["BaseC"])
+            self.handle_selection_change_cskill(cur_hero_row.iloc[0]["BaseC"])
+
         # Set allowed c skills
         self.creation_comboboxes[22]['values'] = c_sk
 
@@ -1599,6 +1655,7 @@ class HeroListing(tk.Frame):
             CreateToolTip(self.creation_labels[22], self.hero_proxy.cskill.desc)
         else:
             CreateToolTip(self.creation_labels[22], "")
+
 
         # Get valid sacred seals
         s_seals = _get_valid_seals(self.created_hero)
@@ -1635,23 +1692,23 @@ class HeroListing(tk.Frame):
         status_pic = Image.open("CombatSprites/Status.png")
 
         inf_icon = status_pic.crop((350, 414, 406, 468))
-        inf_icon = inf_icon.resize((24, 24), Image.LANCZOS)
+        inf_icon = inf_icon.resize((24, 24))
         move_icons.append(ImageTk.PhotoImage(inf_icon))
         cav_icon = status_pic.crop((462, 414, 518, 468))
-        cav_icon = cav_icon.resize((24, 24), Image.LANCZOS)
+        cav_icon = cav_icon.resize((24, 24))
         move_icons.append(ImageTk.PhotoImage(cav_icon))
         fly_icon = status_pic.crop((518, 414, 572, 468))
-        fly_icon = fly_icon.resize((24, 24), Image.LANCZOS)
+        fly_icon = fly_icon.resize((24, 24))
         move_icons.append(ImageTk.PhotoImage(fly_icon))
         arm_icon = status_pic.crop((406, 414, 462, 468))
-        arm_icon = arm_icon.resize((24, 24), Image.LANCZOS)
+        arm_icon = arm_icon.resize((24, 24))
         move_icons.append(ImageTk.PhotoImage(arm_icon))
 
         weapon_icons = []
         i = 0
         while i < 24:
             cur_icon = status_pic.crop((56 * i, 206, 56 * (i + 1), 260))
-            cur_icon = cur_icon.resize((25, 25), Image.LANCZOS)
+            cur_icon = cur_icon.resize((25, 25))
             weapon_icons.append(ImageTk.PhotoImage(cur_icon))
             i += 1
 
@@ -1673,6 +1730,34 @@ class HeroListing(tk.Frame):
         self.unit_stats.set(f"Lv. {self.hero_proxy.level}{merge_str}\n+0 Flowers")
 
         # unit_stats.set(f"Lv. {curProxy.level}\n+0 Flowers")
+
+        i = 0
+        while i < 5:
+            self.creation_stats[i].set(self.stat_strings[i] + str(self.created_hero.visible_stats[i]))
+            i += 1
+
+    def handle_selection_change_resp(self, event=None):
+        selected_value = self.creation_str_vars[13].get()
+
+        if selected_value == "True":
+            self.hero_proxy.resplendent = True
+
+            cur_image = Image.open("TestSprites/" + self.created_hero.intName + "-R.png")
+            resized_image = cur_image.resize((int(cur_image.width / 1.3), int(cur_image.height / 1.3)))
+            curPhoto = ImageTk.PhotoImage(resized_image)
+            self.creation_image_label.config(image=curPhoto)
+            self.creation_image_label.image = curPhoto
+
+        else:
+            self.hero_proxy.resplendent = False
+
+            cur_image = Image.open("TestSprites/" + self.created_hero.intName + ".png")
+            resized_image = cur_image.resize((int(cur_image.width / 1.3), int(cur_image.height / 1.3)))
+            curPhoto = ImageTk.PhotoImage(resized_image)
+            self.creation_image_label.config(image=curPhoto)
+            self.creation_image_label.image = curPhoto
+
+        self.hero_proxy.apply_proxy(self.created_hero)
 
         i = 0
         while i < 5:
@@ -2059,6 +2144,14 @@ class HeroListing(tk.Frame):
         self.creation_comboboxes[0].set(title_name)
         self.handle_selection_change_name()
 
+        # Resplendent
+        resp = row["Resplendent"]
+        if resp:
+            self.creation_comboboxes[13].set("True")
+        else:
+            self.creation_comboboxes[13].set("False")
+        self.handle_selection_change_resp()
+
         # Rarity
         rarity = row["Rarity"]
         self.creation_comboboxes[1].set(rarity)
@@ -2246,9 +2339,18 @@ class HeroListing(tk.Frame):
         self.created_hero = deepcopy(unit)
 
         # Name
-        title_name = self.created_hero.name + ": " + self.created_hero.epithet
+        title_name = unit.name + ": " + unit.epithet
         self.creation_comboboxes[0].set(title_name)
         self.handle_selection_change_name()
+
+        # Resplendent
+        resp = unit.resp
+
+        if resp:
+            self.creation_comboboxes[13].set("True")
+        else:
+            self.creation_comboboxes[13].set("False")
+        self.handle_selection_change_resp()
 
         # Rarity
         rarity = unit.rarity
@@ -2500,7 +2602,7 @@ class HeroListing(tk.Frame):
             aSupport = None
 
             dflowers = hero_to_add.flowers
-            resp = False
+            resp = hero_to_add.resp
             emblem = None
             emblem_merges = 0
 
@@ -2644,6 +2746,7 @@ def make_hero_from_pd_row(row_data, side):
         unit.blessing = hero.Blessing((int(row_data["Blessing"]), 0, 0))
 
     unit.summonerSupport = row_data["SSupport"]
+    unit.resp = row_data["Resplendent"]
 
     if pd.isnull(row_data["SSupport"]):
         unit.summonerSupport = 0
@@ -2694,7 +2797,7 @@ def make_hero_from_pd_row(row_data, side):
 status_pic = Image.open("CombatSprites/" + "Status" + ".png")
 def make_weapon_sprite(wpn_num):
     image = status_pic.crop((56 * wpn_num, 206, 56 * (wpn_num + 1), 260))
-    image = image.resize((25,25), Image.LANCZOS)
+    image = image.resize((25,25))
 
     return image
 
@@ -2918,7 +3021,7 @@ class GameplayCanvas(tk.Canvas):
         # Set default sprites, constant for each map
 
         # Movement tiles
-        blue_tile = Image.open("CombatSprites/" + "tileblue" + ".png").resize((self.TILE_SIZE, self.TILE_SIZE), Image.LANCZOS)
+        blue_tile = Image.open("CombatSprites/" + "tileblue" + ".png").resize((self.TILE_SIZE, self.TILE_SIZE))
         light_blue_tile = Image.open("CombatSprites/" + "tilelightblue" + ".png")
         red_tile = Image.open("CombatSprites/" + "tilered" + ".png")
         pale_red_tile = Image.open("CombatSprites/" + "tilepalered" + ".png")
@@ -2965,12 +3068,12 @@ class GameplayCanvas(tk.Canvas):
 
         i = 0
         while i < 24:
-            cur_icon = status_pic.crop((56 * i, 206, 56 * (i + 1), 260)).resize((25, 25), Image.LANCZOS)
+            cur_icon = status_pic.crop((56 * i, 206, 56 * (i + 1), 260)).resize((25, 25))
             self.weapon_type_photos.append(ImageTk.PhotoImage(cur_icon))
             i += 1
 
         # AOE Special icon
-        aoe_special_icon_image = status_pic.crop((1047, 419, 1200, 560)).resize((90, 90), Image.LANCZOS)
+        aoe_special_icon_image = status_pic.crop((1047, 419, 1200, 560)).resize((90, 90))
         self.aoe_icon = ImageTk.PhotoImage(aoe_special_icon_image)
         self.active_aoe_icons = []
 
@@ -3555,8 +3658,7 @@ class GameplayCanvas(tk.Canvas):
         self.refresh_walls()
 
     def next_phase(self):
-
-        self.button_frame.action_button.config(state='disabled', text='Action\nButton')
+        self.after(1, partial(self.button_frame.action_button.config, state='disabled', text='Action\nButton'))
         CreateToolTip(self.button_frame.action_button, text='')
 
         self.button_frame.swap_spaces_button.config(state="disabled")
@@ -3715,8 +3817,8 @@ class GameplayCanvas(tk.Canvas):
                 x.special_galeforce_triggered = False
                 x.canto_ready = True
 
-                if x.duo_cooldown > 0:
-                    x.duo_cooldown -= 1
+                if x.duo_cooldown > 0 and x.duo_skill.skill_refresh % self.turn_info[0] == 1:
+                    x.duo_cooldown = 0
 
                 if x.pair_up_obj:
                     x.pair_up_obj.statusPos = []
@@ -4349,9 +4451,16 @@ class GameplayCanvas(tk.Canvas):
 
                             feint_skills = ["atkFeint", "spdFeint", "defFeint", "resFeint"]
                             ruse_skills = ["atkSpdRuse", "atkDefRuse", "atkResRuse", "spdDefRuse", "spdResRuse", "defResRuse"]
+                            self_exceptions = ["annetteRally", "annetteBoost", "hubertRuse", "shigureLink", "merlinusRally"]
+                            ally_exceptions = ["hubertRuse", "shigureLink"]
 
                             for skill in feint_skills + ruse_skills:
                                 if skill in cur_hero.getSkills() or skill in ally.getSkills():
+                                    valid_ally_cond = True
+
+                            # Other skills that enable Rally attacks (Damiel Bow, Convoy Dagger,
+                            for skill in self_exceptions:
+                                if skill in cur_hero.getSkills():
                                     valid_ally_cond = True
 
                             for skill in ["rallyUpAtk", "rallyUpSpd", "rallyUpDef", "rallyUpRes"]:
@@ -5873,77 +5982,8 @@ class GameplayCanvas(tk.Canvas):
 
             playerSkills = player.getSkills()
 
-            if "repo" in player.assist.effects:
-
-                # Tiles currently occupied by unit and ally
-                unit_tile_num = player.tile.tileNum
-                ally_tile_num = ally.tile.tileNum
-
-                # Where each unit is moving to
-                unit_final_position = player.tile.tileNum
-                ally_final_position = feh.final_reposition_tile(unit_tile_num, ally_tile_num)
-
-            elif "draw" in player.assist.effects:
-                unit_tile_num = player.tile.tileNum
-                ally_tile_num = ally.tile.tileNum
-
-                unit_final_position = feh.final_reposition_tile(unit_tile_num, ally_tile_num)
-                ally_final_position = unit_tile_num
-
-            elif "swap" in player.assist.effects:
-                unit_final_position = ally.tile.tileNum
-                ally_final_position = player.tile.tileNum
-
-            elif "pivot" in player.assist.effects:
-                unit_tile_num = player.tile.tileNum
-                ally_tile_num = ally.tile.tileNum
-
-                ally_final_position = ally.tile.tileNum
-                unit_final_position = feh.final_reposition_tile(ally_tile_num, unit_tile_num)
-
-            elif "smite" in player.assist.effects:
-                unit_tile_num = player.tile.tileNum
-                ally_tile_num = ally.tile.tileNum
-
-                skip_over = feh.final_reposition_tile(ally_tile_num, unit_tile_num)
-                final_dest = feh.final_reposition_tile(skip_over, ally_tile_num)
-
-                valid_shove = False
-                valid_smite = False
-
-                if skip_over != -1:
-                    unit_on_dest = self.map.tiles[skip_over].hero_on is not None and self.map.tiles[skip_over].hero_on != player
-                    can_traverse_dest = feh.can_be_on_tile(self.map.tiles[skip_over], ally.move)
-
-                    valid_shove = not unit_on_dest and can_traverse_dest
-
-                if final_dest != -1:
-                    unit_on_dest = self.map.tiles[final_dest].hero_on is not None and self.map.tiles[final_dest].hero_on != player
-                    can_traverse_dest = feh.can_be_on_tile(self.map.tiles[final_dest], ally.move)
-
-                    foe_on_skip = self.map.tiles[skip_over].hero_on is not None and self.map.tiles[skip_over].hero_on.side != player.side
-                    can_skip = self.map.tiles[skip_over].terrain != 4 and not foe_on_skip
-
-                    valid_smite = not unit_on_dest and can_traverse_dest and can_skip
-
-                final_pos = -1
-                if valid_shove and not valid_smite:
-                    final_pos = skip_over
-                if valid_smite:
-                    final_pos = final_dest
-
-                unit_final_position = player.tile.tileNum
-                ally_final_position = final_pos
-
-            elif "shove" in player.assist.effects:
-                unit_tile_num = player.tile.tileNum
-                ally_tile_num = ally.tile.tileNum
-
-                unit_final_position = player.tile.tileNum
-                ally_final_position = feh.final_reposition_tile(ally_tile_num, unit_tile_num)
-
             # Staff Healing
-            elif "heal" in player.assist.effects:
+            if "heal" in player.assist.effects:
                 unit_final_position = player.tile.tileNum
                 ally_final_position = ally.tile.tileNum
 
@@ -6018,7 +6058,7 @@ class GameplayCanvas(tk.Canvas):
 
                     staff_special_triggered = True
 
-                if "live_to_serve" in player.bskill.effects:
+                if player.bskill and "live_to_serve" in player.bskill.effects:
                     percentage = 0.25 + 0.25 * player.bskill.effects["live_to_serve"]
                     hp_healed_self += trunc(hp_healed_ally * percentage)
 
@@ -6053,6 +6093,75 @@ class GameplayCanvas(tk.Canvas):
                     player.specialCount = max(player.specialCount - 1, 0)
                     self.refresh_unit_visuals_obj(player)
 
+            if "repo" in player.assist.effects:
+
+                # Tiles currently occupied by unit and ally
+                unit_tile_num = player.tile.tileNum
+                ally_tile_num = ally.tile.tileNum
+
+                # Where each unit is moving to
+                unit_final_position = player.tile.tileNum
+                ally_final_position = feh.final_reposition_tile(unit_tile_num, ally_tile_num)
+
+            elif "draw" in player.assist.effects:
+                unit_tile_num = player.tile.tileNum
+                ally_tile_num = ally.tile.tileNum
+
+                unit_final_position = feh.final_reposition_tile(unit_tile_num, ally_tile_num)
+                ally_final_position = unit_tile_num
+
+            elif "swap" in player.assist.effects:
+                unit_final_position = ally.tile.tileNum
+                ally_final_position = player.tile.tileNum
+
+            elif "pivot" in player.assist.effects:
+                unit_tile_num = player.tile.tileNum
+                ally_tile_num = ally.tile.tileNum
+
+                ally_final_position = ally.tile.tileNum
+                unit_final_position = feh.final_reposition_tile(ally_tile_num, unit_tile_num)
+
+            elif "smite" in player.assist.effects:
+                unit_tile_num = player.tile.tileNum
+                ally_tile_num = ally.tile.tileNum
+
+                skip_over = feh.final_reposition_tile(ally_tile_num, unit_tile_num)
+                final_dest = feh.final_reposition_tile(skip_over, ally_tile_num)
+
+                valid_shove = False
+                valid_smite = False
+
+                if skip_over != -1:
+                    unit_on_dest = self.map.tiles[skip_over].hero_on is not None and self.map.tiles[skip_over].hero_on != player
+                    can_traverse_dest = feh.can_be_on_tile(self.map.tiles[skip_over], ally.move)
+
+                    valid_shove = not unit_on_dest and can_traverse_dest
+
+                if final_dest != -1:
+                    unit_on_dest = self.map.tiles[final_dest].hero_on is not None and self.map.tiles[final_dest].hero_on != player
+                    can_traverse_dest = feh.can_be_on_tile(self.map.tiles[final_dest], ally.move)
+
+                    foe_on_skip = self.map.tiles[skip_over].hero_on is not None and self.map.tiles[skip_over].hero_on.side != player.side
+                    can_skip = self.map.tiles[skip_over].terrain != 4 and not foe_on_skip
+
+                    valid_smite = not unit_on_dest and can_traverse_dest and can_skip
+
+                final_pos = -1
+                if valid_shove and not valid_smite:
+                    final_pos = skip_over
+                if valid_smite:
+                    final_pos = final_dest
+
+                unit_final_position = player.tile.tileNum
+                ally_final_position = final_pos
+
+            elif "shove" in player.assist.effects:
+                unit_tile_num = player.tile.tileNum
+                ally_tile_num = ally.tile.tileNum
+
+                unit_final_position = player.tile.tileNum
+                ally_final_position = feh.final_reposition_tile(ally_tile_num, unit_tile_num)
+
             # Dance/Sing/Play
             elif "refresh" in player.assist.effects:
                 unit_final_position = player.tile.tileNum
@@ -6085,8 +6194,10 @@ class GameplayCanvas(tk.Canvas):
 
                 if "atkRefresh" in playerSkills: ally.inflictStat(ATK, playerSkills["atkRefresh"])
                 if "spdRefresh" in playerSkills: ally.inflictStat(SPD, playerSkills["spdRefresh"])
-                if "defRefresh" in playerSkills: ally.inflictStat(ATK, playerSkills["defRefresh"])
-                if "resRefresh" in playerSkills: ally.inflictStat(SPD, playerSkills["resRefresh"])
+                if "defRefresh" in playerSkills: ally.inflictStat(DEF, playerSkills["defRefresh"])
+                if "resRefresh" in playerSkills: ally.inflictStat(RES, playerSkills["resRefresh"])
+
+                if "firestormDance" in playerSkills: ally.inflictStatus(Status.Desperation)
 
                 if "spectrumRefresh" in playerSkills:
                     i = 1
@@ -6094,7 +6205,23 @@ class GameplayCanvas(tk.Canvas):
                         ally.inflictStat(i, playerSkills["spectrumRefresh"])
                         i += 1
 
-                # Sweet Dreams - Peony
+                if "atkCantrip" in playerSkills:
+                    for foe in feh.nearest_foes_within_n(player, 4):
+                        foe.inflictStats(ATK, -playerSkills["atkCantrip"])
+
+                if "spdCantrip" in playerSkills:
+                    for foe in feh.nearest_foes_within_n(player, 4):
+                        foe.inflictStats(SPD, -playerSkills["spdCantrip"])
+
+                if "defCantrip" in playerSkills:
+                    for foe in feh.nearest_foes_within_n(player, 4):
+                        foe.inflictStats(DEF, -playerSkills["defCantrip"])
+
+                if "resCantrip" in playerSkills:
+                    for foe in feh.nearest_foes_within_n(player, 4):
+                        foe.inflictStats(RES, -playerSkills["resCantrip"])
+
+                # Gentle Dream - Peony
                 if "peonyRefresh" in playerSkills:
                     valid_allies = [ally]
 
@@ -6154,6 +6281,65 @@ class GameplayCanvas(tk.Canvas):
 
                         for foe_ally in feh.allies_within_n(foe, 2):
                             foe_ally.inflictStat(ATK, -6)
+
+                # Sweet Dreams - Plumeria
+                if "plumeriaRefresh" in playerSkills:
+                    ally.inflictStat(ATK, 3)
+                    ally.inflictStat(SPD, 3)
+                    ally.inflictStat(DEF, 3)
+                    ally.inflictStat(RES, 3)
+
+                    for foe in feh.nearest_foes_within_n(ally, 4):
+                        foe.inflictStat(ATK, -4)
+                        foe.inflictStat(SPD, -4)
+                        foe.inflictStat(DEF, -4)
+                        foe.inflictStat(RES, -4)
+
+                if "plumeriaRefreshII" in playerSkills:
+                    ally.inflictStat(ATK, 5)
+                    ally.inflictStat(SPD, 5)
+                    ally.inflictStat(DEF, 5)
+                    ally.inflictStat(RES, 5)
+                    ally.inflictStatus(Status.Pursual)
+                    ally.inflictStatus(Status.Hexblade)
+
+                    for foe in feh.nearest_foes_within_n(ally, 4):
+                        foe.inflictStat(ATK, -5)
+                        foe.inflictStat(SPD, -5)
+                        foe.inflictStat(DEF, -5)
+                        foe.inflictStat(RES, -5)
+
+                # Frightful Dream - Triandra
+                if "triandraRefresh" in playerSkills:
+                    valid_foes = []
+
+                    for x in [player, ally]:
+                        for foe in feh.foes_within_n_cardinal(x, 1):
+                            if foe not in valid_foes:
+                                valid_foes.append(foe)
+
+                    for foe in valid_foes:
+                        foe.inflictStat(ATK, -3)
+                        foe.inflictStat(SPD, -3)
+                        foe.inflictStat(DEF, -3)
+                        foe.inflictStat(RES, -3)
+                        foe.inflictStatus(Status.Guard)
+
+                if "triandraRefreshII" in playerSkills:
+                    valid_foes = []
+
+                    for x in [player, ally]:
+                        for foe in feh.foes_within_n_cardinal(x, 1):
+                            if foe not in valid_foes:
+                                valid_foes.append(foe)
+
+                    for foe in valid_foes:
+                        foe.inflictStat(ATK, -5)
+                        foe.inflictStat(SPD, -5)
+                        foe.inflictStat(DEF, -5)
+                        foe.inflictStat(RES, -5)
+                        foe.inflictStatus(Status.Guard)
+                        foe.inflictStatus(Status.Discord)
 
                 # Frost Breath - Nils
                 if "nilsPlay" in playerSkills:
@@ -6321,21 +6507,34 @@ class GameplayCanvas(tk.Canvas):
                         # Get/Update HP assets
                         self.refresh_unit_visuals_obj(x)
 
-                    if "hubertRuse" in playerSkills or "hubertRuse" in allySkills:
-                        valid_foes = []
+                if "merlinusRally" in playerSkills:
+                    ally.inflictStat(ATK, 6)
+                    ally.inflictStat(SPD, 6)
+                    ally.inflictStatus(Status.BonusDoubler)
+                    ally.inflictStatus(Status.NullPenalties)
 
-                        for x in [player, ally]:
-                            foes = feh.foes_within_n_cardinal(x, 1)
-                            for foe in foes:
-                                if foe not in valid_foes:
-                                    valid_foes.append(foe)
+                    for other_ally in feh.allies_within_n(ally, 2):
+                        if other_ally != player:
+                            other_ally.inflictStat(ATK, 6)
+                            other_ally.inflictStat(SPD, 6)
+                            other_ally.inflictStatus(Status.BonusDoubler)
+                            other_ally.inflictStatus(Status.NullPenalties)
 
-                        for foe in valid_foes:
-                            foe.inflictStat(ATK, -7)
-                            foe.inflictStat(DEF, -7)
-                            foe.inflictStat(RES, -7)
-                            foe.inflictStatus(Status.Guard)
-                            foe.inflictStatus(Status.Exposure)
+                if "hubertRuse" in playerSkills or "hubertRuse" in allySkills:
+                    valid_foes = []
+
+                    for x in [player, ally]:
+                        foes = feh.foes_within_n_cardinal(x, 1)
+                        for foe in foes:
+                            if foe not in valid_foes:
+                                valid_foes.append(foe)
+
+                    for foe in valid_foes:
+                        foe.inflictStat(ATK, -7)
+                        foe.inflictStat(DEF, -7)
+                        foe.inflictStat(RES, -7)
+                        foe.inflictStatus(Status.Guard)
+                        foe.inflictStatus(Status.Exposure)
 
             # Link skills, or other effects that trigger after assist use
             if player.assist.type == "Move":
@@ -6602,7 +6801,6 @@ class GameplayCanvas(tk.Canvas):
                 if player.assistTargetedOther == 1:
                     galeforce_triggered = True
 
-
             # Trap triggered after assist skill usage
             player_struct = player.tile.structure_on
             ally_struct = ally.tile.structure_on
@@ -6684,6 +6882,29 @@ class GameplayCanvas(tk.Canvas):
         # If any action was taken, manage those things here
         if action != INVALID:
 
+            # Check if any sort of button can be used after action
+            if cur_unit.HPcur != 0:
+                if S == PLAYER and cur_unit.duo_skill and not self.all_cohorts[item_index]:
+                    if cur_unit.duo_skill.type == 'duo':
+                        self.after(finish_time, partial(self.button_frame.action_button.config, text='Duo\nSkill'))
+                    else:
+                        self.after(finish_time, partial(self.button_frame.action_button.config, text='Harmonic\nSkill'))
+
+                    if self.turn_info[1] == PLAYER and cur_unit.duo_cooldown == 0 and feh.can_use_duo_skill(cur_unit) and not self.swap_mode:
+                        self.after(finish_time, partial(self.button_frame.action_button.config, state='normal', command=partial(self.use_duo_skill, cur_unit)))
+                    else:
+                        self.after(finish_time, partial(self.button_frame.action_button.config, state='disabled'))
+
+                # Enable Pair Up Button
+                elif S == PLAYER and self.all_cohorts[item_index]:
+                    self.button_frame.action_button.config(text='Swap\nCohort')
+                    if self.turn_info[1] == PLAYER and feh.can_be_on_tile(cur_unit.tile, self.all_cohorts[item_index].move) and not self.swap_mode:
+                        self.after(finish_time, partial(self.button_frame.action_button.config, state='normal', command=partial(self.switch_pairing, cur_unit)))
+                    else:
+                        self.after(finish_time, partial(self.button_frame.action_button.config, state='disabled'))
+                else:
+                    self.after(finish_time, partial(self.button_frame.action_button.config, state='disabled', text='Action\nButton'))
+
             # Clears debuffs if no action has occured, or
             if action != ATTACK and action != ASSIST:
                 if not trap_triggered:
@@ -6711,7 +6932,7 @@ class GameplayCanvas(tk.Canvas):
                     cur_unit.canto_ready = False # Canto officially used up
 
                     # Disable Pair Up during Canto
-                    if player.side == PLAYER:
+                    if cur_unit.side == PLAYER:
                         self.after(finish_time, partial(self.button_frame.action_button.config, state='disabled', text='Action\nButton'))
                         CreateToolTip(self.button_frame.action_button, text='')
 
@@ -6798,6 +7019,7 @@ class GameplayCanvas(tk.Canvas):
                 self.next_phase()
 
             else:
+                self.after(finish_time, partial(self.button_frame.action_button.config, state='disabled', text='Action\nButton'))
                 self.after(finish_time, self.next_phase)
 
         self.drag_data = None
@@ -6836,8 +7058,6 @@ class GameplayCanvas(tk.Canvas):
                         cur_hero.pair_up_obj.statusNeg = []
                         cur_hero.pair_up_obj.debuffs = [0, 0, 0, 0, 0]
 
-                    #set_banner(cur_hero)
-
                     if cur_hero == self.canto:
                         self.canto = None
 
@@ -6853,6 +7073,7 @@ class GameplayCanvas(tk.Canvas):
                         self.itemconfig(self.unit_sprites_gs[S][item_index], state='normal')
 
                 if not self.units_to_move:
+                    self.button_frame.action_button.config(state='disabled')
                     self.next_phase()
 
                 else:
@@ -7272,7 +7493,6 @@ class GameplayCanvas(tk.Canvas):
             if unit.transformed:
                 if unit in self.units_to_move or unit.side != self.turn_info[1]:
 
-
                     self.itemconfig(self.cohort_sprites[unit_index], state='hidden')
                     self.itemconfig(self.cohort_sprites_gs[unit_index], state='hidden')
                     self.itemconfig(self.cohort_sprites_trans[unit_index], state='normal')
@@ -7346,7 +7566,7 @@ class GameplayCanvas(tk.Canvas):
 
                 cur_wall = wall_texture.crop(cur_crop)
 
-                cur_wall = cur_wall.resize((90, 90), Image.LANCZOS)
+                cur_wall = cur_wall.resize((90, 90))
                 cur_photo = ImageTk.PhotoImage(cur_wall)
 
                 img = self.create_image(90, 90, anchor=tk.CENTER, image=cur_photo)
@@ -7476,7 +7696,7 @@ class GameplayCanvas(tk.Canvas):
                 respString = "-R" if unit.resp else ""
                 cur_image = Image.open("TestSprites/" + unit.intName + respString + ".png")
                 if S == ENEMY: cur_image = cur_image.transpose(Image.FLIP_LEFT_RIGHT)
-                resized_image = cur_image.resize((int(cur_image.width / 2.1), int(cur_image.height / 2.1)), Image.LANCZOS)
+                resized_image = cur_image.resize((int(cur_image.width / 2.1), int(cur_image.height / 2.1)))
                 cur_photo = ImageTk.PhotoImage(resized_image)
 
                 self.unit_photos[S].append(cur_photo)
@@ -7491,7 +7711,7 @@ class GameplayCanvas(tk.Canvas):
                 if unit.wpnType in hero.BEAST_WEAPONS:
                     cur_image_tr = Image.open("TestSprites/" + unit.intName + "-Tr" + ".png")
                     if S == ENEMY: cur_image_tr = cur_image_tr.transpose(Image.FLIP_LEFT_RIGHT)
-                    resized_image_tr = cur_image_tr.resize((int(cur_image_tr.width / 2.1), int(cur_image_tr.height / 2.1)), Image.LANCZOS)
+                    resized_image_tr = cur_image_tr.resize((int(cur_image_tr.width / 2.1), int(cur_image_tr.height / 2.1)))
                     cur_photo_tr = ImageTk.PhotoImage(resized_image_tr)
 
                     self.unit_photos_trans[S].append(cur_photo_tr)
@@ -7629,10 +7849,9 @@ class GameplayCanvas(tk.Canvas):
                 leader = self.all_units[PLAYER][i]
                 leader_tag = self.unit_tags[PLAYER][i]
 
-
                 respString = "-R" if cohort.resp else ""
                 cur_image = Image.open("TestSprites/" + cohort.intName + respString + ".png")
-                resized_image = cur_image.resize((int(cur_image.width / 2.1), int(cur_image.height / 2.1)), Image.LANCZOS)
+                resized_image = cur_image.resize((int(cur_image.width / 2.1), int(cur_image.height / 2.1)))
                 cur_photo = ImageTk.PhotoImage(resized_image)
 
                 self.cohort_photos.append(cur_photo)
@@ -7646,7 +7865,7 @@ class GameplayCanvas(tk.Canvas):
 
                 if cohort.wpnType in hero.BEAST_WEAPONS:
                     cur_image_tr = Image.open("TestSprites/" + cohort.intName + "-Tr" + ".png")
-                    resized_image_tr = cur_image_tr.resize((int(cur_image_tr.width / 2.1), int(cur_image_tr.height / 2.1)), Image.LANCZOS)
+                    resized_image_tr = cur_image_tr.resize((int(cur_image_tr.width / 2.1), int(cur_image_tr.height / 2.1)))
                     cur_photo_tr = ImageTk.PhotoImage(resized_image_tr)
 
                     self.cohort_photos_trans.append(cur_photo_tr)
@@ -7747,6 +7966,8 @@ class GameplayCanvas(tk.Canvas):
         self.update_unit_graphics(cohort)
 
     def use_duo_skill(self, unit):
+        if self.animation: return
+
         # Set button states
         self.button_frame.action_button.config(state='disabled')
 
@@ -7855,6 +8076,57 @@ class GameplayCanvas(tk.Canvas):
                     x.chargeSpecial(effect['degree'])
 
                     self.refresh_unit_visuals_obj(x)
+
+            if effect['effect'] == "dance":
+                highest_hp_allies = []
+
+                for x in targeted_units:
+                    if x not in self.units_to_move and x != unit:
+                        if not highest_hp_allies or highest_hp_allies[0].HPcur == x.HPcur:
+                            highest_hp_allies.append(x)
+                        elif highest_hp_allies[0].HPcur < x.HPcur:
+                            highest_hp_allies = [x]
+
+                if len(highest_hp_allies) == 1:
+                    self.units_to_move.append(highest_hp_allies[0])
+                    self.update_unit_graphics(highest_hp_allies[0])
+
+            if effect['effect'] == "galeforce":
+                self.units_to_move.append(unit)
+                self.update_unit_graphics(unit)
+
+            if effect['effect'] == "repo":
+                vertical_allies = list(set(feh.allies_within_n(unit, 1)) & set(unit.tile.unitsWithinNCols(1)))
+                if len(vertical_allies) == 1:
+                    ally = vertical_allies[0]
+
+                    unit_tile_num = unit.tile.tileNum
+                    ally_tile_num = ally.tile.tileNum
+
+                    # Where each unit is moving to
+                    ally_final_position = feh.final_reposition_tile(unit_tile_num, ally_tile_num)
+
+                    if feh.can_be_on_tile(self.map.tiles[ally_final_position], ally.move) and not self.map.tiles[ally_final_position].hero_on:
+                        ally.tile.hero_on = None
+                        ally.tile = self.map.tiles[ally_final_position]
+                        self.map.tiles[ally_final_position].hero_on = ally
+                        self.move_visuals_to_tile_obj(ally, ally_final_position)
+
+                horizontal_allies = list(set(feh.allies_within_n(unit, 1)) & set(unit.tile.unitsWithinNRows(1)))
+                if len(horizontal_allies) == 1:
+                    ally = horizontal_allies[0]
+
+                    unit_tile_num = unit.tile.tileNum
+                    ally_tile_num = ally.tile.tileNum
+
+                    # Where each unit is moving to
+                    ally_final_position = feh.final_reposition_tile(unit_tile_num, ally_tile_num)
+
+                    if feh.can_be_on_tile(self.map.tiles[ally_final_position], ally.move) and not self.map.tiles[ally_final_position].hero_on:
+                        ally.tile.hero_on = None
+                        ally.tile = self.map.tiles[ally_final_position]
+                        self.map.tiles[ally_final_position].hero_on = ally
+                        self.move_visuals_to_tile_obj(ally, ally_final_position)
 
         # Add mapstate after skill is applied
         mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count)
@@ -8295,7 +8567,7 @@ class FileTree(ttk.Treeview):
         terrain_texture = terrain_texture.replace("Normal_", "").replace("Hard_", "").replace("Lunatic_", "")
 
         terrain_image = Image.open(terrain_texture)
-        terrain_image = terrain_image.resize((preview_width, preview_height), Image.LANCZOS)
+        terrain_image = terrain_image.resize((preview_width, preview_height))
         terrain_photo = ImageTk.PhotoImage(terrain_image)
         preview_canvas.create_image(0, 0, anchor=tk.NW, image=terrain_photo)
 
@@ -8349,7 +8621,7 @@ class FileTree(ttk.Treeview):
                     cur_crop[2] += wall_health_offset
 
                 cur_wall = wall_image.crop(cur_crop)
-                cur_wall = cur_wall.resize((30, 30), Image.LANCZOS)
+                cur_wall = cur_wall.resize((30, 30))
                 cur_photo = ImageTk.PhotoImage(cur_wall)
 
                 preview_canvas.create_image(x_comp * 30, preview_height - (y_comp + 1) * 30, anchor=tk.NW, image=cur_photo)
@@ -8389,7 +8661,7 @@ class FileTree(ttk.Treeview):
                     cur_crop[2] += wall_health_offset
 
                 cur_wall = wall_image.crop(cur_crop)
-                cur_wall = cur_wall.resize((30, 30), Image.LANCZOS)
+                cur_wall = cur_wall.resize((30, 30))
                 cur_photo = ImageTk.PhotoImage(cur_wall)
 
                 preview_canvas.create_image(x_comp * 30, preview_height - (y_comp + 1) * 30, anchor=tk.NW, image=cur_photo)
@@ -8429,7 +8701,7 @@ class FileTree(ttk.Treeview):
                     cur_crop[2] += wall_health_offset
 
                 cur_wall = wall_image.crop(cur_crop)
-                cur_wall = cur_wall.resize((30, 30), Image.LANCZOS)
+                cur_wall = cur_wall.resize((30, 30))
                 cur_photo = ImageTk.PhotoImage(cur_wall)
 
                 preview_canvas.create_image(x_comp * 30, preview_height - (y_comp + 1) * 30, anchor=tk.NW, image=cur_photo)
@@ -8677,23 +8949,23 @@ class UnitInfoDisplay(tk.Frame):
         status_pic = Image.open("CombatSprites/Status.png")
 
         inf_icon = status_pic.crop((350, 414, 406, 465))
-        inf_icon = inf_icon.resize((icon_size, icon_size), Image.LANCZOS)
+        inf_icon = inf_icon.resize((icon_size, icon_size))
         move_icons.append(ImageTk.PhotoImage(inf_icon))
         cav_icon = status_pic.crop((462, 414, 518, 465))
-        cav_icon = cav_icon.resize((icon_size, icon_size), Image.LANCZOS)
+        cav_icon = cav_icon.resize((icon_size, icon_size))
         move_icons.append(ImageTk.PhotoImage(cav_icon))
         fly_icon = status_pic.crop((518, 414, 572, 465))
-        fly_icon = fly_icon.resize((icon_size, icon_size), Image.LANCZOS)
+        fly_icon = fly_icon.resize((icon_size, icon_size))
         move_icons.append(ImageTk.PhotoImage(fly_icon))
         arm_icon = status_pic.crop((406, 414, 462, 465))
-        arm_icon = arm_icon.resize((icon_size, icon_size), Image.LANCZOS)
+        arm_icon = arm_icon.resize((icon_size, icon_size))
         move_icons.append(ImageTk.PhotoImage(arm_icon))
 
         weapon_icons = []
         i = 0
         while i < 24:
             cur_icon = status_pic.crop((56 * i, 206, 56 * (i + 1), 260))
-            cur_icon = cur_icon.resize((icon_size, icon_size), Image.LANCZOS)
+            cur_icon = cur_icon.resize((icon_size, icon_size))
             weapon_icons.append(ImageTk.PhotoImage(cur_icon))
             i += 1
 
@@ -9462,7 +9734,7 @@ class ExtrasFrame(tk.Frame):
 
                 respString = "-R" if unit.resp else ""
                 cur_image = Image.open("TestSprites/" + unit.intName + respString + ".png")
-                resized_image = cur_image.resize((int(cur_image.width / 2.1), int(cur_image.height / 2.1)), Image.LANCZOS)
+                resized_image = cur_image.resize((int(cur_image.width / 2.1), int(cur_image.height / 2.1)))
                 cur_photo = ImageTk.PhotoImage(resized_image)
 
                 if S == PLAYER:
@@ -9492,7 +9764,7 @@ class ExtrasFrame(tk.Frame):
 
             if drag_point.hero:
                 pic_label = tk.Label(cur_frame, width=100, height=100, image=cur_photo, bg="gray10")
-                name_label = tk.Label(cur_frame, text=str(unit_count) + ") " + unit.name, bg="gray74")
+                name_label = tk.Label(cur_frame, text=str(unit_count) + ") " + drag_point.hero.name, bg="gray74")
             else:
                 pic_label = tk.Label(cur_frame, width=100, height=100, image=PIXEL, bg="gray10")
                 name_label = tk.Label(cur_frame, text=str(unit_count) + ") None", bg="gray74")
@@ -9577,7 +9849,7 @@ class ExtrasFrame(tk.Frame):
         if attacker.special is not None and attacker.special.type == "AOE" and attacker.specialCount == 0:
             aoe_present = True
 
-            aoe_damage = hero.get_AOE_damage(attacker, defender)
+            aoe_damage = get_AOE_damage(attacker, defender)
             defHP = max(1, defHP - aoe_damage)
 
         result = simulate_combat(attacker,
@@ -9653,23 +9925,23 @@ class ExtrasFrame(tk.Frame):
         status_pic = Image.open("CombatSprites/" + "Status" + ".png")
 
         inf_icon = status_pic.crop((350, 414, 406, 468))
-        inf_icon = inf_icon.resize((23, 23), Image.LANCZOS)
+        inf_icon = inf_icon.resize((23, 23))
         move_icons.append(ImageTk.PhotoImage(inf_icon))
         cav_icon = status_pic.crop((462, 414, 518, 468))
-        cav_icon = cav_icon.resize((23, 23), Image.LANCZOS)
+        cav_icon = cav_icon.resize((23, 23))
         move_icons.append(ImageTk.PhotoImage(cav_icon))
         fly_icon = status_pic.crop((518, 414, 572, 468))
-        fly_icon = fly_icon.resize((23, 23), Image.LANCZOS)
+        fly_icon = fly_icon.resize((23, 23))
         move_icons.append(ImageTk.PhotoImage(fly_icon))
         arm_icon = status_pic.crop((406, 414, 462, 468))
-        arm_icon = arm_icon.resize((23, 23), Image.LANCZOS)
+        arm_icon = arm_icon.resize((23, 23))
         move_icons.append(ImageTk.PhotoImage(arm_icon))
 
         weapon_icons = []
         i = 0
         while i < 24:
             cur_icon = status_pic.crop((56 * i, 206, 56 * (i + 1), 260))
-            cur_icon = cur_icon.resize((25, 25), Image.LANCZOS)
+            cur_icon = cur_icon.resize((25, 25))
             weapon_icons.append(ImageTk.PhotoImage(cur_icon))
             i += 1
 
@@ -9790,6 +10062,9 @@ class ExtrasFrame(tk.Frame):
             if x.attackOwner == 1 and def_eff:
                 dmg_fill = '#46eb34'
 
+            if x.healed != 0:
+                canvas.create_text((cur_box_pos-10, 65-10), text=x.healed, fill="green", font=("Helvetica", 8, 'bold'), anchor='center')
+
             canvas.create_text((cur_box_pos, 65), text=x.damage, fill=dmg_fill, font=("Helvetica", 12), anchor='center')
 
             cur_box_pos += int(box_size + gap_size)
@@ -9874,7 +10149,7 @@ class ExtrasFrame(tk.Frame):
                 if "heal_allies" in player.special.effects:
                     hp_healed_ally += player.special.effects["heal_allies"]
 
-            if "live_to_serve" in player.bskill.effects:
+            if player.bskill and "live_to_serve" in player.bskill.effects:
                 percentage = 0.25 + 0.25 * player.bskill.effects["live_to_serve"]
                 hp_healed_self += trunc(hp_healed_ally * percentage)
 
@@ -9909,23 +10184,23 @@ class ExtrasFrame(tk.Frame):
         status_pic = Image.open("CombatSprites/" + "Status" + ".png")
 
         inf_icon = status_pic.crop((350, 414, 406, 468))
-        inf_icon = inf_icon.resize((23, 23), Image.LANCZOS)
+        inf_icon = inf_icon.resize((23, 23))
         move_icons.append(ImageTk.PhotoImage(inf_icon))
         cav_icon = status_pic.crop((462, 414, 518, 468))
-        cav_icon = cav_icon.resize((23, 23), Image.LANCZOS)
+        cav_icon = cav_icon.resize((23, 23))
         move_icons.append(ImageTk.PhotoImage(cav_icon))
         fly_icon = status_pic.crop((518, 414, 572, 468))
-        fly_icon = fly_icon.resize((23, 23), Image.LANCZOS)
+        fly_icon = fly_icon.resize((23, 23))
         move_icons.append(ImageTk.PhotoImage(fly_icon))
         arm_icon = status_pic.crop((406, 414, 462, 468))
-        arm_icon = arm_icon.resize((23, 23), Image.LANCZOS)
+        arm_icon = arm_icon.resize((23, 23))
         move_icons.append(ImageTk.PhotoImage(arm_icon))
 
         weapon_icons = []
         i = 0
         while i < 24:
             cur_icon = status_pic.crop((56 * i, 206, 56 * (i + 1), 260))
-            cur_icon = cur_icon.resize((25, 25), Image.LANCZOS)
+            cur_icon = cur_icon.resize((25, 25))
             weapon_icons.append(ImageTk.PhotoImage(cur_icon))
             i += 1
 
@@ -9983,28 +10258,28 @@ class ExtrasFrame(tk.Frame):
         status_pic = Image.open("CombatSprites/" + "Status" + ".png")
 
         inf_icon = status_pic.crop((350, 414, 406, 468))
-        inf_icon = inf_icon.resize((23, 23), Image.LANCZOS)
+        inf_icon = inf_icon.resize((23, 23))
         move_icons.append(ImageTk.PhotoImage(inf_icon))
         cav_icon = status_pic.crop((462, 414, 518, 468))
-        cav_icon = cav_icon.resize((23, 23), Image.LANCZOS)
+        cav_icon = cav_icon.resize((23, 23))
         move_icons.append(ImageTk.PhotoImage(cav_icon))
         fly_icon = status_pic.crop((518, 414, 572, 468))
-        fly_icon = fly_icon.resize((23, 23), Image.LANCZOS)
+        fly_icon = fly_icon.resize((23, 23))
         move_icons.append(ImageTk.PhotoImage(fly_icon))
         arm_icon = status_pic.crop((406, 414, 462, 468))
-        arm_icon = arm_icon.resize((23, 23), Image.LANCZOS)
+        arm_icon = arm_icon.resize((23, 23))
         move_icons.append(ImageTk.PhotoImage(arm_icon))
 
         weapon_icons = []
         i = 0
         while i < 24:
             cur_icon = status_pic.crop((56 * i, 206, 56 * (i + 1), 260))
-            cur_icon = cur_icon.resize((25, 25), Image.LANCZOS)
+            cur_icon = cur_icon.resize((25, 25))
             weapon_icons.append(ImageTk.PhotoImage(cur_icon))
             i += 1
 
-        atkr_move_icon = move_icons[player.move]
-        atkr_wpn_icon = weapon_icons[weapons[player.wpnType][0]]
+        atkr_move_icon = move_icons[attacker.move]
+        atkr_wpn_icon = weapon_icons[weapons[attacker.wpnType][0]]
 
         self.icons = [atkr_move_icon, atkr_wpn_icon]
 

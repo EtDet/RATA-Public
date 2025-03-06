@@ -132,6 +132,15 @@ class Tile:
 
         return arr
 
+    def unitsWithinNRows(self, n):
+        within_n_tiles = self.tilesWithinNRows(n)
+        arr = []
+        for x in within_n_tiles:
+            if x.hero_on is not None:
+                arr.append(x.hero_on)
+
+        return arr
+
     # all tiles within n columns
     def tilesWithinNCols(self, n):
         horizontal = [self]

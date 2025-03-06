@@ -1,0 +1,73 @@
+{
+    "name": "Chapter 11: Part 2: Pirates! (Lunatic)",
+    "wall": "Boxpattern.png",
+    "terrain": [[2, 0, 0, 0, 0, 2],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [2, 0, 0, 0, 0, 2],
+                [2, 2, 0, 0, 2, 2],
+                [2, 0, 0, 0, 0, 2],
+                [0, 0, 0, 0, 0, 0],
+                [2, 0, 0, 0, 0, 2]],
+    "defensiveTiles": [],
+    "struct_walls": {
+      "static": [11],
+      "twoBreak": [],
+      "oneBreak": [14, 27]
+    },
+    "playerStart": [15, 16, 7, 9],
+    "enemyStart": [17, 11, 3, 8, 0],
+    "enemyData":
+    [  {"name": "Mae",
+       "level": 41,
+       "rarity": 5,
+       "alt_stats": [36, 37, 32, 17, 31],
+       "weapon": "Blárowl+",
+       "bskill": "Desperation 3",
+       "cskill": "B Tome Exp. 3",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Boey",
+       "level": 41,
+       "rarity": 5,
+       "alt_stats": [44, 30, 28, 33, 19],
+       "weapon": "Gronnowl+",
+       "special": "Ignis",
+       "askill": "Earth Boost 3",
+       "bskill": "Renewal 3",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Lance Knight",
+       "level": 41,
+       "rarity": 5,
+       "alt_stats": [57, 40, 17, 42, 20],
+       "weapon": "Killer Lance+",
+       "assist": "Pivot",
+       "special": "Moonbow",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Bow Fighter",
+       "level": 41,
+       "rarity": 5,
+       "alt_stats": [44, 33, 30, 30, 17],
+       "weapon": "Silver Bow+",
+       "assist": "Rally Speed",
+       "cskill": "Savage Blow 3",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Sword Fighter",
+       "level": 41,
+       "rarity": 5,
+       "alt_stats": [45, 32, 32, 31, 23],
+       "weapon": "Ruby Sword+",
+       "assist": "Reciprocal Aid",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

@@ -1,0 +1,138 @@
+{
+    "name": "Chapter 13: Part 3: Shadow over the Port (Normal)",
+    "terrain": [[0, 4, 2, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 4, 2, 4, 4, 0],
+                [0, 4, 2, 0, 4, 0],
+                [0, 0, 2, 0, 2, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 4, 4, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [9, 10, 3, 4],
+    "enemyStart": [37, 46, 42, 18, 26],
+    "enemyData":
+    [  {"name": "Oscar",
+       "level": 28,
+       "rarity": 3,
+       "alt_stats": [31, 22, 23, 18, 14],
+       "weapon": "Steel Lance",
+       "assist": "Rally Speed",
+       "bskill": "Lancebreaker 1",
+       "cskill": "Spur Def 1",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Sword Fighter",
+       "level": 28,
+       "rarity": 3,
+       "alt_stats": [34, 21, 21, 21, 15],
+       "weapon": "Steel Sword",
+       "special": "Dragon Gaze",
+       "askill": "Armored Blow 1",
+       "bskill": "Knock Back",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Green Mage",
+       "level": 28,
+       "rarity": 3,
+       "alt_stats": [29, 21, 22, 13, 19],
+       "weapon": "Elwind",
+       "askill": "Resistance +1",
+       "cskill": "Atk Ploy 1",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Sword Fighter",
+       "level": 28,
+       "rarity": 3,
+       "alt_stats": [34, 21, 21, 21, 15],
+       "weapon": "Steel Sword",
+       "special": "New Moon",
+       "askill": "Darting Blow 1",
+       "bskill": "Seal Atk 1",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Axe Flier",
+       "level": 28,
+       "rarity": 3,
+       "alt_stats": [29, 19, 24, 14, 25],
+       "weapon": "Steel Axe",
+       "bskill": "Hit and Run",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Black Knight",
+       "level": 28,
+       "rarity": 3,
+       "alt_stats": [45, 27, 27, 28, 15],
+       "weapon": "Alondite",
+       "special": "Black Luna",
+       "askill": "Steady Stance 3",
+       "bskill": "Wings of Mercy 3",
+       "sseal": "Embla's Ward",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 27,
+         "turn": 4
+       }
+      },
+        {"name": "Axe Flier",
+       "level": 28,
+       "rarity": 3,
+       "alt_stats": [29, 19, 24, 14, 25],
+       "weapon": "Steel Axe",
+       "special": "Chilling Wind",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 5,
+         "turn": 3
+       }
+      },
+        {"name": "Bow Fighter",
+       "level": 28,
+       "rarity": 3,
+       "alt_stats": [33, 22, 20, 20, 10],
+       "weapon": "Steel Bow",
+       "bskill": "Poison Strike 1",
+       "cskill": "Savage Blow 1",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 47,
+         "turn": 3
+       }
+      },
+        {"name": "Sword Cavalier",
+       "level": 28,
+       "rarity": 3,
+       "alt_stats": [32, 23, 16, 17, 21],
+       "weapon": "Steel Sword",
+       "askill": "Death Blow 1",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 42,
+         "turn": 5
+       }
+      },
+        {"name": "Axe Cavalier",
+       "level": 28,
+       "rarity": 3,
+       "alt_stats": [32, 23, 16, 17, 21],
+       "weapon": "Steel Axe",
+       "askill": "Death Blow 1",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 47,
+         "turn": 5
+       }
+      }
+    ]
+  }
+  

@@ -1,0 +1,165 @@
+{
+    "name": "Chapter 13: Part 3: Shadow over the Port (Lunatic)",
+    "terrain": [[0, 4, 2, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 4, 2, 4, 4, 0],
+                [0, 4, 2, 0, 4, 0],
+                [0, 0, 2, 0, 2, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 4, 4, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "playerStart": [9, 10, 3, 4],
+    "enemyStart": [37, 46, 42, 18, 26],
+    "enemyData":
+    [  {"name": "Oscar",
+       "level": 42,
+       "rarity": 5,
+       "alt_stats": [41, 35, 36, 28, 22],
+       "weapon": "Sapphire Lance+",
+       "assist": "Rally Spd/Def",
+       "bskill": "Lancebreaker 3",
+       "cskill": "Spur Spd/Def 2",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Sword Fighter",
+       "level": 42,
+       "rarity": 5,
+       "alt_stats": [45, 32, 32, 31, 23],
+       "weapon": "Slaying Edge+",
+       "special": "Draconic Aura",
+       "askill": "Sturdy Blow 2",
+       "bskill": "Knock Back",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Green Mage",
+       "level": 42,
+       "rarity": 5,
+       "alt_stats": [39, 32, 33, 21, 29],
+       "weapon": "Rexcalibur",
+       "askill": "Resistance +3",
+       "cskill": "Atk Ploy 3",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Sword Fighter",
+       "level": 42,
+       "rarity": 5,
+       "alt_stats": [45, 32, 32, 31, 23],
+       "weapon": "Ruby Sword+",
+       "special": "Luna",
+       "askill": "Darting Blow 3",
+       "bskill": "Seal Atk 3",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Axe Flier",
+       "level": 42,
+       "rarity": 5,
+       "alt_stats": [33, 22, 30, 17, 31],
+       "weapon": "Brave Axe",
+       "bskill": "Hit and Run",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Black Knight",
+       "level": 42,
+       "rarity": 5,
+       "alt_stats": [75, 40, 41, 42, 24],
+       "weapon": "Alondite",
+       "special": "Black Luna",
+       "askill": "Steady Stance 3",
+       "bskill": "Wings of Mercy 3",
+       "cskill": "Threaten Def 3",
+       "sseal": "Embla's Ward",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 27,
+         "turn": 4
+       }
+      },
+        {"name": "Lance Cavalier",
+       "level": 42,
+       "rarity": 5,
+       "alt_stats": [42, 36, 26, 27, 31],
+       "weapon": "Silver Lance+",
+       "bskill": "Lunge",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 45,
+         "turn": 2
+       }
+      },
+        {"name": "Axe Flier",
+       "level": 42,
+       "rarity": 5,
+       "alt_stats": [33, 22, 30, 17, 31],
+       "weapon": "Slaying Axe+",
+       "special": "Glacies",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 5,
+         "turn": 3
+       }
+      },
+        {"name": "Bow Fighter",
+       "level": 42,
+       "rarity": 5,
+       "alt_stats": [44, 33, 30, 30, 17],
+       "weapon": "Firesweep Bow+",
+       "bskill": "Poison Strike 3",
+       "cskill": "Savage Blow 3",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 47,
+         "turn": 3
+       }
+      },
+        {"name": "Sword Cavalier",
+       "level": 42,
+       "rarity": 5,
+       "alt_stats": [42, 36, 26, 27, 31],
+       "weapon": "Brave Sword+",
+       "askill": "Death Blow 3",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 42,
+         "turn": 5
+       }
+      },
+        {"name": "Axe Cavalier",
+       "level": 42,
+       "rarity": 5,
+       "alt_stats": [42, 36, 26, 27, 31],
+       "weapon": "Brave Axe+",
+       "askill": "Death Blow 3",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 47,
+         "turn": 5
+       }
+      },
+        {"name": "Green Mage",
+       "level": 42,
+       "rarity": 5,
+       "alt_stats": [39, 32, 33, 21, 29],
+       "weapon": "Rexcalibur+",
+       "cskill": "Threaten Res 3",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 19,
+         "turn": 6
+       }
+      }
+    ]
+  }
+  

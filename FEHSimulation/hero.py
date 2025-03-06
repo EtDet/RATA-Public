@@ -1,5 +1,5 @@
 import json
-from math import trunc, isnan
+from math import trunc
 from itertools import islice
 from enum import Enum
 
@@ -87,7 +87,7 @@ def change_highest_two(array, opp):
 # Hero object
 class Hero:
     def __init__(self, name, intName, epithet, primary_game, secondary_game, wpnType, move, stats, growths, flower_limit, BVID, refresh_type):
-        # Unit's name (Julia, Corrin, Ratatoskr, etc.)
+        # Unit's displayed name (Julia, Corrin, Ratatoskr, etc.)
         self.name: str = name
 
         # Unit's unique name (M!Shez, A!Mareeta, HA!F!Grima, etc.)
@@ -118,6 +118,7 @@ class Hero:
         # 69 - Tokyo Mirage Sessions ♯FE
         # 99 - Other
         self.primary_game: int = primary_game
+        self.secondary_game: int = secondary_game
 
         # Rarity of hero, 1-5 Stars. Affects base stats.
         self.rarity: int = 5
@@ -174,14 +175,14 @@ class Hero:
         self.statusNeg: list[Status] = []  # array of negative status effects currently held, cleared upon end of unit's next action
 
         # specific unit skills
-        self.weapon: Weapon = None
-        self.assist: Assist = None
-        self.special: Special = None
-        self.askill: Skill = None
-        self.bskill: Skill = None
-        self.cskill: Skill = None
-        self.sSeal: Skill = None
-        self.xskill: Skill = None
+        self.weapon = None
+        self.assist = None
+        self.special = None
+        self.askill = None
+        self.bskill = None
+        self.cskill = None
+        self.sSeal = None
+        self.xskill = None
 
         self.wpnType = wpnType
         self.color = self.getColor()
@@ -503,7 +504,7 @@ class Hero:
         self.remove_skill(slot)
 
         # If skill is none, undo any changes imposed by the skill instead
-        if skill == None:
+        if skill is None:
             return
 
         # Weapon Skill Add
@@ -566,6 +567,11 @@ class Hero:
             self.skill_stat_mods[SPD] += skill.effects["spectrumBoost"]
             self.skill_stat_mods[DEF] += skill.effects["spectrumBoost"]
             self.skill_stat_mods[RES] += skill.effects["spectrumBoost"]
+
+        if "ninalynBoost" in skill.effects:
+            self.skill_stat_mods[SPD] += skill.effects["ninalynBoost"]
+            self.skill_stat_mods[DEF] -= skill.effects["ninalynBoost"]
+            self.skill_stat_mods[RES] -= skill.effects["ninalynBoost"]
 
         if self.special is not None:
             self.specialCount = self.special.cooldown
@@ -637,6 +643,11 @@ class Hero:
             self.skill_stat_mods[DEF] -= skill.effects["spectrumBoost"]
             self.skill_stat_mods[RES] -= skill.effects["spectrumBoost"]
 
+        if "ninalynBoost" in skill.effects:
+            self.skill_stat_mods[SPD] -= skill.effects["ninalynBoost"]
+            self.skill_stat_mods[DEF] += skill.effects["ninalynBoost"]
+            self.skill_stat_mods[RES] += skill.effects["ninalynBoost"]
+
         # Remove the skill from the correct slot
         if slot == WEAPON and skill is not None:
             self.skill_stat_mods[ATK] -= skill.mt
@@ -672,7 +683,7 @@ class Hero:
                 self.specialMax = max(self.specialMax - self.assist.effects["slaying"], 1)
 
             # Emblem Marth's slaying effect
-            if self.emblem is not None and self.emblem == "Marth":
+            if self.emblem and self.emblem == "Marth" and self.weapon:
                 self.specialCount = max(self.specialCount - self.weapon.effects["slaying"], 1)
                 self.specialMax = max(self.specialMax - self.weapon.effects["slaying"], 1)
 
@@ -698,6 +709,10 @@ class Hero:
             self.visible_stats[i] = self.stats[i] + self.skill_stat_mods[i] + sum_sup_stat + self.battle_stat_mods[i]
             self.visible_stats[i] = max(min(self.visible_stats[i], 99), 0)
             i += 1
+
+        # Resplendent Stats
+        if self.resp:
+            self.visible_stats = [x + 2 for x in self.visible_stats]
 
         self.visible_stats = [int(x) for x in self.visible_stats]
         self.HPcur = self.visible_stats[0]
@@ -924,7 +939,12 @@ class Hero:
         if self.wpnType not in BEAST_WEAPONS or not self.weapon:
             return []
 
-        return ["DEFAULT-BEAST"]
+        conditions_arr = ["DEFAULT-BEAST"]
+
+        if "uncondBeast" in self.getSkills():
+            conditions_arr.append("NO-CONDITIONS")
+
+        return conditions_arr
 
     # "ASKR-BEAST"
     # "MUARIM-BEAST"

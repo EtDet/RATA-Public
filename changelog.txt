@@ -1,17 +1,32 @@
-2.2.0 (XX/XX/25)
+2.2.0 (3/6/25)
 New Features:
 -Added all 140 heroes introduced in Year 4.
--Added the following Story maps:
--Added the following Paralogue maps:
+-When building a Hero, selecting them will autofill their default skills into empty skill slots.
+-Added the following new maps: Book 1 Chapters 10-13 and Intermissions (Includes reinforcement maps with no turn limits!)
+-Added the ability to enable resplendent outfits. All units who currently have a resplendent outfit will be able to use it (Currently up to Clair: Highborn Flier)
+-The amount healed when an attack heals the attacker will now be shown in the top corner for each attack in the Attack Order.
+
+Changes:
+-Holy Vestments has been renamed due to a typo (Holy Vestiments), please delete any saved builds with this skill you may have.
 
 Bug Fixes:
+-AOEs will now work properly.
+-Changing the hero in the unit builder will no longer display neutral IVs as HP/HP within the respective dropdown boxes.
+-Staff units are no longer able to select non-Staff exclusive assist skills.
+-Healing will no longer cause an error if the healer does not have a B skill equipped.
+-Action Button will now check trigger conditions after an action is performed, preventing unintended behavior (units being on exclusive terrain, duo buttons with conditions met only after moving)
+-Duo Skills can no longer be used while a combat animation is playing.
 -Fallen Female Corrin's weapon will now work properly.
 -Naga's Divine Fang(+) will now work properly.
+-Certain weapons that should grant stat bonuses to all stats will now work properly.
 -Inf. Hexblade will now work properly.
 -Ranulf's Covert Cat Fang and Yarne's Bunny Fang will now give a +3 boost to HP with the Eff refine.
--Infantry Pulse and Velouria's Wolfpup Fang now properly charge the specials of allies.
+-Infantry Pulse and Velouria's Wolfpup Fang now properly charge the specials of allies at start of turn.
 -Sothis' Sublime Surge now has a description for refined versions of the weapon.
 -Lyon's Naglfar will now inflict debuffs on the foe instead of himself when initiated.
+-Hubert's Eff Refine Retainer's Report will now give out debuffs properly
+-Weapons that grant additional effects by using a Rally skill (Retailer's Report, Azure Lance) will now be usable if the Rally skill makes no difference to the targeting ally's current bonuses.
+-Lucina's dragonflower limit has been corrected from 30 to 35.
 
 2.1.0 (2/25/25)
 New Features:

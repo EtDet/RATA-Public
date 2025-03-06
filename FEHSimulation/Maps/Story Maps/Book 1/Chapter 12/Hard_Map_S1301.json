@@ -1,0 +1,72 @@
+{
+    "name": "Chapter 12: Part 1: Battle at the Sluice Gate (Hard)",
+    "wall": "Wallpattern_inside.png",
+    "terrain": [[2, 2, 2, 2, 2, 2],
+                [2, 0, 0, 0, 0, 2],
+                [2, 0, 0, 0, 0, 2],
+                [2, 0, 0, 0, 0, 2],
+                [2, 0, 0, 0, 0, 2],
+                [2, 0, 0, 0, 0, 2],
+                [2, 0, 0, 2, 0, 2],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [28],
+    "struct_walls": {
+      "static": [21, 22, 27],
+      "twoBreak": [],
+      "oneBreak": [31]
+    },
+    "playerStart": [13, 7, 8, 3],
+    "enemyStart": [28, 34, 39, 29, 42],
+    "enemyData":
+    [  {"name": "Delthea",
+       "level": 30,
+       "rarity": 4,
+       "alt_stats": [27, 29, 27, 19, 23],
+       "weapon": "Thoron",
+       "special": "Miracle",
+       "askill": "Death Blow 1",
+       "cskill": "Drive Atk 1",
+       "startMove": -1,
+       "wallBreak": true
+       },
+        {"name": "Sword Cavalier",
+       "level": 30,
+       "rarity": 4,
+       "alt_stats": [33, 27, 18, 19, 23],
+       "weapon": "Brave Sword",
+       "cskill": "Spur Def 2",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Green Mage",
+       "level": 30,
+       "rarity": 4,
+       "alt_stats": [31, 24, 25, 15, 20],
+       "weapon": "Rexcalibur",
+       "askill": "Darting Blow 1",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Sword Flier",
+       "level": 30,
+       "rarity": 4,
+       "alt_stats": [31, 20, 28, 15, 29],
+       "weapon": "Silver Sword",
+       "assist": "Rally Attack",
+       "cskill": "Spur Def 2",
+       "startMove": -1,
+       "wallBreak": true
+      },
+        {"name": "Lance Flier",
+       "level": 30,
+       "rarity": 4,
+       "alt_stats": [31, 20, 28, 15, 29],
+       "weapon": "Silver Lance",
+       "assist": "Reciprocal Aid",
+       "askill": "Attack +2",
+       "startMove": -1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

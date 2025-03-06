@@ -1,0 +1,69 @@
+{
+    "name": "Chapter 12: Part 1: Battle at the Sluice Gate (Normal)",
+    "wall": "Wallpattern_inside.png",
+    "terrain": [[2, 2, 2, 2, 2, 2],
+                [2, 0, 0, 0, 0, 2],
+                [2, 0, 0, 0, 0, 2],
+                [2, 0, 0, 0, 0, 2],
+                [2, 0, 0, 0, 0, 2],
+                [2, 0, 0, 0, 0, 2],
+                [2, 0, 0, 2, 0, 2],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [28],
+    "struct_walls": {
+      "static": [21, 22, 27],
+      "twoBreak": [],
+      "oneBreak": [31]
+    },
+    "playerStart": [13, 7, 8, 3],
+    "enemyStart": [28, 34, 39, 29, 42],
+    "enemyData":
+    [  {"name": "Delthea",
+       "level": 23,
+       "rarity": 3,
+       "alt_stats": [24, 22, 20, 8, 18],
+       "weapon": "Elthunder",
+       "special": "Miracle",
+       "cskill": "Drive Atk 1",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Sword Cavalier",
+       "level": 23,
+       "rarity": 3,
+       "alt_stats": [29, 20, 14, 15, 18],
+       "weapon": "Steel Sword",
+       "cskill": "Spur Def 1",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Green Mage",
+       "level": 23,
+       "rarity": 3,
+       "alt_stats": [27, 18, 19, 12, 16],
+       "weapon": "Elwind",
+       "askill": "Darting Blow 1",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Sword Flier",
+       "level": 23,
+       "rarity": 3,
+       "alt_stats": [27, 16, 21, 12, 22],
+       "weapon": "Steel Sword",
+       "assist": "Rally Attack",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Lance Flier",
+       "level": 23,
+       "rarity": 3,
+       "alt_stats": [27, 16, 21, 12, 22],
+       "weapon": "Steel Lance",
+       "askill": "Attack +1",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

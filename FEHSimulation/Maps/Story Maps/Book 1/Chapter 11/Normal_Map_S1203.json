@@ -1,0 +1,130 @@
+{
+    "name": "Chapter 11: Part 3: The Mountain of Fear (Normal)",
+    "terrain": [[2, 2, 0, 0, 0, 2],
+                [2, 0, 0, 0, 2, 0],
+                [0, 0, 0, 2, 1, 0],
+                [0, 0, 2, 2, 0, 0],
+                [1, 0, 2, 1, 0, 0],
+                [0, 0, 1, 0, 0, 2],
+                [0, 0, 0, 0, 2, 2],
+                [0, 0, 2, 2, 2, 2]],
+    "defensiveTiles": [14, 18, 21, 34, 39, 44, 45, 46],
+    "playerStart": [44, 45, 35, 29],
+    "enemyStart": [0, 8, 7, 4, 12],
+    "enemyData":
+    [  {"name": "Celica",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [27, 19, 19, 12, 13],
+       "weapon": "Bolganone",
+       "askill": "Distant Def 1",
+       "cskill": "Spur Def 1",
+       "sseal": "Embla's Ward",
+       "startMove": 4,
+       "wallBreak": true
+       },
+        {"name": "Mae",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [24, 22, 18, 8, 18],
+       "weapon": "Blárowl",
+       "bskill": "Desperation 1",
+       "cskill": "B Tome Exp. 1",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Genny",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [23, 21, 14, 11, 20],
+       "weapon": "Gravity",
+       "assist": "Physic",
+       "special": "Heavenly Light",
+       "bskill": "Wrathful Staff 1",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Palla",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [29, 18, 19, 16, 15],
+       "weapon": "Ruby Sword",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Lance Cavalier",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [29, 20, 13, 14, 18],
+       "weapon": "Steel Lance",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Axe Flier",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [26, 16, 21, 11, 22],
+       "weapon": "Steel Axe",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 0,
+         "turn": 2
+       }
+      },
+        {"name": "Sword Cavalier",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [29, 20, 13, 14, 18],
+       "weapon": "Steel Sword",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 12,
+         "turn": 3,
+         "targetName": "Lance Cavalier"
+       }
+      },
+        {"name": "Bow Fighter",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [30, 19, 17, 17, 8],
+       "weapon": "Steel Bow",
+       "askill": "Death Blow 1",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 6,
+         "turn": 4
+       }
+      },
+        {"name": "Lance Knight",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [39, 23, 8, 25, 10],
+       "weapon": "Steel Lance",
+       "bskill": "Wary Fighter 1",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 24,
+         "turn": 4
+       }
+      },
+        {"name": "Blue Mage",
+       "level": 22,
+       "rarity": 3,
+       "alt_stats": [26, 18, 19, 11, 16],
+       "weapon": "Elthunder",
+       "cskill": "Hone Atk 1",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 1,
+         "turn": 4,
+         "targetName": "Mae"
+       }
+      }
+    ]
+  }
+  

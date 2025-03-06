@@ -36,7 +36,7 @@
        "rarity": 3,
        "alt_stats": [28, 18, 20, 19, 12],
        "weapon": "Steel Axe",
-       "special": "Holy Vestiments",
+       "special": "Holy Vestments",
        "startMove": 3,
        "wallBreak": true
       },

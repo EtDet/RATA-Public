@@ -1,0 +1,70 @@
+{
+    "name": "Chapter 11: Part 2: Pirates! (Normal)",
+    "wall": "Boxpattern.png",
+    "terrain": [[2, 0, 0, 0, 0, 2],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [2, 0, 0, 0, 0, 2],
+                [2, 2, 0, 0, 2, 2],
+                [2, 0, 0, 0, 0, 2],
+                [0, 0, 0, 0, 0, 0],
+                [2, 0, 0, 0, 0, 2]],
+    "defensiveTiles": [],
+    "struct_walls": {
+      "static": [11],
+      "twoBreak": [],
+      "oneBreak": [14, 27]
+    },
+    "playerStart": [15, 16, 7, 9],
+    "enemyStart": [17, 11, 3, 8, 0],
+    "enemyData":
+    [  {"name": "Mae",
+       "level": 21,
+       "rarity": 3,
+       "alt_stats": [24, 21, 17, 8, 17],
+       "weapon": "Blárowl",
+       "bskill": "Desperation 1",
+       "cskill": "B Tome Exp. 1",
+       "startMove": 1,
+       "wallBreak": true
+       },
+        {"name": "Boey",
+       "level": 21,
+       "rarity": 3,
+       "alt_stats": [29, 16, 14, 18, 10],
+       "weapon": "Gronnowl",
+       "special": "Glowing Ember",
+       "askill": "Earth Boost 1",
+       "bskill": "Renewal 1",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Lance Knight",
+       "level": 21,
+       "rarity": 3,
+       "alt_stats": [38, 22, 8, 24, 10],
+       "weapon": "Steel Lance",
+       "assist": "Pivot",
+       "special": "New Moon",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Bow Fighter",
+       "level": 21,
+       "rarity": 3,
+       "alt_stats": [29, 18, 16, 16, 8],
+       "weapon": "Steel Bow",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Sword Fighter",
+       "level": 21,
+       "rarity": 3,
+       "alt_stats": [30, 17, 17, 17, 12],
+       "weapon": "Steel Sword",
+       "startMove": 1,
+       "wallBreak": true
+      }
+    ]
+  }
+  

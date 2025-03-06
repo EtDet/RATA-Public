@@ -1,0 +1,147 @@
+{
+    "name": "Chapter 10: Part 4: The Last Line of Defense (Hard)",
+    "wall": "Wallpattern_BraveBoss.png",
+    "terrain": [[0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0]],
+    "defensiveTiles": [],
+    "struct_walls": {
+      "static": [6, 11, 14, 15, 30, 35, 38, 39],
+      "twoBreak": [7, 10, 31, 34],
+      "oneBreak": []
+    },
+    "playerStart": [26, 27, 19, 22],
+    "enemyStart": [2, 42, 46, 44, 3],
+    "enemyData":
+    [  {"name": "Ike",
+       "level": 33,
+       "rarity": 5,
+       "alt_stats": [38, 31, 27, 28, 16],
+       "weapon": "Ragnell",
+       "special": "Aether",
+       "askill": "Heavy Blade 3",
+       "bskill": "Swordbreaker 3",
+       "sseal": "Embla's Ward",
+       "startMove": 4,
+       "wallBreak": true
+       },
+        {"name": "Titania",
+       "level": 33,
+       "rarity": 5,
+       "alt_stats": [34, 24, 30, 22, 26],
+       "weapon": "Emerald Axe",
+       "assist": "Reciprocal Aid",
+       "special": "Sol",
+       "askill": "Armored Blow 3",
+       "bskill": "Guard 3",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Soren",
+       "level": 33,
+       "rarity": 5,
+       "alt_stats": [33, 29, 29, 15, 25],
+       "weapon": "Rexcalibur",
+       "special": "Growing Wind",
+       "bskill": "Watersweep 2",
+       "cskill": "Fortify Res 3",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Bow Fighter",
+       "level": 33,
+       "rarity": 4,
+       "alt_stats": [37, 27, 24, 23, 12],
+       "weapon": "Silver Bow",
+       "askill": "Darting Blow 2",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Blue Cavalier",
+       "level": 33,
+       "rarity": 4,
+       "alt_stats": [28, 29, 20, 13, 28],
+       "weapon": "Thoron",
+       "cskill": "Threaten Spd 2",
+       "startMove": 1,
+       "wallBreak": true
+      },
+        {"name": "Lance Cavalier",
+       "level": 33,
+       "rarity": 4,
+       "alt_stats": [35, 28, 19, 20, 25],
+       "weapon": "Silver Lance",
+       "askill": "Defiant Spd 2",
+       "bskill": "Lunge",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 0,
+         "turn": 5,
+         "targetName": "Lance Cavalier"
+       }
+      },
+        {"name": "Sword Cavalier",
+       "level": 33,
+       "rarity": 4,
+       "alt_stats": [35, 28, 19, 20, 25],
+       "weapon": "Silver Sword",
+       "askill": "Defiant Atk 2",
+       "bskill": "Drag Back",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 5,
+         "turn": 5,
+         "targetName": "Sword Cavalier"
+       }
+      },
+        {"name": "Axe Flier",
+       "level": 33,
+       "rarity": 4,
+       "alt_stats": [32, 22, 29, 16, 30],
+       "weapon": "Silver Axe",
+       "assist": "Ardent Sacrifice",
+       "bskill": "Wings of Mercy 2",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 42,
+         "turn": 4
+       }
+      },
+        {"name": "Sword Cavalier",
+       "level": 33,
+       "rarity": 4,
+       "alt_stats": [35, 28, 19, 20, 25],
+       "weapon": "Silver Sword",
+       "askill": "Death Blow 2",
+       "bskill": "Knock Back",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 47,
+         "turn": 6
+       }
+      },
+        {"name": "Green Mage",
+       "level": 33,
+       "rarity": 4,
+       "alt_stats": [32, 26, 27, 16, 22],
+       "weapon": "Gronnraven",
+       "cskill": "Threaten Def 2",
+       "startMove": 1,
+       "wallBreak": true,
+       "reinf_info": {
+         "tile": 42,
+         "turn": 6
+       }
+      }
+    ]
+  }
+  

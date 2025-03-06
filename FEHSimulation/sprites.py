@@ -78,10 +78,11 @@ while i < len(names):
     #if True:
         download_and_save_image(image_url, "TestSprites/" + int_name + ".png")
 
-        if has_resp == True:
+        if has_resp:
             resp_image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_Resplendent_Mini_Unit_Ok.png"
             save_name = int_name + "-R"
-            #download_and_save_image(resp_image_url, save_name)
+
+            download_and_save_image(resp_image_url, "TestSprites/" + save_name + ".png")
 
         if weapon in ["RBeast", "BBeast", "GBeast", "CBeast"]:
             beast_image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_TransformMap_Mini_Unit_Idle.png"
@@ -123,6 +124,8 @@ while i <= 3:
     i += 1
 
 # Main Story
+
+# BOOK 1
 i = 1
 while i <= 13:
     j = 1
@@ -131,6 +134,13 @@ while i <= 13:
         download_and_save_image(image_url, "Maps/Story Maps/Book 1/Chapter " + str(i) + "/" + "Map_S" + str(i+1).zfill(2) + str(j).zfill(2) + ".png")
         j += 1
     i += 1
+
+# Intermissions
+image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + "Map_S1501.png"
+download_and_save_image(image_url, "Maps/Story Maps/Book 1/Intermission/" + "Map_S1501.png")
+
+image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + "Map_S1601.png"
+download_and_save_image(image_url, "Maps/Story Maps/Book 1/Intermission/" + "Map_S1601.png")
 
 # Aether Raids
 i = 1
