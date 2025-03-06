@@ -8,6 +8,7 @@ New Features:
 
 Changes:
 -Holy Vestments has been renamed due to a typo (Holy Vestiments), please delete any saved builds with this skill you may have.
+-Kestrel Stance has been renamed due to a type (Kestral Stance), please delete any saved builds with this skill you may have.
 
 Bug Fixes:
 -AOEs will now work properly.

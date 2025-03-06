@@ -1490,8 +1490,6 @@ class HeroListing(tk.Frame):
         # Set default level
         self.creation_str_vars[14].set(min(40, self.hero_proxy.level))
 
-        print(self.created_hero.blessing)
-
         # Set Blessing
         if self.created_hero.blessing is None:
             self.creation_str_vars[4].set("None")
@@ -1615,7 +1613,6 @@ class HeroListing(tk.Frame):
             self.creation_str_vars[22].set("None")
 
         # Autofill kit
-
         if self.creation_str_vars[7].get() == "None" and pd.notnull(cur_hero_row.iloc[0]["BaseWeapon"]):
             self.creation_str_vars[7].set(cur_hero_row.iloc[0]["BaseWeapon"])
             self.handle_selection_change_weapon(cur_hero_row.iloc[0]["BaseWeapon"])

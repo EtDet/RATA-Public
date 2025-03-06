@@ -1362,7 +1362,9 @@ def makeWeapon(name):
     # ﻿
     # I found this cool thing in the spreadsheet what is this
 
+
     row = weapon_sheet.loc[weapon_sheet['IntName'] == name]
+
     n = row.index.values[0]
 
     name = row.loc[n, 'Name']
