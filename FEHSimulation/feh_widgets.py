@@ -4133,7 +4133,7 @@ class GameplayCanvas(tk.Canvas):
 
                     # CASE 1: Moving Offense Side
                     if S == PLAYER:
-                        if 6 < cur_tile.tileNum < 12:
+                        if 5 < cur_tile.tileNum < 12:
                             swapable_img = self.create_image(x_move, y_move, anchor=tk.NW, image=self.move_tile_photos[5])
                             self.tag_lower(swapable_img, 6)
                             self.tile_sprites.append(swapable_img)
