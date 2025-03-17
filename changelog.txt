@@ -1,3 +1,42 @@
+2.3.0 (3/17/25)
+New Features:
+-Added all 144 heroes introduced in Year 5.
+-Added the ability to set Ascended Assets.
+-Added another slot for the Raiding Team in Aether Raids to enable the Special Slot bonus from newer Mythic Heroes
+-The Safety Fence structure is now usable.
+-Bolt Tower's level cap was increased to 13.
+
+Bug Fixes:
+-More issues involving AOEs were fixed.
+-Fixed issues which caused certain heroes to not be selectable given their base kits.
+-If the foe still had attacks to spare after their HP was reduced to 0, they could continue lowering their opponent's effective HP and fail to trigger certain conditions. This has been fixed.
+-Valtentine's Rudolf's Thorn Lance's Atk-scaling damage reduction will no longer be affected by boosts to Atk from Weapon Triangle advantage or Effectiveness.
+-Firestorm Dance 3's Canto effect will now work properly.
+-Yarne's Bunny Fang will now check HP after combat properly.
+-Dragonstones' Hexblade effect against ranged units will now target the correct defense when initiated against.
+-Miracle will now trigger correctly when initiating combat.
+-Ice Mirror II and Negating Fang (II) will deal the correct amount of damage after triggering.
+-Skills that trigger the "unit's next attack deals damage equal to total damage reduced" are now calculated correctly.
+-Ninja Lyn's Duo Skill will no longer disable after she initiates a second combat in the same turn before activating it.
+-Fixed certain interactions involving Recovery-based effects and debuffs applied by foes.
+-Fixed the conditions for the Null Follow-Up status effect.
+-Fixed the outspeeding difference increase from Melady's weapon such that Potent Follow effects can work properly with it.
+-Kabura Ya+ now gives stats for its refines.
+-Nil's Frost Breath will now give out its debuff at start of turn properly.
+-Armored Stride works properly now.
+-Weapons/Skills that grant another action (besides Galeforce) will now trigger once per turn instead of once per map.
+-The Iote's Shield sacred seal is no longer selectable by all movement types.
+-Fixed the limit for how high the Def gain is for Cain/Abel/Stahl/Sully's refined weapons when initiated against.
+-Fixed several effects which relied on the most extreme stat buffs/debuffs, (highest Def, total penalties, etc.) on nearby allies or foes when no target units are present.
+-Fixed the Bulwark effect to now properly restrict movement.
+-Fixed the conditions for the Time's Pulse skill to trigger.
+-Fixed certain Duo units being unable to act.
+-Micaiah's Sacrifice will now convert allies' bonuses to penalties.
+-Flayn's refined Caduceus Staff will now properly only allow nearby allies to use its warping.
+-Halloween Xane's start-of-turn effects will now be properly given out.
+-Fixed incorrect defensive terrain placement in the Jötunheimr Castle AR map.
+-Inf. Hexblade will now give out its drive-type skills correctly.
+
 2.2.0 (3/6/25)
 New Features:
 -Added all 140 heroes introduced in Year 4.
@@ -8,7 +47,7 @@ New Features:
 
 Changes:
 -Holy Vestments has been renamed due to a typo (Holy Vestiments), please delete any saved builds with this skill you may have.
--Kestrel Stance has been renamed due to a type (Kestral Stance), please delete any saved builds with this skill you may have.
+-Kestrel Stance has been renamed due to a typo (Kestral Stance), please delete any saved builds with this skill you may have.
 
 Bug Fixes:
 -AOEs will now work properly.

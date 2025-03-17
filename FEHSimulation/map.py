@@ -2,7 +2,7 @@ from queue import Queue
 from pandas import read_csv
 
 class Tile:
-    def __init__(self, tile_num, terrain, is_def_terrain, texture):
+    def __init__(self, tile_num, terrain, is_def_terrain):
         self.tileNum = tile_num  # number between 0-47, increases by 1 going right, 6 by going up
         self.x_coord = tile_num % 6
         self.y_coord = tile_num // 6
@@ -13,7 +13,6 @@ class Tile:
         # 2 - flier only (mountain, water, etc.)
         # 3 - trench
         # 4 - impassible
-
         self.terrain = terrain
         self.is_def_terrain = is_def_terrain
 
@@ -27,22 +26,21 @@ class Tile:
         self.south = None
         self.west = None
 
-        # divine vein key
+        # Divine Veins
         # 0 - none
         # 1 - flame
         # 2 - stone
+        # 3 - green
+        # 4 - haze
+        # 5 - water
+        # 6 - ice
+        self.divine_vein = 0
 
-        self.divine_vein = -1
-        self.divine_vein_side = -1
+        # 0 - player
+        # 1 - enemy
+        self.divine_vein_side = 0
 
-        # texture key
-        # 0 - green grass / bush / water / trench / pillar
-        # 1 - cobble path / tree / mountain / trench / house
-        # 2 - sand / palm tree / spike pit / trench / wall
-        # 3 - dark grass / flowers / x / x / castle
-        # 4 - purple grass
-        # 5 - wood
-        self.terrain_texture = texture
+        self.divine_vein_turn = 0
 
     # all tiles exactly n spaces away
     def tilesNSpacesAway(self, n):
@@ -54,7 +52,7 @@ class Tile:
         visited.add(self)
 
         # Level marker
-        fringe.put(Tile(-1, -1, -1, -1))
+        fringe.put(Tile(-1, -1, -1))
         level = 0
 
         while not fringe.empty() and level <= n:
@@ -65,7 +63,7 @@ class Tile:
                 if level > n:
                     break
                 if not fringe.empty():
-                    fringe.put(Tile(-1, -1, -1, -1))
+                    fringe.put(Tile(-1, -1, -1))
                 continue
 
             # Add neighboring tiles to the queue
@@ -88,7 +86,7 @@ class Tile:
         # Breadth First Search of local tiles within n spaces
 
         level = 0
-        fringe.put(Tile(-1, -1, -1, -1))
+        fringe.put(Tile(-1, -1, -1))
 
         while not fringe.empty() and level < n:
 
@@ -109,7 +107,7 @@ class Tile:
 
             if cur.tileNum == -1:
                 level += 1
-                fringe.put(Tile(-1, -1, -1, -1))
+                fringe.put(Tile(-1, -1, -1))
 
         return tilesWithin
 
@@ -392,15 +390,15 @@ class Map:
 
         # Standard 6x8
         if size_type == 0:
-            self.tiles = [0] * 48
+            self.tiles = []
             for i in range(0, 48):
-                self.tiles[i] = Tile(i, 0, 0, 0)
+                self.tiles.append(Tile(i, 0, 0))
+
             for i in range(0, 48):
                 if i // 6 != 0: self.tiles[i].south = self.tiles[i - 6]
                 if i // 6 != 7: self.tiles[i].north = self.tiles[i + 6]
                 if i % 6 != 0: self.tiles[i].west = self.tiles[i-1]
                 if i % 6 != 5: self.tiles[i].east = self.tiles[i+1]
-
 
         self.player_start_spaces = []
         self.enemy_start_spaces = []

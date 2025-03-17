@@ -139,7 +139,7 @@ Close Def 3,"If foe initiates combat and uses bow, dagger, magic, or staff, gran
 Distant Def 1,"If foe initiates combat and uses sword, lance, axe, dragonstone, or beast damage, grants Def/Res+2 during combat.",1,A,56,TRUE,distDef,1,,,,,,,,,Any,Any
 Distant Def 2,"If foe initiates combat and uses sword, lance, axe, dragonstone, or beast damage, grants Def/Res+4 during combat.",2,A,56,TRUE,distDef,2,,,,,,,,,Any,Any
 Distant Def 3,"If foe initiates combat and uses sword, lance, axe, dragonstone, or beast damage, grants Def/Res+6 during combat.",3,A,56,TRUE,distDef,3,,,,,,,,,Any,Any
-Iote's Shield,"Neutralizes ""effective against fliers"" bonuses.",1,A,57,TRUE,nullEffFly,0,,,,,,,,,Any,Any
+Iote's Shield,"Neutralizes ""effective against fliers"" bonuses.",1,A,57,TRUE,nullEffFly,0,,,,,,,,,Inf-Cav-Armor,Any
 Heavy Blade 1,"If unit's Atk ≥ foe's Atk+5, grants Special cooldown charge +1 per unit's attack. (Only highest value applied. Does not stack.)",1,A,58,TRUE,heavyBladeSe,1,,,,,,,,,Any,Staff
 Heavy Blade 2,"If unit's Atk ≥ foe's Atk+3, grants Special cooldown charge +1 per unit's attack. (Only highest value applied. Does not stack.)",1,A,58,TRUE,heavyBladeSe,2,,,,,,,,,Any,Staff
 Heavy Blade 3,"If unit's Atk > foe's Atk, grants Special cooldown charge +1 per unit's attack. (Only highest value applied. Does not stack.)",2,A,58,TRUE,heavyBladeSe,3,,,,,,,,,Any,Staff
@@ -275,6 +275,9 @@ Atk/Spd Clash 3,"If unit or foe initiates combat after moving to a different spa
 Atk/Def Clash 1,"If unit or foe initiates combat after moving to a different space, grants bonus to unit's Atk/Def during combat = X + 1. (X = number of spaces moved by whoever initiated combat; max 1.)",1,A,92,FALSE,,,,,,,,,,,Any,Any
 Atk/Def Clash 2,"If unit or foe initiates combat after moving to a different space, grants bonus to unit's Atk/Def during combat = X + 3. (X = number of spaces moved by whoever initiated combat; max 2.)",2,A,92,FALSE,,,,,,,,,,,Any,Any
 Atk/Def Clash 3,"If unit or foe initiates combat after moving to a different space, grants bonus to unit's Atk/Def during combat = X + 5. (X = number of spaces moved by whoever initiated combat; max 3.)",3,A,92,FALSE,,,,,,,,,,,Any,Any
+Atk/Spd Finish 1,sample,1,A,239,FALSE,,,,,,,,,,,Any,Any
+Atk/Spd Finish 2,sample,2,A,239,FALSE,,,,,,,,,,,Any,Any
+Atk/Spd Finish 3,sample,3,A,239,FALSE,,,,,,,,,,,Any,Any
 Atk/Def Finish 1,"If unit is within 3 spaces of an ally, grants Atk/Def+2 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +1 damage during combat. (Except when dealing damage with area-of-effect Specials.)",1,A,93,FALSE,,,,,,,,,,,Any,Any
 Atk/Def Finish 2,"If unit is within 3 spaces of an ally, grants Atk/Def+4 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +3 damage during combat. (Except when dealing damage with area-of-effect Specials.)",2,A,93,FALSE,,,,,,,,,,,Any,Any
 Atk/Def Finish 3,"If unit is within 3 spaces of an ally, grants Atk/Def+6 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +5 damage during combat. (Except when dealing damage with area-of-effect Specials.)",3,A,93,FALSE,,,,,,,,,,,Any,Any

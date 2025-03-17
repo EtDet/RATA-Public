@@ -184,6 +184,115 @@
       }
     ]
   },
+  "NY!Peony": {
+    "desc": "Grants another action, Atk/Spd/Def/Res+3, and the \"unit can move to a space adjacent to any ally within 2 spaces\" status to adjacent ally with the highest HP for 1 turn. (Allies with Sing or Dance can be granted this effect as well. If multiple units meet the conditions, effect will not trigger.)",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "dance",
+        "degree": 1,
+        "targets": "self_and_same_game_allies",
+        "area": "within_2_spaces"
+      }
+    ]
+  },
+  "V!Líf": {
+    "desc": "Deals damage to foes within 3 spaces = 10 + 50% of total damage dealt to HP of allies within 3 spaces (max damage: 40). Inflicts Atk/Spd-7 on foes within 3 spaces of unit through their next actions.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {"effect": "damage",
+       "degree": -1,
+       "targets": "foes",
+       "area": "within_3_spaces"},
+      {"effect": "debuff_atk",
+       "degree": 7,
+       "targets": "foes",
+       "area": "within_3_spaces"},
+      {"effect": "debuff_spd",
+       "degree": 7,
+       "targets": "foes",
+       "area": "within_3_spaces"}
+    ]
+  },
+  "CH!Eirika": {
+    "desc": "Grants [Dodge] to unit and allies within 3 rows and 3 columns centered on unit.\n\nOnce used, Duo Skill cannot be activated again right away. At start of odd-numbered turns, if Duo Skill has already been used, unit can use Duo Skill again.",
+    "type": "duo",
+    "skill_refresh": 2,
+    "skills": [
+      {"effect": "status",
+       "degree": "Dodge",
+       "targets": "allies",
+       "area": "within_3_rows_or_cols"}
+    ]
+  },
+  "SU!TH!Hilda": {
+    "desc": "Inflicts Atk-7 on foes within 3 columns or 3 rows centered on unit through their next actions and inflicts [Isolation] on them.\n\nOnce used, Duo Skill cannot be activated again right away. At start of every third turn, if Duo Skill has already been used, unit can use Duo Skill again.",
+    "type": "duo",
+    "skill_refresh": 3,
+    "skills": [
+      {"effect": "debuff_atk",
+       "degree": 7,
+       "targets": "foes",
+       "area": "within_3_rows_or_cols"},
+      {"effect": "status",
+       "degree": "Isolation",
+       "targets": "foes",
+       "area": "within_3_rows_or_cols"}
+    ]
+  },
+  "PI!Hinoka": {
+    "desc": "Grants Atk/Spd+6 to unit and flying allies within 3 rows or 3 columns centered on unit, and they can move 1 extra space. (That turn only. Does not stack.)\n\nInflicts [Gravity] on bow, dagger, magic, and staff foes within 3 rows or 3 columns centered on unit if they are also infantry, armored, or cavalry foes.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {"effect": "buff_atk",
+       "degree": 6,
+       "targets": "self_and_allies",
+       "area": "within_3_rows_or_cols"},
+      {"effect": "buff_spd",
+       "degree": 6,
+       "targets": "self_and_allies",
+       "area": "within_3_rows_or_cols"},
+      {"effect": "status",
+       "degree": "MobilityUp",
+       "targets": "self_and_allies",
+       "area": "within_3_rows_or_cols"},
+      {"effect": "status",
+       "degree": "Gravity",
+       "targets": "foes_ranged_nonflier",
+       "area": "within_3_rows_or_cols"}
+    ]
+  },
+    "H!Sothis": {
+    "desc": "Grants [Null Follow-Up] to unit and allies within 2 spaces. If unit or any ally within 2 spaces has their Special cooldown count at its maximum value, grants them Special cooldown count-1.\n\nOnce used, Duo Skill cannot be activated again right away. At start of odd-numbered turns, if Duo Skill has already been used, unit can use Duo Skill again.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {"effect": "status",
+       "degree": "NullFollowUp",
+       "targets": "self_and_allies",
+       "area": "within_2_spaces"},
+      {"effect": "timesPulse",
+       "degree": 1,
+       "targets": "self_and_allies",
+       "area": "within_2_spaces"}
+    ]
+  },
+  "NI!F!Corrin": {
+    "desc": "Grants unit another action. (May be used only if unit has already entered combat during the current turn.)",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "galeforce",
+        "targets": "self",
+        "area": "one"
+
+      }
+    ]
+  },
   "SU!Mia": {
     "desc": "Grants [Resonance: Blades] to unit and allies from the same titles as unit.\n\nOnce used, Harmonized Skill cannot be activated again right away. At start of every third turn, if Harmonized Skill has already been used, unit can use Harmonized Skill again.",
     "type": "harmonic",
@@ -219,9 +328,141 @@
       },
       {
         "effect": "dance",
-        "degree": "ResonanceBlades",
+        "degree": 0,
         "targets": "self_and_same_game_allies",
         "area": "within_2_spaces"
+      }
+    ]
+  },
+  "WI!Altina": {
+    "desc": "Grants [Resonance: Blades] to unit and allies from the same titles as unit.\n\nGrants [Vantage] to unit.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "Vantage",
+        "targets": "self",
+        "area": "one"
+      }
+    ]
+  },
+    "DE!Dorothea": {
+    "desc": "Grants [Resonance: Shields] to unit and allies from the same titles as unit.\n\nGrants another action to ally with the highest HP that is within 2 spaces, has already acted, and is from the same titles as unit (excluding unit). (Allies with Sing or Dance can be granted this effect as well. If multiple units meet the conditions, effect will not trigger.)",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceShields",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "dance",
+        "degree": 0,
+        "targets": "self_and_same_game_allies",
+        "area": "within_2_spaces"
+      }
+    ]
+  },
+  "SP!Myrrh": {
+    "desc": "Grants [Resonance: Blades] and the following effect to unit and allies from the same titles as unit for 1 turn: \"Foe cannot make a follow-up attack.\"\n\nGrants the following effect to unit for 1 turn: \"Neutralizes 'effective against flying' bonuses.\"",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "DenyFollowUp",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "NullEffFlyers",
+        "targets": "self",
+        "area": "one"
+      }
+    ]
+  },
+    "BR!Catria": {
+    "desc": "Grants the following effects to unit and allies from the same titles as unit for 1 turn:  [Resonance: Blades], [Desperation], and \"if unit initiates combat, unit makes a guaranteed follow-up attack.\"",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "Desperation",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "Pursual",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "SU!Caeda": {
+    "desc": "Grants [Resonance: Blades] to unit and allies from the same titles as unit.\n\nGrants another action to ally with the highest HP that is within 2 spaces, has already acted, and is from the same titles as unit (excluding unit). (Allies with Sing or Dance can be granted this effect as well. If multiple units meet the conditions, effect will not trigger.)",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "dance",
+        "degree": 0,
+        "targets": "self_and_same_game_allies",
+        "area": "within_2_spaces"
+      }
+    ]
+  },
+  "CF!Leif": {
+    "desc": "Grants the following effects to unit and allies from the same titles as unit for 1 turn:  [Resonance: Blades], [Desperation], and \"if unit initiates combat, unit makes a guaranteed follow-up attack.\"",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "Desperation",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "Pursual",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
       }
     ]
   }

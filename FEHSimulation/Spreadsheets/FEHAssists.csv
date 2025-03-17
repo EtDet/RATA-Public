@@ -60,12 +60,12 @@ Harsh Command+,"Neutralizes target ally's penalties (from skills like Panic, Thr
 Ardent Sacrifice,Restores 10 HP to target ally. Unit loses 10 HP but cannot go below 1.,1,Other,ardent_sac,0,,,,,
 Reciprocal Aid,Unit and target ally swap HP. (Neither can go above their max HP.),1,Other,rec_aid,0,,,,,
 Gold Serpent,,1,Rally,,,,,Heiðr,,
-Foul Play,Unit and target ally swap spaces. Range = 3.,3,Move,,,,,Yuri,L!Yuri,
+Foul Play,Unit and target ally swap spaces. Range = 3.,3,Move,swap,0,,,Yuri,L!Yuri,
 Gray Waves,,1,Refresh,refresh,0,azuraMove,1,L!Azura,DE!Azura,
 Gray Waves II,,1,Refresh,refresh,0,azuraMoveNP,1,L!Azura,,
 Changing Waters,,1,Refresh,refresh,0,,,L!Azura,,
 Sacrifice,Converts penalties on target into bonuses. Restores HP to target = unit's current HP-1. Reduces unit's HP by amount restored.,1,Other,sacrifice,0,,,Micaiah,B!Micaiah,BR!Micaiah
-Maiden's Solace,,1,Other,,,,,L!Micaiah,SU!Micaiah,X!Micaiah
+Maiden's Solace,Converts penalties on target into bonuses and then neutralizes any [Penalty] that remains. Restores HP to target = unit's current HP-1. Reduces unit's HP by amount restored.,1,Other,maidenSolace,0,,,L!Micaiah,SU!Micaiah,X!Micaiah
 Gentle Dream,"Grants another action to target ally. Grants Atk/Spd/Def/Res+3 and the following status to target ally and allies in cardinal directions of unit and target (excluding unit): ""Unit can move to a space adjacent to any ally within 2 spaces."" (That turn only. Cannot target an ally with Sing or Dance. This skill treated as Sing or Dance.)",1,Refresh,refresh,0,peonyRefresh,0,Peony,NY!Peony,
 Gentle Dream+,"Grants another action to target ally. Grants Atk/Spd/Def/Res+4 and the following statuses to target ally and allies in cardinal directions of unit and target (excluding unit): ""unit can move to a space adjacent to any ally within 2 spaces"" and ""neutralizes penalties on unit during combat."" (That turn only. Cannot target an ally with Sing or Dance. This skill treated as Sing or Dance.)",1,Refresh,refresh,0,peonyRefreshII,0,Peony,,
 Tender Dream,,1,Refresh,refresh,0,,,X!Peony,,

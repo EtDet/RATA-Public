@@ -16,7 +16,9 @@ from math import isnan
 from functools import partial
 
 from PIL import Image, ImageTk
+
 from natsort import natsorted
+from collections import Counter
 
 from copy import deepcopy
 
@@ -139,17 +141,22 @@ def _get_valid_weapons(cur_hero):
                            "Slaying Edge", "Slaying Edge+", "Slaying Lance", "Slaying Lance+", "Slaying Axe", "Slaying Axe+", "Slaying Bow", "Slaying Bow+",
                            "Keen Rauðrwolf", "Keen Rauðrwolf+", "Keen Blárwolf", "Keen Blárwolf+", "Keen Gronnwolf", "Keen Gronnwolf+",
                            "Armorsmasher", "Armorsmasher+", "Slaying Spear", "Slaying Spear+", "Slaying Hammer", "Slaying Hammer+", "Guard Bow", "Guard Bow+",
-                           "Respisal Lance", "Reprisal Lance+",
+                           "Respisal Lance", "Reprisal Lance+", "Reprisal Axe", "Reprisal Axe+",
                            "Safeguard", "Safeguard+", "Vanguard", "Vanguard+", "Rearguard", "Readguard+",
                            "Barrier Blade", "Barrier Blade+", "Barrier Lance", "Barrier Lance+", "Barrier Axe", "Barrier Axe+",
                            "The Cleaner", "The Cleaner+", "Shining Bow", "Shining Bow+", "Dragonslasher", "Dragonslasher+", "Spendthrift Bow", "Spendthrift Bow+",
                            "Flash", "Flash+", "Melancholy", "Melancholy+",
                            "Rauðrserpent", "Rauðrserpent+", "Blárserpent", "Blárserpent+", "Gronnserpent", "Gronnserpent+",
-                           "Rauðrfox", "Rauðrfox+", "Blárfox", "Blárfox+",
+                           "Rauðrfox", "Rauðrfox+", "Blárfox", "Blárfox+", "Gronnfox", "Gronnfox+",
                            "Spirited Spear", "Spirited Spear+",
-                           "Instant Lance", "Instant Lance+",
-
+                           "Instant Sword", "Instant Sword+", "Instant Lance", "Instant Lance+", "Instant Axe", "Instant Axe+", "Instant Bow", "Instant Bow+",
+                           "Unbound Blade", "Unbound Blade+", "Unbound Lance", "Unbound Lance+", "Unbound Axe", "Unbound Axe+",
+                           "Steadfast Sword", "Steadfast Sword+", "Steadfast Lance", "Steadfast Lance+", "Steadfast Axe", "Steadfast Axe+",
                            "Guard Sword", "Guard Sword+", "Guard Lance", "Guard Lance+", "Guard Axe", "Guard Axe+",
+                           "Rein Bow", "Rein Bow+",
+                           "Rauðrrabbit", "Rauðrrabbit+", "Blárrabbit", "Blárrabbit+",
+                           "Rauðrlion", "Rauðrlion+",
+                           "Stout Lance", "Stout Lance+",
 
                            "Legion's Axe", "Legion's Axe+", "Clarisse's Bow", "Clarisse's Bow+", "Berkut's Lance", "Berkut's Lance+",
 
@@ -189,7 +196,17 @@ def _get_valid_weapons(cur_hero):
                            "Flowing Lance", "Flowing Lance+", "Helm Bow", "Helm Bow+", "Deck Swabber", "Deck Swabber+",
                            "Courtly Bow", "Courtly Bow+", "Courtly Mask", "Courtly Mask+", "Courtly Fan", "Courtly Fan+", "Courtly Candle", "Courtly Candle+",
                            "Blackfire Breath", "Blackfire Breath+", "Pale Breath", "Pale Breath+",
-                           "Ninja Katana", "Ninja Katana+", "Ninja Yari", "Ninja Yari+", "Ninja Masakari", "Ninja Masakari+"
+                           "Ninja Katana", "Ninja Katana+", "Ninja Yari", "Ninja Yari+", "Ninja Masakari", "Ninja Masakari+",
+                           "Candy Cane", "Candy Cane+", "Tannenbaton", "Tannenbaton+", "Reindeer Bow", "Reindeer Bow+",
+                           "Plegian Bow", "Plegian Bow+", "Plegian Torch", "Plegian Torch+", "Plegian Axe", "Plegian Axe+",
+                           "Unity Blooms", "Unity Blooms+", "Amity Blooms", "Amity Blooms+", "Pact Blooms", "Pact Blooms+",
+                           "Springy Lance", "Springy Lance+", "Springy Bow", "Springy Bow+", "Springy Axe", "Springy Axe+",
+                           "Observant Staff", "Observant Staff+", "Love Bouquet", "Love Bouquet+", "Love Candelabra", "Love Candelabra+",
+                           "Victorfish", "Victorfish+", "Peachy Parfait", "Peachy Parfait+", "Sunflower Bow", "Sunflower Bow+",
+                           "Helmsman Axe", "Helmsman Axe+",
+                           "Drifting Grace", "Drifting Grace+", "Luminous Grace", "Luminous Grace+", "Staff of Twelve", "Staff of Twelve+",
+                           "Lantern Breath", "Lantern Breath+", "Spider Plush", "Spider Plush+",
+                           "Ninja Yumi", "Ninja Yumi+", "Shuriken Cleaver", "Shuriken Cleaver+", "Ninja Naginata", "Ninja Naginata+"
                            ]
 
     # Remove of different weapon
@@ -295,11 +312,11 @@ def _get_valid_assists(cur_hero):
     prf_assists = []
 
     implemented_assists = ["Heal", "Mend", "Reconcile", "Recover", "Recover+", "Martyr", "Martyr+", "Rehabilitate", "Rehabilitate+", "Restore", "Restore+",
-                           "Rescue", "Rescue+",
+                           "Rescue", "Rescue+", "Return", "Return+", "Nudge", "Nudge+",
                            "Rally Attack", "Rally Speed", "Rally Defence", "Rally Resistance",
                            "Rally Atk/Spd", "Rally Atk/Def", "Rally Atk/Res", "Rally Spd/Def", "Rally Spd/Res", "Rally Def/Res",
                            "Rally Atk/Spd+", "Rally Atk/Def+", "Rally Atk/Res+", "Rally Spd/Def+", "Rally Spd/Res+", "Rally Def/Res+",
-                           "Rally Up Atk", "Rally Up Atk+", "Rally Up Spd", "Rally Up Spd+", "Rally Up Res", "Rally Up Res+",
+                           "Rally Up Atk", "Rally Up Atk+", "Rally Up Spd", "Rally Up Spd+", "Rally Up Def", "Rally Up Def+", "Rally Up Res", "Rally Up Res+",
                            "Dance", "Sing", "Play",
                            "Harsh Command", "Harsh Command+", "Ardent Sacrifice", "Reciprocal Aid",
                            "Draw Back", "Reposition", "Swap", "Pivot", "Shove", "Smite"]
@@ -355,7 +372,7 @@ def _get_valid_specials(cur_hero):
     implemented_specials = ["Glowing Ember", "Bonfire", "Ignis", "Chilling Wind", "Iceberg", "Glacies", "New Moon", "Moonbow", "Luna",
                             "Dragon Gaze", "Draconic Aura", "Dragon Fang", "Night Sky", "Glimmer", "Astra", "Retribution", "Reprisal", "Vengeance",
                             "Daylight", "Noontime", "Sol", "Aether",
-                            "Blue Flame", "Ruptured Sky", "Deadeye",
+                            "Blue Flame", "Ruptured Sky", "Deadeye", "Lethality",
                             "Galeforce",
                             "Rising Flame", "Blazing Flame", "Growing Flame",
                             "Rising Light", "Blazing Light", "Growing Light",
@@ -647,7 +664,6 @@ class _HeroProxy:
             return
 
         # Neutral Input
-
         if self.asset == -1 and self.flaw == -1:
             self.asset = 0
             self.flaw = 0
@@ -1425,6 +1441,11 @@ class HeroListing(tk.Frame):
                     combo1['values'] = iv_strs
                     combo1.bind("<<ComboboxSelected>>", self.handle_selection_change_flaw)
 
+                if row == 4:
+                    combo1['textvariable'] = None
+                    combo1['values'] = iv_strs
+                    combo1.bind("<<ComboboxSelected>>", self.handle_selection_change_ascasset)
+
                 if row == 5:
                     combo1['textvariable'] = None
                     combo1.bind("<<ComboboxSelected>>", self.handle_selection_change_allysupport)
@@ -1483,6 +1504,11 @@ class HeroListing(tk.Frame):
         else:
             self.creation_str_vars[3].set("None")
             self.creation_str_vars[16].set("None")
+
+        if self.hero_proxy.asset != self.hero_proxy.asc_asset:
+            self.creation_str_vars[17].set(STAT_STR[self.hero_proxy.asc_asset])
+        else:
+            self.creation_str_vars[17].set("None")
 
         # Set default Asc Asset
         # creation_str_vars[16].set(STAT_STR[curProxy.asc_asset])
@@ -1613,27 +1639,27 @@ class HeroListing(tk.Frame):
             self.creation_str_vars[22].set("None")
 
         # Autofill kit
-        if self.creation_str_vars[7].get() == "None" and pd.notnull(cur_hero_row.iloc[0]["BaseWeapon"]):
+        if pd.notnull(cur_hero_row.iloc[0]["BaseWeapon"]):
             self.creation_str_vars[7].set(cur_hero_row.iloc[0]["BaseWeapon"])
             self.handle_selection_change_weapon(cur_hero_row.iloc[0]["BaseWeapon"])
 
-        if self.creation_str_vars[9].get() == "None" and pd.notnull(cur_hero_row.iloc[0]["BaseAssist"]):
+        if pd.notnull(cur_hero_row.iloc[0]["BaseAssist"]):
             self.creation_str_vars[9].set(cur_hero_row.iloc[0]["BaseAssist"])
             self.handle_selection_change_assist(cur_hero_row.iloc[0]["BaseAssist"])
 
-        if self.creation_str_vars[10].get() == "None" and pd.notnull(cur_hero_row.iloc[0]["BaseSpecial"]):
+        if pd.notnull(cur_hero_row.iloc[0]["BaseSpecial"]):
             self.creation_str_vars[10].set(cur_hero_row.iloc[0]["BaseSpecial"])
             self.handle_selection_change_special(cur_hero_row.iloc[0]["BaseSpecial"])
 
-        if self.creation_str_vars[20].get() == "None" and pd.notnull(cur_hero_row.iloc[0]["BaseA"]):
+        if pd.notnull(cur_hero_row.iloc[0]["BaseA"]):
             self.creation_str_vars[20].set(cur_hero_row.iloc[0]["BaseA"])
             self.handle_selection_change_askill(cur_hero_row.iloc[0]["BaseA"])
 
-        if self.creation_str_vars[21].get() == "None" and pd.notnull(cur_hero_row.iloc[0]["BaseB"]):
+        if pd.notnull(cur_hero_row.iloc[0]["BaseB"]):
             self.creation_str_vars[21].set(cur_hero_row.iloc[0]["BaseB"])
             self.handle_selection_change_bskill(cur_hero_row.iloc[0]["BaseB"])
 
-        if self.creation_str_vars[22].get() == "None" and pd.notnull(cur_hero_row.iloc[0]["BaseC"]):
+        if pd.notnull(cur_hero_row.iloc[0]["BaseC"]):
             self.creation_str_vars[22].set(cur_hero_row.iloc[0]["BaseC"])
             self.handle_selection_change_cskill(cur_hero_row.iloc[0]["BaseC"])
 
@@ -1839,11 +1865,18 @@ class HeroListing(tk.Frame):
     def handle_selection_change_asset(self, event=None):
         selected_value = self.creation_str_vars[3].get()
 
+        # Receiving -1 represents None
+        # Set flaw to -1 as well
         stat_int = STATS[selected_value]
 
-        # Set asc asset to new value if not present (asset same as asc_asset)
+        # Maintain property of asset being the same as the asc asset if they are currently equal
+        # Retains the property for having no Asc Asset
         if self.hero_proxy.asset == self.hero_proxy.asc_asset:
             self.hero_proxy.asc_asset = stat_int
+            self.creation_str_vars[17].set("None")
+        elif self.hero_proxy.asset != self.hero_proxy.asc_asset and stat_int == self.hero_proxy.asc_asset and self.hero_proxy.asc_asset != -1:
+            self.hero_proxy.asc_asset = (stat_int + 1) % 5
+            self.creation_str_vars[17].set(STAT_STR[self.hero_proxy.asc_asset])
 
         # Set new asset value
         self.hero_proxy.asset = stat_int
@@ -1852,6 +1885,8 @@ class HeroListing(tk.Frame):
         if self.hero_proxy.flaw == self.hero_proxy.asset or self.hero_proxy.flaw == -1:
             # Move flaw to next possible stat
             self.hero_proxy.flaw = (STATS[selected_value] + 1) % 5
+
+        # If this overlaps with the current asc asset
 
         if self.hero_proxy.asset == -1:
             self.hero_proxy.flaw = -1
@@ -1875,12 +1910,36 @@ class HeroListing(tk.Frame):
 
         if self.hero_proxy.asset == self.hero_proxy.flaw or self.hero_proxy.asset == -1:
             self.hero_proxy.asset = (stat_int + 1) % 5
-            self.hero_proxy.asc_asset = (stat_int + 1) % 5
+            self.hero_proxy.asc_asset = (stat_int + 2) % 5
 
         if self.hero_proxy.flaw == -1:
             self.hero_proxy.asset = -1
 
         self.creation_str_vars[3].set(STAT_STR[self.hero_proxy.asset])
+        self.creation_str_vars[17].set(STAT_STR[self.hero_proxy.asc_asset])
+
+        if self.created_hero is not None:
+            self.hero_proxy.apply_proxy(self.created_hero)
+
+            i = 0
+            while i < 5:
+                self.creation_stats[i].set(self.stat_strings[i] + str(self.created_hero.visible_stats[i]))
+                i += 1
+
+    def handle_selection_change_ascasset(self, event=None):
+        selected_value = self.creation_str_vars[17].get()
+
+        stat_int = STATS[selected_value]
+
+        self.hero_proxy.asc_asset = stat_int
+
+        if self.hero_proxy.asc_asset == self.hero_proxy.asset and self.hero_proxy.asset != -1:
+            self.hero_proxy.asset = (stat_int + 1) % 5
+            self.creation_str_vars[3].set(STAT_STR[self.hero_proxy.asset])
+
+        if self.hero_proxy.asset == self.hero_proxy.flaw and self.hero_proxy.flaw != -1:
+            self.hero_proxy.flaw = (stat_int + 2) % 5
+            self.creation_str_vars[16].set(STAT_STR[self.hero_proxy.flaw])
 
         if self.created_hero is not None:
             self.hero_proxy.apply_proxy(self.created_hero)
@@ -2832,8 +2891,11 @@ class UnitState:
         self.cur_status_pos = unit.statusPos[:]
         self.cur_status_neg = unit.statusNeg[:]
 
+        self.cur_status_other = deepcopy(unit.statusOther)
+
         self.sp_galeforce = unit.special_galeforce_triggered
         self.nsp_galeforce = unit.nonspecial_galeforce_triggered
+        self.once_per_map_cond = unit.once_per_map_cond
 
         self.canto = unit.canto_ready
 
@@ -2847,7 +2909,7 @@ class UnitState:
 
 # One state of the game
 class MapState:
-    def __init__(self, unit_states, struct_states, units_to_move, turn_num, reinf_points, defeated_count):
+    def __init__(self, unit_states, struct_states, units_to_move, turn_num, reinf_points, defeated_count, dv_states):
         self.unit_states = unit_states
         self.struct_states = struct_states
         self.units_to_move = units_to_move
@@ -2856,6 +2918,8 @@ class MapState:
         self.reinf_points = reinf_points
 
         self.defeated_count = deepcopy(defeated_count)
+
+        self.dv_states = dv_states
 
     def print_mapstate(self):
         print("Unit States:")
@@ -2904,7 +2968,11 @@ def create_mapstate(c_map, units_to_move, turn_num, reinf_points, defeated_count
     for tile in reinf_points:
         reinf_states[tile] = reinf_points[tile].spawns_remaining
 
-    return MapState(unit_states, struct_states, units_to_move[:], turn_num, reinf_states, defeated_count)
+    divine_vein_states = []
+    for tile in c_map.tiles:
+        divine_vein_states.append((tile.divine_vein, tile.divine_vein_side, tile.divine_vein_turn))
+
+    return MapState(unit_states, struct_states, units_to_move[:], turn_num, reinf_states, defeated_count, divine_vein_states)
 
 class GameplayCanvas(tk.Canvas):
     def __init__(self, master, hero_listing):
@@ -2987,6 +3055,9 @@ class GameplayCanvas(tk.Canvas):
         self.ar_structs = []
         self.ar_struct_tiles = []
         self.ar_struct_sprites = []
+
+        self.divine_vein_photos = []
+        self.divine_vein_sprites = []
 
         self.game_mode = hero.GameMode.Story
 
@@ -3132,7 +3203,7 @@ class GameplayCanvas(tk.Canvas):
 
             self.running = False
             self.swap_mode = False
-
+            self.canto = None
 
             for tile in self.starting_tile_photos:
                 index = self.starting_tile_photos.index(tile)
@@ -3336,7 +3407,7 @@ class GameplayCanvas(tk.Canvas):
         # Start of turn skills
         current_player_units, current_enemy_units = self.map.get_heroes_present_by_side()
 
-        damage, heals = feh.start_of_turn(current_player_units, current_enemy_units, 1, self.season, self.game_mode, self.ar_struct_tiles)
+        damage, heals, end_actions = feh.start_of_turn(current_player_units, current_enemy_units, 1, self.season, self.game_mode, self.map, self.ar_struct_tiles)
         self.refresh_walls()
 
         for unit in self.current_units[PLAYER] + self.current_units[ENEMY]:
@@ -3370,8 +3441,15 @@ class GameplayCanvas(tk.Canvas):
             unit.assistTargetedSelf = 0
             unit.assistTargetedOther = 0
 
-        mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count)
-        self.map_states.append(mapstate)
+        for unit in end_actions:
+            self.units_to_move.remove(unit)
+            self.update_unit_graphics(unit)
+
+        if self.units_to_move:
+            mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count)
+            self.map_states.append(mapstate)
+        else:
+            self.next_phase()
 
     def end_turn_button(self):
         if self.animation:
@@ -3486,8 +3564,10 @@ class GameplayCanvas(tk.Canvas):
 
             current_player_units, current_enemy_units = self.map.get_heroes_present_by_side()
 
-            damage, heals = feh.start_of_turn(current_player_units, current_enemy_units, 1, self.season, self.game_mode, self.ar_struct_tiles)
+            damage, heals, end_actions = feh.start_of_turn(current_player_units, current_enemy_units, 1, self.season, self.game_mode, self.map, self.ar_struct_tiles)
+
             self.refresh_walls()
+            self.refresh_divine_veins()
 
             for unit in current_player_units + current_enemy_units:
                 # Update transformation sprites
@@ -3520,9 +3600,16 @@ class GameplayCanvas(tk.Canvas):
 
                 unit.canto_ready = True
 
+            for unit in end_actions:
+                self.units_to_move.remove(unit)
+                self.update_unit_graphics(unit)
 
-            self.map_states.clear()
-            self.map_states.append(create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count))
+            if self.units_to_move:
+                self.map_states.clear()
+                self.map_states.append(create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count))
+            else:
+                self.next_phase()
+
 
         # Reset Action Button
         self.button_frame.action_button.config(state='disabled', text='Action\nButton')
@@ -3604,9 +3691,11 @@ class GameplayCanvas(tk.Canvas):
             unit.debuffs = mapstate.unit_states[unit].cur_debuffs[:]
             unit.statusPos = mapstate.unit_states[unit].cur_status_pos[:]
             unit.statusNeg = mapstate.unit_states[unit].cur_status_neg[:]
+            unit.statusOther = deepcopy(mapstate.unit_states[unit].cur_status_other)
 
             unit.special_galeforce_triggered = mapstate.unit_states[unit].sp_galeforce
             unit.nonspecial_galeforce_triggered = mapstate.unit_states[unit].nsp_galeforce
+            unit.once_per_map_cond = mapstate.unit_states[unit].once_per_map_cond
             unit.canto_ready = mapstate.unit_states[unit].canto
 
             if unit.tile:
@@ -3649,30 +3738,41 @@ class GameplayCanvas(tk.Canvas):
         for struct in mapstate.struct_states.keys():
             struct.health = mapstate.struct_states[struct]
 
+        i = 0
+        while i < len(mapstate.dv_states):
+            self.map.tiles[i].divine_vein = mapstate.dv_states[i][0]
+            self.map.tiles[i].divine_vein_side = mapstate.dv_states[i][1]
+            self.map.tiles[i].divine_vein_turn = mapstate.dv_states[i][2]
+            i += 1
+
         for spawn_tile in mapstate.reinf_points.keys():
             self.unit_reinf_points[spawn_tile].spawns_remaining = mapstate.reinf_points[spawn_tile]
 
         self.enemy_defeated_count = mapstate.defeated_count
 
         self.refresh_walls()
+        self.refresh_divine_veins()
 
     def next_phase(self):
+
+        # Reset Action Button
         self.after(1, partial(self.button_frame.action_button.config, state='disabled', text='Action\nButton'))
         CreateToolTip(self.button_frame.action_button, text='')
 
+        # Disable Swap, Enable Undo
         self.button_frame.swap_spaces_button.config(state="disabled")
         self.button_frame.undo_button.config(state="normal")
 
+        # Switch sides
         self.turn_info[1] = abs(self.turn_info[1] - 1)
 
+        # Remove units left to move
         units_to_move_CACHE = self.units_to_move[:]
 
         while self.units_to_move:
             self.units_to_move.pop()
 
         current_player_units, current_enemy_units = self.map.get_heroes_present_by_side()
-
-        # clear banner
 
         # PLAYER PHASE
         if self.turn_info[1] == PLAYER:
@@ -3750,7 +3850,6 @@ class GameplayCanvas(tk.Canvas):
                 n += 1
 
             # Loop 2, points with only turn conditions are checked second
-
             n = 0
             for spawn_point in self.unit_reinf_points.values():
 
@@ -3804,35 +3903,46 @@ class GameplayCanvas(tk.Canvas):
 
             print("---- PLAYER PHASE ----")
 
+            # EDIT BUTTON FRAME TEXT TO DISPLAY TURN NUMBER
             self.turn_info[0] += 1
             self.button_frame.help_info.config(text="Turn " + str(self.turn_info[0]) + ": Player Phase", font=("Helvetica", 16), fg="DodgerBlue2")
 
-            # EDIT BUTTON FRAME TEXT TO DISPLAY TURN NUMBER
 
+            # Clear buffs, refresh galeforce/canto
             for x in current_player_units:
                 self.units_to_move.append(x)
                 x.statusPos = []
                 x.buffs = [0] * 5
                 x.special_galeforce_triggered = False
+                x.nonspecial_galeforce_triggered = False
                 x.canto_ready = True
 
+                # Advance duo skill
                 if x.duo_cooldown > 0 and x.duo_skill.skill_refresh % self.turn_info[0] == 1:
                     x.duo_cooldown = 0
 
+                # Clear buffs, refresh galeforce/canto of cohort
                 if x.pair_up_obj:
                     x.pair_up_obj.statusPos = []
                     x.pair_up_obj.buffs = [0] * 5
                     x.pair_up_obj.special_galeforce_triggered = False
+                    x.pair_up_obj.nonspecial_galeforce_triggered = False
                     x.pair_up_obj.canto_ready = True
 
+            # Add player units to move
             for x in current_enemy_units:
                 if x in units_to_move_CACHE:
                     x.statusNeg = []
                     x.debuffs = [0] * 5
 
-            damage, heals = feh.start_of_turn(current_player_units, current_enemy_units, self.turn_info[0], self.season, self.game_mode, self.ar_struct_tiles)
+            for tile in self.map.tiles:
+                if tile.divine_vein != 0 and tile.divine_vein_side == PLAYER and tile.divine_vein_turn >= 1:
+                    tile.divine_vein_turn -= 1
 
-            self.refresh_walls()
+            damage, heals, end_actions = feh.start_of_turn(current_player_units, current_enemy_units, self.turn_info[0], self.season, self.game_mode, self.map, self.ar_struct_tiles)
+
+            #self.refresh_walls()
+            self.refresh_divine_veins()
 
         # ENEMY PHASE
         else:
@@ -3847,6 +3957,7 @@ class GameplayCanvas(tk.Canvas):
                 x.statusPos = []
                 x.buffs = [0] * 5
                 x.special_galeforce_triggered = False
+                x.nonspecial_galeforce_triggered = False
                 x.canto_ready = True
 
                 if x.duo_cooldown > 0 and x.duo_skill.skill_refresh % self.turn_info[0] == 1:
@@ -3862,8 +3973,14 @@ class GameplayCanvas(tk.Canvas):
                         x.pair_up_obj.statusNeg = []
                         x.pair_up_obj.debuffs = [0] * 5
 
-            damage, heals = feh.start_of_turn(current_enemy_units, current_player_units, self.turn_info[0], self.season, self.game_mode, self.ar_struct_tiles)
-            self.refresh_walls()
+            for tile in self.map.tiles:
+                if tile.divine_vein != 0 and tile.divine_vein_side == ENEMY and tile.divine_vein_turn >= 1:
+                    tile.divine_vein_turn -= 1
+
+            damage, heals, end_actions = feh.start_of_turn(current_enemy_units, current_player_units, self.turn_info[0], self.season, self.game_mode, self.map, self.ar_struct_tiles)
+
+            #self.refresh_walls()
+            self.refresh_divine_veins()
 
         for unit in current_player_units + current_enemy_units:
             # Update transformation sprites
@@ -3935,8 +4052,15 @@ class GameplayCanvas(tk.Canvas):
                 unit.pair_up_obj.assistTargetedSelf = 0
                 unit.pair_up_obj.assistTargetedOther = 0
 
-        mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count)
-        self.map_states.append(mapstate)
+        for unit in end_actions:
+            self.units_to_move.remove(unit)
+            self.update_unit_graphics(unit)
+
+        if self.units_to_move:
+            mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count)
+            self.map_states.append(mapstate)
+        else:
+            self.next_phase()
 
         return
 
@@ -4159,7 +4283,7 @@ class GameplayCanvas(tk.Canvas):
             # Move lower
             CreateToolTip(self.button_frame.action_button, cur_hero.duo_skill.desc)
 
-            if self.turn_info[1] == PLAYER and cur_hero.duo_cooldown == 0 and feh.can_use_duo_skill(cur_hero) and not self.swap_mode and not is_canto_move:
+            if self.turn_info[1] == PLAYER and cur_hero.duo_cooldown == 0 and feh.can_use_duo_skill(cur_hero, self.units_to_move) and not self.swap_mode and not is_canto_move:
                 self.button_frame.action_button.config(state='normal', command=partial(self.use_duo_skill, cur_hero))
             else:
                 self.button_frame.action_button.config(state='disabled')
@@ -4233,7 +4357,7 @@ class GameplayCanvas(tk.Canvas):
         TILE_GREEN = 4
         TILE_PALE_GREEN = 5
 
-        # Create blue tiles for each possible movement
+        # Create blue tiles for each possible movements
         if not (self.canto is not None and cur_hero == self.canto) and not self.swap_mode:
             for move in moves_obj_array:
                 x_comp = move.destination % 6
@@ -4450,7 +4574,7 @@ class GameplayCanvas(tk.Canvas):
 
                             feint_skills = ["atkFeint", "spdFeint", "defFeint", "resFeint"]
                             ruse_skills = ["atkSpdRuse", "atkDefRuse", "atkResRuse", "spdDefRuse", "spdResRuse", "defResRuse"]
-                            self_exceptions = ["annetteRally", "annetteBoost", "hubertRuse", "shigureLink", "merlinusRally"]
+                            self_exceptions = ["annetteRally", "annetteBoost", "hubertRuse", "shigureLink", "merlinusRally", "astridRally"]
                             ally_exceptions = ["hubertRuse", "shigureLink"]
 
                             for skill in feint_skills + ruse_skills:
@@ -4484,8 +4608,12 @@ class GameplayCanvas(tk.Canvas):
                                 valid_ally_cond = ally.HPcur != ally.visible_stats[HP]
 
                             elif "sacrifice" in cur_hero.assist.effects:
-                                valid_unit_cond = cur_hero.HPcur > 1
-                                valid_ally_cond = ally.HPcur != ally.visible_stats[HP] or sum(ally.debuffs) < 0 and Status.DeepWounds not in ally.statusNeg
+                                valid_unit_cond = cur_hero.HPcur > 1 or sum(ally.debuffs) < 0
+                                valid_ally_cond = sum(ally.debuffs) < 0 or  ally.HPcur != ally.visible_stats[HP] and Status.DeepWounds not in ally.statusNeg
+
+                            elif "maidenSolace" in cur_hero.assist.effects:
+                                valid_unit_cond = cur_hero.HPcur > 1 or sum(ally.debuffs) < 0 or ally.statusNeg
+                                valid_ally_cond = (ally.HPcur != ally.visible_stats[HP] and Status.DeepWounds not in ally.statusNeg) or sum(ally.debuffs) < 0 or ally.statusNeg
 
                             elif "harsh_comm" in cur_hero.assist.effects:
                                 valid_unit_cond = True
@@ -4541,6 +4669,7 @@ class GameplayCanvas(tk.Canvas):
                 curTile = self.create_image(cur_pixel_offset_x, cur_pixel_offset_y, anchor=tk.NW, image=self.move_tile_photos[TILE_PALE_RED])
                 self.tile_sprites.append(curTile)
 
+
         # Raise enemy team
         i = 0
         while i < len(self.all_units[S - 1]):
@@ -4589,6 +4718,7 @@ class GameplayCanvas(tk.Canvas):
             self.tag_raise(self.unit_hp_bars_fg[S][i])
             i += 1
 
+        
         # Raise self
         self.tag_raise(self.unit_sprites[S][item_index])
         self.tag_raise(self.unit_sprites_gs[S][item_index])
@@ -4608,6 +4738,7 @@ class GameplayCanvas(tk.Canvas):
         self.tag_raise(self.unit_hp_bars_bg[S][item_index])
         self.tag_raise(self.unit_hp_bars_fg[S][item_index])
 
+
         sdd['arrow_path'] = []
         sdd['attack_range'] = attack_range
         sdd['assist_range'] = confirmed_assists
@@ -4626,7 +4757,11 @@ class GameplayCanvas(tk.Canvas):
 
         if self.tile_sprites:
             for ar_sprite in self.ar_struct_sprites:
-                self.tag_lower(ar_sprite, self.tile_sprites[0])
+                self.tag_lower(ar_sprite, min(self.tile_sprites[0], min(self.divine_vein_sprites, default=self.tile_sprites[0] + 1)))
+
+        self.refresh_divine_veins()
+
+            #self.tag_raise(self.tile_sprites[0], ar_sprite)
 
         return
 
@@ -4745,14 +4880,14 @@ class GameplayCanvas(tk.Canvas):
                 savior_unit = None
 
                 for ally in feh.allies_within_n(cur_tile_Obj.hero_on, 2):
-                    if targeting_range == 1 and "nearSavior" in ally.getSkills() and hero.Status.Undefended not in ally.statusNeg:
+                    if targeting_range == 1 and "nearSavior" in ally.getSkills() and (ally.getSkills()["nearSavior"] == 2 or ally in feh.allies_within_n(cur_tile_Obj.hero_on, 1)) and hero.Status.Undefended not in ally.statusNeg:
                         if savior_unit is None:
                             savior_unit = ally
                         else:
                             savior_unit = None
                             break
 
-                    elif targeting_range == 2 and "farSavior" in ally.getSkills() and hero.Status.Undefended not in ally.statusNeg:
+                    elif targeting_range == 2 and "farSavior" in ally.getSkills() and (ally.getSkills()["farSavior"] == 2 or ally in feh.allies_within_n(cur_tile_Obj.hero_on, 1)) and hero.Status.Undefended not in ally.statusNeg:
                         if savior_unit is None:
                             savior_unit = ally
                         else:
@@ -5545,7 +5680,7 @@ class GameplayCanvas(tk.Canvas):
                 # Set burn damages
                 if burn_damages[PLAYER] > 0:
                     initiated_enemy.HPcur = max(1, initiated_enemy.HPcur - burn_damages[PLAYER])
-                    self.after(300 + aoe_present, self.set_hp_visual, enemy, initiated_enemy.HPcur)
+                    self.after(300 + aoe_present, self.set_hp_visual, initiated_enemy, initiated_enemy.HPcur)
                     self.after(300 + aoe_present, self.animate_damage_popup, burn_damages[PLAYER], enemy_tile)
 
                 if burn_damages[ENEMY] > 0:
@@ -5554,17 +5689,31 @@ class GameplayCanvas(tk.Canvas):
                     self.after(300 + aoe_present, self.animate_damage_popup, burn_damages[ENEMY], player_tile)
 
             # Perform BOL heals
+            precombat_heals = combat_result[15]
 
-            # ------------- INSERT HERE -------------
+            heals_present = 0
 
+            if precombat_heals[PLAYER] > 0 or precombat_heals[ENEMY] > 0:
+                heals_present = 400
+
+                # Set precombat heals
+                if precombat_heals[PLAYER] > 0:
+                    player.HPcur = min(player.visible_stats[HP], player.HPcur + precombat_heals[PLAYER])
+                    self.after(300 + aoe_present + burn_present, self.set_hp_visual, player, player.HPcur)
+                    self.after(300 + aoe_present + burn_present, self.animate_heal_popup, precombat_heals[PLAYER], player_tile)
+
+                if precombat_heals[ENEMY] > 0:
+                    initiated_enemy.HPcur = min(initiated_enemy.visible_stats[HP], initiated_enemy.HPcur + precombat_heals[ENEMY])
+                    self.after(300 + aoe_present + burn_present, self.set_hp_visual, initiated_enemy, initiated_enemy.HPcur)
+                    self.after(300 + aoe_present + burn_present, self.animate_heal_popup, precombat_heals[ENEMY], enemy_tile)
 
             # Visualization of the blows trading
             i = 0
 
             # Iterate over the attacks
             while i < len(attacks):
-                move_time = i * 500 + 200 + aoe_present + burn_present + savior_present# when move starts per hit
-                impact_time = i * 500 + 300 + aoe_present + burn_present + savior_present # when damage numbers show per hit
+                move_time = i * 500 + 200 + aoe_present + burn_present + heals_present + savior_present# when move starts per hit
+                impact_time = i * 500 + 300 + aoe_present + burn_present + heals_present + savior_present # when damage numbers show per hit
 
                 # PLAYER SIDE ATTACKS
                 if attacks[i].attackOwner == PLAYER:
@@ -5634,7 +5783,7 @@ class GameplayCanvas(tk.Canvas):
                 i += 1
 
             # Finalized finish time, animation will end here
-            finish_time = 500 * (i + 1) + 200 + aoe_present + burn_present + 2 * savior_present
+            finish_time = 500 * (i + 1) + 200 + aoe_present + burn_present + heals_present + 2 * savior_present
 
             # Move savior unit back
             if savior_unit:
@@ -5661,7 +5810,7 @@ class GameplayCanvas(tk.Canvas):
 
             # Get exact changes to be enacted by post-combat effects
             current_player_units, current_enemy_units = self.map.get_heroes_present_by_side()
-            damage_taken, heals_given, sp_charges = feh.end_of_combat(atk_effects, def_effects, player, targeted_enemy, savior_unit)
+            damage_taken, heals_given, absolute_heals_given, sp_charges, divine_veins = feh.end_of_combat(atk_effects, def_effects, player, targeted_enemy, savior_unit)
 
             # Post combat damage/healing/sp charges across the field
             for x in current_player_units + current_enemy_units:
@@ -5670,8 +5819,12 @@ class GameplayCanvas(tk.Canvas):
                     hp_change -= damage_taken[x]
                 if x in heals_given and Status.DeepWounds not in x.statusNeg:
                     hp_change += heals_given[x]
+                if x in absolute_heals_given:
+                    hp_change += absolute_heals_given[x]
 
                 if hp_change != 0:
+                    x.HPcur = max(1, min(x.HPcur + hp_change, x.visible_stats[HP]))
+
                     if hp_change > 0:
                         self.after(finish_time, self.animate_heal_popup, hp_change, x.tile.tileNum)
                     if hp_change < 0:
@@ -5698,6 +5851,22 @@ class GameplayCanvas(tk.Canvas):
 
                 self.after(finish_time, self.set_text_val, x_hp_label, x.HPcur)
                 self.after(finish_time, self.set_hp_bar_length, x_hp_bar, hp_percentage)
+
+            # Apply divine veins
+
+            # Remove duplicate values across multiple sets
+            counter = Counter(num for arr in divine_veins.values() for num in arr)
+            divine_veins = {key: [num for num in arr if counter[num] == 1] for key, arr in divine_veins.items()}
+
+            if (player, "haze") in divine_veins:
+                for tile_int in divine_veins[(player, "haze")]:
+                    cur_tile_struct = self.map.tiles[tile_int].structure_on
+                    if self.map.tiles[tile_int].terrain != 4 and (not cur_tile_struct or (cur_tile_struct and cur_tile_struct.health != -1)):
+                        self.map.tiles[tile_int].divine_vein = DV_HAZE
+                        self.map.tiles[tile_int].divine_vein_side = player.side
+                        self.map.tiles[tile_int].divine_vein_turn = 1
+
+            self.after(finish_time, self.refresh_divine_veins)
 
             # Movement-based skills after combat
             player_tile_number = player.tile.tileNum
@@ -5870,6 +6039,10 @@ class GameplayCanvas(tk.Canvas):
                     player.nonspecial_galeforce_triggered = True
                     galeforce_triggered = True
 
+                elif "IT'S ME" in player.getSkills() and player.transformed and not player.nonspecial_galeforce_triggered:
+                    player.nonspecial_galeforce_triggered = True
+                    galeforce_triggered = True
+
                 # Lone Wolf (Combat)
                 elif "lone_wolf" in player.getSkills() and player.assistTargetedOther == 0 and player.assistTargetedSelf == 0 and not player.nonspecial_galeforce_triggered:
                     player.nonspecial_galeforce_triggered = True
@@ -5897,6 +6070,30 @@ class GameplayCanvas(tk.Canvas):
 
                         if player.pair_up_obj:
                             player.pair_up_obj.inflictStatus(Status.Gravity)
+
+                elif "requiemDance" in player.getSkills() and player.specialCount == 0 and not player.special_galeforce_triggered:
+                    highest_hp = []
+                    for ally in feh.allies_within_n(player, 2):
+                        if not highest_hp or ally.HPcur == highest_hp[0].HPcur and ally not in self.units_to_move:
+                            highest_hp.append(ally)
+                        elif ally.HPcur > highest_hp[0].HPcur:
+                            highest_hp = [ally]
+
+                    if len(highest_hp) == 1:
+                        highest_hp_ally = highest_hp[0]
+
+                        player.special_galeforce_triggered = True
+                        player.specialCount = player.specialMax
+
+                        self.units_to_move.append(highest_hp_ally)
+                        self.after(finish_time, self.update_unit_graphics, highest_hp_ally)
+
+                        highest_hp_ally.inflictStatus(Status.Gravity)
+
+                        if highest_hp_ally.pair_up_obj:
+                            highest_hp_ally.pair_up_obj.inflictStatus(Status.Gravity)
+
+                        self.after(finish_time, self.refresh_unit_visuals_obj, player)
 
                 if galeforce_triggered:
                     self.after(finish_time, self.update_unit_graphics, player)
@@ -6067,6 +6264,14 @@ class GameplayCanvas(tk.Canvas):
 
                 # Restore (+)
                 if "restore" in player.assist.effects:
+                    if Status.Schism in ally.statusNeg:
+                        if Status.Pathfinder in ally.statusPos:
+                            ally.statusPos.remove(Status.Pathfinder)
+                        if Status.TriangleAttack in ally.statusPos:
+                            ally.statusPos.remove(Status.TriangleAttack)
+                        if Status.DualStrike in ally.statusPos:
+                            ally.statusPos.remove(Status.DualStrike)
+
                     ally.debuffs = [0, 0, 0, 0, 0]
                     ally.statusNeg.clear()
 
@@ -6442,6 +6647,43 @@ class GameplayCanvas(tk.Canvas):
                 self.set_hp_visual(player, player.HPcur)
                 self.set_hp_visual(ally, ally.HPcur)
 
+                i = 1
+                while i < len(ally.debuffs):
+                    ally.buffs[i] = max(abs(ally.debuffs[i]), ally.buffs[i])
+                    ally.debuffs[i] = 0
+                    i += 1
+
+            if "maidenSolace" in player.assist.effects:
+                unit_final_position = player.tile.tileNum
+                ally_final_position = ally.tile.tileNum
+
+                if Status.Schism in ally.statusNeg:
+                    if Status.Pathfinder in ally.statusPos:
+                        ally.statusPos.remove(Status.Pathfinder)
+                    if Status.TriangleAttack in ally.statusPos:
+                        ally.statusPos.remove(Status.TriangleAttack)
+                    if Status.DualStrike in ally.statusPos:
+                        ally.statusPos.remove(Status.DualStrike)
+
+                ally.statusNeg.clear()
+
+                i = 1
+                while i < len(ally.debuffs):
+                    ally.buffs[i] = max(abs(ally.debuffs[i]), ally.buffs[i])
+                    ally.debuffs[i] = 0
+                    i += 1
+
+                capped_hp = min(player.HPcur - 1, ally.visible_stats[HP] - ally.HPcur)
+
+                player.HPcur -= capped_hp
+                ally.HPcur += capped_hp
+
+                self.animate_heal_popup(capped_hp, ally.tile.tileNum)
+                self.animate_damage_popup(capped_hp, player.tile.tileNum)
+
+                self.set_hp_visual(player, player.HPcur)
+                self.set_hp_visual(ally, ally.HPcur)
+
             # Harsh Command
             if "harsh_comm" in player.assist.effects:
                 unit_final_position = player.tile.tileNum
@@ -6456,6 +6698,14 @@ class GameplayCanvas(tk.Canvas):
             if "harsh_comm_plus" in player.assist.effects:
                 unit_final_position = player.tile.tileNum
                 ally_final_position = ally.tile.tileNum
+
+                if Status.Schism in ally.statusNeg:
+                    if Status.Pathfinder in ally.statusPos:
+                        ally.statusPos.remove(Status.Pathfinder)
+                    if Status.TriangleAttack in ally.statusPos:
+                        ally.statusPos.remove(Status.TriangleAttack)
+                    if Status.DualStrike in ally.statusPos:
+                        ally.statusPos.remove(Status.DualStrike)
 
                 ally.statusNeg.clear()
 
@@ -6580,11 +6830,27 @@ class GameplayCanvas(tk.Canvas):
                         x.inflictStat(RES, stat_boost * 2)
 
                 if "atkSpdLinkW" in playerSkills or "atkSpdLinkW" in allySkills:
-                    affected_units = [player, ally]
-
-                    for x in affected_units:
+                    for x in [player, ally]:
                         x.inflictStat(ATK, 6)
                         x.inflictStat(SPD, 6)
+
+                if "atkSpdSnag" in playerSkills or "atkSpdSnag" in allySkills:
+                    stat_penalty = max(playerSkills.get("atkSpdSnag", 0), allySkills.get("atkSpdSnag", 0))
+
+                    affected_units = list(set(feh.nearest_foes_within_n(player, 4) + feh.nearest_foes_within_n(ally, 4)))
+
+                    for x in affected_units:
+                        x.inflictStat(ATK, -stat_penalty)
+                        x.inflictStat(SPD, -stat_penalty)
+
+                if "atkDefSnag" in playerSkills or "atkDefSnag" in allySkills:
+                    stat_penalty = max(playerSkills.get("atkDefSnag", 0), allySkills.get("atkDefSnag", 0))
+
+                    affected_units = list(set(feh.nearest_foes_within_n(player, 4) + feh.nearest_foes_within_n(ally, 4)))
+
+                    for x in affected_units:
+                        x.inflictStat(ATK, -stat_penalty)
+                        x.inflictStat(DEF, -stat_penalty)
 
                 if "spdDefSnag" in playerSkills or "spdDefSnag" in allySkills:
                     stat_penalty = max(playerSkills.get("spdDefSnag", 0), allySkills.get("spdDefSnag", 0))
@@ -6602,6 +6868,15 @@ class GameplayCanvas(tk.Canvas):
 
                     for x in affected_units:
                         x.inflictStat(SPD, -stat_penalty)
+                        x.inflictStat(RES, -stat_penalty)
+
+                if "defResSnag" in playerSkills or "defResSnag" in allySkills:
+                    stat_penalty = max(playerSkills.get("defResSnag", 0), allySkills.get("defResSnag", 0))
+
+                    affected_units = list(set(feh.nearest_foes_within_n(player, 4) + feh.nearest_foes_within_n(ally, 4)))
+
+                    for x in affected_units:
+                        x.inflictStat(DEF, -stat_penalty)
                         x.inflictStat(RES, -stat_penalty)
 
                 if "laslowShmovement" in playerSkills or "laslowShmovement" in allySkills:
@@ -6717,45 +6992,24 @@ class GameplayCanvas(tk.Canvas):
                     for foe in valid_foes:
                         foe.inflictStat(RES, -stat_debuff)
 
-                if "atkSpdRuse" in playerSkills or "atkSpdRuse" in allySkills:
-                    stat_debuff = max(playerSkills.get("atkSpdRuse", 0), allySkills.get("atkSpdRuse", 0))
+                # Ruse skills
+                skill_stat_map = {
+                    "atkSpdRuse": [ATK, SPD],
+                    "atkDefRuse": [ATK, DEF],
+                    "atkResRuse": [ATK, RES],
+                    "spdDefRuse": [SPD, DEF],
+                    "spdResRuse": [SPD, RES],
+                    "defResRuse": [DEF, RES],
+                }
 
-                    for foe in valid_foes:
-                        foe.inflictStatus(Status.Guard)
-                        foe.inflictStat(ATK, -stat_debuff)
-                        foe.inflictStat(SPD, -stat_debuff)
+                for skill, stats in skill_stat_map.items():
+                    if skill in playerSkills or skill in allySkills:
+                        stat_debuff = max(playerSkills.get(skill, 0), allySkills.get(skill, 0))
 
-                if "atkDefRuse" in playerSkills or "atkDefRuse" in allySkills:
-                    stat_debuff = max(playerSkills.get("atkDefRuse", 0), allySkills.get("atkDefRuse", 0))
-
-                    for foe in valid_foes:
-                        foe.inflictStatus(Status.Guard)
-                        foe.inflictStat(ATK, -stat_debuff)
-                        foe.inflictStat(DEF, -stat_debuff)
-
-                if "spdDefRuse" in playerSkills or "spdDefRuse" in allySkills:
-                    stat_debuff = max(playerSkills.get("spdDefRuse", 0), allySkills.get("spdDefRuse", 0))
-
-                    for foe in valid_foes:
-                        foe.inflictStatus(Status.Guard)
-                        foe.inflictStat(SPD, -stat_debuff)
-                        foe.inflictStat(DEF, -stat_debuff)
-
-                if "spdResRuse" in playerSkills or "spdResRuse" in allySkills:
-                    stat_debuff = max(playerSkills.get("spdResRuse", 0), allySkills.get("spdResRuse", 0))
-
-                    for foe in valid_foes:
-                        foe.inflictStatus(Status.Guard)
-                        foe.inflictStat(SPD, -stat_debuff)
-                        foe.inflictStat(RES, -stat_debuff)
-
-                if "defResRuse" in playerSkills or "defResRuse" in allySkills:
-                    stat_debuff = max(playerSkills.get("defResRuse", 0), allySkills.get("defResRuse", 0))
-
-                    for foe in valid_foes:
-                        foe.inflictStatus(Status.Guard)
-                        foe.inflictStat(DEF, -stat_debuff)
-                        foe.inflictStat(RES, -stat_debuff)
+                        for foe in valid_foes:
+                            foe.inflictStatus(Status.Guard)
+                            for stat in stats:
+                                foe.inflictStat(stat, -stat_debuff)
 
                 if "annetteRally" in playerSkills and not(ally.wpnType in RANGED_WEAPONS and ally.move == 1):
                     ally.inflictStatus(Status.MobilityUp)
@@ -6766,6 +7020,11 @@ class GameplayCanvas(tk.Canvas):
                     if player.assistTargetedOther == 1:
                         galeforce_triggered = True
 
+                if "astridRally" in playerSkills:
+                    ally.inflictStatus(Status.BonusDoubler)
+
+                    if not(ally.wpnType in RANGED_WEAPONS and ally.move == 1):
+                        ally.inflictStatus(Status.MobilityUp)
 
             # Keep your turn after using assist
 
@@ -6870,6 +7129,7 @@ class GameplayCanvas(tk.Canvas):
 
             # Refresh all walls
             self.refresh_walls()
+            self.refresh_divine_veins()
 
             self.extras.clear_forecast_banner()
 
@@ -6889,7 +7149,7 @@ class GameplayCanvas(tk.Canvas):
                     else:
                         self.after(finish_time, partial(self.button_frame.action_button.config, text='Harmonic\nSkill'))
 
-                    if self.turn_info[1] == PLAYER and cur_unit.duo_cooldown == 0 and feh.can_use_duo_skill(cur_unit) and not self.swap_mode:
+                    if self.turn_info[1] == PLAYER and cur_unit.duo_cooldown == 0 and feh.can_use_duo_skill(cur_unit, self.units_to_move) and not self.swap_mode:
                         self.after(finish_time, partial(self.button_frame.action_button.config, state='normal', command=partial(self.use_duo_skill, cur_unit)))
                     else:
                         self.after(finish_time, partial(self.button_frame.action_button.config, state='disabled'))
@@ -7617,6 +7877,66 @@ class GameplayCanvas(tk.Canvas):
                     for sprite in self.wall_sprites:
                         self.tag_lower(sprite, self.unit_sprites[ENEMY][0])
 
+    def refresh_divine_veins(self):
+        veins = ["Stone", "Flame", "Green", "Haze", "Water", "Ice"]
+        offsets = [(1, -6), (-15, -26), (-7, -3), (-4, -18), (-5, -5), (-4, 1)]
+
+        # Initialize Divine Vein photos
+
+        if not self.divine_vein_photos:
+            for vein in veins:
+                cur_vein_img = Image.open("CombatSprites/Vein_" + vein + "_Player.png")
+                cur_vein_photo = ImageTk.PhotoImage(cur_vein_img)
+                self.divine_vein_photos.append(cur_vein_photo)
+
+            for vein in veins:
+                cur_vein_img = Image.open("CombatSprites/Vein_" + vein + "_Enemy.png")
+                cur_vein_photo = ImageTk.PhotoImage(cur_vein_img)
+                self.divine_vein_photos.append(cur_vein_photo)
+
+
+        for sprite in self.divine_vein_sprites:
+            self.delete(sprite)
+
+        self.divine_vein_sprites.clear()
+
+        # Create photos
+        for tile in self.map.tiles:
+            if tile.divine_vein != 0 and tile.divine_vein_turn >= 1:
+
+                local_vein_type = tile.divine_vein - 1
+
+                enemy_offset = 0 if tile.divine_vein_side == PLAYER else len(self.divine_vein_photos) // 2
+
+                vein_photo = self.divine_vein_photos[local_vein_type + enemy_offset]
+
+                visual_x = tile.x_coord * 90
+                visual_y = 630 - (90 * tile.y_coord)
+
+                vein_sprite = self.create_image(visual_x + offsets[local_vein_type][0], visual_y + offsets[local_vein_type][1], anchor='nw', image=vein_photo)
+                vein_text_shadow = self.create_text(visual_x + 45, visual_y + 45, anchor='center', text=str(tile.divine_vein_turn), font=("Helvetica", 25, 'bold'), fill="black")
+                vein_text = self.create_text(visual_x - 2 + 45, visual_y - 3 + 45, anchor='center', text=str(tile.divine_vein_turn), font=("Helvetica", 25, 'bold'), fill="LightCyan2")
+
+                # Place behind players (if any)
+                if self.unit_sprites[PLAYER] + self.unit_sprites[ENEMY]:
+                    self.tag_lower(vein_sprite, min(self.unit_sprites[PLAYER] + self.unit_sprites[ENEMY]))
+                    self.tag_lower(vein_text_shadow, min(self.unit_sprites[PLAYER] + self.unit_sprites[ENEMY]))
+                    self.tag_lower(vein_text, min(self.unit_sprites[PLAYER] + self.unit_sprites[ENEMY]))
+
+                # Place above walls (if any)
+                if self.wall_sprites + self.ar_struct_sprites:
+                    self.tag_raise(vein_sprite, max(self.wall_sprites + self.ar_struct_sprites))
+
+                # Layer divine vein info of itself correctly
+                self.tag_raise(vein_text_shadow, vein_sprite)
+                self.tag_raise(vein_text, vein_text_shadow)
+
+                # Store sprites
+                self.divine_vein_sprites.append(vein_sprite)
+                self.divine_vein_sprites.append(vein_text_shadow)
+                self.divine_vein_sprites.append(vein_text)
+
+
     # Refresh unit graphics and objects while in preparation mode
     def refresh_units_prep(self):
         self.all_units = [[], []]
@@ -7823,6 +8143,11 @@ class GameplayCanvas(tk.Canvas):
 
         self.extras.setup_tabs(self.unit_drag_points, None, self.game_mode, self.running, self.get_struct_levels())
 
+        for tile in self.map.tiles:
+            tile.divine_vein = 0
+
+        self.refresh_divine_veins()
+
     # Generate sprites for cohort units, if any
     def set_cohort_sprites(self):
         self.cohort_photos = []
@@ -7984,6 +8309,7 @@ class GameplayCanvas(tk.Canvas):
                      'within_4_spaces': unit.tile.unitsWithinNSpaces(4),
                      'nearest_self': feh.nearest_allies_within_n(unit, 16) + feh.nearest_foes_within_n(unit, 16),
                      'within_3_columns': unit.tile.unitsWithinNCols(3),
+                     'within_3_rows': unit.tile.unitsWithinNRows(3),
                      'within_3_rows_or_cols': feh.allies_within_n_cardinal(unit, 3) + feh.foes_within_n_cardinal(unit, 3),
                      'within_5_rows_and_cols': feh.allies_within_n_box(unit, 5) + feh.foes_within_n_box(unit, 5),
                      'global': unit.tile.unitsWithinNSpaces(16)
@@ -7998,6 +8324,7 @@ class GameplayCanvas(tk.Canvas):
                        'self_and_allies_flying_armored': feh.allies_flying_armored_plus_unit,
                        'self_and_same_game_allies': feh.allies_same_game_plus_unit,
                        'foes': feh.foes_in_group,
+                       'foes_ranged_nonflier': feh.foes_in_group_ranged_nonflier
                        }
 
         # APPLY DUO SKILL EFFECTS
@@ -8010,54 +8337,78 @@ class GameplayCanvas(tk.Canvas):
 
             if effect['effect'] == "clear_penalties":
                 for x in targeted_units:
+                    if Status.Schism in x.statusNeg:
+                        if Status.Pathfinder in x.statusPos:
+                            x.statusPos.remove(Status.Pathfinder)
+                        if Status.TriangleAttack in x.statusPos:
+                            x.statusPos.remove(Status.TriangleAttack)
+                        if Status.DualStrike in x.statusPos:
+                            x.statusPos.remove(Status.DualStrike)
+
                     x.statusNeg.clear()
                     x.debuffs = [0, 0, 0, 0, 0]
 
             if effect['effect'] == "buff_atk":
                 for x in targeted_units:
-                    x.inflictStat(ATK, effect[1])
+                    x.inflictStat(ATK, effect['degree'])
 
             if effect['effect'] == "buff_spd":
                 for x in targeted_units:
-                    x.inflictStat(SPD, effect[1])
+                    x.inflictStat(SPD, effect['degree'])
 
             if effect['effect'] == "buff_def":
                 for x in targeted_units:
-                    x.inflictStat(DEF, effect[1])
+                    x.inflictStat(DEF, effect['degree'])
 
             if effect['effect'] == "buff_res":
                 for x in targeted_units:
-                    x.inflictStat(RES, effect[1])
+                    x.inflictStat(RES, effect['degree'])
 
             if effect['effect'] == "buff_omni":
                 for x in targeted_units:
-                    x.inflictStat(ATK, effect[1])
-                    x.inflictStat(SPD, effect[1])
-                    x.inflictStat(DEF, effect[1])
-                    x.inflictStat(RES, effect[1])
+                    x.inflictStat(ATK, effect['degree'])
+                    x.inflictStat(SPD, effect['degree'])
+                    x.inflictStat(DEF, effect['degree'])
+                    x.inflictStat(RES, effect['degree'])
 
             if effect['effect'] == "debuff_atk":
                 for x in targeted_units:
-                    x.inflictStat(ATK, -effect[1])
+                    x.inflictStat(ATK, -effect['degree'])
 
             if effect['effect'] == "debuff_spd":
                 for x in targeted_units:
-                    x.inflictStat(SPD, -effect[1])
+                    x.inflictStat(SPD, -effect['degree'])
 
             if effect['effect'] == "debuff_def":
                 for x in targeted_units:
-                    x.inflictStat(DEF, -effect[1])
+                    x.inflictStat(DEF, -effect['degree'])
 
             if effect['effect'] == "debuff_res":
                 for x in targeted_units:
-                    x.inflictStat(RES, -effect[1])
+                    x.inflictStat(RES, -effect['degree'])
 
             if effect['effect'] == "damage":
                 for x in targeted_units:
                     if x.HPcur != 0:
-                        x.HPcur = max(x.HPcur - effect['degree'], 1)
-                        self.animate_damage_popup(effect['degree'], x.tile.tileNum)
-                        self.refresh_unit_visuals_obj(x)
+
+                        # V!Líf
+                        if effect['degree'] == -1:
+                            ally_damage = 0
+
+                            for ally in feh.allies_within_n(unit, 3):
+                                ally_damage += ally.visible_stats[HP] - ally.HPcur
+
+                            total_damage = min(trunc(0.50 * ally_damage), 30) + 10
+
+                            x.HPcur = max(x.HPcur - total_damage, 1)
+                            self.animate_damage_popup(total_damage, x.tile.tileNum)
+                            self.refresh_unit_visuals_obj(x)
+
+                        # Standard damage
+                        else:
+                            x.HPcur = max(x.HPcur - effect['degree'], 1)
+                            self.animate_damage_popup(effect['degree'], x.tile.tileNum)
+                            self.refresh_unit_visuals_obj(x)
 
             if effect['effect'] == "heal":
                 for x in targeted_units:
@@ -8073,8 +8424,13 @@ class GameplayCanvas(tk.Canvas):
             if effect['effect'] == "sp_charge":
                 for x in targeted_units:
                     x.chargeSpecial(effect['degree'])
-
                     self.refresh_unit_visuals_obj(x)
+
+            if effect['effect'] == "timesPulse":
+                for x in targeted_units:
+                    if x.specialCount == x.specialMax:
+                        x.chargeSpecial(effect['degree'])
+                        self.refresh_unit_visuals_obj(x)
 
             if effect['effect'] == "dance":
                 highest_hp_allies = []
@@ -8089,6 +8445,14 @@ class GameplayCanvas(tk.Canvas):
                 if len(highest_hp_allies) == 1:
                     self.units_to_move.append(highest_hp_allies[0])
                     self.update_unit_graphics(highest_hp_allies[0])
+
+                    # NY!Peony
+                    if effect['degree'] == 1:
+                        highest_hp_allies[0].inflictStat(ATK, 3)
+                        highest_hp_allies[0].inflictStat(SPD, 3)
+                        highest_hp_allies[0].inflictStat(DEF, 3)
+                        highest_hp_allies[0].inflictStat(RES, 3)
+                        highest_hp_allies[0].inflictStatus(Status.Orders)
 
             if effect['effect'] == "galeforce":
                 self.units_to_move.append(unit)
@@ -9125,6 +9489,18 @@ class UnitInfoDisplay(tk.Frame):
                 if unit.blessing.element < 4:
                     blessing_text += " blessing conferred:\n\nHP+3\n\nEnables usage of Pair Up in select modes."
 
+                else:
+                    blessing_text += " blessing conferred:\n\nHP+5, "
+
+                    if blessing.stat == hero.ATK:
+                        blessing_text += "Atk+3"
+                    elif blessing.stat == hero.SPD:
+                        blessing_text += "Spd+4"
+                    elif blessing.stat == hero.DEF:
+                        blessing_text += "Def+5"
+                    elif blessing.stat == hero.RES:
+                        blessing_text += "Res+5"
+
         CreateToolTip(self.blessing_label, blessing_text)
 
         ssupport_names = ["None", "C", "B", "A", "S"]
@@ -9286,6 +9662,27 @@ class UnitInfoDisplay(tk.Frame):
 
             statuses_str += '\n'
 
+        if unit.statusOther:
+            statuses_str += "--- OTHER STATUSES --- \n"
+
+            for status in unit.statusOther.keys():
+                if status == "disableWeapon":
+                    statuses_str += "Weapon Disabled: " + str(unit.statusOther[status]) + '\n'
+                if status == "disableAssist":
+                    statuses_str += "Assist Disabled: " + str(unit.statusOther[status]) + '\n'
+                if status == "disableSpecial":
+                    statuses_str += "Special Disabled: " + str(unit.statusOther[status]) + '\n'
+                if status == "disableASkill":
+                    statuses_str += "A Skill Disabled: " + str(unit.statusOther[status]) + '\n'
+                if status == "disableBSkill":
+                    statuses_str += "B Skill Disabled: " + str(unit.statusOther[status]) + '\n'
+                if status == "disableCSkill":
+                    statuses_str += "C Skill Disabled: " + str(unit.statusOther[status]) + '\n'
+                if status == "disableEmblem":
+                    statuses_str += "Emblem Disabled: " + str(unit.statusOther[status]) + '\n'
+
+            statuses_str += '\n'
+
         if statuses_str and statuses_str[-1] == '\n':
             statuses_str = statuses_str[:-1]
 
@@ -9331,7 +9728,11 @@ class UnitInfoDisplay(tk.Frame):
         special_desc = ""
         if unit.special:
             sp_str = unit.special.name
-            special_desc = "Cooldown:" + str(unit.specialMax) + "\n" + unit.special.desc
+
+            if unit.special.desc:
+                special_desc = "Cooldown:" + str(unit.specialMax) + "\n" + unit.special.desc
+            else:
+                special_desc = ""
 
         self.special_label.config(text=sp_str)
         CreateToolTip(self.special_label, special_desc, side="right")
@@ -9556,7 +9957,7 @@ class ExtrasFrame(tk.Frame):
         self.num_ornaments = 0
         self.num_resources = 0
 
-        not_added_yet = ["Duo's Indulgence", "Duo's Hindrance", "Safety Fence", "Calling Circle (O)", "Calling Circle (D)"]
+        not_added_yet = ["Duo's Indulgence", "Duo's Hindrance", "Calling Circle (O)", "Calling Circle (D)"]
 
         i = 0
         for frame in self.divider_frames:
@@ -10172,6 +10573,14 @@ class ExtrasFrame(tk.Frame):
         if "sacrifice" in player.assist.effects:
             new_ally_hp = min(ally.visible_stats[HP], ally.HPcur + (player.HPcur - 1))
             new_player_hp = max(1, player.HPcur - (ally.visible_stats[HP] - ally.HPcur))
+
+        if "sacrifice" in player.assist.effects:
+            if ally.HPcur < ally.visible_stats[HP]:
+                new_ally_hp = min(ally.visible_stats[HP], ally.HPcur + (player.HPcur - 1))
+                new_player_hp = max(1, player.HPcur - (ally.visible_stats[HP] - ally.HPcur))
+            else:
+                new_ally_hp = ally.HPcur
+                new_player_hp = player.HPcur
 
         canvas.create_text((215, 16), text=str(player.HPcur) + "→" + str(new_player_hp), fill='yellow', font=("Helvetica", 13), anchor='center')
         canvas.create_text((WIDTH-216, 16), text=str(ally.HPcur) + "→" + str(new_ally_hp), fill="yellow", font=("Helvetica", 13), anchor='center')

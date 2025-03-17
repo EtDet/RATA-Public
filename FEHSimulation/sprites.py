@@ -171,5 +171,14 @@ while i < len(names):
         defense_image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/Structure_Enemy_" + name + ".png"
         download_and_save_image(defense_image_url, "CombatSprites/AR Structures/" + name + "_Enemy.png")
 
-
     i += 1
+
+# Divine Veins
+#vein_types = ["Stone", "Flame", "Green", "Haze", "Water", "Ice"]
+
+# No water for now, Wiki doesn't have the image up
+vein_types = ["Stone", "Flame", "Green", "Haze", "Ice"]
+
+for vein in vein_types:
+    download_and_save_image("https://feheroes.fandom.com/wiki/Special:Redirect/file/Divine_Vein_" + vein + "_Ally.png", "CombatSprites/Vein_" + vein + "_Player.png")
+    download_and_save_image("https://feheroes.fandom.com/wiki/Special:Redirect/file/Divine_Vein_" + vein + "_Enemy.png", "CombatSprites/Vein_" + vein + "_Enemy.png")

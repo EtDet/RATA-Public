@@ -24,6 +24,14 @@ CSKILL = 5
 SSEAL = 6
 XSKILL = 7
 
+DV_STONE: int = 1
+DV_FLAME: int = 2
+DV_GREEN: int = 3
+DV_HAZE: int = 4
+DV_WATER: int = 5
+DV_ICE: int = 6
+
+
 MELEE_WEAPONS = ["Sword", "Lance", "Axe",
                  "RDragon", "BDragon", "GDragon", "CDragon",
                  "RBeast", "BBeast", "GBeast", "CBeast"]
@@ -174,6 +182,16 @@ class Hero:
         self.statusPos: list[Status] = []  # array of positive status effects currently held, cleared upon start of unit's turn
         self.statusNeg: list[Status] = []  # array of negative status effects currently held, cleared upon end of unit's next action
 
+        self.statusOther = {} # array of other status effects (disable assist effects for certain number of turns, etc.)
+
+        # "disableWeapon"
+        # "disableAssist"
+        # "disableSpecial"
+        # "disableASkill"
+        # "disableBSkill"
+        # "disableCSkill"
+        # "disableEmblem"
+
         # specific unit skills
         self.weapon = None
         self.assist = None
@@ -279,8 +297,9 @@ class Hero:
         self.priority_galeforce_triggered = False
         self.nonspecial_galeforce_triggered = False
         self.special_galeforce_triggered = False
-
         self.assist_galeforce_triggered = False
+
+        self.once_per_map_cond = False
 
         self.transformed = False
 
@@ -573,6 +592,13 @@ class Hero:
             self.skill_stat_mods[DEF] -= skill.effects["ninalynBoost"]
             self.skill_stat_mods[RES] -= skill.effects["ninalynBoost"]
 
+        if "lexBoost" in skill.effects:
+            self.skill_stat_mods[HP] += 5
+            self.skill_stat_mods[ATK] += 6
+            self.skill_stat_mods[SPD] -= 5
+            self.skill_stat_mods[DEF] += 6
+            self.skill_stat_mods[RES] -= 5
+
         if self.special is not None:
             self.specialCount = self.special.cooldown
             self.specialMax = self.special.cooldown
@@ -647,6 +673,13 @@ class Hero:
             self.skill_stat_mods[SPD] -= skill.effects["ninalynBoost"]
             self.skill_stat_mods[DEF] += skill.effects["ninalynBoost"]
             self.skill_stat_mods[RES] += skill.effects["ninalynBoost"]
+
+        if "lexBoost" in skill.effects:
+            self.skill_stat_mods[HP] -= 5
+            self.skill_stat_mods[ATK] -= 6
+            self.skill_stat_mods[SPD] += 5
+            self.skill_stat_mods[DEF] -= 6
+            self.skill_stat_mods[RES] += 5
 
         # Remove the skill from the correct slot
         if slot == WEAPON and skill is not None:
@@ -1115,6 +1148,13 @@ blessing_dict = {
     "L!Seliph":   (EARTH, 2, 0),
     "L!F!Corrin": (WIND,  2, 0),
     "L!Dimitri":  (WATER, 2, 0),
+    "L!Lilina":   (FIRE,  2, 0),
+    "L!Claude":   (EARTH, 2, 0),
+    "L!Sigurd":   (WIND,  2, 0),
+    "L!M!Byleth": (WATER, 2, 0),
+    "L!Micaiah":  (WIND,  2, 0),
+    "L!Fae":      (EARTH, 2, 0),
+    "Eitri":      (FIRE,  2, 0),
 
     "Eir":        (LIGHT, 1, RES),
     "Duma":       (ANIMA, 1, ATK),
@@ -1131,7 +1171,15 @@ blessing_dict = {
     "Hel":        (DARK,  1, DEF),
     "Plumeria":   (ASTRA, 1, SPD),
     "Triandra":   (DARK,  1, SPD),
-    "Freyja":     (LIGHT, 1, ATK)
+    "Freyja":     (LIGHT, 1, ATK),
+    "Reginn":     (ASTRA, 2, ATK),
+    "Seiros":     (ANIMA, 2, ATK),
+    "Dagr":       (LIGHT, 2, RES),
+    "Nótt":       (DARK,  2, DEF),
+    "Ashera":     (ASTRA, 2, RES),
+    "Ullr":       (LIGHT, 2, SPD),
+    "Ótr":        (ANIMA, 2, DEF),
+    "Thórr":      (ASTRA, 2, DEF)
 }
 
 def create_specialized_blessing(int_name):
@@ -1238,7 +1286,7 @@ class Status(Enum):
     Bulwark = 150  # 🔵 Foes cannot move through spaces within X spaces of unit, X = foe's range
     AssignDecoy = 151  # 🔴 Unit is granted Savior effect for their range, fails if unit currently has savior skill
     CancelAffinity = 152  # 🔴 Cancel Affinity 3, reverses weapon triangle to neutral if Triangle Adept-having unit/foe has advantage
-    TriAttack = 153  # 🔴 If within 2 spaces of 2 allies with TriAttack and initiating combat, unit attacks twice
+    TriangleAttack = 153  # 🔴 If within 2 spaces of 2 allies with TriAttack and initiating combat, unit attacks twice
     DualStrike = 154  # 🔴 If unit initiates combat and is adjacent to unit with DualStrike, unit attacks twice
     EssenceDrain = 155 # 🔴 If unit attacks, steals positive bonuses from foes within 2 spaces of target and gives to self and all allies with this status. If foe defeated, restores 10HP to self and allies with this status.
     Bonded = 156 # 🔴 Activates different effects depending on skills present in battle
@@ -1660,7 +1708,46 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "L!Dimitri",
                           "NI!Laevatein", "NI!Navarre", "NI!Hana", "NI!Zihark", "NI!Lyn",
                           "Dieck", "Guinivere", "Melady", "Merlinus", "Galle",
-                          "Triandra", "Freyja"
+                          "Triandra", "Freyja",
+
+                          "Reginn",
+                          "Duessel", "Knoll", "Natasha", "SS!Selena", "Caellach",
+                          "WI!Altina", "WI!Bernadetta", "WI!TH!Hilda", "WI!Sephiran", "WI!Felix",
+                          "L!Lilina",
+                          "NY!Kaden", "NY!Keaton", "NY!Velouria", "NY!Peony", "NY!Plumeria",
+                          "Asbel", "Miranda", "Ronan", "Sara", "Veld",
+                          "DE!Dorothea", "DE!Katarina", "DE!Tharja", "DE!Raphael", "DE!M!Kris",
+                          "Seiros",
+                          "V!Alfonse", "V!Gustav", "V!Henriette", "V!Líf", "V!Veronica",
+                          "Annand", "Azelle", "Erinys", "Lex", "Díthorba",
+                          "L!Claude",
+                          "Dedue", "Ingrid", "Linhardt", "Marianne", "Solon",
+                          "SP!Inigo", "SP!Minerva", "SP!Severa", "SP!Myrrh", "SP!Saleh",
+                          "Dagr",
+                          "Erk", "Farina", "Louise", "Pent", "Sonia",
+                          "CH!Eirika", "CH!Lyon", "CH!Tana", "CH!L'Arachel", "CH!Innes",
+                          "L!Sigurd",
+                          "FA!Dimitri", "FA!Edelgard", "FA!M!Morgan", "FA!F!Morgan", "FA!Orson",
+                          "BR!Catria", "BR!Juno", "BR!Saul", "BR!Shanna", "GR!Zelot",
+                          "Ashera",
+                          "Luthier", "Palla", "Tatiana", "Zeke", "Fernand", "Nótt",
+                          "SU!Ashe", "SU!Caspar", "SU!TH!Hilda", "SU!Mercedes", "SU!Leonie",
+                          "L!M!Byleth",
+                          "SU!Freyja", "SU!Feryr", "SU!Ogma", "SU!Caeda", "SU!Norne",
+                          "Benny", "Charlotte", "Nyx", "Orochi", "Arete", "Nifl",
+                          "Ullr",
+                          "PI!Hinoka", "PI!Naesala", "PI!Surtr", "PI!Vika", "PI!Lifis",
+                          "B!Eirika", "B!Marth", "B!Marianne", "Gatekeeper", "Pelleas",
+                          "L!Micaiah",
+                          "CF!Leif", "CF!Julia", "CF!Larcei", "CF!Nanna", "CF!Lewyn",
+                          "Yuri", "Balthus", "Constance", "Hapi", "Aelfric", "Múspell",
+                          "Ótr",
+                          "H!Kurthnaga", "H!Rhea", "H!M!Grima", "H!Sothis", "H!Sophia",
+                          "Malice", "Roshea", "Vyland", "Wolf", "Sedgar", "A!Fjorm",
+                          "L!Fae",
+                          "NI!M!Corrin", "NI!F!Corrin", "NI!Igrene", "NI!NI!Shamir", "NI!Shinon",
+                          "Astrid", "Marcia", "Tanith", "Volke", "Bertram", "A!Laegjarn",
+                          "Eitri", "Thórr"
 
                     ]
 
