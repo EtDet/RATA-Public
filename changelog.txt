@@ -1,3 +1,33 @@
+2.4.0 (3/27/25)
+New Features:
+-Added all 144 heroes introduced in Year 6.
+-The Duo's Indulgence and Duo's Hindrance structures are now usable in Aether Raids.
+-Resplendent Outfit can now be used for Female Byleth.
+-Also added Rauðrcrab and Rauðrcrab+ early because it's really funny.
+
+Bug Fixes:
+-Fixed several cases of heroes having incorrect skills auto-assigned.
+-Pirate Vika's Ebon-Pirate Claw now works properly.
+-Atk/Spd Unity is now selectable.
+-Pass skills will now be able to bypass skills that disable warping.
+-New Year's Peony's duo skill will target allies properly.
+-Child Eirika's duo skill will now give the Dodge status to herself.
+-Temari+ and Courtly Mask+ will now inflict debuffs after combat properly.
+-True damage granted when infantry beasts transform will now be applied to AOEs.
+-Seiðr Shell+ and Brutal Shell+ will now charge specials on the correct turns.
+-Fixed the descriptions of Observant Staff+ and Staff of Twelve+ when refined.
+-Distant Storm will now boost Spd in combat instead of Atk.
+-Raging Storm and Raging Storm II's in-combat effects will now work properly.
+-The pesudo-Miracle effect of Legendary Seliph's Virtuous Tyrfing will now check HP at time of hit instead of at start of combat.
+-Warping before activating a Canto Rem or Canto Rem +1 skill now administer the correct movement.
+-Fixed some visual bugs involving moving from a regular movement tile to an adjacent warp movement tile.
+-Fixed the conditions for the [Bonus] and [Penalty] keywords when initiated against.
+-Dragon's Ire will now grant a follow-up attack instead of neutralizing effects that guarantee foe's follow-up attacks.
+-Atk/Spd Oath 4 will now give a Spd buff in combat instead of Def.
+-Breaker-type skills will now have an HP condition when initiated against.
+-Fox tomes will now inflicts stat penalties on foes instead of bonuses.
+-The Dull Close skill will now neutralize foe's bonuses properly.
+
 2.3.0 (3/17/25)
 New Features:
 -Added all 144 heroes introduced in Year 5.

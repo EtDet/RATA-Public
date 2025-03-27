@@ -281,8 +281,18 @@ class Hero:
         # Number of times this unit has been targeted for assist skill usage
         self.assistTargetedSelf = 0
 
+        # Breakdown by assist type
+        self.assistTargetedSelf_Rally = 0
+        self.assistTargetedSelf_Move = 0
+        self.assistTargetedSelf_Other = 0
+
         # Number of times this unit has used their assist skill
         self.assistTargetedOther = 0
+
+        # Breakdown by assist type
+        self.assistTargetedOther_Rally = 0
+        self.assistTargetedOther_Move = 0
+        self.assistTargetedOther_Other = 0
 
         # If Canto can be utilized after unit's next action (attacking, breaking, or assisting, etc.)
         self.canto_ready = True
@@ -974,8 +984,17 @@ class Hero:
 
         conditions_arr = ["DEFAULT-BEAST"]
 
+        if "faMuarimBoost" in self.getSkills():
+            conditions_arr = ["MUARIM-TURNS"]
+
         if "uncondBeast" in self.getSkills():
             conditions_arr.append("NO-CONDITIONS")
+
+        if "uncondBeast100" in self.getSkills():
+            conditions_arr.append("NO-CONDITIONS-100")
+
+        if "uncondBeast50" in self.getSkills():
+            conditions_arr.append("NO-CONDITIONS-50")
 
         return conditions_arr
 
@@ -1155,6 +1174,14 @@ blessing_dict = {
     "L!Micaiah":  (WIND,  2, 0),
     "L!Fae":      (EARTH, 2, 0),
     "Eitri":      (FIRE,  2, 0),
+    "L!F!Byleth": (WIND,  2, 0),
+    "L!Caeda":    (WATER, 3, SPD),
+    "L!Nanna":    (EARTH, 3, RES),
+    "L!Myrrh":    (WIND,  3, DEF),
+    "L!Xander":   (FIRE,  3, ATK),
+    "L!Deirdre":  (EARTH, 3, ATK),
+    "L!Ninian":   (WATER, 3, RES),
+    "L!Veronica": (WIND,  3, SPD),
 
     "Eir":        (LIGHT, 1, RES),
     "Duma":       (ANIMA, 1, ATK),
@@ -1179,7 +1206,12 @@ blessing_dict = {
     "Ashera":     (ASTRA, 2, RES),
     "Ullr":       (LIGHT, 2, SPD),
     "Ótr":        (ANIMA, 2, DEF),
-    "Thórr":      (ASTRA, 2, DEF)
+    "Thórr":      (ASTRA, 2, DEF),
+    "Elimine":    (ASTRA, 2, SPD),
+    "Medeus":     (DARK,  2, ATK),
+    "Askr":       (LIGHT, 2, DEF),
+    "Arval":      (ANIMA, 2, RES),
+    "Embla":      (DARK,  2, RES)
 }
 
 def create_specialized_blessing(int_name):
@@ -1327,7 +1359,7 @@ with open('Spreadsheets/FEHDuoSkills.json', encoding="utf-8") as read_file: duos
 
 # Skills currently present for use
 # Yeah this was not properly thought out
-impl_skills_sheet = pd.read_csv("Spreadsheets/FEHImplABCXSkills.csv")
+#impl_skills_sheet = pd.read_csv("Spreadsheets/FEHImplABCXSkills.csv")
 
 print("Unit & Skill Data Loaded.")
 
@@ -1409,7 +1441,6 @@ def makeGeneric(name):
 def makeWeapon(name):
     # ﻿
     # I found this cool thing in the spreadsheet what is this
-
 
     row = weapon_sheet.loc[weapon_sheet['IntName'] == name]
 
@@ -1749,6 +1780,44 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "Astrid", "Marcia", "Tanith", "Volke", "Bertram", "A!Laegjarn",
                           "Eitri", "Thórr"
 
+                          "Ash",
+                          "Priam", "Flavia", "Basilio", "Miriel", "Yen'fay",
+                          "WI!Artur", "WI!Ignatz", "WI!Manuela", "WI!Lysithea", "WI!Mirabilis",
+                          "L!F!Byleth",
+                          "NY!Reginn", "NY!Fáfnir", "NY!Lyre", "NY!Kyza", "NY!Dagr",
+                          "Colm", "Neimi", "Rennac", "A!Joshua", "Riev",
+                          "DE!Azura", "DE!Karla", "DE!Nailah", "DE!Xane", "DE!Deen",
+                          "Elimine",
+                          "V!Chrom", "V!Lissa", "V!Owain", "V!F!Robin", "F!Lucina",
+                          "Cath", "Hugh", "A!Idunn", "Niime", "Gonzalez",
+                          "L!Caeda",
+                          "SP!Delthea", "SP!Henry", "SP!Luthier", "SP!Sonya", "SP!Maria",
+                          "August", "Galzus", "Karin", "Mareeta", "Salem",
+                          "L!Nanna",
+                          "CH!Ike", "CH!Inyana", "CH!Boyd", "CH!Mia", "CH!Soren",
+                          "A!Ishtar", "Scáthach", "Tine", "G!Arthur", "G!Hilda",
+                          "Medeus",
+                          "FA!Gustav", "FA!Lilith", "FA!Ninian", "FA!Rhea", "FA!Muarim",
+                          "BR!Cecilia", "BR!Larum", "BR!Lilina", "GR!Roy", "BR!Sophia",
+                          "L!Myrrh",
+                          "A!Florina", "Guy", "Kent", "Sain", "Limstella", "Letizia",
+                          "SU!Edelgard", "SU!Dimitri", "SU!Claude", "SU!Micaiah", "SU!Elincia",
+                          "L!Xander",
+                          "SU!Eirika", "SU!Lyon", "SU!Nifl", "SU!Seth", "SU!Thórr",
+                          "A!Celica", "Atlas", "P!Est", "Kamui", "Brigand Boss", "Ymir",
+                          "Askr",
+                          "TH!Leila", "TH!Nina", "TH!Rickard", "TH!Sothe", "TH!Cath",
+                          "B!F!Byleth", "B!Chrom", "B!Seliph", "B!A!Tiki", "Jeralt",
+                          "L!Deirdre",
+                          "FF!Lyn", "FF!Mordecai", "FF!Múspell", "FF!Rinkah", "FF!Tana",
+                          "A!Hilda", "Monica", "M!Shez", "F!Shez", "R!Líf", "Holst",
+                          "L!Ninian",
+                          "H!M!Corrin", "H!F!Corrin", "H!Duma", "H!Naga", "H!Nils",
+                          "A!Eir", "Gregor", "Phila", "Ricken", "R!F!Grima", "Cervantes",
+                          "Arval",
+                          "NI!Camilla", "NI!Cherche", "NI!Haar", "NI!Heath", "NI!Laegjarn",
+                          "Elice", "Hardin", "Nyna", "A!Y!Tiki", "Matthis", "Ganglöt",
+                          "Embla", "L!Veronica"
                     ]
 
 # Generics

@@ -192,7 +192,7 @@
       {
         "effect": "dance",
         "degree": 1,
-        "targets": "self_and_same_game_allies",
+        "targets": "allies",
         "area": "within_2_spaces"
       }
     ]
@@ -223,7 +223,7 @@
     "skills": [
       {"effect": "status",
        "degree": "Dodge",
-       "targets": "allies",
+       "targets": "self_and_allies",
        "area": "within_3_rows_or_cols"}
     ]
   },
@@ -265,7 +265,7 @@
        "area": "within_3_rows_or_cols"}
     ]
   },
-    "H!Sothis": {
+  "H!Sothis": {
     "desc": "Grants [Null Follow-Up] to unit and allies within 2 spaces. If unit or any ally within 2 spaces has their Special cooldown count at its maximum value, grants them Special cooldown count-1.\n\nOnce used, Duo Skill cannot be activated again right away. At start of odd-numbered turns, if Duo Skill has already been used, unit can use Duo Skill again.",
     "type": "duo",
     "skill_refresh": -1,
@@ -280,7 +280,135 @@
        "area": "within_2_spaces"}
     ]
   },
-  "NI!F!Corrin": {
+ "NI!F!Corrin": {
+    "desc": "Grants unit another action. (May be used only if unit has already entered combat during the current turn.)",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "galeforce",
+        "targets": "self",
+        "area": "one"
+
+      }
+    ]
+  },
+ "NY!Dagr": {
+    "desc": "Grants Atk/Spd/Def/Res+6 and [Pathfinder] to unit and allies within 5 rows and 5 columns centered on unit for 1 turn.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {"effect": "buff_omni",
+       "degree": 6,
+       "targets": "self_and_allies",
+       "area": "within_5_rows_and_cols"},
+      {"effect": "status",
+       "degree": "Pathfinder",
+       "targets": "self_and_allies",
+       "area": "within_5_rows_and_cols"}
+    ]
+  },
+ "V!Chrom": {
+    "desc": "Inflicts Atk/Spd/Def/Res-5 on unit and allies within 2 spaces of unit through their next actions and grants [Grand Strategy] to those units.\n\nGrants the following effect to unit for 1 turn: \"Foe cannot make a follow-up attack.\"",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {"effect": "debuff_omni",
+       "degree": 5,
+       "targets": "self_and_allies",
+       "area": "within_2_spaces"},
+      {"effect": "status",
+       "degree": "GrandStrategy",
+       "targets": "self_and_allies",
+       "area": "within_2_spaces"},
+      {"effect": "status",
+       "degree": "DenyFollowUp",
+       "targets": "self",
+       "area": "one"}
+    ]
+  },
+   "CH!Ike": {
+    "desc": "Inflicts Atk/Spd-7 and [Guard] on foes within 5 rows or 5 columns centered on unit through their next actions, and inflicts Special cooldown count+2 on those foes.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {"effect": "debuff_atk",
+       "degree": 7,
+       "targets": "foes",
+       "area": "within_5_rows_or_cols"},
+      {"effect": "debuff_spd",
+       "degree": 7,
+       "targets": "foes",
+       "area": "within_5_rows_or_cols"},
+      {"effect": "status",
+       "degree": "Guard",
+       "targets": "foes",
+       "area": "within_5_rows_or_cols"},
+      {"effect": "sp_charge",
+       "degree": -2,
+       "targets": "foes",
+       "area": "within_5_rows_or_cols"}
+    ]
+  },
+  "SU!Thórr": {
+    "desc": "Inflicts [Gravity] on foes in cardinal directions of unit. Neutralizes any [Bonus] active on foes within 5 rows or 5 columns centered on unit. (Does not neutralize stat bonuses of foes inflicted with Panic.)",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {"effect": "status",
+       "degree": "Gravity",
+       "targets": "foes",
+       "area": "within_1_rows_or_cols"},
+      {"effect": "debuff_spd",
+       "degree": 7,
+       "targets": "foes",
+       "area": "within_5_rows_or_cols"}
+    ]
+  },
+  "TH!Nina": {
+    "desc": "Unit can move 1 extra space. (That turn only. Does not stack.) If any foes are in cardinal directions of unit or [Penalty] is active on any foes, inflicts Atk/Spd/Def/Res-7 and【Panic】on those foes.\n\nOnce used, Duo Skill cannot be activated again right away. At start of every third turn, if Duo Skill has already been used, unit can use Duo Skill again.",
+    "type": "duo",
+    "skill_refresh": 3,
+    "skills": [
+      {"effect": "status",
+       "degree": "MobilityUp",
+       "targets": "self",
+       "area": "one"},
+      {"effect": "status",
+       "degree": "Panic",
+       "targets": "foes",
+       "area": "within_1_rows_or_cols_or_has_penalty"},
+      {"effect": "debuff_omni",
+       "degree": 7,
+       "targets": "foes",
+       "area": "within_1_rows_or_cols_or_has_penalty"}
+    ]
+  },
+  "H!Duma": {
+    "desc": "Neutralizes any [Penalty], restores 30 HP, and grants \"neutralizes foe's bonuses (from skills like Fortify, Rally, etc.) during combat\" for 1 turn to unit and allies within 5 rows and 5 columns centered on unit.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "clear_penalties",
+        "targets": "self_and_allies",
+        "area": "within_5_rows_and_cols"
+      },
+      {
+        "effect": "heal",
+        "degree": 30,
+        "targets": "self_and_allies",
+        "area": "within_5_rows_and_cols"
+      },
+      {
+        "effect": "status",
+        "degree": "NullBonuses",
+        "targets": "self_and_allies",
+        "area": "within_5_rows_and_cols"
+      }
+    ]
+  },
+  "NI!Laegjarn": {
     "desc": "Grants unit another action. (May be used only if unit has already entered combat during the current turn.)",
     "type": "duo",
     "skill_refresh": -1,
@@ -463,6 +591,150 @@
         "degree": "Pursual",
         "targets": "self_and_same_game_allies",
         "area": "global"
+      }
+    ]
+  },
+  "WI!Lysithea": {
+    "desc": "Grants Atk+6, [Resonance: Blades], and [Bonus Doubler] to unit and allies from the same titles as unit for 1 turn.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "BonusDoubler",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "buff_atk",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "DE!Azura": {
+    "desc": "Grants [Resonance: Blades] to unit and allies from the same titles as unit.\n\nGrants another action to ally with the highest HP that is within 2 spaces, has already acted, and is from the same titles as unit (excluding unit). (Allies with Sing or Dance can be granted this effect as well. If multiple units meet the conditions, effect will not trigger.)",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "dance",
+        "degree": 0,
+        "targets": "self_and_same_game_allies",
+        "area": "within_2_spaces"
+      }
+    ]
+  },
+  "SP!Sonya": {
+    "desc": "Grants Special cooldown count-2 to unit and allies from the same titles as unit. Grants Atk+6 and [Resonance: Blades] to unit and allies from the same titles as unit for 1 turn.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "sp_charge",
+        "degree": 2,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "buff_atk",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "GR!Roy": {
+    "desc": "Grants Def/Res+6, [Resonance: Shields], and [Treachery] to unit and allies from the same titles as unit for 1 turn.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceShields",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "Treachery",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "buff_def",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "buff_res",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "SU!Edelgard": {
+    "desc": "Grants Atk+6, [Resonance: Shields], and [Bonus Doubler] to unit and allies from the same titles as unit for 1 turn.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceShields",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "BonusDoubler",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "buff_atk",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "FF!Tana": {
+    "desc": "Grants [Resonance: Blades] to unit and allies from the same titles as unit.\n\nGrants another action to ally with the highest HP that is within 2 spaces, has already acted, and is from the same titles as unit (excluding unit). (Allies with Sing or Dance can be granted this effect as well. If multiple units meet the conditions, effect will not trigger.)",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "dance",
+        "degree": 0,
+        "targets": "self_and_same_game_allies",
+        "area": "within_2_spaces"
       }
     ]
   }

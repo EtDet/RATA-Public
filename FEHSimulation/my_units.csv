@@ -5,7 +5,8 @@ Mia,Sample Mia,Resolute BladeEff,Reposition,Moonbow,Death Blow 3,Dull Close 3,De
 P!F!Corrin,Sample Corrin,Draconic RageEff,Draw Back,Miracle,Fury 3,Desperation 3,Breath of Life 3,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
 Sharena,Sample Sharena,FensalirEff,Reposition,Noontime,Darting Blow 3,Vantage 3,Fortify Def 3,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
 V!Eliwood,Sample Eliwood,Berkut's Lance+Spd,Swap,Bonfire,Atk/Def Solo 4,Bold Fighter 3,Threat. Atk/Def 2,,,40,10,5,1,0,1,0,,,0,False,,0,False,,False
-L!Ike,Sample Ike,RagnellEff,Reposition,Radiant Aether II,Warding Breath,Quick Riposte 3,Drive Def 2,,,40,0,5,2,0,2,0,,,0,False,,0,False,,False
+L!Xander,Sample Xander,Ebon BölverkEff,Reposition,Bonfire,Atk/Spd Excel,Chivalry II,Def/Res Menace,,,40,0,5,2,0,2,0,,,0,False,,0,False,,False
 Alfonse,Fire Emblem Hero,Fólkvangr,,Sol,Death Blow 3,,Spur Atk 3,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
 Micaiah,micky,Thani,Sacrifice,,,,,,,40,0,5,0,0,0,0,,4.0,0,False,,0,False,,False
 L!Roy,Sample Pair-Up,DragonbindEff,,Moonbow,Bonus Doubler 3,Spurn 3,Human Virtue II,,,40,0,5,0,0,0,0,,,0,False,,0,False,micky,False
+SU!Edelgard,edel,Regal Sunshade,,Glimmer,Atk/Def Ideal 4,Raging Storm,Assault Troop 3,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
