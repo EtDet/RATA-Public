@@ -7,6 +7,7 @@
 
 from hero import *
 from combat import CombatField
+from collections import deque
 
 within_1_space = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 1
 within_2_space = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
@@ -446,6 +447,15 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
+        if "soaring_guidance" in unitSkills:
+            range = within_2_space
+            condition = lambda s: lambda o: o.move == 0 or o.move == 2
+            affect_same_side = True
+            effects = {"atkCombat": 3, "spdCombat": 3, "speedNFU": 0}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
         if "respiteField" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
@@ -477,8 +487,18 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
+        # Sacrifice Staff (Base) - FA!Maria
+        if "sacrificeStaff" in unitSkills:
+            range = within_2_space
+            condition = lambda s: lambda o: True
+            affect_same_side = True
+            effects = {"atkCombat": 2, "spdCombat": 2, "defCombat": 2, "resCombat": 2, "sacrificeStaff_f": 1}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
         if "nagaRefineBoost" in unitSkills:
-            range = lambda s: lambda o: within_4_space
+            range = within_4_space
             condition = lambda s: lambda o: Status.EffDragons in o.statusNeg
             affect_same_side = True
             effects = {"atkCombat": 3, "spdCombat": 3, "defCombat": 3, "resCombat": 3}
@@ -615,6 +635,16 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
+        # Bern's New Way - L!Guinivere
+        if "bernsNewWay" in unitSkills:
+            range = within_3_space
+            condition = lambda s: lambda o: True
+            affect_same_side = True
+            effects = {"postCombatHeal_f": 7}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
         # Holy Ground - Elimine
         if "holyGround" in unitSkills:
             range = within_2_space
@@ -630,6 +660,16 @@ def create_combat_fields(player_team, enemy_team):
             condition = lambda s: lambda o: True
             affect_same_side = True
             effects = {"flaynField_f": 1, "defCombat": 5, "resCombat": 5, "holyGroundPlus_f": 1}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
+        # Tailwind Shuriken (Refine Eff) - NI!Lyn
+        if "fwam" in unitSkills:
+            range = within_3_rows_or_cols
+            condition = lambda s: lambda o: True
+            affect_same_side = False
+            effects = {"spdRein_f": 5, "defRein_f": 5, "reinHalfDR_f": 1, "cruxField_f": 1}
 
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
@@ -721,6 +761,16 @@ def create_combat_fields(player_team, enemy_team):
             condition = lambda s: lambda o: True
             affect_same_side = True
             effects = {"atkCombat": 4, "defCombat": 4}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
+        # Heart of Crimea
+        if "heartOCrimea" in unitSkills:
+            range = within_4_space
+            condition = lambda s: lambda o: True
+            affect_same_side = False
+            effects = {"atkRein_f": 4, "spdRein_f": 4, "defRein_f": 4, "resRein_f": 4}
 
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
@@ -861,6 +911,16 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
+        # Rallying Cry - L!Hinoka
+        if "rallyingCry" in unitSkills:
+            range = within_3_rows_or_cols
+            condition = lambda s: lambda o: o.move != 2
+            affect_same_side = False
+            effects = {"spdRein_f": 5, "defRein_f": 5, "resRein_f": 5}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
         if "camillaField" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) + abs(s[1] - o[1]) <= 2
             condition = lambda s: lambda o: o.move == 1 or o.move == 2
@@ -972,6 +1032,16 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
+        # Guide's Hourglass (Base) - DE!M!Byleth
+        if "deBylethBoost" in unitSkills:
+            range = within_2_space
+            condition = lambda s: lambda o: True
+            affect_same_side = True
+            effects = {"atkCombat": 4, "spdCombat": 4, "defCombat": 4, "resCombat": 4}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
         # Lúin (Refine Eff) - Ingrid
         if "shadow the hedgehog" in unitSkills:
             range = within_3_rows_or_cols
@@ -1045,6 +1115,16 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
+        # Kitty-Cat Parasol
+        if "hFlaynBoost" in unitSkills:
+            range = within_2_space
+            condition = lambda s: lambda o: True
+            affect_same_side = True
+            effects = {"fastCharge_f": 0, "nullFoeBonuses": 0, "flaynField_f": 1}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
         # Spear of Assal (Refine Base) - Seteth
         if "Flayn's got us trapped in the McDonald's playplace" in unitSkills:
             range = within_3_space
@@ -1113,6 +1193,16 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
+        # Fetters of Dromi - L!Yuri
+        if "fettersODromi" in unitSkills:
+            range = within_2_space
+            condition = lambda s: lambda o: True
+            affect_same_side = False
+            effects = {"atkRein_f": 4, "spdRein_f": 4, "defRein_f": 4, "resRein_f": 4}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
         if "kiriaField" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
@@ -1130,6 +1220,39 @@ def create_combat_fields(player_team, enemy_team):
 
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
+
+        # Dragon Blast
+        if "bidenBlast" in unitSkills:
+            range = global_range
+            condition = lambda s: lambda o: o.isSupportOf(s)
+            affect_same_side = True
+            effects = {"DamageReductionPierce": 1}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
+        if "célineBoost" in unitSkills:
+            range = within_3_space
+            condition = lambda s: lambda o: True
+            affect_same_side = True
+            effects = {"postCombatHeal_f": 7}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
+        if "fellProtection" in unitSkills:
+            range = within_2_space
+            affect_same_side = True
+            condition = lambda s: lambda o: True
+
+            effects1 = {"atkCombat": 4, "resCombat": 4, "flaynField_f": 1}
+            effects2 = {"fellProtection_f": 1}
+
+            field1 = CombatField(owner, range, condition, affect_same_side, effects1)
+            combat_fields.append(field1)
+
+            field2 = CombatField(owner, range, condition, affect_same_side, effects2)
+            combat_fields.append(field2)
 
         if "veronicaField" in unitSkills:
             range = within_3_space
@@ -1220,6 +1343,16 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
+        # Flower of Caring - X!Peony
+        if "jokerrrrrrrr" in unitSkills:
+            range = within_1_row_or_col
+            condition = lambda s: lambda o: True
+            affect_same_side = True
+            effects = {"atkCombat": 5, "spdCombat": 5, "postCombatHeal_f": 5}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
         # Flower of Ease (Base) - Mirabilis
         if "zzzzZZZZzzzzz" in unitSkills:
             range = lambda s: lambda o: abs(s[0] - o[0]) <= 1
@@ -1292,6 +1425,16 @@ def create_combat_fields(player_team, enemy_team):
             condition = lambda s: lambda o: True
             affect_same_side = False
             effects = {"defRein_f": unitSkills["triandraField"], "resRein_f": unitSkills["triandraField"]}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
+        # Flower of Tribute - X!Triandra
+        if "xTriandraBoost" in unitSkills:
+            range = within_3_rows_or_cols
+            condition = lambda s: lambda o: True
+            affect_same_side = False
+            effects = {"spdRein_f": 5, "defRein_f": 5, "xTriDmg_f": 5}
 
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
@@ -1869,6 +2012,29 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 if unit_res > foe_res:
                     add_debuff(foe, RES, -unitSkills["resLargePloyW"])
 
+        # Tier 4 Ploy Skills
+        if "atkResPloy" in unitSkills:
+            unit_res = unit.get_visible_stat(RES) + unit.get_phantom_stat(RES)
+            for foe in foes_within_n_cardinal(unit, 3):
+                foe_res = foe.get_visible_stat(RES) + foe.get_phantom_stat(RES)
+
+                if foe_res < unit_res + 5:
+                    add_debuff(foe, ATK, -7)
+                    add_debuff(foe, RES, -7)
+                    add_status(foe, Status.Exposure)
+                    add_status(foe, Status.Ploy)
+
+        if "defResPloy" in unitSkills:
+            unit_res = unit.get_visible_stat(RES) + unit.get_phantom_stat(RES)
+            for foe in foes_within_n_cardinal(unit, 3):
+                foe_res = foe.get_visible_stat(RES) + foe.get_phantom_stat(RES)
+
+                if foe_res < unit_res + 5:
+                    add_debuff(foe, DEF, -7)
+                    add_debuff(foe, RES, -7)
+                    add_status(foe, Status.Exposure)
+                    add_status(foe, Status.Ploy)
+
         if "panicPloy" in unitSkills:
             diff = 7 - unitSkills["panicPloy"] * 2
             for tile in tiles_within_1_row_or_column:
@@ -2010,6 +2176,11 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_debuff(foe, ATK, -unitSkills["chillAtkRes"])
                 add_debuff(foe, RES, -unitSkills["chillAtkRes"])
 
+                if unitSkills["chillAtkRes"] == 6:
+                    for ally in allies_within_n(foe, 2):
+                        add_debuff(ally, ATK, -unitSkills["chillAtkRes"])
+                        add_debuff(ally, RES, -unitSkills["chillAtkRes"])
+
         if "chillSpdDef" in unitSkills:
             for foe in units_with_extreme_stat_pairing_sum(waiting_team, SPD, DEF):
                 add_debuff(foe, SPD, -unitSkills["chillSpdDef"])
@@ -2019,6 +2190,11 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             for foe in units_with_extreme_stat_pairing_sum(waiting_team, SPD, RES):
                 add_debuff(foe, SPD, -unitSkills["chillSpdRes"])
                 add_debuff(foe, RES, -unitSkills["chillSpdRes"])
+
+                if unitSkills["chillSpdRes"] == 6:
+                    for ally in allies_within_n(foe, 2):
+                        add_debuff(ally, SPD, -unitSkills["chillSpdRes"])
+                        add_debuff(ally, RES, -unitSkills["chillSpdRes"])
 
         if "chillDefRes" in unitSkills:
             for foe in units_with_extreme_stat_pairing_sum(waiting_team, DEF, RES):
@@ -2150,6 +2326,11 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
         if "infantryPulse" in unitSkills and turn == 1:
             for ally in starting_team:
                 if unit.HPcur - (7 - (2 * unitSkills["infantryPulse"])) > ally.HPcur and ally.move == 0 and ally != unit:
+                    sp_charges[ally] += 1
+
+        if "infPulse4" in unitSkills:
+            for ally in starting_team:
+                if ally != unit and ally.visible_stats[HP] < unit.visible_stats[HP]:
                     sp_charges[ally] += 1
 
         # Pulse Tie
@@ -2485,9 +2666,18 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             add_buff(unit, SPD, 6)
             add_status(unit, Status.Orders)
 
+        if "atkSpdPledge" in unitSkills and allies_within_n_spaces[2]:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, SPD, 6)
+            add_status(unit, Status.SpecialCharge)
+
         if "atkResOath" in unitSkills and allies_within_n_spaces[2]:
             add_buff(unit, ATK, 6)
             add_buff(unit, RES, 6)
+            add_status(unit, Status.Orders)
+
+        if "atkOathEcho" in unitSkills and allies_within_n_spaces[2]:
+            add_buff(unit, ATK, 6)
             add_status(unit, Status.Orders)
 
         # ROUSE
@@ -2502,6 +2692,26 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
 
         if "nullPanicRouse" in unitSkills and not allies_within_n_spaces[1]:
             add_status(unit, Status.NullPanic)
+
+        if "alarmAtkSpd" in unitSkills and len(allies_within_n_spaces[1]) <= 2:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, SPD, 6)
+            add_status(unit, Status.Canto1)
+
+        if "alarmAtkDef" in unitSkills and len(allies_within_n_spaces[1]) <= 2:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, DEF, 6)
+            add_status(unit, Status.Canto1)
+
+        if "alarmSpdDef" in unitSkills and len(allies_within_n_spaces[1]) <= 2:
+            add_buff(unit, SPD, 6)
+            add_buff(unit, DEF, 6)
+            add_status(unit, Status.Canto1)
+
+        if "inciteAtkSpd" in unitSkills and len(allies_within_n_spaces[1]) <= 2:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, SPD, 6)
+            add_status(unit, Status.Incited)
 
         # REIN SNAP
         if "reinSnap" in unitSkills and "refresh" not in unitSkills:
@@ -2619,9 +2829,46 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
         if "summerAllyDef" in unitSkills and allies_within_n_spaces[3]:
             add_buff(unit, DEF, 6)
 
+        if "lanternTome" in unitSkills and allies_within_n_spaces[2]:
+            add_status(unit, Status.TraverseTerrain)
+            add_status(unit, Status.SpecialCharge)
+
+        # Sunlight/Seaside Parasol
+        if "sunlight" in unitSkills:
+            for foe in nearest_foes_within_n(unit, 5):
+                add_status(foe, Status.Guard)
+
+                for ally in allies_within_n(foe, 2):
+                    if "nearSavior" in ally.getSkills() or "farSavior" in ally.getSkills():
+                        add_status(ally, Status.Guard)
+
+        # Whitewind Bow, Lucrative Bow/Dagger
+        if "whitewindBow" in unitSkills and unitHPGreaterEqual25Percent:
+            add_status(unit, Status.NullFollowUp)
+            add_status(unit, Status.NullPanic)
+
+        # Farmer's Tool, Doubler Sword/Lance/Bow
+        if "doublerBoost" in unitSkills and allies_within_n_spaces[2]:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, DEF, 6)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, ATK, 6)
+                add_buff(ally, DEF, 6)
+
+        # Pumpkin Stem
+        if "doublerBoostRes" in unitSkills and allies_within_n_spaces[2]:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, RES, 6)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, ATK, 6)
+                add_buff(ally, RES, 6)
+
+        # Crab Tomes
         if "giantEnemyCrab" in unitSkills and unitHPGreaterEqual25Percent:
             add_buff(unit, ATK, 6)
-            add_status(Status.Pursual)
+            add_status(unit, Status.Pursual)
 
         # THE UNIQUE SKILL STUFF
 
@@ -2641,6 +2888,21 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             add_buff(unit, SPD, 6)
             add_status(unit, Status.SpecialCharge)
             add_status(unit, Status.NullPenalties)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, ATK, 6)
+                add_buff(ally, SPD, 6)
+                add_status(ally, Status.SpecialCharge)
+                add_status(ally, Status.NullPenalties)
+
+        # Celestial Globe (Base) - DE!Linde
+        if "deLindeBoost" in unitSkills and allies_within_n_spaces[2]:
+            add_status(unit, Status.TraverseTerrain)
+            add_status(unit, Status.NullFollowUp)
+
+            for ally in allies_within_n(unit, 2):
+                add_status(ally, Status.TraverseTerrain)
+                add_status(ally, Status.NullFollowUp)
 
         # Eagle's Egg (Refine Eff) - SP!Est
         if "EST BEST TIME ZONE" in unitSkills:
@@ -2750,6 +3012,17 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_status(ally, Status.Hexblade)
                 add_status(ally, Status.NullPanic)
 
+        # Brilliant Starlight (Base) - Gotoh
+        if "gotohBoost" in unitSkills and unitHPGreaterEqual25Percent:
+            add_buff(unit, DEF, 6)
+            add_buff(unit, RES, 6)
+            add_status(unit, Status.AOEReduce80Percent)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, DEF, 6)
+                add_buff(ally, RES, 6)
+                add_status(ally, Status.AOEReduce80Percent)
+
         # Divine Fang(+) - Naga
         if "grantEffDragon" in unitSkills:
             for ally in allies_within_n(unit, 1):
@@ -2776,6 +3049,17 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_buff(ally, RES, 6)
                 add_status(ally, Status.EnGarde)
 
+        # Worldly Lance - Mycen
+        if "mycenBoost" in unitSkills and allies_within_n_spaces[2]:
+            add_buff(unit, DEF, 6)
+            add_buff(unit, RES, 6)
+            add_status(unit, Status.NullBonuses)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, DEF, 6)
+                add_buff(ally, RES, 6)
+                add_status(ally, Status.NullBonuses)
+
         # Saintly Seraphim (Refine Eff) - L!Celica
         if "Garfield 2025" in unitSkills and allies_within_n_spaces[2]:
             add_status(unit, Status.SpecialCharge)
@@ -2791,6 +3075,27 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             for ally in allies_within_n_spaces[2]:
                 add_status(unit, Status.Orders)
                 add_status(ally, Status.TriangleAttack)
+
+        # Beyond Witchery - R!Sonya
+        if "beyondWitchery" in unitSkills:
+            if turn == 1:
+                sp_charges[unit] += 2
+            else:
+                sp_charges[unit] += 1
+
+        # Proud Spear (Refine Eff) - Fernand
+        if "fernandBoost" in unitSkills and unitHPGreaterEqual25Percent:
+            for foe in nearest_foes_within_n(unit, 20):
+                add_debuff(foe, ATK, -7)
+                add_debuff(foe, DEF, -7)
+                add_status(foe, Status.Discord)
+                add_status(foe, Status.Stall)
+
+                for ally in allies_within_n(foe, 2):
+                    add_debuff(ally, ATK, -7)
+                    add_debuff(ally, DEF, -7)
+                    add_status(ally, Status.Discord)
+                    add_status(ally, Status.Stall)
 
         # Mila's Turnwheel - Mila
         if "milasTurnwheel" in unitSkills:
@@ -2839,6 +3144,11 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             add_status(unit, Status.Desperation)
             add_status(unit, Status.SpecialCharge)
 
+        if "ascCedBoost" in unitSkills and unitHPGreaterEqual25Percent:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, SPD, 6)
+            sp_charges[unit] += 1
+
         # Larcei's Edge (Refine Eff) - Larcei
         if "infiniteSpecial" in unitSkills and unitHPGreaterEqual25Percent and unit.specialCount == unit.specialMax:
             sp_charges[unit] += 1
@@ -2855,6 +3165,19 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_buff(ally, SPD, 6)
                 add_status(ally, Status.NullFollowUp)
                 add_status(ally, Status.NullPenalties)
+
+        # Silesse Frost (Refine Eff) - Erinys
+        if "stabbitystabbitystabstab" in unitSkills and allies_within_n_spaces[2]:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, SPD, 6)
+            add_status(unit, Status.SpecialCharge)
+            add_status(unit, Status.Dodge)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, ATK, 6)
+                add_buff(ally, SPD, 6)
+                add_status(ally, Status.SpecialCharge)
+                add_status(ally, Status.Dodge)
 
         # Sparking Tome (Refine Eff) - Azelle
         if "Spark!" in unitSkills and allies_within_n_spaces[2]:
@@ -2877,6 +3200,18 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             for foe in nearest_foes_within_n(unit, 4):
                 add_debuff(foe, ATK, 6)
                 add_debuff(foe, RES, 6)
+
+        # Heired Gungnir - Arion
+        if "neat" in unitSkills and unitHPGreaterEqual25Percent:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, DEF, 6)
+            add_status(unit, Status.Charge)
+
+            for ally in allies_within_n_spaces[2]:
+                if ally.move == 2:
+                    add_buff(ally, ATK, 6)
+                    add_buff(ally, DEF, 6)
+                    add_status(ally, Status.Charge)
 
         # Diplomacy Staff (Base) - August
         if "diplomacyStaff" in unitSkills:
@@ -2934,6 +3269,19 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_buff(ally, ATK, 6)
                 add_buff(ally, SPD, 6)
                 add_status(ally, Status.Hexblade)
+
+        # Tome of Fury (Refine Eff) - Miranda
+        if "youRudeCreature" in unitSkills and allies_within_n_spaces[2]:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, RES, 6)
+            add_status(unit, Status.Hexblade)
+            add_status(unit, Status.NullBonuses)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, ATK, 6)
+                add_buff(ally, RES, 6)
+                add_status(ally, Status.Hexblade)
+                add_status(ally, Status.NullBonuses)
 
         # Petrify (Base) - Veld
         if "veldPetrify" in unitSkills:
@@ -3033,6 +3381,20 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             add_buff(unit, ATK, 6)
             add_buff(unit, DEF, 6)
 
+        # Vassal-Saint Steel - A!Fir
+        if "godSword" in unitSkills and unit.specialCount == unit.specialMax:
+            sp_charges[unit] += 1
+
+        # Ilian Merc Lance - Noah
+        if "insert Xenoblade 3 thingy" in unitSkills and len(allies_within_n_spaces[1]) <= 1:
+            add_status(unit, Status.Dodge)
+            add_status(unit, Status.NullBonuses)
+
+            for ally in allies_within_n_spaces[2]:
+                if ally.isSupportOf(unit):
+                    add_status(ally, Status.Dodge)
+                    add_status(ally, Status.NullBonuses)
+
         # Aureola (Refine Eff)
         if "guinivereStuff" in unitSkills and allies_within_n_spaces[2]:
             add_buff(unit, SPD, 6)
@@ -3071,7 +3433,7 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
 
             for foe in foes_within_n_cardinal(unit, 1):
                 if foe.get_visible_stat(RES) + foe.get_phantom_stat(RES) < unit.get_visible_stat(RES) + unit.get_phantom_stat(RES):
-                    add_status(Status.FalseStart)
+                    add_status(unit, Status.FalseStart)
 
         if "the BONUS she gives in mario kart DOUBLE dash" in unitSkills:
             add_buff(unit, DEF, 6)
@@ -3087,7 +3449,7 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 if foe.get_visible_stat(RES) + foe.get_phantom_stat(RES) < unit.get_visible_stat(RES) + unit.get_phantom_stat(RES):
                     add_debuff(foe, ATK, -7)
                     add_debuff(foe, RES, -7)
-                    add_status(Status.FalseStart)
+                    add_status(unit, Status.FalseStart)
 
         # Ardent Durandal - L!Eliwood
         if "bonus4you" in unitSkills:
@@ -3129,6 +3491,54 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                     add_status(ally, Status.NullPanic)
                     add_status(ally, Status.Canto1)
 
+        if "inbornIdealism" in unitSkills:
+            condition = False
+
+            for ally in starting_team:
+                if ally != unit and ally.wpnType in DRAGON_WEAPONS + BEAST_WEAPONS:
+                    condition = True
+
+            if condition:
+                add_buff(unit, ATK, 6)
+                add_buff(unit, SPD, 6)
+                add_buff(unit, DEF, 6)
+                add_status(unit, Status.NullPanic)
+                add_status(unit, Status.BonusDoubler)
+
+                for ally in units_with_extreme_stat(starting_team, ATK, exclude=unit):
+                    add_buff(ally, ATK, 6)
+                    add_buff(ally, SPD, 6)
+                    add_buff(ally, DEF, 6)
+                    add_status(ally, Status.NullPanic)
+                    add_status(ally, Status.BonusDoubler)
+
+        # Total War Tome (Base) - CH!Mark
+        if "oh hi mark" in unitSkills:
+            for foe in nearest_foes_within_n(unit, 5):
+                add_debuff(foe, OMNI, -5)
+                add_status(foe, Status.Sabotage)
+                add_status(foe, Status.Stall)
+
+                for ally in allies_within_n(foe, 2):
+                    add_debuff(ally, OMNI, -5)
+                    add_status(ally, Status.Sabotage)
+                    add_status(ally, Status.Stall)
+
+        # Gusty War Bow (Base) - CH!Rebecca
+        if "chRebeccaBoost" in unitSkills and allies_within_n_spaces[3] and unit.specialCount == unit.specialMax:
+            sp_charges[unit] += 1
+
+        # Mystic War Staff (Base) - CH!Lucius
+        if "chLuciusBoost" in unitSkills and allies_within_n_spaces[2]:
+            add_buff(unit, DEF, 6)
+            add_buff(unit, RES, 6)
+            add_status(unit, Status.DenyFollowUp)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, DEF, 6)
+                add_buff(ally, RES, 6)
+                add_status(ally, Status.DenyFollowUp)
+
         # Constant Dagger (Base) - Leila
         if "leilaBoost" in unitSkills:
             for foe in nearest_foes_within_n(unit, 5):
@@ -3146,6 +3556,47 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             for foe in nearest_foes_within_n(unit, 4):
                 add_debuff(foe, OMNI, -4)
 
+        # Corsair Cleaver - Fargus
+        if "donkey kong is versing jokerrrrrr" in unitSkills and allies_within_n_spaces[3]:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, DEF, 6)
+            add_status(unit, Status.Orders)
+
+            for ally in allies_within_n_spaces[3]:
+                add_buff(ally, ATK, 6)
+                add_buff(ally, DEF, 6)
+                add_status(ally, Status.Orders)
+
+        # Child's Compass (Base) - DE!Nino
+        if "deNinoBoost" in unitSkills and unitHPGreaterEqual25Percent:
+            add_status(unit, Status.TraverseTerrain)
+            add_status(unit, Status.MobilityUp)
+
+        # Göndul - X!Nino
+        if "xNinoBoost" in unitSkills and allies_within_n_spaces[2]:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, SPD, 6)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, ATK, 6)
+                add_buff(ally, SPD, 6)
+
+        # Fleeting Echo - X!Nino
+        if "fangedTies" in unitSkills and allies_within_n_spaces[2]:
+            add_status(unit, Status.Canto1)
+            add_status(unit, Status.MobilityUp)
+
+            if unit.specialCount == unit.specialMax:
+                sp_charges[unit] += 2
+            if unit.specialCount == unit.specialMax - 1:
+                sp_charges[unit] += 1
+
+        # Crow's Crystal (Base) - DE!Ursula
+        if "deUrsulaBoost" in unitSkills and unitHPGreaterEqual25Percent:
+            add_status(unit, Status.TraverseTerrain)
+            add_status(unit, Status.Desperation)
+            add_status(unit, Status.Dominance)
+
         # Tome of Reglay (Base) - Pent
         if "pentBoost" in unitSkills:
             if unit.specialCount == unit.specialMax and unit.wpnType in TOME_WEAPONS:
@@ -3154,6 +3605,10 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             for ally in allies_within_n_spaces[2]:
                 if ally.specialCount == ally.specialMax and ally.wpnType in TOME_WEAPONS:
                     sp_charges[ally] += 1
+
+        # Sisterly War Axe (Base) - SP!Karla
+        if "DK, are you gonna eat BK after you win this?" in unitSkills and turn % 2 == 1:
+            sp_charges[unit] += 2
 
         # Fimbulvetr Morn (Refine Eff) - Sonia
         if "yoink!" in unitSkills and unitHPGreaterEqual25Percent:
@@ -3192,6 +3647,10 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
 
         # Reginleif - Duo Ephraim
         if "OH MY GOODNESS" in unitSkills and turn % 2 == 0:
+            add_status(unit, Status.MobilityUp)
+
+        # Seafoam Splitter - SU!Ephraim
+        if "DK BK DK's eating BK when he wins this" in unitSkills and len(allies_within_n_spaces[1]) <= 2:
             add_status(unit, Status.MobilityUp)
 
         if "gerikBoost" in unitSkills:
@@ -3296,6 +3755,12 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_buff(unit, ATK, 6)
                 add_buff(unit, SPD, 6)
 
+        # Frelian Lance (Base) - Gilliam
+        if "Official Nintendo Licensed Product" in unitSkills:
+            for ally in allies_within_n_spaces[2]:
+                if ally.move == 2:
+                    add_status(ally, Status.NullEffFliers)
+
         # Argent Aura (Base) - Riev
         if "rievBoost" in unitSkills:
             for foe in units_with_extreme_stat(waiting_team, SPD, find_max=False):
@@ -3362,6 +3827,21 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                         add_status(foe, Status.Panic)
                     break
 
+        # Arch-Sage Tome (Base) - B!Soren
+        if "bSorenBoost" in unitSkills:
+
+            if any([unit.isSupportOf(ally) for ally in starting_team]):
+                for ally in allies_within_n_spaces[2]:
+                    if unit.isSupportOf(ally):
+                        add_status(ally, Status.AssignDecoy)
+                        add_buff(ally, OMNI, 6)
+
+            else:
+                for ally in units_with_extreme_stat(allies_within_n_spaces[2], DEF):
+                    add_status(ally, Status.AssignDecoy)
+                    add_buff(ally, OMNI, 6)
+
+
         # Summer Strikers (Refine Eff) - SU!Mia
         if "summerMiaPulse" in unitSkills:
             if unit.specialCount == unit.specialMax:
@@ -3375,6 +3855,24 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
         if "pointySword" in unitSkills and allies_within_n_spaces[2]:
             add_status(unit, Status.NullFollowUp)
             add_status(unit, Status.Dodge)
+
+        # Crimean Scepter (Base) - A!Elincia
+        if "aElinciaBoost" in unitSkills and allies_within_n_spaces[2]:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, SPD, 6)
+            add_status(unit, Status.Pursual)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, ATK, 6)
+                add_buff(ally, SPD, 6)
+                add_status(ally, Status.Pursual)
+
+        # Heart of Crimea - L!Elincia
+        if "heartOCrimea" in unitSkills and allies_within_n_spaces[2]:
+            add_status(unit, Status.NullFollowUp)
+
+            for ally in allies_within_n_spaces[2]:
+                add_status(ally, Status.NullFollowUp)
 
         # Talregan Axe (Refine Eff) - Jill
         if "jillSomething" in unitSkills and [ally for ally in allies_within_n_spaces[3] if ally.wpnType in MELEE_WEAPONS]:
@@ -3404,12 +3902,12 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                     foe_res += foe.getSkills()["phantomRes"]
 
                 if foe_res <= unit_res - 3:
-                    highest_stat = max(unit.get_visible_stat(ATK) - 15, unit.get_visible_stat(SPD), unit.get_visible_stat(DEF), unit.get_visible_stat(RES))
+                    highest_stat = max(foe.get_visible_stat(ATK) - 15, foe.get_visible_stat(SPD), foe.get_visible_stat(DEF), foe.get_visible_stat(RES))
 
                     i = 1
                     while i < 5:
-                        cur_stat = unit.get_visible_stat(i)
-                        if i == 1: cur_stat -= 15
+                        cur_stat = foe.get_visible_stat(i)
+                        if i == ATK: cur_stat -= 15
 
                         if cur_stat == highest_stat:
                             add_debuff(foe, i, -5)
@@ -3534,6 +4032,34 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                         add_buff(ally, DEF, 4)
                         add_buff(ally, RES, 4)
 
+        # Master's Tactics (Base) - L!M!Robin
+        if "THIS IS THE GREATEST PLAAAAAN" in unitSkills and unitHPGreaterEqual25Percent:
+            add_status(unit, Status.GrandStrategy)
+            add_debuff(unit, OMNI, -4)
+
+            for ally in allies_within_n_spaces[2]:
+                add_status(ally, Status.GrandStrategy)
+
+                ally_stats = [ally.get_visible_stat(ATK) - 15, ally.get_visible_stat(SPD), ally.get_visible_stat(DEF), ally.get_visible_stat(RES)]
+                unique_sorted = sorted(set(ally_stats), reverse=True)[:2]
+                top_indicies = [i for i, v in enumerate(unique_sorted) if v in unique_sorted]
+
+                for i in top_indicies:
+                    add_debuff(ally, i + 1, -6)
+
+            for foe in nearest_foes_within_n(unit, 20):
+                add_debuff(foe, OMNI, -3)
+
+                for ally in allies_within_n(foe, 3):
+                    add_debuff(ally, OMNI, -3)
+
+        # Tip the Scales! - B!M!Robin
+        if "tipTheScales" in unitSkills and allies_within_n_spaces[2]:
+            add_status(unit, Status.RallySpectrum)
+
+            for ally in allies_within_n_spaces[2]:
+                add_status(ally, Status.RallySpectrum)
+
         if "morganStartDebuff" in unitSkills:
             valid_foes = []
 
@@ -3566,6 +4092,15 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
 
                 for ally in allies_within_n_spaces[2]:
                     add_status(ally, Status.Dodge)
+
+        # Inseverable Spear (Base) - WI!Cordelia
+        if "is chrismaaas" in unitSkills and allies_within_n_spaces[2]:
+            add_status(unit, Status.Orders)
+            add_status(unit, Status.DualStrike)
+
+            for ally in allies_within_n_spaces[2]:
+                add_status(ally, Status.Orders)
+                add_status(ally, Status.DualStrike)
 
         # Plegian War Axe (Base) - Mustafa
         if "mustafaBoost" in unitSkills and allies_within_n_spaces[2]:
@@ -3772,6 +4307,17 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 if foe.wpnType not in TOME_WEAPONS:
                     add_status(foe, Status.Flash)
 
+        # Rallying Cry - L!Hinoka
+        if "rallyingCry" in unitSkills and allies_within_n_spaces[2]:
+            add_status(unit, Status.SpecialCharge)
+            add_status(unit, Status.Charge)
+
+            for ally in allies_within_n_spaces[2]:
+                add_status(ally, Status.SpecialCharge)
+
+                if ally.move == 2:
+                    add_status(ally, Status.Charge)
+
         # Book of Dreams (Refine Eff) - Adrift Camilla
         if "camillaDebuff" in unitSkills:
             for foe in nearest_foes_within_n(unit, 5):
@@ -3789,6 +4335,14 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             for foe in foes_within_n_cardinal(unit, 3):
                 add_debuff(foe, DEF, -7)
                 add_debuff(foe, RES, -7)
+
+        # Duskbloom Bow (Base) - V!Leo
+        if "vLeoBoost" in unitSkills:
+            for foe in foes_within_n_cardinal(unit, 1):
+                if unit.get_visible_stat(RES) + unit.get_phantom_stat(RES) > foe.get_visible_stat(RES) + foe.get_phantom_stat(RES):
+                    add_debuff(foe, DEF, -7)
+                    add_debuff(foe, RES, -7)
+                    add_status(foe, Status.Gravity)
 
         if "velouriaBoost" in unitSkills:
             self_cond = False
@@ -3843,9 +4397,14 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             if unit.specialCount == unit.specialMax:
                 sp_charges[unit] += 1
 
+        # Guide's Hourglass (Base) - DE!M!Byleth
+        if "deBylethBoost" in unitSkills and allies_within_n_spaces[2]:
+            add_status(unit, Status.Dodge)
+            add_status(unit, Status.TraverseTerrain)
+
         # Breaker Lance (Base) - Jeralt
         if "he lives" in unitSkills:
-            for foe in units_with_extreme_stat_pairing_sum(enemy_team, DEF, RES):
+            for foe in units_with_extreme_stat_pairing_sum(waiting_team, DEF, RES):
                 add_debuff(foe, ATK, -6)
                 add_debuff(foe, DEF, -6)
                 add_status(foe, Status.Panic)
@@ -3890,6 +4449,13 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                     add_status(ally, Status.MobilityUp)
                     add_status(ally, Status.Canto1)
 
+        # Lone-Wolf Blade (Base) - Felix
+        if ">:(" in unitSkills and unitHPGreaterEqual25Percent:
+            if unit.specialCount == unit.specialMax:
+                sp_charges[unit] += 2
+            if unit.specialCount == unit.specialMax - 1:
+                sp_charges[unit] += 1
+
         # Cunning Bow (Refine Eff) - Claude
         if "three houses discourse" in unitSkills and foes_within_n_cardinal(unit, 3):
             add_buff(unit, ATK, 6)
@@ -3908,15 +4474,30 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 for ally in allies_within_n(foe, 2):
                     add_debuff(ally, SPD, -7)
                     add_debuff(ally, DEF, -7)
-                    add_status(foe, Status.Guard)
-                    add_status(foe, Status.Sabotage)
+                    add_status(ally, Status.Guard)
+                    add_status(ally, Status.Sabotage)
 
         # Dark Spikes T (Refine Eff) - B!Lysithea
         if "lysitheaSchmovement" in unitSkills:
             add_status(unit, Status.Orders)
 
+        # Baked Treats - T!Lysithea
+        if "tLysitheaBoost" in unitSkills:
+            for foe in nearest_foes_within_n(unit, 5):
+                add_debuff(foe, SPD, -6)
+                add_debuff(foe, RES, -6)
+                add_status(foe, Status.Sabotage)
+
+                for ally in allies_within_n(foe, 2):
+                    add_debuff(ally, SPD, -6)
+                    add_debuff(ally, RES, -6)
+                    add_status(ally, Status.Sabotage)
+
         # Honorable Blade (Base) - Yuri
         if "yuriBoost" in unitSkills:
+            add_status(unit, Status.MobilityUp)
+
+        if "fettersODromi" in unitSkills:
             add_status(unit, Status.MobilityUp)
 
         # Thunderbrand (Refine Base) - Catherine
@@ -3937,6 +4518,15 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_debuff(foe, DEF, -7)
                 add_status(unit, Status.Sabotage)
 
+        if "the two" in unitSkills:
+            for foe in nearest_foes_within_n(unit, 5):
+                add_status(unit, Status.Panic)
+                add_status(unit, Status.Discord)
+
+                for ally in allies_within_n(foe, 2):
+                    add_status(ally, Status.Panic)
+                    add_status(ally, Status.Discord)
+
         # Caduceus Staff (Refine Eff) - Flayn
         if "The girl who like the fish" in unitSkills and allies_within_n_spaces[2]:
             add_buff(unit, ATK, 6)
@@ -3947,6 +4537,19 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_buff(ally, ATK, 6)
                 add_buff(ally, SPD, 6)
                 add_status(ally, Status.SpecialCharge)
+
+        # Asclepius (Base) - Cornelia
+        if "there is a camera and microphone in this device" in unitSkills:
+            unit_res = unit.get_visible_stat(RES) + unit.get_phantom_stat(RES)
+
+            for foe in waiting_team:
+                if allies_within_n(foe, 1):
+                    foe_res = foe.get_visible_stat(RES) + foe.get_phantom_stat(RES)
+
+                    if foe_res < unit_res:
+                        add_debuff(foe, ATK, -6)
+                        add_debuff(foe, RES, -6)
+                        add_status(foe, Status.Flash)
 
         # Banshee Θ (Base) - Solon
         if "solonDebuffs" in unitSkills and (turn == 3 or turn == 4):
@@ -3983,6 +4586,16 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_debuff(foe, RES, -6)
                 add_status(unit, Status.Sabotage)
 
+        # ENGAGE
+
+        # Libération (Base) - F!Alear
+        if "BONDS OF FIIIIRE, CONNECT US" in unitSkills and unitHPGreaterEqual25Percent:
+            add_status(unit, Status.Charge)
+
+            for ally in allies_within_n_spaces[3]:
+                if ally.isSupportOf(unit):
+                    add_status(ally, Status.Charge)
+
         # Bond Blast (SU!F!Alear)
         if "summerAlearBonds" in unitSkills:
             support_partner_present = False
@@ -3996,7 +4609,52 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 for high_atk_ally in highest_atk:
                     add_status(high_atk_ally, Status.Bonded)
 
-        # United Bouquet - Sharena
+        # Obscurité - Veyle
+        if "veyleBoost" in unitSkills and allies_within_n_spaces[2]:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, RES, 6)
+            add_status(unit, Status.ResonanceBlades)
+            add_status(unit, Status.ResonanceShields)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, ATK, 6)
+                add_buff(ally, RES, 6)
+                add_status(ally, Status.ResonanceBlades)
+                add_status(ally, Status.ResonanceShields)
+
+        # Tome of Luxuries - Cirtinne
+        if "citrinneBoost" in unitSkills and unitHPGreaterEqual25Percent:
+            add_status(unit, Status.Pursual)
+
+        # Inspirited Spear - H!Timerra
+        if "meat" in unitSkills and foes_within_n_cardinal(unit, 3):
+            add_buff(unit, SPD, 6)
+            add_buff(unit, DEF, 6)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, SPD, 6)
+                add_buff(ally, DEF, 6)
+
+        # Packleader Tome - Zephia
+        if "zephiaBoost" in unitSkills and unitHPGreaterEqual25Percent:
+            for foe in nearest_foes_within_n(unit, 5):
+                add_debuff(foe, SPD, -6)
+                add_debuff(foe, RES, -6)
+                add_status(foe, Status.Pursual)
+
+                for ally in allies_within_n(foe, 2):
+                    add_debuff(ally, SPD, -6)
+                    add_debuff(ally, RES, -6)
+                    add_status(ally, Status.Pursual)
+
+        # Payday Pouch - H!E!Anna
+        if "hAnnaBoost" in unitSkills:
+            if len(allies_within_n_spaces[2]) >= 1:
+                add_status(unit, Status.NullFollowUp)
+            if len(allies_within_n_spaces[2]) >= 2:
+                add_status(unit, Status.Hexblade)
+
+        # United Bouquet - BR!Sharena
         if "bridal_shenanigans" in unitSkills and unitHPGreaterEqual25Percent:
             add_buff(unit, ATK, 6)
             add_buff(unit, SPD, 6)
@@ -4101,6 +4759,31 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 for ally in allies_within_n(foe, 2):
                     add_status(ally, Status.Exposure)
 
+        # Dream Deliverer - Freyr
+        if "dreamDeliverer" in unitSkills and allies_within_n_spaces[2]:
+            add_buff(unit, DEF, 6)
+            add_buff(unit, RES, 6)
+            add_status(unit, Status.ResonanceShields)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, DEF, 6)
+                add_buff(ally, RES, 6)
+                add_status(ally, Status.ResonanceShields)
+
+        # Ruler of Nihility - Ginnungagap
+        if "arcaneVoid" in unitSkills:
+            for foe in nearest_foes_within_n(unit, 5):
+                add_debuff(foe, ATK, -7)
+                add_debuff(foe, DEF, -7)
+                add_status(foe, Status.Discord)
+                add_status(foe, Status.Flash)
+
+                for ally in allies_within_n(foe, 2):
+                    add_debuff(ally, ATK, -7)
+                    add_debuff(ally, DEF, -7)
+                    add_status(ally, Status.Discord)
+                    add_status(ally, Status.Flash)
+
         # Grim Brokkr (Refine Eff) - Eitri
         if "book 5 sure was a book" in unitSkills and unitHPGreaterEqual25Percent:
             for foe in nearest_foes_within_n(unit, 20):
@@ -4159,8 +4842,8 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_status(ally, Status.TraverseTerrain)
                 add_status(ally, Status.Incited)
 
-        # Skinfaxi (Refine Base) - Dagr
-        if "dagrRefineBoost" in unitSkills:
+        # Skinfaxi (Refine Base) - Dagr / Twin-Sky Wing - FF!Dagr
+        if "dagrRefineBoost" in unitSkills or "twinSkyWing" in unitSkills:
             valid_ally = None
 
             for ally in starting_team:
@@ -4212,6 +4895,13 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 unit.debuffs = [0, 0, 0, 0, 0]
                 unit.statusNeg.clear()
                 add_status(unit, Status.Dodge)
+
+        # Seiðr (Base) - Seiðr
+        if "seiðrBoost" in unitSkills and allies_within_n_spaces[2]:
+            add_status(unit, Status.DenyFollowUp)
+
+            for ally in allies_within_n_spaces[2]:
+                add_status(ally, Status.DenyFollowUp)
 
     # Non-HP based AR Structures
     for struct_tile in ar_struct_tiles:
@@ -4314,6 +5004,29 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
         unitStats = unit.getStats()
         unitHPCur = unit.HPcur
 
+        # PLOY
+        if "atkResPloy" in unitSkills:
+            unit_res = unit.get_visible_stat(RES) + unit.get_phantom_stat(RES)
+            for foe in foes_within_n_cardinal(unit, 3):
+                foe_res = foe.get_visible_stat(RES) + foe.get_phantom_stat(RES)
+
+                if foe_res < unit_res + 5:
+                    add_debuff(foe, ATK, -7)
+                    add_debuff(foe, RES, -7)
+                    add_status(foe, Status.Exposure)
+                    add_status(foe, Status.Ploy)
+
+        if "defResPloy" in unitSkills:
+            unit_res = unit.get_visible_stat(RES) + unit.get_phantom_stat(RES)
+            for foe in foes_within_n_cardinal(unit, 3):
+                foe_res = foe.get_visible_stat(RES) + foe.get_phantom_stat(RES)
+
+                if foe_res < unit_res + 5:
+                    add_debuff(foe, DEF, -7)
+                    add_debuff(foe, RES, -7)
+                    add_status(foe, Status.Exposure)
+                    add_status(foe, Status.Ploy)
+
         # DISCORD
         if "spdResDiscord" in unitSkills:
             unit_res = unit.get_visible_stat(RES) + unit.get_phantom_stat(RES)
@@ -4334,6 +5047,12 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             add_status(unit, Status.SpecialCharge)
             add_status(unit, Status.NullPenalties)
 
+            for ally in allies_within_n(unit, 2):
+                add_buff(ally, ATK, 6)
+                add_buff(ally, SPD, 6)
+                add_status(ally, Status.SpecialCharge)
+                add_status(ally, Status.NullPenalties)
+
         # Jokers Wild (Refine Eff) - Xane
         if "xaneStuff!" in unitSkills:
             for ally in allies_within_n(unit, 3):
@@ -4341,7 +5060,7 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_status(ally, Status.Hexblade)
                 add_status(ally, Status.NullPanic)
 
-        # Dark Scripture (Base) - FA!Julia
+        # Dark Scripture (Refine Base) - FA!Julia
         if "juliaFallenRefine" in unitSkills:
             for foe in foes_within_n_cardinal(unit, 3):
                 if foe.get_visible_stat(RES) + foe.get_phantom_stat(RES) < unit.get_visible_stat(RES) + unit.get_phantom_stat(RES):
@@ -4350,6 +5069,19 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                     add_status(foe, Status.Sabotage)
                     add_status(foe, Status.DeepWounds)
                     add_status(foe, Status.NullMiracle)
+
+        # Silesse Frost (Refine Eff) - Erinys
+        if "stabbitystabbitystabstab" in unitSkills and allies_within_n(unit, 2):
+            add_buff(unit, ATK, 6)
+            add_buff(unit, SPD, 6)
+            add_status(unit, Status.SpecialCharge)
+            add_status(unit, Status.Dodge)
+
+            for ally in allies_within_n(unit, 2):
+                add_buff(ally, ATK, 6)
+                add_buff(ally, SPD, 6)
+                add_status(ally, Status.SpecialCharge)
+                add_status(ally, Status.Dodge)
 
         # Blade of Favors (Base) - Gregor
         if "gregorSword!" in unitSkills and foes_within_n_cardinal(unit, 3):
@@ -4362,6 +5094,14 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_debuff(foe, SPD, -6)
                 add_debuff(foe, DEF, -6)
 
+        # Duskbloom Bow (Base) - V!Leo
+        if "vLeoBoost" in unitSkills:
+            for foe in foes_within_n_cardinal(unit, 1):
+                if unit.get_visible_stat(RES) + unit.get_phantom_stat(RES) > foe.get_visible_stat(RES) + foe.get_phantom_stat(RES):
+                    add_debuff(foe, DEF, -7)
+                    add_debuff(foe, RES, -7)
+                    add_status(foe, Status.Gravity)
+
         # Banshee Θ (Refine Eff) - Solon
         if "So joining Smash consumes even the darkness itself?" in unitSkills:
             for foe in starting_team:
@@ -4369,6 +5109,18 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                     add_debuff(foe, ATK, -7)
                     add_debuff(foe, RES, -7)
                     add_status(foe, Status.Sabotage)
+
+        # Inspirited Spear - H!Timerra
+        if "meat" in unitSkills:
+            unit_def = unit.get_visible_stat(DEF) + unit.get_phantom_stat(DEF)
+
+            for foe in foes_within_n_cardinal(unit, 3):
+                add_status(foe, Status.Guard)
+
+                foe_def = foe.get_visible_stat(DEF) + foe.get_phantom_stat(DEF)
+
+                if foe_def < unit_def and foe.getSpecialType() in ["Offense", "AOE"] and foe.specialCount <= 1:
+                    sp_charges[foe] -= 1
 
     # Apply stat buffs to all affected units
     for unit in units_stored_buffs.keys():
@@ -4449,6 +5201,30 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 ally.debuffs = [0, 0, 0, 0, 0]
                 ally.statusNeg.clear()
 
+        # Dream Deliverer
+        if "dreamDeliverer" in unitSkills and allies_within_n(unit, 2):
+            unit.debuffs = [0, 0, 0, 0, 0]
+            unit.statusNeg.clear()
+
+            for ally in allies_within_n(unit, 2):
+                ally.debuffs = [0, 0, 0, 0, 0]
+                ally.statusNeg.clear()
+
+    # LOOP 4: CLEANSING SKILLS, ENEMY TEAM
+    for unit in waiting_team:
+        unitSkills = unit.getSkills()
+        unitStats = unit.getStats()
+        unitHPCur = unit.HPcur
+
+        # Dream Deliverer
+        if "dreamDeliverer" in unitSkills and allies_within_n(unit, 2):
+            unit.debuffs = [0, 0, 0, 0, 0]
+            unit.statusNeg.clear()
+
+            for ally in allies_within_n(unit, 2):
+                ally.debuffs = [0, 0, 0, 0, 0]
+                ally.statusNeg.clear()
+
     # Set defaults
     damage_taken = {}
     heals_given = {}
@@ -4457,7 +5233,7 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
         damage_taken[unit] = 0
         heals_given[unit] = 0
 
-    # LOOP 4: DAMAGE AND HEALING, PLAYER TEAM
+    # LOOP 5: DAMAGE AND HEALING, PLAYER TEAM
     for unit in starting_team:
         if Status.FalseStart in unit.statusNeg:
             continue
@@ -4541,6 +5317,13 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             for foe in [tile.hero_on for tile in tile.tilesWithinNCols(5) if unit.isEnemyOf(tile.hero_on) and tile.hero_on.wpnType not in TOME_WEAPONS]:
                 damage_taken[foe] += unitSkills["gharnefDmg"]
 
+        # Beyond Witchery
+        if "beyondWitchery" in unitSkills:
+            if turn == 1:
+                damage_taken[unit] += 2
+            else:
+                damage_taken[unit] += 1
+
         # Upheaval(+) - Duma
         if "upheaval" in unitSkills and turn == 1:
             for foe in waiting_team:
@@ -4590,7 +5373,15 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             for ally in allies_within_n_spaces[2]:
                 damage_taken[ally] += 1
 
+        # Hrist (Base) - WI!Bernadetta
         if "wiBernieBoost" in unitSkills and unitHPEqual100Percent and allies_within_n_spaces[2]:
+            damage_taken[unit] += 1
+
+            for ally in allies_within_n_spaces[2]:
+                damage_taken[ally] += 1
+
+        # Bow of Repose (Base) - SP!Bernadetta
+        if "spBernieBoost" in unitSkills and unitHPEqual100Percent and allies_within_n_spaces[2]:
             damage_taken[unit] += 1
 
             for ally in allies_within_n_spaces[2]:
@@ -4598,6 +5389,10 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
 
         # Dark Spikes T (Refine Eff) - B!Lysithea
         if "lysitheaSchmovement" in unitSkills:
+            damage_taken[unit] += 1
+
+        # Mastermind - T!Lysithea
+        if "mastermind" in unitSkills:
             damage_taken[unit] += 1
 
         if "sharenaHealing" in unitSkills:
@@ -4609,6 +5404,13 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
         # True Dragon Wall - Rhea/FA!Rhea
         if "trueDragonWall" in unitSkills and any([ally.wpnType in DRAGON_WEAPONS for ally in allies_within_n(unit, 20)]):
             heals_given[unit] += 7
+
+        # Joyous Tome (Base) - Céline
+        if "célineBoost" in unitSkills:
+            heals_given[unit] += 7
+
+            for ally in allies_within_n_spaces[2]:
+                heals_given[ally] += 7
 
         # Sinmara (Base) - Surtr
         if "surtrBurn" in unitSkills:
@@ -4631,7 +5433,7 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 for ally in affected_units:
                     heals_given[ally] += unitSkills["sparklingBoost"]
 
-    # LOOP 5: DAMAGE AND HEALING, ENEMY TEAM
+    # LOOP 6: DAMAGE AND HEALING, ENEMY TEAM
     # insert here once the time comes
     # if Status.FalseStart in unit.statusNeg: continue
 
@@ -4659,7 +5461,30 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 if tile.hero_on and tile.hero_on.side + 1 == struct.struct_type:
                     heals_given[tile.hero_on] += get_tower_hp_change(struct.level)
 
-    # LOOP 5: AFTER START OF TURN SKILLS, PLAYER TEAM
+    # Set damage taken/heals given to empty values if no damage done
+    for unit in starting_team + waiting_team:
+        if damage_taken[unit] == 0:
+            damage_taken[unit] = -1
+        if heals_given[unit] == 0:
+            heals_given[unit] = -1
+
+    # Deal start-of-turn damage
+    for unit in starting_team + waiting_team:
+        heal_amount = 0
+        damage_amount = 0
+
+        if unit in heals_given and heals_given[unit] != -1 and Status.DeepWounds not in unit.statusNeg:
+            heal_amount = heals_given[unit]
+
+        if unit in damage_taken and damage_taken[unit] != -1 and Status.EnGarde not in unit.statusPos:
+            damage_amount = damage_taken[unit]
+
+        if damage_amount >= heal_amount and (damage_amount > 0 or heal_amount > 0):
+            unit.HPcur = max(1, unit.HPcur + (heal_amount - damage_amount))
+        elif damage_amount < heal_amount and (damage_amount > 0 or heal_amount > 0):
+            unit.HPcur = min(unit.visible_stats[HP], unit.HPcur + (heal_amount - damage_amount))
+
+    # LOOP 7: AFTER START OF TURN SKILLS, PLAYER TEAM
     for unit in starting_team:
 
         if Status.FalseStart in unit.statusNeg: continue
@@ -4668,6 +5493,9 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
         unitStats = unit.getStats()
         unitHPCur = unit.HPcur
 
+        if "fettersODromi" in unitSkills and Status.Stall in unit.statusNeg and Status.MobilityUp in unit.statusPos:
+            unit.statusNeg.remove(Status.MobilityUp)
+
         if "l&d_detox" in unitSkills:
             unit.debuffs[ATK] = 0
             unit.debuffs[SPD] = 0
@@ -4675,7 +5503,14 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             if Status.Panic in unit.statusNeg:
                 unit.statusNeg.remove(Status.Panic)
 
-    # LOOP 6: AFTER START OF TURN SKILLS, ENEMY TEAM
+        # Tome of Luxuries - Cirtinne
+        if "citrinneBoost" in unitSkills and unitHPCur / unitStats[HP] >= 0.25:
+            for status in unit.statusPos:
+                if status != Status.MobilityUp and status != Status.Pathfinder:
+                    for ally in allies_within_n(unit, 2):
+                        ally.inflictStatus(status)
+
+    # LOOP 8: AFTER START OF TURN SKILLS, ENEMY TEAM
     for unit in waiting_team:
 
         if Status.FalseStart in unit.statusNeg: continue
@@ -4691,12 +5526,36 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             if Status.Panic in unit.statusNeg:
                 unit.statusNeg.remove(Status.Panic)
 
+    divine_veins = {}
+
+    # DIVINE VEINS
+    for unit in starting_team:
+        if Status.FalseStart in unit.statusNeg: continue
+
+        unitSkills = unit.getSkills()
+
+
+    for unit in waiting_team:
+        if Status.FalseStart in unit.statusNeg: continue
+
+        unitSkills = unit.getSkills()
+
+        # Taciturn Axe (Refine Eff) - Dedue
+        if "taciturnAxe" in unitSkills and game_mode == GameMode.AetherRaids:
+            if (unit.side, "stone") not in divine_veins:
+                divine_veins[(unit.side, "stone")] = []
+
+            for tile in unit.tile.tilesWithinNSpaces(2):
+                divine_veins[(unit.side, "stone")].append(tile.tileNum)
 
     # END ACTION EFFECTS
     cancel_action = []
 
     # Safety Fence
     trigger_safety_fence = False
+
+    # LOOP 9: END ACTION EFFECTS, STARTING TEAM
+    # i think it's just the CancelAction status, so yeah
 
     for struct_tile in ar_struct_tiles:
         struct = struct_tile.structure_on
@@ -4720,12 +5579,32 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
         for unit in starting_team:
             cancel_action.append(unit)
 
-    # Set damage taken/heals given to empty values if no damage done
-    for unit in starting_team + waiting_team:
-        if damage_taken[unit] == 0:
-            damage_taken[unit] = -1
-        if heals_given[unit] == 0:
-            heals_given[unit] = -1
+    # LOOP 10: END ACTION EFFECTS, ENEMY TEAM
+    # i think it's just the CancelAction status, so yeah
+    for unit in waiting_team:
+
+        if Status.FalseStart in unit.statusNeg: continue
+
+        unitSkills = unit.getSkills()
+        unitStats = unit.getStats()
+        unitHPCur = unit.HPcur
+
+        if "futureFocused" in unitSkills and turn % 2 == 1:
+            min_dist = 100
+            targeted_foes = []
+
+            for foe in foes_within_n_cardinal(unit, 1):
+                distance = abs(foe.tile.x_coord - unit.tile.x_coord) + abs(foe.tile.y_coord - unit.tile.y_coord)
+
+                if distance < min_dist:
+                    targeted_foes = [foe]
+                    min_dist = distance
+                elif distance == min_dist:
+                    targeted_foes.append(foe)
+
+            for foe in targeted_foes:
+                if unit.get_visible_stat(RES) + unit.get_phantom_stat(RES) >= foe.get_visible_stat(RES) + foe.get_phantom_stat(RES) + (min_dist * 3):
+                    cancel_action.append(foe)
 
     # Invincible Seals
     for unit in damage_taken:
@@ -4733,7 +5612,7 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             damage_taken[unit] = 0
 
     # return hash maps of units who have had damage dealt or healed, or if their special cooldown was modified
-    return damage_taken, heals_given, cancel_action
+    return damage_taken, heals_given, cancel_action, divine_veins
 
 # Allies within N spaces of unit
 def allies_within_n(unit, n):
@@ -4935,7 +5814,7 @@ def get_tile_cost(tile, unit):
     # Difficult terrain
     if tile.terrain == 1 and move_type == 0: cost = 2
     if tile.terrain == 3 and move_type == 1: cost = 3
-    if tile.divine_vein == 1 and tile.divine_vein_owner != unit.side and unit.getRange() == 2: cost = 2
+    if tile.divine_vein == DV_FLAME and tile.divine_vein_side != unit.side and unit.getRange() == 2: cost = 2
 
     # Ignore difficult terrain
     if Status.TraverseTerrain in unit.statusPos: cost = 1
@@ -4953,7 +5832,7 @@ def get_nonwarp_moves(unit, other_team, spaces_allowed=None):
         spaces_allowed = allowed_movement(unit)
 
     visited = set() # tiles that have already been visited
-    queue = [(tile, 0, "")] # array of tuples of potential movement tiles, current costs, and current optimal pattern
+    queue = deque([(tile, 0, "")]) # array of tuples of potential movement tiles, current costs, and current optimal pattern
 
     possible_tiles = [] # unique, possible tiles, to be returned
     optimal_moves = [] # shortest possible string to get to corresponding possible_move at index i
@@ -4973,12 +5852,16 @@ def get_nonwarp_moves(unit, other_team, spaces_allowed=None):
 
     while queue:
         # get current tuple
-        current_tile, cost, path_str = queue.pop(0)
+        current_tile, cost, path_str = queue.popleft()
 
         # not possible if too far, break since this is a BFS
-        if cost > spaces_allowed: break
+        if current_tile in visited:
+            continue
 
         visited.add(current_tile)
+
+        if cost > spaces_allowed:
+            continue
 
         if current_tile in obstruct_tiles and not pass_cond and current_tile != tile:
             possible_obstruct_tiles.append(current_tile)
@@ -5001,8 +5884,11 @@ def get_nonwarp_moves(unit, other_team, spaces_allowed=None):
                 within_allowed_cost = cost + neighbor_cost <= spaces_allowed
 
                 if within_allowed_cost and neighbor_cost >= 0 and (x.hero_on is None or unit.isAllyOf(x.hero_on) or pass_cond):
-                    queue.append((x, cost + neighbor_cost, path_str + char_arr[i]))
-                    visited.add(x)
+                    new_entry = (x, cost + neighbor_cost, path_str + char_arr[i])
+                    if neighbor_cost == 0:
+                        queue.appendleft(new_entry)  # Prioritize 0-cost moves
+                    else:
+                        queue.append(new_entry)
             i += 1
 
     final_possible_tiles = []
@@ -5039,14 +5925,24 @@ def get_warp_moves(unit, unit_team, other_team):
 
     warp_moves = []
 
+    all_allies = [ally for ally in unit_team if ally != unit]
+
     if "wingsOfMercy" in unitSkills:
-        for ally in unit_team:
-            ally_hp = ally.HPcur/ally.getStats()[HP]
-            if ally != unit and ally_hp <= unitSkills["wingsOfMercy"] * 0.10 + 0.20:
-                adj_ally_spaces = ally.tile.tilesWithinNSpaces(1)
-                for adj_tile in adj_ally_spaces:
-                    if can_be_on_tile(adj_tile, unit.move):
+        for ally in all_allies:
+            if ally.HPcur/ally.getStats()[HP] <= unitSkills["wingsOfMercy"] * 0.10 + 0.20:
+                for adj_tile in ally.tile.tilesWithinNSpaces(1):
+                    warp_moves.append(adj_tile)
+
+    if "WoM4" in unitSkills:
+        for ally in all_allies:
+            if ally in allies_within_n(unit, 3):
+                if ally.HPcur/ally.getStats()[HP] <= 0.99:
+                    for adj_tile in ally.tile.tilesWithinNSpaces(1):
                         warp_moves.append(adj_tile)
+
+            if ally.HPcur/ally.getStats()[HP] <= 0.60:
+                for adj_tile in ally.tile.tilesWithinNSpaces(2):
+                    warp_moves.append(adj_tile)
 
     # Sumia
     if "sumiaMovement" in unitSkills:
@@ -5070,10 +5966,14 @@ def get_warp_moves(unit, unit_team, other_team):
         if unit.HPcur/unitStats[HP] <= unitSkills["escRoute"] * 0.10 + 0.20:
             for ally in unit_team:
                 if ally != unit:
-                    adj_ally_spaces = ally.tile.tilesWithinNSpaces(1)
-                    for adj_tile in adj_ally_spaces:
-                        if can_be_on_tile(adj_tile, unit.move):
-                            warp_moves.append(adj_tile)
+                    for adj_tile in ally.tile.tilesWithinNSpaces(1):
+                        warp_moves.append(adj_tile)
+
+    if "escRoutePlus" in unitSkills:
+        if unit.HPcur / unitStats[HP] <= 0.99:
+            for ally in allies_within_n(unit, 3):
+                for adj_tile in ally.tile.tilesWithinNSpaces(1):
+                    warp_moves.append(adj_tile)
 
     # Flier Formation
     # Warp to adj. spaces to flying ally within 2 spaces
@@ -5096,6 +5996,12 @@ def get_warp_moves(unit, unit_team, other_team):
                     for adj_tile in adj_ally_spaces:
                         warp_moves.append(adj_tile)
 
+    # Aerial Maneuvers
+    if "aerialManeuvers" in unitSkills:
+        for ally in allies_within_n(unit, 2):
+            for adj_tile in ally.tile.tilesWithinNSpaces(2):
+                warp_moves.append(adj_tile)
+
     # Aerial Longsword (Refine Eff) - Annand
     if "aerialLongsword" in unitSkills:
         for ally in allies_within_n(unit, 2):
@@ -5104,6 +6010,12 @@ def get_warp_moves(unit, unit_team, other_team):
 
     # Lance of Frelia (Base) - CH!Tana
     if "they fly now?" in unitSkills:
+        for ally in allies_within_n(unit, 2):
+            for adj_tile in ally.tile.tilesWithinNSpaces(2):
+                warp_moves.append(adj_tile)
+
+    # Soaring Wings (Base) - R!Tana
+    if "soaringWings" in unitSkills:
         for ally in allies_within_n(unit, 2):
             for adj_tile in ally.tile.tilesWithinNSpaces(2):
                 warp_moves.append(adj_tile)
@@ -5117,6 +6029,12 @@ def get_warp_moves(unit, unit_team, other_team):
     if "WOE, RABBITS UNTO YOU" in unitSkills:
         for ally in allies_within_n(unit, 2):
             for adj_tile in ally.tile.tilesWithinNSpaces(2):
+                warp_moves.append(adj_tile)
+
+    # Kumo Yumi/Naginata
+    if "kumoBoost" in unitSkills:
+        for ally in allies_within_n(unit, 2):
+            for adj_tile in ally.tile.tilesWithinNSpaces(1):
                 warp_moves.append(adj_tile)
 
     # Warp Powder
@@ -5136,6 +6054,13 @@ def get_warp_moves(unit, unit_team, other_team):
                 for adj_tile in adj_ally_spaces:
                     if can_be_on_tile(adj_tile, unit.move) and adj_tile.hero_on is None:
                         warp_moves.append(adj_tile)
+
+    # Tip the Scales!
+    if "tipTheScales" in unitSkills:
+        for ally in allies_within_n(unit, 5):
+            if Status.RallySpectrum in ally.statusPos:
+                for adj_tile in ally.tile.tilesWithinNSpaces(1):
+                    warp_moves.append(adj_tile)
 
     # Awakening Anna
     if "On the house" in unitSkills or "One time offer, restrictions may apply" in unitSkills:
@@ -5210,6 +6135,27 @@ def get_warp_moves(unit, unit_team, other_team):
             for adj_tile in nearest_tiles:
                 warp_moves.append(adj_tile)
 
+    # Troubling Blade
+    if "bomba" in unitSkills:
+        for foe in foes_within_n(unit, 4):
+            nearest_tile_dist = 20
+            nearest_tiles = []
+
+            for warp_tile in foe.tile.tilesWithinNSpaces(1):
+                dist = abs(warp_tile.x_coord - unit.tile.x_coord) + abs(warp_tile.y_coord - unit.tile.y_coord)
+
+                # If closer than current closest tile
+                if dist < nearest_tile_dist:
+                    nearest_tiles = [warp_tile]
+                    nearest_tile_dist = dist
+
+                # If as close as current closest tile
+                elif dist == nearest_tile_dist:
+                    nearest_tiles.append(warp_tile)
+
+            for adj_tile in nearest_tiles:
+                warp_moves.append(adj_tile)
+
     # Death (Refine Eff) - FA!Delthea
     if "deathOrders" in unitSkills:
         for ally in allies_within_n(unit, 2):
@@ -5229,6 +6175,12 @@ def get_warp_moves(unit, unit_team, other_team):
                 for adj_tile in ally.tile.tilesWithinNSpaces(1):
                     warp_moves.append(adj_tile)
 
+    # Dazzling Shift
+    if "dazzlingShift" in unitSkills:
+        for ally in allies_within_n(unit, 2):
+            for tile in ally.tile.tilesWithinNSpaces(1):
+                warp_moves.append(tile)
+
     # Tome of Favors (Refine Eff) - Oliver
     if "I cannot blame you for wanting to touch something so alluring as myself." in unitSkills:
         for ally in unit_team:
@@ -5246,6 +6198,13 @@ def get_warp_moves(unit, unit_team, other_team):
 
     if "lilithRefineWarp" in unitSkills or "faLilithBoost" in unitSkills:
         for ally in unit_team:
+            if ally.isSupportOf(unit):
+                for adj_tile in ally.tile.tilesWithinNSpaces(2):
+                    warp_moves.append(adj_tile)
+
+    # Divine Draught - SU!Ivy
+    if "suIvyBoost" in unitSkills:
+        for ally in allies_within_n(unit, 3):
             if ally.isSupportOf(unit):
                 for adj_tile in ally.tile.tilesWithinNSpaces(2):
                     warp_moves.append(adj_tile)
@@ -5330,6 +6289,11 @@ def get_warp_moves(unit, unit_team, other_team):
         allySkills = ally.getSkills()
         allyStats = ally.getStats()
 
+        # Time's Gate
+        if Status.TimesGate in ally.statusPos and unit in allies_within_n(ally, 4):
+            for tile in ally.tile.tilesWithinNSpaces(1):
+                warp_moves.append(tile)
+
         # Hinoka's Spear
         if "refineNaginata" in allySkills and (unit.move == 0 or unit.move == 2):
             units_within_2 = allies_within_n(ally, 2)
@@ -5389,6 +6353,15 @@ def get_warp_moves(unit, unit_team, other_team):
                     for tile in local_spaces:
                         if can_be_on_tile(tile, unit.move):
                             warp_moves.append(tile)
+
+        # Soaring Guidance
+        if "soaring_guidance" in allySkills and (unit.move == 2 or unit.move == 0) and unit in allies_within_n(ally, 2):
+            for tile in ally.tile.tilesWithinNSpaces(2):
+                warp_moves.append(tile)
+
+        if "heartOCrimea" in allySkills and unit in allies_within_n(ally, 2):
+            for tile in ally.tile.tilesWithinNSpaces(2):
+                warp_moves.append(tile)
 
         if "aFlorinaBoost" in allySkills:
             if unit in allies_within_n(ally, 2):
@@ -5533,8 +6506,17 @@ def get_canto_moves(unit, unit_team, other_team, distance_traveled, allowed_move
     if "cantoRemPlus1Min2" in unitSkills:
         possible_move_vals.append(max(remaining_movement + 1, 2))
 
+    if "cantoDist+1Max4" in unitSkills:
+        possible_move_vals.append(min(distance_traveled + 1, 4))
+
+    if "cantoDistMax3" in unitSkills:
+        possible_move_vals.append(min(distance_traveled, 3))
+
     # Skills
     if "tier4DanceCanto" in unitSkills and action == ASSIST:
+        possible_move_vals.append(1)
+
+    if "escRoutePlus" in unitSkills and unit.HPcur / unit.visible_stats[HP] <= 0.99:
         possible_move_vals.append(1)
 
     # Feather Sword (Refine Eff) - CH!Caeda
@@ -5588,12 +6570,20 @@ def get_canto_moves(unit, unit_team, other_team, distance_traveled, allowed_move
     if "deNailahBoost" in unitSkills and unit.transformed:
         possible_move_vals.append(remaining_movement + 1)
 
+    # Queenslance - REM+1
+    if "geoffreyBoost" in unitSkills and unit.hasBonus():
+        possible_move_vals.append(remaining_movement + 1)
+
     # Failnaught
     if "the nair landing hitbox has won me many a game" in unitSkills:
         possible_move_vals.append(1)
 
     # Mirage Feather
     if "KOWASHITAI" in unitSkills:
+        possible_move_vals.append(2)
+
+    # Payday Pouch - H!E!Anna
+    if "hAnnaBoost" in unitSkills and len(unit.statusPos) >= 3:
         possible_move_vals.append(2)
 
     # Gate-Anchor Axe (Refine Base) - PI!Veronica - DIST+1, MAX 4
@@ -5897,6 +6887,15 @@ def allies_in_group(unit, other, units_in_area):
 
     return returned_list
 
+def ally_marias(unit, other, units_in_area):
+    returned_list = []
+
+    for x in units_in_area:
+        if unit.side == x.side and x != unit and "sacrificeStaff" in x.getSkills():
+            returned_list.append(x)
+
+    return returned_list
+
 def allies_plus_unit(unit, other, units_in_area):
     returned_list = []
 
@@ -5968,7 +6967,7 @@ def foes_minus_other(unit, other, units_in_area):
             returned_list.append(x)
     return returned_list
 
-def end_of_combat(atk_effects, def_effects, attacker, defender, savior_unit):
+def end_of_combat(atk_effects, def_effects, attacker, defender, savior_unit, units_to_move):
     atkSkills = attacker.getSkills()
     atkStats = attacker.getStats()
 
@@ -5979,6 +6978,7 @@ def end_of_combat(atk_effects, def_effects, attacker, defender, savior_unit):
     heals_given = {}
     absolute_heals_given = {}
     sp_charges = {}
+    end_actions = []
 
     # key: type ("flame", "haze", etc.)
     # value: arr of tile ints for that DV
@@ -5997,7 +6997,7 @@ def end_of_combat(atk_effects, def_effects, attacker, defender, savior_unit):
     atkAreas['within_2_spaces_foe'] = defender.tile.unitsWithinNSpaces(2)
     atkAreas['within_3_spaces_foe'] = defender.tile.unitsWithinNSpaces(3)
     atkAreas['within_4_spaces_foe'] = defender.tile.unitsWithinNSpaces(4)
-    atkAreas['nearest_self'] = nearest_allies_within_n(attacker, 16) + nearest_foes_within_n(attacker, 16)
+    atkAreas['nearest_self'] = nearest_allies_within_n(attacker, 16) + nearest_foes_within_n(attacker, 16) + [attacker]
     atkAreas['global'] = attacker.tile.unitsWithinNSpaces(16)
 
     defAreas = {}
@@ -6013,12 +7013,20 @@ def end_of_combat(atk_effects, def_effects, attacker, defender, savior_unit):
     defAreas['within_2_spaces_foe'] = attacker.tile.unitsWithinNSpaces(2)
     defAreas['within_3_spaces_foe'] = attacker.tile.unitsWithinNSpaces(3)
     defAreas['within_4_spaces_foe'] = attacker.tile.unitsWithinNSpaces(4)
-    defAreas['nearest_self'] = nearest_allies_within_n(defender, 16) + nearest_foes_within_n(defender, 16)
+    defAreas['nearest_self'] = nearest_allies_within_n(defender, 16) + nearest_foes_within_n(defender, 16) + [defender]
     defAreas['global'] = defender.tile.unitsWithinNSpaces(16)
+
+    defAreas['nearest_within_4_spaces_foe'] = []
+
+    for i in range(1, 5):
+        if nearest_allies_within_n(attacker, i) and any([foe for foe in nearest_allies_within_n(attacker, i) if foe in units_to_move]):
+            defAreas['nearest_within_4_spaces_foe'] = nearest_allies_within_n(attacker, i)
+            break
 
     areaMethods = {'self': get_self,
                    'foe': get_foe,
                    'allies': allies_in_group,
+                   'ally_marias': ally_marias,
                    'self_and_allies': allies_plus_unit,
                    'self_and_essence_drainers': essence_drainers_plus_unit,
                    'foes_allies': foes_minus_other,
@@ -6211,6 +7219,10 @@ def end_of_combat(atk_effects, def_effects, attacker, defender, savior_unit):
                     sp_charges[x] = 0
                 sp_charges[x] -= 99
 
+        if effect[0] == "end_action":
+            for x in targeted_units:
+                end_actions.append(x)
+
         if effect[0] == "enable_once_per_map":
             for x in targeted_units:
                 x.once_per_map_cond = True
@@ -6228,12 +7240,75 @@ def end_of_combat(atk_effects, def_effects, attacker, defender, savior_unit):
                 x.statusOther["disableBSkill"] = effect[1]
 
         if effect[0] == "dv_haze":
-            if "haze" not in divine_veins:
+            if (unit, "haze") not in divine_veins:
                 divine_veins[(unit, "haze")] = []
 
             for tile in defender.tile.tilesWithinNSpaces(effect[1]):
                 divine_veins[(unit, "haze")].append(tile.tileNum)
 
+        if effect[0] == "dv_flame":
+            if (unit, "flame") not in divine_veins:
+                divine_veins[(unit, "flame")] = []
+
+            # Ranged Units cannot create 2 rows of Flame
+            if not(unit.wpnType in RANGED_WEAPONS and effect[1] == 2):
+                divine_veins[(unit, "flame")].append(defender.tile.tileNum)
+
+                # Both units are in same row
+                if unit.tile.y_coord == defender.tile.y_coord:
+                    if defender.tile.north:
+                        divine_veins[(unit, "flame")].append(defender.tile.north.tileNum)
+
+                        if defender.tile.north.north:
+                            divine_veins[(unit, "flame")].append(defender.tile.north.north.tileNum)
+
+                    if defender.tile.south:
+                        divine_veins[(unit, "flame")].append(defender.tile.south.tileNum)
+
+                        if defender.tile.south.south:
+                            divine_veins[(unit, "flame")].append(defender.tile.south.south.tileNum)
+
+                # Both units are in the same column
+                elif unit.tile.x_coord == defender.tile.x_coord:
+                    if defender.tile.east:
+                        divine_veins[(unit, "flame")].append(defender.tile.east.tileNum)
+
+                        if defender.tile.east.east:
+                            divine_veins[(unit, "flame")].append(defender.tile.east.east.tileNum)
+
+                    if defender.tile.west:
+                        divine_veins[(unit, "flame")].append(defender.tile.west.tileNum)
+
+                        if defender.tile.west.west:
+                            divine_veins[(unit, "flame")].append(defender.tile.west.west.tileNum)
+
+                # Attacker southwest or northeast of target
+                elif (unit.tile.x_coord < defender.tile.x_coord and unit.tile.y_coord < defender.tile.y_coord) or (unit.tile.x_coord > defender.tile.x_coord and unit.tile.y_coord > defender.tile.y_coord):
+                    if defender.tile.north and defender.tile.north.west:
+                        divine_veins[(unit, "flame")].append(defender.tile.north.west.tileNum)
+
+                        if defender.tile.north.west.north and defender.tile.north.west.north.west:
+                            divine_veins[(unit, "flame")].append(defender.tile.north.west.north.west.tileNum)
+
+                    if defender.tile.south and defender.tile.south.east:
+                        divine_veins[(unit, "flame")].append(defender.tile.south.east.tileNum)
+
+                        if defender.tile.south.east.south and defender.tile.south.east.south.east:
+                            divine_veins[(unit, "flame")].append(defender.tile.south.east.south.east.tileNum)
+
+                # Attacker southeast or northwest of target
+                else:
+                    if defender.tile.north and defender.tile.north.east:
+                        divine_veins[(unit, "flame")].append(defender.tile.north.east.tileNum)
+
+                        if defender.tile.north.east.north and defender.tile.north.east.north.east:
+                            divine_veins[(unit, "flame")].append(defender.tile.north.east.north.east.tileNum)
+
+                    if defender.tile.south and defender.tile.south.west:
+                        divine_veins[(unit, "flame")].append(defender.tile.south.west.tileNum)
+
+                        if defender.tile.south.west.south and defender.tile.south.west.south.west:
+                            divine_veins[(unit, "flame")].append(defender.tile.south.west.south.west.tileNum)
 
         i += 1
 
@@ -6242,7 +7317,30 @@ def end_of_combat(atk_effects, def_effects, attacker, defender, savior_unit):
         if "invincible" in unit.getSkills():
             damage_taken[unit] = 0
 
-    return damage_taken, heals_given, absolute_heals_given, sp_charges, divine_veins
+    return damage_taken, heals_given, absolute_heals_given, sp_charges, divine_veins, end_actions
+
+def get_after_action_veins(unit, is_canto):
+    divine_veins = {}
+
+    unitSkills = unit.getSkills()
+    unitStats = unit.getStats()
+
+    if "NOT THE DYNAMIC TILES" in unitSkills and not is_canto:
+        if "stone" not in divine_veins:
+            divine_veins["stone"] = []
+
+        for tile in unit.tile.tilesWithinNSpaces(2):
+            divine_veins["stone"].append(tile.tileNum)
+
+    # Taciturn Axe (Refine Eff) - Dedue
+    if "taciturnAxe" in unitSkills and not is_canto:
+        if "stone" not in divine_veins:
+            divine_veins["stone"] = []
+
+        for tile in unit.tile.tilesWithinNSpaces(2):
+            divine_veins["stone"].append(tile.tileNum)
+
+    return divine_veins
 
 # Returns True if duo skill can be used by unit, False otherwise
 def can_use_duo_skill(unit, units_to_move):

@@ -421,6 +421,130 @@
       }
     ]
   },
+  "NY!Askr": {
+    "desc": "Grants Atk/Spd/Def/Res+6 to unit and allies within 2 spaces of unit for 1 turn, and grants Special cooldown count-1 to unit and those allies.\n\nAt start of every third turn, if Duo Skill has already been used, unit can use Duo Skill again.",
+    "type": "duo",
+    "skill_refresh": 3,
+    "skills": [
+      {"effect": "sp_charge",
+       "degree": 1,
+       "targets": "self_and_allies",
+       "area": "within_2_spaces"},
+      {"effect": "buff_omni",
+       "degree": 6,
+       "targets": "self_and_allies",
+       "area": "within_2_spaces"}
+    ]
+  },
+  "V!Elise": {
+    "desc": "Grants [Dominance] to unit and allies within 2 spaces of unit. Inflicts Def/Res-7 on foes within 3 columns or 3 rows centered on unit through their next actions.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {"effect": "status",
+       "degree": "Dominance",
+       "targets": "self_and_allies",
+       "area": "within_2_spaces"},
+      {"effect": "debuff_def",
+       "degree": 7,
+       "targets": "foes",
+       "area": "within_3_rows_or_cols"},
+      {"effect": "debuff_res",
+       "degree": 7,
+       "targets": "foes",
+       "area": "within_3_rows_or_cols"}
+    ]
+  },
+  "CH!Mark": {
+    "desc": "Inflicts [Isolation], [Guard], and Special cooldown count+2 on foes within 3 rows or 3 columns centered on unit.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {"effect": "status",
+       "degree": "Isolation",
+       "targets": "foes",
+       "area": "within_3_rows_or_cols"},
+      {"effect": "status",
+       "degree": "Guard",
+       "targets": "foes",
+       "area": "within_3_rows_or_cols"},
+      {"effect": "sp_charge",
+       "degree": -2,
+       "targets": "foes",
+       "area": "within_3_rows_or_cols"}
+    ]
+  },
+  "SU!Shamir": {
+    "desc": "Inflicts [Gravity] on foes in cardinal directions of unit and [Feud] on foes within 5 rows or 5 columns centered on unit.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {"effect": "status",
+       "degree": "Gravity",
+       "targets": "foes",
+       "area": "within_1_rows_or_cols"},
+      {"effect": "status",
+       "degree": "Feud",
+       "targets": "foes",
+       "area": "within_5_rows_or_cols"}
+    ]
+  },
+  "SU!Ymir": {
+    "desc": "Neutralizes any [Penalty] on unit and allies within 2 spaces of unit and restores 20 HP to unit and those allies.\n\nOnce used, Duo Skill cannot be activated again right away. At start of odd-numbered turns, if Duo Skill has already been used, unit can use Duo Skill again.",
+    "type": "duo",
+    "skill_refresh": 2,
+    "skills": [
+      {
+        "effect": "clear_penalties",
+        "targets": "self_and_allies",
+        "area": "within_2_spaces"
+      },
+      {
+        "effect": "heal",
+        "degree": 20,
+        "targets": "self_and_allies",
+        "area": "within_2_spaces"
+      }
+    ]
+  },
+  "FF!Kagero": {
+    "desc": "Grants Special cooldown count-1 to unit. Grants \"unit can move 1 extra space (that turn only; does not stack)\" and \"neutralizes foe's bonuses during combat\" to unit for 1 turn.\n\nOnce used, Duo Skill cannot be activated again right away. At start of every third turn, if Duo Skill has already been used, unit can use Duo Skill again.",
+    "type": "duo",
+    "skill_refresh": 3,
+    "skills": [
+      {
+        "effect": "sp_charge",
+        "degree": 1,
+        "targets": "self",
+        "area": "one"
+      },
+      {
+        "effect": "status",
+        "degree": "MobilityUp",
+        "targets": "self",
+        "area": "one"
+      },
+      {
+        "effect": "status",
+        "degree": "NullBonuses",
+        "targets": "self",
+        "area": "one"
+      }
+    ]
+  },
+  "NI!Sanaki": {
+    "desc": "Grants unit another action. (May be used only if unit has already entered combat during the current turn.)",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "galeforce",
+        "targets": "self",
+        "area": "one"
+
+      }
+    ]
+  },
   "SU!Mia": {
     "desc": "Grants [Resonance: Blades] to unit and allies from the same titles as unit.\n\nOnce used, Harmonized Skill cannot be activated again right away. At start of every third turn, if Harmonized Skill has already been used, unit can use Harmonized Skill again.",
     "type": "harmonic",
@@ -519,7 +643,7 @@
       },
       {
         "effect": "status",
-        "degree": "NullEffFlyers",
+        "degree": "NullEffFliers",
         "targets": "self",
         "area": "one"
       }
@@ -735,6 +859,179 @@
         "degree": 0,
         "targets": "self_and_same_game_allies",
         "area": "within_2_spaces"
+      }
+    ]
+  },
+  "WI!Cordelia": {
+    "desc": "Grants Atk/Spd+6, [Resonance: Blades], and [Treachery] to unit and allies from the same titles as unit for 1 turn.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "Treachery",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "buff_atk",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "buff_spd",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "DE!Linde": {
+    "desc": "Grants [Resonance: Blades], [Dodge], and \"Special cooldown charge +1 per attack during combat (only highest value applied; does not stack)\" to unit and allies from the same titles as unit for 1 turn.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "Dodge",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "SpecialCharge",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "SP!Karla": {
+    "desc": "Grants Special cooldown count-2 to unit and allies from the same titles as unit. Grants Atk+6 and [Resonance: Blades] to unit and allies from the same titles as unit for 1 turn.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "buff_atk",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "sp_charge",
+        "degree": 2,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "BR!A!Tiki": {
+    "desc": "Grants [Resonance: Shields], \"neutralizes foe's bonuses during combat,\" and \"neutralizes unit's penalties during combat\" to unit and allies from the same titles as unit for 1 turn.\n\nOnce used, Harmonized Skill cannot be activated again right away. At start of every third turn, if Harmonized Skill has already been used, unit can use Harmonized Skill again.",
+    "type": "harmonic",
+    "skill_refresh": 3,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceShields",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "NullPenalties",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "NullBonuses",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "T!Ayra": {
+    "desc": "Grants Atk/Spd+6, [Resonance: Blades], and \"unit can move 1 extra space (that turn only; does not stack)\" to unit and allies from the same titles as unit for 1 turn and neutralizes any [Penalty] on unit and allies from the same titles as unit.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "MobilityUp",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "buff_atk",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "buff_spd",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "clear_penalties",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "H!E!Anna": {
+    "desc": "Grants [Resonance: Blades] and [Resonance: Shields] and restores 99 HP to unit and allies from the same titles as unit. Grants Special cooldown count-5 to unit.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "ResonanceShields",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "heal",
+        "degree": 99,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "sp_charge",
+        "degree": 5,
+        "targets": "self",
+        "area": "one"
       }
     ]
   }

@@ -71,6 +71,10 @@ while i < len(names):
 
     image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_Mini_Unit_Ok.png"
 
+    # Rearmed Tana's OK Sprite has arrow in weird position, use ready sprite instead
+    if int_name == "R!Tana":
+        image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/Tana_Soaring_Princess_Mini_Unit_Ready.png"
+
     # If image is currently of a character in this current build
     if int_name in implemented_heroes and name + epithet != "BrunoMasked Knight":
 

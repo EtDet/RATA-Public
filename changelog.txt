@@ -1,3 +1,42 @@
+2.5.0 (4/3/25)
+New Features:
+-Added all 144 heroes introduced in Year 7.
+-Attuned/X Skills are now usable, with no PRF skill restrictions (Generosity or laziness? You call it).
+-Resplendent Outfit can now be used for Edelgard.
+-Added weapon refines for: Fernand's Proud Spear, Dedue's Taciturn Axe, Erinys' Silesse Frost, Miranda's Tome of Fury, Ninja Lyn's Tailwing Shuriken.
+-Advanced info for a unit will now also contain the game(s) they are from.
+
+Bug Fixes:
+-Fixed conditions in the Love Bouquet and Love Candelabra which caused incorrect amounts of stats to be given in common scenarios.
+-Structures within the top 2 rows can no longer be dragged onto defensive terrain.
+-Fixed several weapons which inflict full NFU to now work properly.
+-Asc Hilda's Fuming Freikugel and Female Shez's Crimson War-Axe now have the proper Mt values.
+-Pathfinder skills were previously unable to get all possible movement tiles. This has been fixed.
+-Monica's Wind Genesis will now work properly.
+-Beast Agility should now be selectable.
+-The statuses given out in Elimine's Staff of the Saint and Rauðrcrab(+) are now given out correctly.
+-Spring Maria's Pastel Poleaxe will no longer boost AOE damage.
+-The damage reduction from the Dodge status effect will now apply if the targeted unit has Dodge, not the initiator.
+-Movement-based Staff assist skills will no longer charge the unit's special when used.
+-Legendary Female Byleth's Professorial Guide and Sara's Kia staff will give out in-combat buffs correctly.
+-Yune's Chaos Named will now target foe's stats correctly.
+-NY!Alfonse's refined Imbued Koma will now deal true damage on AOE attacks.
+-Desert Karla's Dryblade Lance will now deal true damage on AOE attacks.
+-Brave Eirika's Moonlight Bangle and Summer Eirika's Moonlit Bangle F will now deal true damage on AOE attacks.
+-Ótr's Brutal Shell+ will now apply its damage reduction on its owner instead of the foe when initiated against.
+-Rebecca's Bow will no longer give combat buffs if her bonuses have been neutralized.
+-The vantage effect from Legendary Caeda's Faithful Loyalty will not be disabled if the foe has the Hardy Bearing 1 or 2 seals with failed conditions.
+-Snag skills will now inflict debuffs on the foes closest to both the player and ally, instead of the closest to the player and the closest to the ally.
+-Dragon Wall skills now have AOE damage reduction.
+-True damage reduction applied by the use of a defensive special will no longer apply if using Miracle.
+-Spurn will now apply damage to AOE attacks.
+-Legendary Claude's Refined Failnaught will now properly inflict Guard and Sabotage on foes' allies within 2 spaces.
+-Fixed visual bugs involving Divine Veins in maps without structures.
+-Fixed issues involving setting ally supports.
+-Flow Refresh 1 and 2 will now heal the correct amount of health after combat.
+-Sublime Heaven now deals damage based on the foe's atk instead of unit's atk.
+-Legendary Caeda's refined Wing-Lifted Spear will now give start-of-turn bonuses to allies properly.
+
 2.4.0 (3/27/25)
 New Features:
 -Added all 144 heroes introduced in Year 6.

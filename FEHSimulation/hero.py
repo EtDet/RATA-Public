@@ -597,10 +597,16 @@ class Hero:
             self.skill_stat_mods[DEF] += skill.effects["spectrumBoost"]
             self.skill_stat_mods[RES] += skill.effects["spectrumBoost"]
 
-        if "ninalynBoost" in skill.effects:
-            self.skill_stat_mods[SPD] += skill.effects["ninalynBoost"]
-            self.skill_stat_mods[DEF] -= skill.effects["ninalynBoost"]
-            self.skill_stat_mods[RES] -= skill.effects["ninalynBoost"]
+        if "ninjalynBoost" in skill.effects:
+            self.skill_stat_mods[SPD] += skill.effects["ninjalynBoost"]
+            self.skill_stat_mods[DEF] -= skill.effects["ninjalynBoost"]
+            self.skill_stat_mods[RES] -= skill.effects["ninjalynBoost"]
+
+        if "ninjalynrefineBoost" in skill.effects:
+            self.skill_stat_mods[ATK] += 6
+            self.skill_stat_mods[SPD] += 6
+            self.skill_stat_mods[DEF] -= 4
+            self.skill_stat_mods[RES] -= 4
 
         if "lexBoost" in skill.effects:
             self.skill_stat_mods[HP] += 5
@@ -679,10 +685,16 @@ class Hero:
             self.skill_stat_mods[DEF] -= skill.effects["spectrumBoost"]
             self.skill_stat_mods[RES] -= skill.effects["spectrumBoost"]
 
-        if "ninalynBoost" in skill.effects:
-            self.skill_stat_mods[SPD] -= skill.effects["ninalynBoost"]
-            self.skill_stat_mods[DEF] += skill.effects["ninalynBoost"]
-            self.skill_stat_mods[RES] += skill.effects["ninalynBoost"]
+        if "ninjalynBoost" in skill.effects:
+            self.skill_stat_mods[SPD] -= skill.effects["ninjalynBoost"]
+            self.skill_stat_mods[DEF] += skill.effects["ninjalynBoost"]
+            self.skill_stat_mods[RES] += skill.effects["ninjalynBoost"]
+
+        if "ninjalynrefineBoost" in skill.effects:
+            self.skill_stat_mods[ATK] -= 6
+            self.skill_stat_mods[SPD] -= 6
+            self.skill_stat_mods[DEF] += 4
+            self.skill_stat_mods[RES] += 4
 
         if "lexBoost" in skill.effects:
             self.skill_stat_mods[HP] -= 5
@@ -1142,76 +1154,108 @@ class Blessing:
         return elem_str + type_str + boost_str
 
 blessing_dict = {
-    "Fjorm":      (WATER, 1, SPD),
-    "Gunnthrá":   (WIND,  1, RES),
-    "L!Ike":      (EARTH, 1, ATK),
-    "L!Ephraim":  (FIRE,  1, DEF),
-    "F!Grima":    (EARTH, 1, SPD),
-    "L!Lyn":      (WIND,  1, ATK),
-    "L!Ryoma":    (WATER, 1, DEF),
-    "L!Hector":   (FIRE,  1, ATK),
-    "L!Lucina":   (WIND,  1, SPD),
-    "L!Marth":    (FIRE,  1, RES),
-    "L!Y!Tiki":   (EARTH, 1, DEF),
-    "L!Eirika":   (WATER, 1, ATK),
-    "Hríd":       (WIND,  1, DEF),
-    "L!Azura":    (WATER, 1, RES),
-    "L!Roy":      (FIRE,  2, 0),
-    "L!Alm":      (EARTH, 2, 0),
-    "L!Eliwood":  (WIND,  2, 0),
-    "L!Julia":    (EARTH, 2, 0),
-    "L!Leif":     (WATER, 2, 0),
-    "L!Celica":   (FIRE,  2, 0),
-    "L!Chrom":    (WATER, 2, 0),
-    "L!Edelgard": (FIRE,  2, 0),
-    "L!Seliph":   (EARTH, 2, 0),
-    "L!F!Corrin": (WIND,  2, 0),
-    "L!Dimitri":  (WATER, 2, 0),
-    "L!Lilina":   (FIRE,  2, 0),
-    "L!Claude":   (EARTH, 2, 0),
-    "L!Sigurd":   (WIND,  2, 0),
-    "L!M!Byleth": (WATER, 2, 0),
-    "L!Micaiah":  (WIND,  2, 0),
-    "L!Fae":      (EARTH, 2, 0),
-    "Eitri":      (FIRE,  2, 0),
-    "L!F!Byleth": (WIND,  2, 0),
-    "L!Caeda":    (WATER, 3, SPD),
-    "L!Nanna":    (EARTH, 3, RES),
-    "L!Myrrh":    (WIND,  3, DEF),
-    "L!Xander":   (FIRE,  3, ATK),
-    "L!Deirdre":  (EARTH, 3, ATK),
-    "L!Ninian":   (WATER, 3, RES),
-    "L!Veronica": (WIND,  3, SPD),
+    "Fjorm":       (WATER, 1, SPD),
+    "Gunnthrá":    (WIND,  1, RES),
+    "L!Ike":       (EARTH, 1, ATK),
+    "L!Ephraim":   (FIRE,  1, DEF),
+    "F!Grima":     (EARTH, 1, SPD),
+    "L!Lyn":       (WIND,  1, ATK),
+    "L!Ryoma":     (WATER, 1, DEF),
+    "L!Hector":    (FIRE,  1, ATK),
+    "L!Lucina":    (WIND,  1, SPD),
+    "L!Marth":     (FIRE,  1, RES),
+    "L!Y!Tiki":    (EARTH, 1, DEF),
+    "L!Eirika":    (WATER, 1, ATK),
+    "Hríd":        (WIND,  1, DEF),
+    "L!Azura":     (WATER, 1, RES),
+    "L!Roy":       (FIRE,  2, 0),
+    "L!Alm":       (EARTH, 2, 0),
+    "L!Eliwood":   (WIND,  2, 0),
+    "L!Julia":     (EARTH, 2, 0),
+    "L!Leif":      (WATER, 2, 0),
+    "L!Celica":    (FIRE,  2, 0),
+    "L!Chrom":     (WATER, 2, 0),
+    "L!Edelgard":  (FIRE,  2, 0),
+    "L!Seliph":    (EARTH, 2, 0),
+    "L!F!Corrin":  (WIND,  2, 0),
+    "L!Dimitri":   (WATER, 2, 0),
+    "L!Lilina":    (FIRE,  2, 0),
+    "L!Claude":    (EARTH, 2, 0),
+    "L!Sigurd":    (WIND,  2, 0),
+    "L!M!Byleth":  (WATER, 2, 0),
+    "L!Micaiah":   (WIND,  2, 0),
+    "L!Fae":       (EARTH, 2, 0),
+    "Eitri":       (FIRE,  2, 0),
+    "L!F!Byleth":  (WIND,  2, 0),
+    "L!Caeda":     (WATER, 3, SPD),
+    "L!Nanna":     (EARTH, 3, RES),
+    "L!Myrrh":     (WIND,  3, DEF),
+    "L!Xander":    (FIRE,  3, ATK),
+    "L!Deirdre":   (EARTH, 3, ATK),
+    "L!Ninian":    (WATER, 3, RES),
+    "L!Veronica":  (WIND,  3, SPD),
+    "L!F!Shez":    (FIRE,  3, SPD),
+    "L!M!Robin":   (EARTH, 3, DEF),
+    "L!Yuri":      (WIND,  3, ATK),
+    "L!Hinoka":    (FIRE,  3, RES),
+    "L!Guinivere": (WATER, 3, DEF),
+    "L!F!Alear":   (FIRE,  3, DEF),
+    "L!Elincia":   (WIND,  3, RES),
+    "L!Camilla":   (WATER, 3, ATK),
+    "L!M!Alear":   (EARTH, 3, SPD),
+    "L!M!Corrin":  (FIRE,  3, SPD),
+    "L!M!Shez":    (WIND,  3, DEF),
+    "L!Ayra":      (WATER, 3, SPD),
+    "L!Sakura":    (EARTH, 3, RES),
 
-    "Eir":        (LIGHT, 1, RES),
-    "Duma":       (ANIMA, 1, ATK),
-    "Yune":       (DARK,  1, SPD),
-    "Naga":       (ASTRA, 1, DEF),
-    "Sothis":     (DARK,  1, RES),
-    "Thrasir":    (ANIMA, 1, DEF),
-    "Altina":     (ASTRA, 1, ATK),
-    "Peony":      (LIGHT, 1, SPD),
-    "Líf":        (ANIMA, 1, SPD),
-    "Bramimond":  (DARK,  1, ATK),
-    "Mila":       (LIGHT, 1, DEF),
-    "Mirabilis":  (ANIMA, 1, RES),
-    "Hel":        (DARK,  1, DEF),
-    "Plumeria":   (ASTRA, 1, SPD),
-    "Triandra":   (DARK,  1, SPD),
-    "Freyja":     (LIGHT, 1, ATK),
-    "Reginn":     (ASTRA, 2, ATK),
-    "Seiros":     (ANIMA, 2, ATK),
-    "Dagr":       (LIGHT, 2, RES),
-    "Nótt":       (DARK,  2, DEF),
-    "Ashera":     (ASTRA, 2, RES),
-    "Ullr":       (LIGHT, 2, SPD),
-    "Ótr":        (ANIMA, 2, DEF),
-    "Thórr":      (ASTRA, 2, DEF),
-    "Elimine":    (ASTRA, 2, SPD),
-    "Medeus":     (DARK,  2, ATK),
-    "Askr":       (LIGHT, 2, DEF),
-    "Arval":      (ANIMA, 2, RES),
-    "Embla":      (DARK,  2, RES)
+    "Eir":         (LIGHT, 1, RES),
+    "Duma":        (ANIMA, 1, ATK),
+    "Yune":        (DARK,  1, SPD),
+    "Naga":        (ASTRA, 1, DEF),
+    "Sothis":      (DARK,  1, RES),
+    "Thrasir":     (ANIMA, 1, DEF),
+    "Altina":      (ASTRA, 1, ATK),
+    "Peony":       (LIGHT, 1, SPD),
+    "Líf":         (ANIMA, 1, SPD),
+    "Bramimond":   (DARK,  1, ATK),
+    "Mila":        (LIGHT, 1, DEF),
+    "Mirabilis":   (ANIMA, 1, RES),
+    "Hel":         (DARK,  1, DEF),
+    "Plumeria":    (ASTRA, 1, SPD),
+    "Triandra":    (DARK,  1, SPD),
+    "Freyja":      (LIGHT, 1, ATK),
+    "Reginn":      (ASTRA, 2, ATK),
+    "Seiros":      (ANIMA, 2, ATK),
+    "Dagr":        (LIGHT, 2, RES),
+    "Nótt":        (DARK,  2, DEF),
+    "Ashera":      (ASTRA, 2, RES),
+    "Ullr":        (LIGHT, 2, SPD),
+    "Ótr":         (ANIMA, 2, DEF),
+    "Thórr":       (ASTRA, 2, DEF),
+    "Elimine":     (ASTRA, 2, SPD),
+    "Medeus":      (DARK,  2, ATK),
+    "Askr":        (LIGHT, 2, DEF),
+    "Arval":       (ANIMA, 2, RES),
+    "Embla":       (DARK,  2, RES),
+    "Seiðr":       (ASTRA, 2, ATK),
+    "Fomortiis":   (ANIMA, 2, SPD),
+    "Gotoh":       (LIGHT, 2, RES),
+    "Nerþuz":      (LIGHT, 2, SPD),
+    "Heiðr":       (ASTRA, 2, RES),
+    "Freyr":       (ANIMA, 2, ATK),
+    "Veyle":       (ASTRA, 2, DEF),
+    "Kvasir":      (DARK,  2, SPD),
+    "Gullveig":    (ANIMA, 2, SPD),
+    "Ratatoskr":   (ASTRA, 2, SPD),
+    "M!Lumera":    (LIGHT, 2, DEF),
+    "Loki":        (DARK,  2, ATK),
+    "Heiðrún":     (ANIMA, 2, RES),
+    "Eikþyrnir":   (ASTRA, 2, DEF),
+    "Hræsvelgr":   (LIGHT, 2, ATK),
+    "Níðhöggr":    (ASTRA, 2, RES),
+    "Læraðr":      (DARK,  2, DEF),
+    "Rune":        (LIGHT, 3, SPD),
+    "Athos":       (ANIMA, 3, DEF)
 }
 
 def create_specialized_blessing(int_name):
@@ -1280,7 +1324,7 @@ class Status(Enum):
     Anathema = 112  # 🔴 Inflicts Spd/Def/Res-4 on foes within 3 spaces
     Dominance = 113  # 🔴 Deal true damage = number of stat penalties on foe (including Panic-reversed Bonus)
     Treachery = 114  # 🔴 Deal true damage = number of stat bonuses on unit (not including Panic + Bonus)
-    AOEReduce80 = 115  # 🔴 Reduces non-Røkkr AoE damage taken by 80%
+    AOEReduce80Percent = 115  # 🔴 Reduces non-Røkkr AoE damage taken by 80%
     Dodge = 116  # 🔴 If unit's spd > foe's spd, reduces combat & non-Røkkr AoE damage by X%, X = (unit's spd - foe's spd) * 4, max of 40%
     FirstReduce40 = 117  # 🔴 If initiating combat, reduces damage from first attack received by 40%
     FallenStar = 118  # 🔴 Reduces damage from foe's first attack by 80% in unit's first combat in player phase and first combat in enemy phase
@@ -1296,7 +1340,7 @@ class Status(Enum):
     EffDragons = 128  # 🔴 Gain effectiveness against dragons
     NullEffDragons = 129  # 🔴 Gain immunity to "eff against dragons"
     NullEffArmors = 130  # 🔴 Gain immunity to "eff against armors"
-    NullEffFlyers = 131  # 🔴 Gain immunity to "eff against flyers"
+    NullEffFliers = 131  # 🔴 Gain immunity to "eff against flyers"
     MobilityUp = 132  # 🔵 Movement increased by 1, cancelled by Gravity
     Gallop = 133  # 🔵 Movement increased by 2, cancelled by Gravity, does not stack with MobilityUp
     Charge = 134  # 🔵 Unit can move to any space up to 3 spaces away in cardinal direction, terrain/skills that halt (not slow) movement still apply, treated as warp movement
@@ -1817,7 +1861,46 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "Arval",
                           "NI!Camilla", "NI!Cherche", "NI!Haar", "NI!Heath", "NI!Laegjarn",
                           "Elice", "Hardin", "Nyna", "A!Y!Tiki", "Matthis", "Ganglöt",
-                          "Embla", "L!Veronica"
+                          "Embla", "L!Veronica",
+
+                          "Seiðr",
+                          "Dwyer", "Caeldori", "Kiragi", "R!Ophelia", "Hans",
+                          "WI!Annette", "WI!Black Knight", "WI!Cordelia", "WI!Dorothea", "WI!Bruno",
+                          "L!F!Shez",
+                          "NY!Ash", "NY!Askr", "NY!Elm", "NY!Panne", "NY!Yarne",
+                          "DE!M!Byleth", "DE!Nino", "DE!Ursula", "DE!Linde", "DE!Soren",
+                          "F!Alear", "Alfred", "Chloé", "Céline", "Etie", "Lumera",
+                          "Fomortiis", "Gotoh",
+                          "V!Elise", "V!Hana", "V!Effie", "V!Takumi", "V!Effie",
+                          "Bastian", "Geoffrey", "Lucia", "A!Elincia", "Ludveck",
+                          "L!M!Robin",
+                          "SP!Ashe", "SP!Bernadetta", "SP!Karla", "SP!Triandra", "SP!Michalis",
+                          "Gilliam", "Syrene", "Vanessa", "R!Tana", "Vigarde",
+                          "L!Yuri",
+                          "CH!Eliwood", "CH!Hector", "CH!Lucius", "CH!Mark", "CH!Rebecca",
+                          "Felix", "Rhea", "Sylvain", "R!Ingrid", "Cornelia",
+                          "Nerþuz",
+                          "FA!Anankos", "FA!F!Byleth", "FA!Chrom", "FA!Maria", "FA!Linus",
+                          "BR!Anna", "BR!Flavia", "BR!Say'ri", "BR!A!Tiki", "GR!M!Robin",
+                          "L!Hinoka",
+                          "Dorothy", "A!Fir", "Noah", "Saul", "Murdock", "Heiðr",
+                          "SU!Ephraim", "SU!L'Arachel", "SU!Shamir", "SU!F!Shez", "SU!M!Shez",
+                          "L!Guinivere",
+                          "SU!Donnel", "SU!Fjorm", "SU!Tharja", "SU!Ymir", "SU!Ivy",
+                          "Alcryst", "M!Alear", "Citrinne", "Diamant", "Lapis", "Zephia" "Eitr",
+                          "Freyr",
+                          "T!Ayra", "T!Ferdinand", "T!Lysithea", "T!Sigurd", "T!Tailtiu",
+                          "B!F!Corrin", "B!M!Robin", "B!Gullveig", "B!Soren", "Cyril",
+                          "L!F!Alear",
+                          "FF!Dagr", "FF!Kagero", "FF!Claude", "FF!Catria", "Fuga",
+                          "A!Ced", "Febail", "Fee", "Patty", "Arion", "R!Plumeria",
+                          "L!Elincia",
+                          "H!E!Anna", "H!Flayn", "H!Kellam", "H!Seadall", "H!Timerra",
+                          "Mycen", "R!Sonya", "Marla", "Hestia", "X!Peony", "X!Triandra",
+                          "Veyle",
+                          "NI!Saizo", "NI!Reina", "NI!Sanaki", "NI!Zelgius", "NI!Heather",
+                          "Harken", "Isadora", "X!Nino", "Wil", "Fargus", "Ginnungagap",
+                          "Gullveig", "Kvasir",
                     ]
 
 # Generics
