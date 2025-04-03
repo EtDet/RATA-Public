@@ -391,9 +391,9 @@ def create_combat_fields(player_team, enemy_team):
             condition = lambda s: lambda o: o.move == 0
             affect_same_side = True
 
-            if unitSkills["infantryRush"] == 1:
+            if unitSkills["infantryFlash"] == 1:
                 effects = {"iFlash1": 0}
-            elif unitSkills["infantryRush"] == 2:
+            elif unitSkills["infantryFlash"] == 2:
                 effects = {"iFlash2": 0}
             else:
                 effects = {"iFlash3": 0}

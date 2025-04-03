@@ -36,6 +36,7 @@ Bug Fixes:
 -Flow Refresh 1 and 2 will now heal the correct amount of health after combat.
 -Sublime Heaven now deals damage based on the foe's atk instead of unit's atk.
 -Legendary Caeda's refined Wing-Lifted Spear will now give start-of-turn bonuses to allies properly.
+-Infantry Rush works properly at start of simulation.
 
 2.4.0 (3/27/25)
 New Features:
