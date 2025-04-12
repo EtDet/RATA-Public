@@ -294,6 +294,8 @@ class Hero:
         self.assistTargetedOther_Move = 0
         self.assistTargetedOther_Other = 0
 
+        self.specialTriggeredThisTurn = 0
+
         # If Canto can be utilized after unit's next action (attacking, breaking, or assisting, etc.)
         self.canto_ready = True
 
@@ -308,6 +310,8 @@ class Hero:
         self.nonspecial_galeforce_triggered = False
         self.special_galeforce_triggered = False
         self.assist_galeforce_triggered = False
+        self.move_galeforce_triggered = False
+        self.canto_galeforce_triggered = False
 
         self.once_per_map_cond = False
 
@@ -510,7 +514,6 @@ class Hero:
         self.set_level(self.level)
 
     def set_emblem(self, emblem, emblem_merges):
-        if self.intName[:2] == "E!": return # temporary disabling of engaging emblems with each other
 
         self.emblem = emblem
         self.emblem_merges = emblem_merges
@@ -631,8 +634,8 @@ class Hero:
 
             # Emblem Marth's slaying effect
             if self.emblem is not None and self.emblem == "Marth":
-                self.specialCount = max(self.specialCount - self.weapon.effects["slaying"], 1)
-                self.specialMax = max(self.specialMax - self.weapon.effects["slaying"], 1)
+                self.specialCount = max(self.specialCount - 1, 1)
+                self.specialMax = max(self.specialMax - 1, 1)
 
         else:
             self.specialCount = -1
@@ -739,8 +742,8 @@ class Hero:
 
             # Emblem Marth's slaying effect
             if self.emblem and self.emblem == "Marth" and self.weapon:
-                self.specialCount = max(self.specialCount - self.weapon.effects["slaying"], 1)
-                self.specialMax = max(self.specialMax - self.weapon.effects["slaying"], 1)
+                self.specialCount = max(self.specialCount - 1, 1)
+                self.specialMax = max(self.specialMax - 1, 1)
 
         # Reset stats
         self.set_visible_stats()
@@ -769,6 +772,10 @@ class Hero:
         if self.resp:
             self.visible_stats = [x + 2 for x in self.visible_stats]
 
+        # Aided Stats
+        if self.aided:
+            self.visible_stats = [x + 1 for x in self.visible_stats]
+
         self.visible_stats = [int(x) for x in self.visible_stats]
         self.HPcur = self.visible_stats[0]
 
@@ -778,7 +785,7 @@ class Hero:
         if Status.Panic in self.statusNeg: panic_factor = -1
         if Status.NullPanic in self.statusPos: panic_factor = 1
 
-        buff_applied_stat = self.visible_stats[STAT] + self.buffs[STAT] * panic_factor + self.debuffs[STAT]
+        buff_applied_stat = self.visible_stats[STAT] + (self.buffs[STAT] * panic_factor) + self.debuffs[STAT] + self.great_talent[STAT]
 
         if self.transformed and STAT == ATK:
             buff_applied_stat += 2
@@ -856,6 +863,20 @@ class Hero:
         if num != 0:
             print(self.name + "'s " + statStr + " was modified by " + str(num) + ".")
 
+    def inflictGreatTalent(self, stat, num, cap):
+        if stat == ATK: statStr = "Atk"
+        elif stat == SPD: statStr = "Spd"
+        elif stat == DEF: statStr = "Def"
+        elif stat == RES: statStr = "Res"
+        else: print("Invalid stat change! No changes made."); return
+
+        self.great_talent[stat] = min(self.great_talent[stat] + num, cap)
+
+        increase = max(0, min(cap - self.great_talent[stat], num))
+
+        if increase != 0:
+            print(self.name + " was given +" + str(increase) + " Great Talent " + statStr + ".")
+
     def chargeSpecial(self, charge):
         # Will only charge special if charge is >0, and if special is present (-1 represents no special equipped)
         if charge != 0 and self.specialCount != -1:
@@ -889,8 +910,8 @@ class Hero:
         else: return -1
 
     def getRange(self):
-        isDragon = self.wpnType == "RDragon" or self.wpnType == "BDragon" or self.wpnType == "GDragon" or self.wpnType == "CDragon"
-        isBeast = self.wpnType == "RBeast" or self.wpnType == "BBeast" or self.wpnType == "GBeast" or self.wpnType == "CBeast"
+        isDragon = self.wpnType in DRAGON_WEAPONS
+        isBeast = self.wpnType in BEAST_WEAPONS
         isMeleeWpn = self.wpnType == "Sword" or self.wpnType == "Lance" or self.wpnType == "Axe"
         if isDragon or isBeast or isMeleeWpn: return 1
         else: return 2
@@ -952,6 +973,9 @@ class Hero:
         if self.transformed:
             stats[ATK] = min(max(0, stats[ATK] + 2), 99)
 
+        for i in range(1, 5):
+            stats[i] = min(stats[i] + self.great_talent[i], 99)
+
         return stats
 
     def getSpName(self):
@@ -1008,11 +1032,15 @@ class Hero:
         if "uncondBeast50" in self.getSkills():
             conditions_arr.append("NO-CONDITIONS-50")
 
-        return conditions_arr
+        if "connectedWorld" in self.getSkills():
+            conditions_arr.append("ASKR-OTHERWORLD")
+            conditions_arr.append("AR-TRANSFORM")
 
-    # "ASKR-BEAST"
-    # "MUARIM-BEAST"
-    # "FORTUNE-BEAST"
+        if "fortuneCond" in self.getSkills():
+            conditions_arr.append("FORTUNE-BEAST")
+            conditions_arr.append("AR-TRANSFORM")
+
+        return conditions_arr
 
     def __str__(self):
         return self.intName
@@ -1247,7 +1275,7 @@ blessing_dict = {
     "Kvasir":      (DARK,  2, SPD),
     "Gullveig":    (ANIMA, 2, SPD),
     "Ratatoskr":   (ASTRA, 2, SPD),
-    "M!Lumera":    (LIGHT, 2, DEF),
+    "MY!Lumera":    (LIGHT, 2, DEF),
     "Loki":        (DARK,  2, ATK),
     "Heiðrún":     (ANIMA, 2, RES),
     "Eikþyrnir":   (ASTRA, 2, DEF),
@@ -1322,8 +1350,9 @@ class Status(Enum):
     DivinelyInspiring = 110  # 🔴 Grants Atk/Spd/Def/Res = X * 3, grants -X sp jump to self before foe's first attack, and heals X * 4 HP per hit (X = num allies with this status in 3 spaces, max 2)
     Salvage = 111  # 🔵 UPDATE WITH PROPER POSITION - Can move 2 spaces after combat with Canto. If Canto Control applied, base Canto movement is instead set to 2 for Melee units, 1 for Ranged units.
     Anathema = 112  # 🔴 Inflicts Spd/Def/Res-4 on foes within 3 spaces
-    Dominance = 113  # 🔴 Deal true damage = number of stat penalties on foe (including Panic-reversed Bonus)
-    Treachery = 114  # 🔴 Deal true damage = number of stat bonuses on unit (not including Panic + Bonus)
+    DraconicHex = 1000 # 🔴 Inflicts Atk/Spd/Def/Res-5 on foe, and an additional Atk/Spd/Def/Res-5 minus current debuff of each stat.
+    Treachery = 113  # 🔴 Deal true damage = number of stat bonuses on unit (not including Panic + Bonus)
+    Dominance = 114  # 🔴 Deal true damage = number of stat penalties on foe (including Panic-reversed Bonus)
     AOEReduce80Percent = 115  # 🔴 Reduces non-Røkkr AoE damage taken by 80%
     Dodge = 116  # 🔴 If unit's spd > foe's spd, reduces combat & non-Røkkr AoE damage by X%, X = (unit's spd - foe's spd) * 4, max of 40%
     FirstReduce40 = 117  # 🔴 If initiating combat, reduces damage from first attack received by 40%
@@ -1364,7 +1393,7 @@ class Status(Enum):
     CancelAffinity = 152  # 🔴 Cancel Affinity 3, reverses weapon triangle to neutral if Triangle Adept-having unit/foe has advantage
     TriangleAttack = 153  # 🔴 If within 2 spaces of 2 allies with TriAttack and initiating combat, unit attacks twice
     DualStrike = 154  # 🔴 If unit initiates combat and is adjacent to unit with DualStrike, unit attacks twice
-    EssenceDrain = 155 # 🔴 If unit attacks, steals positive bonuses from foes within 2 spaces of target and gives to self and all allies with this status. If foe defeated, restores 10HP to self and allies with this status.
+    EssenceDrain = 155 # 🔴 If unit attacks, steals positive bonuses from foes within 2 spaces of target and gives to self and all allies with this status. If foe defeated, heals 10HP to self and allies with this status.
     Bonded = 156 # 🔴 Activates different effects depending on skills present in battle
 
 
@@ -1901,6 +1930,45 @@ implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "
                           "NI!Saizo", "NI!Reina", "NI!Sanaki", "NI!Zelgius", "NI!Heather",
                           "Harken", "Isadora", "X!Nino", "Wil", "Fargus", "Ginnungagap",
                           "Gullveig", "Kvasir",
+
+                          "Ratatoskr",
+                          "Inigo", "Laurent", "R!Lucina", "Severa", "Validar",
+                          "WI!M!Byleth", "WI!Claude", "WI!Dimitri", "WI!Edelgard", "WI!Yunaka",
+                          "L!Camilla",
+                          "NY!M!Kana", "NY!F!Kana", "NY!Nerþuz", "NY!Seiðr", "NY!Kvasir",
+                          "Lara", "Tina", "Safy", "R!Reinhardt", "Perne",
+                          "DE!Altina", "DE!Igrene", "DE!Juno", "DE!Tormod", "DE!Hawkeye",
+                          "MY!Lumera", "E!Marth",
+                          "V!Ephraim", "V!Lyon", "V!Myrrh", "V!SS!Selena", "V!Vigarde",
+                          "Ivy", "Hortensia", "Kagetsu", "Rosado", "Mauvier",
+                          "L!M!Alear",
+                          "SP!Chloé", "SP!Framme", "SP!Linhardt", "SP!Mirabilis", "SP!Sylvain",
+                          "X!Caeda", "A!Merric", "Yuliya", "Arlen", "Castor",
+                          "E!Ike",
+                          "CH!Emmeryn", "CH!Frederick", "CH!Lissa", "CH!M!Robin", "CH!F!Robin",
+                          "X!Azura", "Hayato", "Mozu", "Yukimura", "Candace",
+                          "Loki",
+                          "FA!Lumera", "FA!Veyle", "FA!Ursula", "FA!Lloyd", "Nergal",
+                          "GR!Alcryst", "BR!Embla", "BR!Lapis", "BR!Nel", "BR!Sharena",
+                          "L!M!Corrin",
+                          "Edward", "Leonardo", "X!Micaiah", "R!Sothe", "Jarod",
+                          "SU!Gullveig", "SU!Nerþuz", "SU!Olivia", "SU!Vaike", "SU!Hríd",
+                          "E!Celica",
+                          "SU!F!Alear", "SU!Clanne", "SU!Dedue", "SU!Goldmary", "SU!Petra",
+                          "A!Amelia", "X!Eirika", "Forde", "Kyle", "Glen", "Niðavellir",
+                          "Eikþyrnir", "Heiðrún",
+                          "SF!Leo", "SF!Mia", "SF!Nephenee", "SF!Takumi", "SF!Lucia",
+                          "B!Alfonse", "B!Bernadetta", "B!Felix", "B!F!Robin", "Panette",
+                          "L!M!Shez",
+                          "FF!Fjorm", "FF!Felicia", "FF!Flora", "FF!Nils", "FF!Thea",
+                          "Fogado", "Merrin", "Pandreo", "Timerra", "Marni", "AI!Reginn",
+                          "E!Sigurd",
+                          "H!Askr", "H!Lethe", "H!Nagi", "H!Nah", "H!Yarne",
+                          "Ashe", "Caspar", "Dorothea", "R!Marianne", "Metodey", "AI!Dagr",
+                          "Hræsvelgr",
+                          "NI!Céline", "NI!Diamant", "NI!Noire", "NI!Tharja", "NI!Lucina",
+                          "Bors", "Elffin", "R!Lilina", "Ogier", "Zeiss", "Þjazi",
+                          "Níðhöggr", "Læraðr"
                     ]
 
 # Generics
@@ -1912,3 +1980,29 @@ generics = ["Sword Fighter", "Lance Fighter", "Axe Fighter",
             "Red Cavalier", "Blue Cavalier", "Green Cavalier",
             "Bow Fighter", "Bow Cavalier", "Thief", "Troubadour", "Cleric"
             ]
+
+emblem_descriptions = {
+    "Marth": "Accelerates Special trigger (cooldown count-1; max cooldown count cannot be reduced below 1). If unit triggers the \"unit attacks twice\" effect, reduces Special damage by 8.",
+    "Ike": "If foe's Range = 2 and unit's or foe's Special is ready or triggered before or during this combat, reduces damage from foe's next attack by 40% (once per combat; excluding area-of-effect Specials).",
+    "Celica": '''Boosts Special damage by unit's max Special cooldown count value × 4 (excluding area-of-effect Specials).
+
+For each foe within 5 spaces of unit, unit can move to the nearest spaces that are within unit's range from that foe (unless space is impassable terrain).''',
+    "Sigurd": '''Boosts Special damage by number of spaces from start position to end position of whoever initiated combat (max 4) × 2.
+
+Enables【Canto (X)】.
+If unit's Range = 1, X = 3; otherwise, X = 2.
+
+At start of turn, grants "unit can move 1 extra space" to unit for 1 turn (does not stack; excludes cavalry with Range = 2).''',
+    "Lyn": '''When Special triggers, boosts damage by unit's max Special cooldown count value × 4 (excluding area-of-effect Specials).
+
+Unit can use the following [Style]:
+――――― Emblem Lyn Style ―――――
+Unit can attack foes within 5 spaces of unit and 3 rows or 3 columns centered on unit regardless of unit's range. Unit suffers a counterattack if any of the following conditions are met: foe is armored with Range = 2, foe can counterattack regardless of unit's range, foe's Range is the same as the distance between unit and the foe.
+
+Unit cannot move or attack structures, after-combat movement effects do not occur, unit's area-of-effect Specials cannot be triggered, and remaining movement granted from Canto is treated as 0. Skill effect's Range is treated as 2, including by skill effects determined by attack Range, like Pavise and Aegis. This Style can be used only when unit's Range = 2, cannot be used on the first turn, and once used, cannot be used for two turns.
+――――――――――――――――――――''',
+    "Eirika": '''When Special triggers, boosts damage by unit's max Special cooldown count value × 4 (excluding area-of-effect Specials).
+
+If it is unit's first combat initiated by unit or first combat initiated by foe that turn, inflicts Atk-4 on unit and unit attacks twice during combat (triggers only when unit's Range = 1; does not trigger when equipped with an area-of-effect Special).'''
+
+}

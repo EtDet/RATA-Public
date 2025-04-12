@@ -23,6 +23,7 @@ GIVEN_UNIT_ATTACKED = 2
 class HeroModifiers:
     def __init__(self):
         self.is_initiator = False
+        self.tile = None
 
         # Exact HP and Special counts at start of combat, before burn damage/healing
         self.start_of_combat_HP: int = -1
@@ -61,9 +62,13 @@ class HeroModifiers:
         self.hardy_bearing: bool = False
 
         # Perform potent follow up
+        self.potent_percentage = 0
+
+        self.potent_percent_strong = []
+        self.potent_percent_weak = []
+
         self.potent_FU = False # Enables usage of an 80%/40% Potent hit
-        self.potent_FU_full = False # Enables usage of a 100% Potent hit
-        self.potent_new_percentage = -1  # Set Potent hit percentage to 100 on special activation.
+        self.potent_new_percentage = 0  # Set Potent hit percentage to 100 on special ready/activation
 
         # Follow-ups
         self.follow_ups_skill = 0  # granted by skills
@@ -76,6 +81,9 @@ class HeroModifiers:
         # Null Follow-Up (NFU)
         self.defensive_NFU = False  # Disables skills that guarantee foe's skill-based follow-ups
         self.offensive_NFU = False  # Disable skills that deny self's skill-based follow-ups
+
+        # Speed Null Follow-Up (Grants Offensive and Defensive NFU if unit's SPD > foe's SPD, common effect
+        self.speed_NFU = False
 
         # If special disabled during combat
         self.special_disabled = False
@@ -92,7 +100,7 @@ class HeroModifiers:
 
         self.sp_jump_foe_first = 0  # before foe's first attack
         self.sp_jump_foe_first_brave = 0  # before foe's first brave attack
-        self.sp_jump_foe_first_FU = 0  # before foe's first follow-up attack
+        self.sp_jump_foe_followup = 0  # before foe's first follow-up attack
 
         # Disable increased/decreased special charge gain (Tempo)
         self.defensive_tempo = False  # foe +1 charge per attack
@@ -127,8 +135,10 @@ class HeroModifiers:
         self.DR_sp_trigger_by_any_special_non_twin_SP = [] # Emblem Ike Ring
         self.DR_sp_trigger_twin = False
 
-        # DR specific to Great Aether
+        # DR specific to certain specials
         self.DR_great_aether_SP = False  # based on special count and if hits are consecutive
+        self.DR_dragon_fang_shot_SP = False # based on special count and res difference
+        self.DR_king_making_SP = False # based on special count
 
         # Stat-scaling Damage Reduction, (SPD, 4) in this array means: grants all hits DR = difference between self and foe's SPD * 4%, (max 40%)
         self.stat_scaling_DR = []
@@ -136,6 +146,7 @@ class HeroModifiers:
         # Damage reduction reduction (partial DR pierce)
         # Each source of non-special damage reduction is reduced by each value in this array * 100%
         self.damage_reduction_reduction = []
+        self.damage_reduction_reduction_finish = [] # only applied if own special is ready or triggered
 
         # Damage reduction piercing (full DR pierce)
         self.sp_pierce_DR = False  # DR pierce on offensive special only
@@ -154,6 +165,8 @@ class HeroModifiers:
         self.true_sp_next = 0  # damage added after each special trigger (divine pulse, laguz friend on defensive special)
         self.true_sp_next_CACHE = 0  #
 
+        self.true_damage_taken_30 = False
+
         # Alternative for Atk stat on special trigger
         # 0 - 100% of Atk (Default)
         # 1 - 150% of Def (Sandstorm)
@@ -166,22 +179,25 @@ class HeroModifiers:
         # Same as above, but for using foe's stats for true damage
         self.true_stat_damages_from_foe = []
 
+        # Bane - set damage to foe's HP - 1 if damage < foe's HP - 1
+        self.bane_sp = False
+        self.bane_first_hit = False
+
         # Enables extra true damage and DR piercing based on current HP
-        self.resonance = False
+        self.resonance = 0
 
         # True damage reduction
         self.TDR_all_hits = 0
         self.TDR_first_strikes = 0
         self.TDR_second_strikes = 0
-        self.TDR_on_foe_special = 0
+        self.TDR_on_foe_sp = 0
         self.TDR_on_def_sp = 0
 
         # Same as true_stat_damages for true damage reduction
         self.TDR_stats = []
 
-        # Niðhöggr
-        self.TDR_dmg_taken_cap = 0
-        self.TDR_dmg_taken_extra_stacks = 0
+        # Níðhöggr
+        self.TDR_snake = False
 
         self.reduce_self_sp_damage = 0  # emblem marth
 
@@ -317,6 +333,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     # Which unit is initiating combat
     atkr.is_initiator = True
 
+    # Tile
+    atkr.tile = attacker.attacking_tile
+    defr.tile = defender.tile
+
     # Count add Phantom stats
     if "phantomSpd" in atkSkills: atkPhantomStats[SPD] += atkSkills["phantomSpd"]
     if "phantomRes" in atkSkills: atkPhantomStats[RES] += atkSkills["phantomRes"]
@@ -445,7 +465,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     disableSupportEffects = False
 
-    if "You get NOTHING" in atkSkills or "You get NOTHING" in defSkills:
+    if "You get NOTHING" in atkSkills or "You get NOTHING" in defSkills or "sfLuciaBoost" in atkSkills or "sfLuciaBoost" in defSkills:
         disableSupportEffects = True
 
         atkWithin1SpaceOfSupportPartner = False
@@ -643,9 +663,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             targeted_side = int(e.owner.side == e.affectedSide)
 
             if e.owner.side == attacker.side:
+                if e.affectedSide == attacker.side and Status.TimesGrip in e.owner.statusNeg:
+                    atkHasFeud = True
+
                 feud_present = atkHasFeud
                 color_feuds = atkColorFeuds
             else:
+                if e.affectedSide == defender.side and Status.TimesGrip in e.owner.statusNeg:
+                    defHasFeud = True
+
                 feud_present = defHasFeud
                 color_feuds = defColorFeuds
 
@@ -653,6 +679,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                 coords = atkr_coords
                 updated_skills = atkSkills
                 afflicted = attacker
+                modifier = atkr
 
                 ylgr_stats = atkYlgrStats
                 kaden_stats = atkKadenStats
@@ -660,6 +687,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                 coords = defr_coords
                 updated_skills = defSkills
                 afflicted = defender
+                modifier = defr
 
                 ylgr_stats = defYlgrStats
                 kaden_stats = defKadenStats
@@ -698,11 +726,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                             i += 1
 
                 elif "hfGrimaScowl_f" in e.effect:
-                    if e.owner.get_visible_stat(RES) + e.owner.get_phantom_stat_(RES) > afflicted.get_visible_stat(RES) + afflicted.get_phantom_stat_(RES) - 5:
+                    if e.owner.get_visible_stat(RES) + e.owner.get_phantom_stat_(RES) >= afflicted.get_visible_stat(RES) + afflicted.get_phantom_stat_(RES) + 5:
                         updated_skills = {x: updated_skills.get(x, 0) + e.effect.get(x, 0) for x in set(updated_skills).union(e.effect)}
 
                 elif "fellProtection_f" in e.effect:
-                    if e.owner.get_visible_stat(RES) + e.owner.get_phantom_stat_(RES) > afflicted.get_visible_stat(RES) + afflicted.get_phantom_stat_(RES) - 5:
+                    if e.owner.get_visible_stat(RES) + e.owner.get_phantom_stat_(RES) >= afflicted.get_visible_stat(RES) + afflicted.get_phantom_stat_(RES) + 5:
+                        updated_skills = {x: updated_skills.get(x, 0) + e.effect.get(x, 0) for x in set(updated_skills).union(e.effect)}
+
+                elif "fellSuccessor_f" in e.effect:
+                    if e.owner.get_visible_stat(RES) + e.owner.get_phantom_stat_(RES) >= afflicted.get_visible_stat(RES) + afflicted.get_phantom_stat_(RES) + 5:
                         updated_skills = {x: updated_skills.get(x, 0) + e.effect.get(x, 0) for x in set(updated_skills).union(e.effect)}
 
                 # Achimenes Furl (Base) - V!F!Robin
@@ -729,6 +761,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                     if not e.owner.once_per_map_cond:
                         updated_skills = {x: updated_skills.get(x, 0) + e.effect.get(x, 0) for x in set(updated_skills).union(e.effect)}
 
+                elif "frammeChainGuard_f" in e.effect:
+                    if e.owner.HPcur == e.owner.visible_stats[HP]:
+                        modifier.DR_all_hits_NSP.append(min(e.owner.HPcur, 60))
+                    else:
+                        modifier.DR_all_hits_NSP.append(min(trunc(e.owner.HPcur * 0.50), 60))
+
+                    updated_skills = {x: updated_skills.get(x, 0) + e.effect.get(x, 0) for x in set(updated_skills).union(e.effect)}
+
                 else:
                     updated_skills = {x: updated_skills.get(x, 0) + e.effect.get(x, 0) for x in set(updated_skills).union(e.effect)}
 
@@ -739,8 +779,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                 defSkills = updated_skills
 
     # Unit's special is triggered by unit's attack (Offense, AOE)
-    atkSpTriggeredByAttack = attacker.special is not None and attacker.special.type in ["Offensive", "AOE"]
-    defSpTriggeredByAttack = defender.special is not None and defender.special.type in ["Offensive", "AOE"]
+    atkSpTriggeredByAttack = attacker.special is not None and attacker.special.type in ["Offense", "AOE"]
+    defSpTriggeredByAttack = defender.special is not None and defender.special.type in ["Offense", "AOE"]
 
     # Apply defensive terrain
     if is_in_sim:
@@ -782,6 +822,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     # index 1 - what is the level of this effect, or what status? (+7 spd buff, 10 damage, Status.Gravity, etc.)
     # index 2 - who is it being given to? (self, only allies, target and their allies, etc.)
     # index 3 - across what area? (only self, adjacent to self, 2 spaces of foe, 3 rows or 3 columns or self, etc.)
+    # for more specifics of keywords, go to the end_of_combat method in field_helpers.py
+
+    # slot 0 - unconditional
+    # slot 1 - given that the unit survives
+    # slot 2 - given that the unit attacks the foe
+    # TO BE ADDED
+    # slot 3 - if unit's special triggered
+    # slot 4 - if unit's special at its max count
     atkPostCombatEffs = [[], [], []]
     defPostCombatEffs = [[], [], []]
 
@@ -793,34 +841,53 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     # SKILLS (LET THE MAYHEM BEGIN)  -----------------------------------------------------------------------------------------------------------------------
 
-    # Some status effects
-    if Status.ResonanceBlades in attacker.statusPos:
-        atkCombatBuffs[ATK] += 4
-        atkCombatBuffs[SPD] += 4
+    # GROUP 1
+    # Skills within this group can perform the following:
+    # - Use stats at start of combat
+    # - Neutralize Bonuses/Penalties
+    # - Add combat buffs
+    # Cannot perform the following:
+    # - Use stats during combat
+    # - Use exact values of bonuses/penalties, or if skill uses [Bonus] or [Penalty] keywords
 
-    if Status.ResonanceBlades in defender.statusPos:
-        defCombatBuffs[ATK] += 4
-        defCombatBuffs[SPD] += 4
+    # The cool new loop I'm gonna use to roughly cut skill code in half
+    for hero in [attacker, defender]:
 
-    if Status.ResonanceShields in attacker.statusPos:
-        atkCombatBuffs[DEF] += 4
-        atkCombatBuffs[RES] += 4
+        # Assign variables
+        if hero == attacker:
+            other = defender
 
-        if attacker.unitCombatInitiates == 0:
-            defr.follow_up_denials -= 1
+            combat_buffs = atkCombatBuffs
+            skills = atkSkills
 
-    if Status.ResonanceBlades in defender.statusPos:
-        defCombatBuffs[DEF] += 4
-        defCombatBuffs[RES] += 4
+            modifier_self = atkr
+            modifier_other = defr
+        else:
+            other = attacker
 
-        if defender.unitCombatInitiates == 0:
-            atkr.follow_up_denials -= 1
+            combat_buffs = defCombatBuffs
+            skills = defSkills
 
-    if Status.Incited in attacker.statusPos:
-        atkCombatBuffs = [x + min(spaces_moved_by_atkr, 3) for x in atkCombatBuffs]
+            modifier_self = defr
+            modifier_other = atkr
 
-    if Status.Incited in defender.statusPos:
-        defCombatBuffs = [x + min(spaces_moved_by_atkr, 3) for x in defCombatBuffs]
+        # Resonance: Blades (Status)
+        if Status.ResonanceBlades in hero.statusPos:
+            combat_buffs[ATK] += 4
+            combat_buffs[SPD] += 4
+
+        # Resonance: Shields (Status)
+        if Status.ResonanceShields in hero.statusPos:
+            combat_buffs[DEF] += 4
+            combat_buffs[RES] += 4
+
+            if hero.unitCombatInitiates == 0:
+                modifier_other.follow_up_denials -= 1
+
+        # Incited (Status)
+        if Status.Incited in hero.statusPos:
+            combat_buffs = [x + min(spaces_moved_by_atkr, 3) for x in combat_buffs]
+
 
     if Status.Discord in attacker.statusNeg:
         value = min(2 + len(atkAllyWithin2Spaces), 5)
@@ -895,6 +962,22 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     # Fleeting Echo
     if "fleetingEcho" in atkSkills:
         atkr.DR_first_hit_NSP.append(30)
+
+    # Fortifications
+    if "fortificationStone" in atkSkills:
+        atkCombatBuffs[DEF] += 6
+        atkCombatBuffs[RES] += 6
+        atkr.TDR_on_foe_sp += 10
+
+    if "fortificationStone" in defSkills and defr.tile.divine_vein_turn >= 1:
+        ignore_range = True
+
+    # Sly Blow Skills
+    if "slyBlow" in atkSkills:
+        atkr.follow_ups_skill += 1
+
+        if len(attacker.statusPos) >= 2 or len(defender.StatusNeg) >= 2:
+            atkr.true_all_hits += 5
 
     # STANCE SKILLS (Warding Stance, Steady Posture, etc.)
     if "atkStance" in defSkills: defCombatBuffs[ATK] += defSkills["atkStance"]
@@ -1084,6 +1167,21 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "spectrumSolo" in atkSkills and not atkAdjacentToAlly: atkCombatBuffs = [x + atkSkills["spectrumSolo"] for x in atkCombatBuffs]
     if "spectrumSolo" in defSkills and not defAdjacentToAlly: defCombatBuffs = [x + defSkills["spectrumSolo"] for x in defCombatBuffs]
 
+    # WILD SKILLS
+    if "atkSpdWild" in atkSkills and (len(atkAdjacentToAlly) <= 1 or attacker.transformed):
+        atkCombatBuffs[ATK] += 7
+        atkCombatBuffs[SPD] += 7
+        atkr.spGainOnAtk += 1
+        atkr.spGainWhenAtkd += 1
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "atkSpdWild" in defSkills and (len(defAdjacentToAlly) <= 1 or defender.transformed):
+        defCombatBuffs[ATK] += 7
+        defCombatBuffs[SPD] += 7
+        defr.spGainOnAtk += 1
+        defr.spGainWhenAtkd += 1
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
     # PUSH SKILLS
     if "atkPush" in atkSkills and atkHPEqual100Percent: atkCombatBuffs[ATK] += atkSkills["atkPush"]
     if "spdPush" in atkSkills and atkHPEqual100Percent: atkCombatBuffs[ATK] += atkSkills["spdPush"]
@@ -1152,6 +1250,40 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         elif defSkills["resForm"] == 2: defCombatBuffs[RES] += min(len(defAllyWithin2Spaces) + 2, 5)
         elif defSkills["resForm"] == 3: defCombatBuffs[RES] += min(2 * len(defAllyWithin2Spaces) + 1, 7)
 
+    # FORTUNE SKILLS
+    if attacker.transformed:
+        if "atkFortune" in atkSkills:
+            atkCombatBuffs[ATK] += 8
+            defBonusesNeutralized[ATK] = True
+        if "spdFortune" in atkSkills:
+            atkCombatBuffs[SPD] += 8
+            defBonusesNeutralized[SPD] = True
+        if "defFortune" in atkSkills:
+            atkCombatBuffs[DEF] += 8
+            defBonusesNeutralized[DEF] = True
+        if "resFortune" in atkSkills:
+            atkCombatBuffs[RES] += 8
+            defBonusesNeutralized[RES] = True
+
+        if "fortuneHeal" in atkSkills:
+            atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "atkFortune" in defSkills:
+        defCombatBuffs[ATK] += 8
+        atkBonusesNeutralized[ATK] = True
+    if "spdFortune" in defSkills:
+        defCombatBuffs[SPD] += 8
+        atkBonusesNeutralized[SPD] = True
+    if "defFortune" in defSkills:
+        defCombatBuffs[DEF] += 8
+        atkBonusesNeutralized[DEF] = True
+    if "resFortune" in defSkills:
+        defCombatBuffs[RES] += 8
+        atkBonusesNeutralized[RES] = True
+
+    if "fortuneHeal" in defSkills:
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
     # SWAY SKILLS
     if "atkResSway" in atkSkills:
         atkCombatBuffs[ATK] += min(8 + len(atkAllyWithin3Spaces) * 2, 12)
@@ -1213,17 +1345,21 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if defSpTriggeredByAttack:
             atkr.TDR_all_hits += 3 * min(spaces_moved_by_atkr, 4) # revise
 
-    # No.......
-    if "atk_spd_dashing_defense" in defSkills:
-        if atkSpTriggeredByAttack:
-            atkr.TDR_all_hits += 3 * min(spaces_moved_by_atkr, 4)
-
     if "excelDR" in atkSkills:
         atkr.TDR_all_hits += 3 * min(spaces_moved_by_atkr, 4)
-        atkr.TDR_on_foe_special += 3 * min(spaces_moved_by_atkr, 4)
+        atkr.TDR_on_foe_sp += 3 * min(spaces_moved_by_atkr, 4)
 
     if "excelDR" in atkSkills:
-        defr.TDR_on_foe_special += 3 * min(spaces_moved_by_atkr, 4)
+        defr.TDR_on_foe_sp += 3 * min(spaces_moved_by_atkr, 4)
+
+    # Endless Tempest
+    if "endlessTempest" in atkSkills and spaces_moved_by_atkr > 0:
+        atkCombatBuffs = [x + min(spaces_moved_by_atkr, 3) for x in atkCombatBuffs]
+        defBonusesNeutralized = [True] * 5
+
+    if "endlessTempest" in defSkills and spaces_moved_by_atkr > 0:
+        defCombatBuffs = [x + min(spaces_moved_by_atkr, 3) for x in defCombatBuffs]
+        atkBonusesNeutralized = [True] * 5
 
     # FINISH SKILLS
     if "atkFinish" in atkSkills and atkAllyWithin3Spaces: atkCombatBuffs[ATK] += min(atkSkills["atkFinish"] * 2, 7)
@@ -1261,7 +1397,57 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if "saviorDef" in defSkills: defCombatBuffs[ATK] += defSkills["saviorDef"]
         if "saviorRes" in defSkills: defCombatBuffs[ATK] += defSkills["saviorRes"]
 
+    # TWIN SAVE SKILLS
+    if defender.wpnType in RANGED_WEAPONS:
+        if "farTwinAtk" in atkSkills: atkCombatBuffs[ATK] += atkSkills["farTwinAtk"]
+        if "farTwinSpd" in atkSkills: atkCombatBuffs[SPD] += atkSkills["farTwinSpd"]
+        if "farTwinDef" in atkSkills: atkCombatBuffs[DEF] += atkSkills["farTwinDef"]
+        if "farTwinRes" in atkSkills: atkCombatBuffs[RES] += atkSkills["farTwinRes"]
+
+        if "twinSavior" in atkSkills:
+            atkr.all_hits_heal += 7
+            atkr.DR_sp_trigger_twin = True
+
+    if defender.wpnType in MELEE_WEAPONS:
+        if "nearTwinAtk" in atkSkills: atkCombatBuffs[ATK] += atkSkills["nearTwinAtk"]
+        if "nearTwinSpd" in atkSkills: atkCombatBuffs[SPD] += atkSkills["nearTwinSpd"]
+        if "nearTwinDef" in atkSkills: atkCombatBuffs[DEF] += atkSkills["nearTwinDef"]
+        if "nearTwinRes" in atkSkills: atkCombatBuffs[RES] += atkSkills["nearTwinRes"]
+
+        if "twinSavior" in atkSkills:
+            atkr.all_hits_heal += 7
+            atkr.DR_sp_trigger_twin = True
+
+    if attacker.wpnType in RANGED_WEAPONS:
+        if "farTwinAtk" in defSkills: defCombatBuffs[ATK] += defSkills["farTwinAtk"]
+        if "farTwinSpd" in defSkills: defCombatBuffs[SPD] += defSkills["farTwinSpd"]
+        if "farTwinDef" in defSkills: defCombatBuffs[DEF] += defSkills["farTwinDef"]
+        if "farTwinRes" in defSkills: defCombatBuffs[RES] += defSkills["farTwinRes"]
+
+        if "twinSavior" in defSkills:
+            defr.all_hits_heal += 7
+            defr.DR_sp_trigger_twin = True
+
+    if attacker.wpnType in MELEE_WEAPONS:
+        if "nearTwinAtk" in defSkills: defCombatBuffs[ATK] += defSkills["nearTwinAtk"]
+        if "nearTwinSpd" in defSkills: defCombatBuffs[SPD] += defSkills["nearTwinSpd"]
+        if "nearTwinDef" in defSkills: defCombatBuffs[DEF] += defSkills["nearTwinDef"]
+        if "nearTwinRes" in defSkills: defCombatBuffs[RES] += defSkills["nearTwinRes"]
+
+        if "twinSavior" in defSkills:
+            defr.all_hits_heal += 7
+            defr.DR_sp_trigger_twin = True
+
     # (PREMIUM) WAVE SKILLS
+    if "premiumEvenAtk" in atkSkills and turn % 2 == 0: atkCombatBuffs[ATK] += 6
+    if "premiumEvenAtk" in defSkills and turn % 2 == 0: defCombatBuffs[ATK] += 6
+
+    if "premiumOddSpd" in atkSkills and turn % 2 == 1: atkCombatBuffs[SPD] += 6
+    if "premiumOddSpd" in defSkills and turn % 2 == 1: defCombatBuffs[SPD] += 6
+
+    if "premiumOddDef" in atkSkills and turn % 2 == 1: atkCombatBuffs[DEF] += 6
+    if "premiumOddDef" in defSkills and turn % 2 == 1: defCombatBuffs[DEF] += 6
+
     if "premiumEvenRes" in atkSkills and turn % 2 == 0: atkCombatBuffs[RES] += 6
     if "premiumEvenRes" in defSkills and turn % 2 == 0: defCombatBuffs[RES] += 6
 
@@ -1271,8 +1457,16 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             atkCombatBuffs[ATK] += 3
             atkCombatBuffs[SPD] += 3
 
+        if "atkDefOath" in atkSkills:
+            atkCombatBuffs[ATK] += 3
+            atkCombatBuffs[DEF] += 3
+
         if "atkResOath" in atkSkills:
             atkCombatBuffs[ATK] += 3
+            atkCombatBuffs[RES] += 3
+
+        if "defResOath" in atkSkills or "defResPledge" in atkSkills:
+            atkCombatBuffs[DEF] += 3
             atkCombatBuffs[RES] += 3
 
     if defAllyWithin2Spaces:
@@ -1280,8 +1474,16 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             defCombatBuffs[ATK] += 3
             defCombatBuffs[SPD] += 3
 
+        if "atkDefOath" in defSkills:
+            defCombatBuffs[ATK] += 3
+            defCombatBuffs[DEF] += 3
+
         if "atkResOath" in defSkills:
             defCombatBuffs[ATK] += 3
+            defCombatBuffs[RES] += 3
+
+        if "defResOath" in defSkills or "defResPledge" in defSkills:
+            defCombatBuffs[DEF] += 3
             defCombatBuffs[RES] += 3
 
     # Alarm/Incite Skills
@@ -1294,9 +1496,17 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             atkCombatBuffs[ATK] += 3
             atkCombatBuffs[DEF] += 3
 
+        if "inciteAtkRes" in atkSkills:
+            atkCombatBuffs[ATK] += 3
+            atkCombatBuffs[RES] += 3
+
         if "alarmSpdDef" in atkSkills:
             atkCombatBuffs[SPD] += 3
             atkCombatBuffs[DEF] += 3
+
+        if "alarmDefRes" in atkSkills:
+            atkCombatBuffs[DEF] += 3
+            atkCombatBuffs[RES] += 3
 
     if len(defAdjacentToAlly) <= 1:
         if "alarmAtkSpd" in defSkills or "inciteAtkSpd" in defSkills:
@@ -1307,9 +1517,17 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             defCombatBuffs[ATK] += 3
             defCombatBuffs[DEF] += 3
 
+        if "inciteAtkRes" in defSkills:
+            defCombatBuffs[ATK] += 3
+            defCombatBuffs[RES] += 3
+
         if "alarmSpdDef" in defSkills:
             defCombatBuffs[SPD] += 3
             defCombatBuffs[DEF] += 3
+
+        if "alarmDefRes" in defSkills:
+            defCombatBuffs[DEF] += 3
+            defCombatBuffs[RES] += 3
 
     # AR SKILLS
     AR_STRUCT_STATS = {
@@ -1452,6 +1670,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.foe_burn_damage += 7
         defr.true_stat_damages_from_foe.append((RES, 20))
 
+    # Assassin's Strike
+    if "assassinStrike" in atkSkills:
+        atkr.foe_burn_damage += 7
+        atkr.true_stat_damages_from_foe.append((DEF, 20))
+
+    if "assassinStrike" in defSkills:
+        defr.foe_burn_damage += 7
+        defr.true_stat_damages_from_foe.append((DEF, 20))
+
     # Fatal Smoke
     if "fatalSmoke" in atkSkills:
         atkr.disable_foe_healing = True
@@ -1464,6 +1691,28 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if "fatalSmoke" in defSkills and defSkills["fatalSmoke"] == 4:
         defr.disable_foe_miracle = True
+
+    # Pulse Smog
+    if "pulseSmog" in atkSkills and defSpTriggeredByAttack:
+        defr.sp_jump_first -= 1
+
+    # Pulse Up: Blades
+    if "pulseUpBlades" in atkSkills:
+        atkCombatBuffs[ATK] += min(6, turn * 2)
+        atkCombatBuffs[SPD] += min(6, turn * 2)
+
+    if "pulseUpBlades" in defSkills:
+        defCombatBuffs[ATK] += min(6, turn * 2)
+        defCombatBuffs[SPD] += min(6, turn * 2)
+
+    # Shadow Shift 4/Shadow Smite 4
+    if "shift4" in atkSkills and atkAllyWithin3Spaces:
+        atkCombatBuffs = [x + 3 for x in atkCombatBuffs]
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "shift4" in defSkills and defAllyWithin3Spaces:
+        defCombatBuffs = [x + 3 for x in defCombatBuffs]
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
 
     # INHERITABLE WEAPONS
 
@@ -1953,6 +2202,209 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "kumoBoost" in defSkills and atkHPGreaterEqual75Percent:
         atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
 
+    # Dragon's Stone
+    if "dragonsStone" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
+
+    if "dragonsStone" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 4 for x in defCombatBuffs]
+
+    # New-Sun Stone
+    if "newSunStone" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
+        defr.spLossOnAtk -= 1
+        defr.spLossWhenAtkd -= 1
+
+    if "newSunStone" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 4 for x in defCombatBuffs]
+        atkr.spLossOnAtk -= 1
+        atkr.spLossWhenAtkd -= 1
+
+    # Nabata Lance/Hexblade Sword
+    if "hexbladeWeapon" in atkSkills:
+        atkCombatBuffs = [x + atkSkills["hexbladeWeapon"] for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((ATK, 10))
+
+    if "hexbladeWeapon" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + defSkills["hexbladeWeapon"] for x in defCombatBuffs]
+        defr.true_stat_damages.append((ATK, 10))
+
+    # Nabata Beacon
+    if "nabataBeacon" in atkSkills:
+        atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((ATK, 10))
+
+    if "nabataBeacon" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + 4 for x in defCombatBuffs]
+        defr.true_stat_damages.append((ATK, 10))
+
+    # Axe of Devotion/Devoted Basket
+    if "devotedWeapon" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] += 5 + trunc(0.15 * atkStats[atkSkills["devotedWeapon"]])
+        atkCombatBuffs[RES] += 5 + trunc(0.15 * atkStats[atkSkills["devotedWeapon"]])
+
+    if "devotedWeapon" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] += 5 + trunc(0.15 * defStats[defSkills["devotedWeapon"]])
+        defCombatBuffs[RES] += 5 + trunc(0.15 * defStats[defSkills["devotedWeapon"]])
+
+    # Carrot Bow
+    if "carrotBow" in atkSkills and defHPGreaterEqual75Percent:
+        atkCombatBuffs[ATK] += 5
+        atkCombatBuffs[RES] += 5
+
+        if Status.Discord in defender.statusNeg:
+            atkr.follow_ups_skill += 1
+            defr.follow_up_denials -= 1
+
+    if "carrotBow" in defSkills:
+        defCombatBuffs[ATK] += 5
+        defCombatBuffs[RES] += 5
+
+        if Status.Discord in attacker.statusNeg:
+            defr.follow_ups_skill += 1
+            atkr.follow_up_denials -= 1
+
+    # Harp Bow/Dragonbloom
+    if "bridal24Boost" in atkSkills:
+        atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((SPD, 15))
+
+        if attacker.unitCombatInitiates == 0:
+            atkr.DR_first_strikes_NSP.append(2 * atkSkills["bridal24Boost"])
+        else:
+            atkr.DR_first_strikes_NSP.append(atkSkills["bridal24Boost"])
+
+    if "bridal24Boost" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + 4 for x in defCombatBuffs]
+        defr.true_stat_damages.append((SPD, 15))
+
+        if defender.unitCombatInitiates == 0:
+            defr.DR_first_strikes_NSP.append(2 * defSkills["bridal24Boost"])
+        else:
+            defr.DR_first_strikes_NSP.append(defSkills["bridal24Boost"])
+
+    # Sea Tambourine
+    if "seaTembourine" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] += 5
+        atkCombatBuffs[SPD] += 5
+
+        if turn % 2 == 1:
+            atkCombatBuffs[ATK] += 6
+            atkCombatBuffs[SPD] += 6
+
+    if "seaTembourine" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] += 5
+        defCombatBuffs[SPD] += 5
+
+        if turn % 2 == 1:
+            defCombatBuffs[ATK] += 6
+            defCombatBuffs[SPD] += 6
+
+    # Tropical Conch
+    if "tropicalConch" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] += 5
+        atkCombatBuffs[DEF] += 5
+
+        if turn % 2 == 1:
+            atkCombatBuffs[ATK] += 6
+            atkCombatBuffs[DEF] += 6
+
+    if "tropicalConch" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] += 5
+        defCombatBuffs[DEF] += 5
+
+        if turn % 2 == 1:
+            defCombatBuffs[ATK] += 6
+            defCombatBuffs[DEF] += 6
+
+    # Small Spade
+    if "smallSpade" in atkSkills and atkHPGreaterEqual25Percent:
+        X = 0
+
+        for ally in atkAllyWithin3RowsCols:
+            if ally.get_visible_stat(ATK) >= 55:
+                X += 1
+            if ally.get_visible_stat(SPD) >= 40:
+                X += 1
+
+        X = min(X, 3)
+
+        atkCombatBuffs[ATK] += 5 + 5 * X
+        atkCombatBuffs[SPD] += 5 + 5 * X
+        atkr.spGainOnAtk += 1
+        atkr.spGainWhenAtkd += 1
+
+    if "smallSpade" in defSkills and defHPGreaterEqual25Percent:
+        X = 0
+
+        for ally in defAllyWithin3RowsCols:
+            if ally.get_visible_stat(ATK) >= 55:
+                X += 1
+            if ally.get_visible_stat(SPD) >= 40:
+                X += 1
+
+        X = min(X, 3)
+
+        defCombatBuffs[ATK] += 5 + 5 * X
+        defCombatBuffs[SPD] += 5 + 5 * X
+        defr.spGainOnAtk += 1
+        defr.spGainWhenAtkd += 1
+
+    # Anchor Axe
+    if "anchorAxe" in atkSkills and atkHPGreaterEqual25Percent:
+        X = 0
+
+        for ally in atkAllyWithin3RowsCols:
+            if ally.get_visible_stat(ATK) >= 55:
+                X += 1
+            if ally.get_visible_stat(DEF) >= 40:
+                X += 1
+
+        X = min(X, 3)
+
+        atkCombatBuffs[ATK] += 5 + 5 * X
+        atkCombatBuffs[DEF] += 5 + 5 * X
+        defr.spLossOnAtk -= 1
+        defr.spLossWhenAtkd -= 1
+
+    if "anchorAxe" in defSkills and defHPGreaterEqual25Percent:
+        X = 0
+
+        for ally in defAllyWithin3RowsCols:
+            if ally.get_visible_stat(ATK) >= 55:
+                X += 1
+            if ally.get_visible_stat(DEF) >= 40:
+                X += 1
+
+        X = min(X, 3)
+
+        defCombatBuffs[ATK] += 5 + 5 * X
+        defCombatBuffs[DEF] += 5 + 5 * X
+        atkr.spLossOnAtk -= 1
+        atkr.spLossWhenAtkd -= 1
+
+    # Ice Dagger/Ice Dragonstone
+    if "iceDagger" in atkSkills:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        atkr.follow_ups_skill += 1
+        atkr.damage_reduction_reduction.append(50)
+
+    if "iceDagger" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defr.follow_ups_skill += 1
+        defr.damage_reduction_reduction.append(50)
+
+    # Giant Shuriken
+    if "giantShuriken" in atkSkills:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        atkr.offensive_tempo = True
+        atkr.defensive_tempo = True
+
+    if "giantShuriken" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defr.offensive_tempo = True
+        defr.defensive_tempo = True
+
     # Crab Tomes
     if "giantEnemyCrab" in atkSkills and atkHPGreaterEqual25Percent:
         atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
@@ -1980,6 +2432,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.DR_sp_trigger_by_any_special_SP.append(40)
 
     if "rangedAllSpecialDR" in defSkills and attacker.wpnType in RANGED_WEAPONS:
+        defr.DR_sp_trigger_by_any_special_SP.append(40)
+
+    # Armored Blaze
+    if "meleeAllSpecialDR" in atkSkills and defender.wpnType in MELEE_WEAPONS:
+        atkr.DR_sp_trigger_by_any_special_SP.append(40)
+
+    if "meleeAllSpecialDR" in defSkills and attacker.wpnType in MELEE_WEAPONS:
         defr.DR_sp_trigger_by_any_special_SP.append(40)
 
     if "uncondAnySpecialDR" in atkSkills:
@@ -2020,14 +2479,22 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if defHPCur / defStats[HP] <= 0.80:
             defr.vantage = True
 
-    # Extra Effects within Potent, move elsewhere?
-    if "potentExtras" in atkSkills:
-        if atkSkills["potentExtras"] == 4:
-            defCombatBuffs[SPD] -= 4
-            defCombatBuffs[DEF] -= 4
+    # Hero-King Sword - E!Marth
+    if "its ok emblem you can call me engage" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 5 + trunc(0.20 * atkStats[SPD]) for x in atkCombatBuffs]
+        atkr.DR_first_strikes_NSP.append(40)
+        atkr.damage_reduction_reduction.append(50)
+        atkr.self_desperation = True
 
-        if atkSkills["potentExtras"] > 1:
-            atkr.DR_all_hits_NSP.append((atkSkills["potentExtras"] - 1) * 10)
+    if "its ok emblem you can call me engage" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 5 + trunc(0.20 * defStats[SPD]) for x in defCombatBuffs]
+        defr.DR_first_strikes_NSP.append(40)
+        defr.damage_reduction_reduction.append(50)
+        defr.self_desperation = True
+
+    # Potent DR
+    if "potentDR" in atkSkills: atkr.DR_all_hits_NSP.append(atkSkills["potentDR"])
+    if "potentDR" in defSkills: defr.DR_all_hits_NSP.append(defSkills["potentDR"])
 
     # Feather Sword (Base) - CH!Caeda
     if "caedaVantage" in defSkills and (attacker.wpnType in ["Sword", "Lance", "Axe", "CBow"] or attacker.move == 3 or defHPCur / defStats[0] <= 0.75):
@@ -2076,13 +2543,24 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     # Pure-Wing Spear (Base) - X!Caeda
     if "pureWing" in atkSkills and atkAllyWithin3Spaces:
-        Y = min(len(atkAllyWithin3Spaces) * 3 + 5, 14)
-        atkCombatBuffs = [x + Y for x in atkCombatBuffs]
+        atkCombatBuffs = [x + min(len(atkAllyWithin3Spaces) * 3 + 5, 14) for x in atkCombatBuffs]
         atkr.damage_reduction_reduction.append(50)
         atkr.DR_all_hits_NSP.append(30)
         atkr.all_hits_heal += 7
-        if defender.move == 3 or attacker.move == 1:
+        if defender.move == 3 or defender.move == 1:
+            atkr.all_hits_heal += 14
+        else:
             atkr.all_hits_heal += 7
+
+    if "pureWing" in defSkills and defAllyWithin3Spaces:
+        defCombatBuffs = [x + min(len(defAllyWithin3Spaces) * 3 + 5, 14) for x in defCombatBuffs]
+        defr.damage_reduction_reduction.append(50)
+        defr.DR_all_hits_NSP.append(30)
+
+        if attacker.move == 3 or attacker.move == 1:
+            defr.all_hits_heal += 14
+        else:
+            defr.all_hits_heal += 7
 
     # Breath of Fog (Refine Eff) - Y!Tiki/A!Tiki
     if "tikiBoost" in atkSkills:
@@ -2266,6 +2744,47 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkBonusesNeutralized[SPD] = True
         atkBonusesNeutralized[RES] = True
         defr.sp_pierce_DR = True
+
+    # Tender Excalibur - A!Merric
+    if "aMerricBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+
+        low_hp_allies = 0
+
+        for ally in atkAllAllies:
+            if ally.HPcur / ally.visible_stats[HP] <= 0.40:
+                low_hp_allies += 1
+
+        atkCombatBuffs[ATK] += max(9 - 3 * low_hp_allies, 0)
+        atkCombatBuffs[SPD] += max(9 - 3 * low_hp_allies, 0)
+
+        atkr.offensive_NFU = True
+        atkr.defensive_NFU = True
+        atkr.DR_first_strikes_NSP.append(30)
+
+        if atkSpTriggeredByAttack:
+            atkr.sp_jump_first += 1
+            atkr.sp_jump_followup += 1
+
+    if "aMerricBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+
+        low_hp_allies = 0
+
+        for ally in defAllAllies:
+            if ally.HPcur / ally.visible_stats[HP] <= 0.40:
+                low_hp_allies += 1
+
+        defCombatBuffs[ATK] += max(9 - 3 * low_hp_allies, 0)
+        defCombatBuffs[SPD] += max(9 - 3 * low_hp_allies, 0)
+
+        defr.offensive_NFU = True
+        defr.defensive_NFU = True
+        defr.DR_first_strikes_NSP.append(30)
+
+        if defSpTriggeredByAttack:
+            defr.sp_jump_first += 1
+            defr.sp_jump_followup += 1
 
     # Dark Aura (Linde/Delthea)
     if "darkAuraBoost" in atkSkills:
@@ -2805,6 +3324,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[RES] -= 10
         defr.follow_ups_skill += 1
         defr.DR_consec_strikes_NSP.append(80)
+        defr.other_desperation = True
 
     # Imhullu (Refine Base) - Gharnef
     if "gharnefDmg" in atkSkills and atkSkills["gharnefDmg"] == 7:
@@ -2892,6 +3412,25 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[ATK] -= 5
         atkCombatBuffs[RES] -= 5
         defr.stat_scaling_DR.append((RES, 40))
+
+    # Opposing Stones - H!Nagi
+    if "hNagiBoost" in atkSkills and defHPGreaterEqual75Percent:
+        X = min(len(atkAllyWithin3RowsCols) * 3 + 5, 14)
+
+        defCombatBuffs[ATK] -= X
+        defCombatBuffs[DEF] -= X
+        defCombatBuffs[RES] -= X
+        atkr.TDR_stats.append((RES, 20))
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "hNagiBoost" in defSkills:
+        X = 14 if savior_triggered else min(len(defAllyWithin3RowsCols) * 3 + 5, 14)
+
+        atkCombatBuffs[ATK] -= X
+        atkCombatBuffs[DEF] -= X
+        atkCombatBuffs[RES] -= X
+        defr.TDR_stats.append((RES, 20))
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
 
     # Shadow Breath (Base) - Medeus
     if "medeusBoost" in atkSkills and defHPGreaterEqual75Percent:
@@ -3297,8 +3836,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     # Caring Magic (Base) - E!Celica
     if "eCelicaBoost" in atkSkills:
-        atkCombatBuffs[ATK] += 6 + trunc(atkStats[SPD] * 0.2)
-        atkCombatBuffs[SPD] += 6 + trunc(atkStats[SPD] * 0.2)
+        atkCombatBuffs[ATK] += 6 + trunc(atkStats[SPD] * 0.20)
+        atkCombatBuffs[SPD] += 6 + trunc(atkStats[SPD] * 0.20)
 
         atkr.true_stat_damages.append((SPD, 20))
 
@@ -3310,8 +3849,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.self_desperation = True
 
     if "eCelicaBoost" in defSkills and defAllyWithin2Spaces:
-        defCombatBuffs[ATK] += 6 + trunc(defStats[SPD] * 0.2)
-        defCombatBuffs[SPD] += 6 + trunc(defStats[SPD] * 0.2)
+        defCombatBuffs[ATK] += 6 + trunc(defStats[SPD] * 0.20)
+        defCombatBuffs[SPD] += 6 + trunc(defStats[SPD] * 0.20)
 
         defr.true_stat_damages.append((SPD, 20))
 
@@ -3319,6 +3858,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkBonusesNeutralized[RES] = True
 
         defr.sp_jump_followup += 1
+
+    # Celica Ring
+    if "care for us" in atkSkills:
+        atkr.true_sp += attacker.specialMax * 4
+
+    if "care for us" in defSkills:
+        defr.true_sp += defender.specialMax * 4
 
     # Springtime Staff (Refine Eff) - Genny
     if "gennyBoost" in atkSkills:
@@ -3530,7 +4076,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         tiles_within_7_row = attacker.attacking_tile.tilesWithinNRows(7)
         tiles_within_7_col = attacker.attacking_tile.tilesWithinNCols(7)
-        tiles_within_7_row_and_column = list(set(tiles_within_3_col) & set(tiles_within_3_row))
+        tiles_within_7_row_and_column = list(set(tiles_within_7_row) & set(tiles_within_7_col))
 
         for tile in tiles_within_7_row_and_column:
             if tile.hero_on and tile.hero_on.isAllyOf(attacker):
@@ -3543,7 +4089,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         tiles_within_7_row = defender.tile.tilesWithinNRows(7)
         tiles_within_7_col = defender.tile.tilesWithinNCols(7)
-        tiles_within_7_row_and_column = list(set(tiles_within_3_col) & set(tiles_within_3_row))
+        tiles_within_7_row_and_column = list(set(tiles_within_7_row) & set(tiles_within_7_col))
 
         for tile in tiles_within_7_row_and_column:
             if tile.hero_on and tile.hero_on.isAllyOf(defender):
@@ -3557,7 +4103,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         tiles_within_7_row = attacker.attacking_tile.tilesWithinNRows(7)
         tiles_within_7_col = attacker.attacking_tile.tilesWithinNCols(7)
-        tiles_within_7_row_and_column = list(set(tiles_within_3_col) & set(tiles_within_3_row))
+        tiles_within_7_row_and_column = list(set(tiles_within_7_row) & set(tiles_within_7_col))
 
         for tile in tiles_within_7_row_and_column:
             if tile.hero_on and tile.hero_on.isAllyOf(attacker):
@@ -3571,7 +4117,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         tiles_within_7_row = defender.tile.tilesWithinNRows(7)
         tiles_within_7_col = defender.tile.tilesWithinNCols(7)
-        tiles_within_7_row_and_column = list(set(tiles_within_3_col) & set(tiles_within_3_row))
+        tiles_within_7_row_and_column = list(set(tiles_within_7_col) & set(tiles_within_7_row))
 
         for tile in tiles_within_7_row_and_column:
             if tile.hero_on and tile.hero_on.isAllyOf(defender):
@@ -3582,7 +4128,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if "rejoice_f" in atkSkills: defBonusesNeutralized[ATK] = True
     if "rejoice_f" in defSkills: atkBonusesNeutralized[ATK] = True
-
 
     # Fell Breath (Base) - Duma
     if "dumaBoost" in atkSkills and not defHPEqual100Percent:
@@ -3783,14 +4328,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs = [x + min(len(atkAllyWithin3Spaces) * 2 + 5, 11) for x in atkCombatBuffs]
         atkr.damage_reduction_reduction.append(50)
         atkr.TDR_first_strikes += min(spaces_moved_by_atkr * 3, 12)
-        atkr.TDR_on_foe_special += min(spaces_moved_by_atkr * 3, 12)
+        atkr.TDR_on_foe_sp += min(spaces_moved_by_atkr * 3, 12)
         atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
 
     if "bSeliphRefine" in defSkills and defHPGreaterEqual25Percent:
         defCombatBuffs = [x + min(len(defAllyWithin3Spaces) * 2 + 5, 11) for x in defCombatBuffs]
         defr.damage_reduction_reduction.append(50)
         defr.TDR_first_strikes += min(spaces_moved_by_atkr * 3, 12)
-        defr.TDR_on_foe_special += min(spaces_moved_by_atkr * 3, 12)
+        defr.TDR_on_foe_sp += min(spaces_moved_by_atkr * 3, 12)
         defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
 
     # Hallowed Tyrfing (Base) - L!Sigurd
@@ -3847,6 +4392,26 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs = [x + 5 for x in defCombatBuffs]
         defr.follow_ups_skill += 1
         defr.true_stat_damages.append((ATK, 15))
+
+    # Holy-War Spear - E!Sigurd
+    if "eSigurdBoost" in atkSkills:
+        atkCombatBuffs = [x + min(len(atkFoeWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((DEF, 20))
+        atkr.damage_reduction_reduction.append(50)
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "eSigurdBoost" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + min(len(defFoeWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
+        defr.true_stat_damages.append((DEF, 20))
+        defr.damage_reduction_reduction.append(50)
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    # Sigurd Ring
+    if "provide for us" in atkSkills:
+        atkr.true_sp += min(spaces_moved_by_atkr, 4) * 2
+
+    if "provide for us" in defSkills:
+        defr.true_sp += min(spaces_moved_by_atkr, 4) * 2
 
     # Naga (Refine Eff) - Julia
     if "nagaAntiDragon" in atkSkills and defender.wpnType in DRAGON_WEAPONS:
@@ -4466,6 +5031,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             elif ally.get_visible_stat(SPD) > highest_spd_allies[0].get_visible_stat(SPD):
                 highest_spd_allies = [ally]
 
+        if disableSupportEffects:
+            support_partners = []
+
         if support_partners:
             target_allies = support_partners
         else:
@@ -4492,6 +5060,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                 highest_spd_allies.append(ally)
             elif ally.get_visible_stat(SPD) > highest_spd_allies[0].get_visible_stat(SPD):
                 highest_spd_allies = [ally]
+
+        if disableSupportEffects:
+            support_partners = []
 
         if support_partners:
             target_allies = support_partners
@@ -4699,6 +5270,36 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "bigHands" in defSkills and atkHPGreaterEqual50Percent:
         defCombatBuffs[ATK] += 5
         atkCombatBuffs[ATK] -= 5
+
+    # Arcane Thunder
+    if "arcaneThunder" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        atkr.spGainOnAtk += 1
+        atkr.spGainWhenAtkd += 1
+        defBonusesNeutralized[SPD] = True
+        defBonusesNeutralized[RES] = True
+        atkr.speed_NFU = True
+
+    if "arcaneThunder" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defr.spGainOnAtk += 1
+        defr.spGainWhenAtkd += 1
+        atkBonusesNeutralized[SPD] = True
+        atkBonusesNeutralized[RES] = True
+        defr.speed_NFU = True
+
+    # Thunder's Fist - R!Reinhardt
+    if "MAGIC IS EVERYTHING" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 7 for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((ATK, 15))
+        atkr.DR_first_hit_NSP.append(50)
+
+        if spaces_moved_by_atkr >= 2:
+            atkr.brave = True
+
+    if "MAGIC IS EVERYTHING" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 7 for x in defCombatBuffs]
+        defr.true_stat_damages.append((ATK, 15))
 
     # Thunderhead (Refine Eff) - P!Olwen
     if "olwen_field_f" in defSkills:
@@ -4949,14 +5550,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.offensive_tempo = True
         atkr.sp_jump_first += 1
         atkr.TDR_all_hits += 10
-        atkr.TDR_on_foe_special += 10
+        atkr.TDR_on_foe_sp += 10
 
     if "about half done, and there's still so many" in defSkills and defAllyWithin3Spaces:
         defCombatBuffs = [x + 5 for x in defCombatBuffs]
         defr.offensive_tempo = True
         defr.sp_jump_first += 1
         defr.TDR_all_hits += 10
-        defr.TDR_on_foe_special += 10
+        defr.TDR_on_foe_sp += 10
 
     if "ronanField_f" in atkSkills:
         atkr.offensive_tempo = True
@@ -5028,6 +5629,38 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "veldRefinePetrify" in defSkills and len(defAdjacentToAlly) <= 1:
         defCombatBuffs = [x + 5 for x in defCombatBuffs]
         defr.follow_ups_skill += 1
+
+    # Repair - Safy
+    if "repair" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        atkr.follow_ups_skill += 1
+
+    if "repair" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defr.follow_ups_skill += 1
+
+    # Thief - Tina
+    if "tinaBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] += 6
+        atkCombatBuffs[SPD] += 6
+        atkr.true_all_hits += min(5 * len(attacker.statusPos), 20)
+
+    if "tinaBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] += 6
+        defCombatBuffs[SPD] += 6
+        defr.true_all_hits += min(5 * len(defender.statusPos), 20)
+
+    # Blade Royale
+    if "perneBoost" in atkSkills:
+        atkr.brave = True
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        atkr.spGainOnAtk += 1
+        atkr.spGainWhenAtkd += 1
+
+    if "perneBoost" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defr.spGainOnAtk += 1
+        defr.spGainWhenAtkd += 1
 
     # BINDING BLADE
 
@@ -5148,6 +5781,37 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[ATK] += 6
         defCombatBuffs[RES] += 6
         defr.true_stat_damages.append((RES, 10))
+
+    # Arcane Truthfire
+    if "truthfire" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + max(5, min(trunc(0.25 * defStats[ATK]) - 4, 14)) for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((ATK, 15))
+        atkr.TDR_first_strikes += 7
+
+        if attacker.getSpecialType() == "Offense":
+            atkr.sp_jump_first += 1
+
+    if "truthfire" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + max(5, min(trunc(0.25 * atkStats[ATK]) - 4, 14)) for x in defCombatBuffs]
+        defr.true_stat_damages.append((ATK, 15))
+        defr.TDR_first_strikes += 7
+
+        if defender.getSpecialType() == "Offense":
+            defr.sp_jump_first += 1
+
+    # Gift for Magic - R!Lilina
+    if "giftForMagic" in atkSkills:
+        atkr.hardy_bearing = True
+        defr.hardy_bearing = True
+        atkr.DR_sp_trigger_by_any_special_SP.append(40)
+
+        if aoe_triggered:
+            atkr.damage_reduction_reduction.append(50)
+
+    if "giftForMagic" in defSkills:
+        atkr.hardy_bearing = True
+        defr.hardy_bearing = True
+        defr.DR_sp_trigger_by_any_special_SP.append(40)
 
     # Weighted Lance (Base) - Gwendolyn
     if "gwendyBoost" in atkSkills and atkHPGreaterEqual50Percent:
@@ -5288,6 +5952,21 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             atkr.spLossOnAtk -= 1
             atkr.spLossWhenAtkd -= 1
 
+    # Ilian Frost Blade - FF!Thea
+    if "iceTheaBoost" in atkSkills:
+        atkCombatBuffs = [x + min(5 + (attacker.flowers * 2), 15) for x in atkCombatBuffs]
+        atkr.damage_reduction_reduction.append(50)
+        atkr.TDR_first_strikes += 7
+        atkr.spGainOnAtk += 1
+        atkr.spGainWhenAtkd += 1
+
+    if "iceTheaBoost" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + min(5 + (defender.flowers * 2), 15) for x in defCombatBuffs]
+        defr.damage_reduction_reduction.append(50)
+        defr.TDR_first_strikes += 7
+        defr.spGainOnAtk += 1
+        defr.spGainWhenAtkd += 1
+
     # Rose-Quartz Bow (Base) - BR!Shanna
     if "brShannaBoost" in atkSkills:
         atkCombatBuffs[ATK] += 6
@@ -5298,6 +5977,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[ATK] += 6
         defCombatBuffs[SPD] += 6
         defr.true_stat_damages.append((SPD, 20))
+
+    # Light of Etruria - Elffin
+    if "elffinBoost" in defSkills:
+        defCombatBuffs[ATK] -= 6 + trunc(0.20 * atkStats[RES])
+        defCombatBuffs[SPD] -= 6 + trunc(0.20 * atkStats[RES])
+        defr.pseudo_miracle = True
 
     # Quick Mulagir (Base) - Sue
     if "sueSweep" in atkSkills:
@@ -5348,7 +6033,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[ATK] -= 5
         atkCombatBuffs[SPD] -= 5
         atkCombatBuffs[DEF] -= 5
-        defIgreneTriggered = False
+        defIgreneTriggered = True
 
     # Guardian's Bow (Refine Base) - Igrene
     if "yay its gone" in atkSkills:
@@ -5381,6 +6066,32 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     # Nabata Kunai (Base) - NI!Igrene
     if "igreneWarp" in atkSkills:
         atkr.brave = True
+
+    # Sandglass Bow - DE!Igrene
+    if "deIgreneBoost" in atkSkills:
+        atkCombatBuffs[ATK] += 6
+        atkCombatBuffs[SPD] += 6
+        atkr.true_stat_damages.append((ATK, 15))
+        atkr.true_sp += trunc(((attacker.specialMax * 10 + 10) / 100) * atkStats[SPD])
+
+    if "deIgreneBoost" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs[ATK] += 6
+        defCombatBuffs[SPD] += 6
+        defr.true_stat_damages.append((ATK, 15))
+        defr.true_sp += trunc(((defender.specialMax * 10 + 10) / 100) * atkStats[SPD])
+
+    # Blade of Sands - DE!Juno
+    if "bladeofsans" in atkSkills:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        atkr.offensive_NFU = True
+        atkr.defensive_NFU = True
+        atkr.true_stat_damages.append((SPD, 20))
+
+    if "bladeofsans" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defr.offensive_NFU = True
+        defr.defensive_NFU = True
+        defr.true_stat_damages.append((SPD, 20))
 
     # Prized Lance (Base) - Perceval
     if "percyBoost" in atkSkills and not defHPEqual100Percent:
@@ -6249,6 +6960,19 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "Hi Nino" in defSkills and any(ally.wpnType in TOME_WEAPONS and ally.move == 0 for ally in defAllyWithin2Spaces):
         defCombatBuffs = [x + 3 for x in defCombatBuffs]
 
+    # Dead-Wolf Blade - FA!Lloyd
+    if "LaLoyd" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 5 + trunc(0.15 * atkStats[SPD]) for x in atkCombatBuffs]
+        atkr.DR_first_strikes_NSP.append(40)
+        defr.spLossOnAtk -= 1
+        defr.spLossWhenAtkd -= 1
+
+    if "LaLoyd" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 5 + trunc(0.15 * defStats[SPD]) for x in defCombatBuffs]
+        defr.DR_first_strikes_NSP.append(40)
+        atkr.spLossOnAtk -= 1
+        atkr.spLossWhenAtkd -= 1
+
     # Fanged Basilikos (Base) - Linus
     if "linusBoost" in atkSkills and atkHPGreaterEqual25Percent:
         atkCombatBuffs[ATK] += 5
@@ -6269,6 +6993,26 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[SPD] += 6
         defr.offensive_NFU = True
 
+    # Dead-Crow Tome - Ursula
+    if "faUrsulaBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] += 6 + trunc(0.20 * atkStats[SPD])
+        atkCombatBuffs[SPD] += 6 + trunc(0.20 * atkStats[SPD])
+        atkr.true_stat_damages.append((SPD, 20))
+        atkr.offensive_NFU = True
+
+        if atkHPEqual100Percent:
+            atkr.offensive_tempo = True
+
+    if "faUrsulaBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] += 6 + trunc(0.20 * defStats[SPD])
+        defCombatBuffs[SPD] += 6 + trunc(0.20 * defStats[SPD])
+        defr.true_stat_damages.append((SPD, 20))
+        defr.offensive_NFU = True
+
+        if defHPEqual100Percent:
+            defr.offensive_tempo = True
+
+    # Hurricane Dagger - Legault
     if "ghetsis holding a ducklett" in atkSkills and atkHPGreaterEqual25Percent:
         atkCombatBuffs[SPD] += 5
         atkCombatBuffs[ATK] += 5
@@ -6594,6 +7338,25 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[ATK] += 6
         defCombatBuffs[SPD] += 6
 
+    # Ereshkigal - Nergal
+    if "My name is Nergal. I made the morphs. It was difficult to put the quintessence together." in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= 6 + trunc(0.20 * atkStats[RES])
+        defCombatBuffs[RES] -= 6 + trunc(0.20 * atkStats[RES])
+        atkr.true_all_hits += min(len(attacker.statusPos) * 5, 25)
+        atkr.TDR_all_hits += min(len(attacker.statusPos) * 3, 15)
+
+        if atkSpTriggeredByAttack:
+            atkr.sp_jump_first += min(len(attacker.statusPos), 3)
+
+    if "My name is Nergal. I made the morphs. It was difficult to put the quintessence together." in defSkills and defHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] -= 6 + trunc(0.20 * defStats[RES])
+        atkCombatBuffs[RES] -= 6 + trunc(0.20 * defStats[RES])
+        defr.true_all_hits += min(len(defender.statusPos) * 5, 25)
+        defr.TDR_all_hits += min(len(defender.statusPos) * 3, 15)
+
+        if defSpTriggeredByAttack:
+            defr.sp_jump_first += min(len(defender.statusPos), 3)
+
     # SACRED STONES
 
     # Sieglinde (Refine Eff) - Eirika
@@ -6740,23 +7503,36 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defPostCombatEffs[GIVEN_UNIT_ATTACKED].append(("status", Status.Guard, "foe_and_foes_allies", "within_2_spaces_foe"))
 
     # Sisterly Axe (X!Eirika)
-    if "sisterlyBoost" in atkSkills and atkAllyWithin3Spaces:
-
-        num_ally_3_row_3_col = 0
-
-        tiles_within_3_col = attacker.attacking_tile.tilesWithinNCols(3)
-        tiles_within_3_row = attacker.attacking_tile.tilesWithinNRows(3)
-        tiles_within_3_row_or_column = list(set(tiles_within_3_col) | set(tiles_within_3_row))
-
-        for tile in tiles_within_3_row_or_column:
-            if tile.hero_on and tile.hero_on.isAllyOf(attacker):
-                num_ally_3_row_3_col += 1
-
-        boost = min(5 + num_ally_3_row_3_col * 3, 14)
-
-        atkCombatBuffs = [x + boost for x in atkCombatBuffs]
-
+    if "who's vince?" in atkSkills and atkAllyWithin3Spaces:
+        atkCombatBuffs = [x + min(len(atkAllyWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
+        atkr.TDR_stats.append((SPD, 20))
         atkr.damage_reduction_reduction.append(50)
+        atkr.all_hits_heal += 7
+
+    if "who's vince?" in defSkills and defAllyWithin3Spaces:
+        defCombatBuffs = [x + min(len(defAllyWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
+        defr.TDR_stats.append((SPD, 20))
+        defr.damage_reduction_reduction.append(50)
+        defr.all_hits_heal += 7
+
+    # Moonlit Bangle Q - X!Eirika
+    if "moonlitBangleQ" in atkSkills:
+        defCombatBuffs[ATK] -= 5
+        defCombatBuffs[SPD] -= 5
+        defCombatBuffs[DEF] -= 5
+        atkr.true_stat_damages_from_foe.append((ATK, 25))
+        atkr.sp_jump_first += 1
+        atkr.sp_jump_followup += 1
+        atkr.offensive_tempo = True
+
+    if "moonlitBangleQ" in defSkills:
+        atkCombatBuffs[ATK] -= 5
+        atkCombatBuffs[SPD] -= 5
+        atkCombatBuffs[DEF] -= 5
+        defr.true_stat_damages_from_foe.append((ATK, 25))
+        defr.sp_jump_first += 1
+        defr.sp_jump_followup += 1
+        defr.offensive_tempo = True
 
     # Siegmund (+Eff) - Ephraim
     if "FollowUpEph" in atkSkills and atkHPCur / atkStats[HP] > 0.90:
@@ -6828,6 +7604,35 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "twoTurtleDoves" in defSkills and defHPGreaterEqual25Percent:
         atkCombatBuffs[ATK] -= 5
         atkCombatBuffs[DEF] -= 5
+
+    # Righteous Lance - V!Ephraim
+    if "Oh, I insist!" in atkSkills and defHPGreaterEqual75Percent:
+        defCombatBuffs[ATK] -= min(len(atkAllyWithin3Spaces) * 4 + 6, 14)
+        defCombatBuffs[DEF] -= min(len(atkAllyWithin3Spaces) * 4 + 6, 14)
+        atkr.DR_all_hits_NSP.append(30)
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+        atkr.sp_pierce_DR = True
+
+    if "Oh, I insist!" in defSkills:
+        atkCombatBuffs[ATK] -= min(len(defAllyWithin3Spaces) * 4 + 6, 14)
+        atkCombatBuffs[DEF] -= min(len(defAllyWithin3Spaces) * 4 + 6, 14)
+        defr.DR_all_hits_NSP.append(30)
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+        defr.sp_pierce_DR = True
+
+    # Sunlit Bangle D - V!Ephraim
+    if "sunlitBangleD" in atkSkills and atkHPGreaterEqual25Percent:
+        atkr.vantage = True
+        defCombatBuffs[ATK] -= 5
+        defCombatBuffs[DEF] -= 5
+        atkr.offensive_tempo = True
+        atkr.all_hits_heal += 7
+
+    if "sunlitBangleD" in defSkills and defHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] -= 5
+        atkCombatBuffs[DEF] -= 5
+        defr.offensive_tempo = True
+        defr.all_hits_heal += 7
 
     # Nidhogg (Refine Eff) - Innes
     if "innesDenial" in atkSkills and defender.wpnType in MAGICAL_WEAPONS + DRAGON_WEAPONS:
@@ -7061,6 +7866,40 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.DR_all_hits_NSP.append(30)
         defr.follow_ups_skill += 1
 
+    # Loving Breath - V!Myrrh
+    if "myrrhLove" in atkSkills and defHPGreaterEqual75Percent:
+        atkCombatBuffs[ATK] += min(len(atkAllyWithin3Spaces) * 4 + 6, 14)
+        defCombatBuffs[ATK] += min(len(atkAllyWithin3Spaces) * 4 + 6, 14)
+        atkr.spGainOnAtk += 1
+        atkr.spGainWhenAtkd += 1
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+        atkr.stat_scaling_DR.append((RES, 40))
+
+    if "myrrhLove" in defSkills:
+        defCombatBuffs[ATK] += min(len(defAllyWithin3Spaces) * 4 + 6, 14)
+        atkCombatBuffs[ATK] += min(len(defAllyWithin3Spaces) * 4 + 6, 14)
+        defr.spGainOnAtk += 1
+        defr.spGainWhenAtkd += 1
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+        defr.stat_scaling_DR.append((RES, 40))
+
+    # Darkling Dragon
+    if "darklingDragon" in atkSkills and atkAllyWithin2Spaces:
+        defr.spLossOnAtk -= 1
+        defr.spLossWhenAtkd -= 1
+        atkr.damage_reduction_reduction.append(50)
+
+    if "darklingDragon" in defSkills:
+        if defAllyWithin2Spaces:
+            atkr.spLossOnAtk -= 1
+            atkr.spLossWhenAtkd -= 1
+            defr.damage_reduction_reduction.append(50)
+
+        if savior_triggered:
+            atkCombatBuffs[ATK] += 4
+            atkCombatBuffs[DEF] += 4
+            atkCombatBuffs[RES] += 4
+
     # Audhulma (Base) - Joshua
     if "audBoost" in atkSkills and defHPEqual100Percent:
         atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
@@ -7099,6 +7938,44 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "hey all scott here" in defSkills and defAllyWithin3Spaces:
         defCombatBuffs[ATK] += 5
         defCombatBuffs[SPD] += 5
+
+    # Lance of Grado - A!Amelia
+    if "ascAmeliaBoost" in atkSkills and atkAllyWithin3Spaces:
+        atkCombatBuffs = [x + min(len(atkAllyWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
+        atkPenaltiesNeutralized = [True] * 5
+        atkr.DR_first_strikes_NSP.append(40)
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "ascAmeliaBoost" in defSkills and defAllyWithin3Spaces:
+        defCombatBuffs = [x + min(len(defAllyWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
+        defPenaltiesNeutralized = [True] * 5
+        defr.DR_first_strikes_NSP.append(40)
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    # Obsidian Tactics - A!Amelia
+    if "obsidianTactics" in atkSkills and defHPGreaterEqual75Percent:
+        atkCombatBuffs = [x + 9 for x in atkCombatBuffs]
+
+        X = len(attacker.statusPos)
+
+        if X >= 1:
+            defCombatBuffs[ATK] -= min(X * 2, 12)
+            defCombatBuffs[DEF] -= min(X * 2, 12)
+        if X >= 5:
+            atkr.damage_reduction_reduction.append(50)
+
+    if "obsidianTactics" in defSkills:
+        defCombatBuffs = [x + 9 for x in defCombatBuffs]
+
+        X = len(defender.statusPos)
+
+        if X >= 1:
+            atkCombatBuffs[ATK] -= min(X * 2, 12)
+            atkCombatBuffs[DEF] -= min(X * 2, 12)
+        if X >= 3:
+            ignore_range = True
+        if X >= 5:
+            defr.damage_reduction_reduction.append(50)
 
     # Pupil's Tome (Base) - Ewan
     if "ewanBoost" in atkSkills:
@@ -7357,6 +8234,31 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defPenaltiesNeutralized[ATK] = True
         defPenaltiesNeutralized[RES] = True
 
+    # Tender Vessel - V!Lyon
+    if "vLyonBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] += 5 + trunc(0.20 * atkStats[RES])
+        atkCombatBuffs[DEF] += 5 + trunc(0.20 * atkStats[RES])
+        atkCombatBuffs[RES] += 5 + trunc(0.20 * atkStats[RES])
+        atkr.damage_reduction_reduction.append(50)
+
+    if "vLyonBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] += 5 + trunc(0.20 * defStats[RES])
+        defCombatBuffs[DEF] += 5 + trunc(0.20 * defStats[RES])
+        defCombatBuffs[RES] += 5 + trunc(0.20 * atkStats[RES])
+        defr.damage_reduction_reduction.append(50)
+
+    # Gray Illusion - V!Lyon
+    if "grayIllusion" in atkSkills:
+        atkCombatBuffs[ATK] += 9
+        atkCombatBuffs[DEF] += 9
+        atkCombatBuffs[RES] += 9
+        atkPostCombatEffs[GIVEN_UNIT_SURVIVED].append(("status", Status.CancelAction, "highest_spd_foes_ally", "within_3_spaces_foe"))
+
+    if "grayIllusion" in defSkills and atkHPGreaterEqual75Percent:
+        defCombatBuffs[ATK] += 9
+        defCombatBuffs[DEF] += 9
+        defCombatBuffs[RES] += 9
+
     # Bereft Lance (Base) - Orson
     if "You can make your own joke about this guy I'm tired" in atkSkills:
         atkCombatBuffs[ATK] += max(6 - len(atkAllyWithin2Spaces) * 2, 0)
@@ -7402,6 +8304,23 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "rievBoost" in defSkills and atkHPGreaterEqual75Percent:
         defCombatBuffs[ATK] += 6
         defCombatBuffs[RES] += 6
+
+    # Sunstone's Blade - Glen
+    if "glenBoost" in atkSkills:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        defCombatBuffs[ATK] -= trunc(atkStats[DEF] * 0.20)
+        defCombatBuffs[RES] -= trunc(atkStats[DEF] * 0.20)
+        atkr.TDR_stats.append((DEF, 15))
+        atkr.follow_ups_skill += 1
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 10, "self", "one"))
+
+    if "glenBoost" in defSkills and defAllyWithin3RowsCols:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        atkCombatBuffs[ATK] -= trunc(defStats[DEF] * 0.20)
+        atkCombatBuffs[RES] -= trunc(defStats[DEF] * 0.20)
+        defr.TDR_stats.append((DEF, 15))
+        defr.follow_ups_skill += 1
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 10, "self", "one"))
 
     # Ravager (Base) - Fomortiis
     if "fomortiisBoost" in atkSkills and atkHPGreaterEqual25Percent:
@@ -7488,21 +8407,21 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                 defr.defensive_NFU = True
                 defr.offensive_NFU = True
 
-    # Emblem Ragnell (Base) - E!Ike
+    # Emblem Ragnell - E!Ike
     if "BIGIKEFAN" in atkSkills and atkHPGreaterEqual25Percent:
-        X = min(max(trunc(defStats[ATK] * 0.2) - 2, 6), 16)
+        X = min(max(trunc(defStats[ATK] * 0.20) - 2, 6), 16)
         atkCombatBuffs[ATK] += X
         defCombatBuffs[ATK] -= X
         atkPenaltiesNeutralized = [True] * 5
-        disableCannotCounter = True
         atkr.offensive_tempo = True
 
     if "BIGIKEFAN" in defSkills and defHPGreaterEqual25Percent:
-        X = min(max(trunc(atkStats[ATK] * 0.2) - 2, 6), 16)
+        X = min(max(trunc(atkStats[ATK] * 0.20) - 2, 6), 16)
         defCombatBuffs[ATK] += X
         atkCombatBuffs[ATK] -= X
         defPenaltiesNeutralized = [True] * 5
         defr.offensive_tempo = True
+        disableCannotCounter = True
 
     # Great Aether
     if "AETHER_GREAT" in atkSkills:
@@ -7513,6 +8432,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "AETHER_GREAT" in defSkills:
         defr.other_desperation = True
         defr.DR_great_aether_SP = True
+
+    # Ike Ring
+    if "fight on" in atkSkills and defender.wpnType in RANGED_WEAPONS:
+        atkr.DR_sp_trigger_by_any_special_non_twin_SP.append(40)
+
+    if "fight on" in defSkills and attacker.wpnType in RANGED_WEAPONS:
+        defr.DR_sp_trigger_by_any_special_non_twin_SP.append(40)
 
     # Adroit War Tome (Base) - CH!Soren
     if "chSorenBoost" in atkSkills and atkHPGreaterEqual25Percent:
@@ -7538,10 +8464,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if "mistPanic" in defSkills:
         defPostCombatEffs[2].append(("status", Status.Panic, "foe_and_foes_allies", "within_2_spaces_foe"))
-
-    # Sharp War Sword (Base) - CH!Mia
-    if "pointySword" in atkSkills: atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
-    if "pointySword" in defSkills and defAllyWithin2Spaces: defCombatBuffs = [x + 5 for x in defCombatBuffs]
 
     # Loyal Greatlance (Refine Eff) - Oscar
     if "oscarDrive" in atkSkills and (atkInfAlliesWithin2Spaces or atkCavAlliesWithin2Spaces):
@@ -7583,6 +8505,80 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[SPD] += 5 + trunc(0.20 * defStats[SPD])
         defr.offensive_NFU = True
         defr.defensive_NFU = True
+
+    # Sharp War Sword (Base) - CH!Mia
+    if "pointySword" in atkSkills: atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+    if "pointySword" in defSkills and defAllyWithin2Spaces: defCombatBuffs = [x + 5 for x in defCombatBuffs]
+
+    # Summertime Axe - SF!Mia
+    if "sfMiaBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + trunc(atkStats[SPD] * 0.15) for x in atkCombatBuffs]
+        atkr.offensive_tempo = True
+
+        X = len(attacker.statusPos) + len(defender.statusPos)
+
+        atkr.true_all_hits += min(X * 5, 30)
+        atkr.TDR_all_hits += min(X * 3, 18)
+        atkr.TDR_on_foe_sp += min(X * 3, 18)
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "sfMiaBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + trunc(defStats[SPD] * 0.15) for x in defCombatBuffs]
+        defr.offensive_tempo = True
+
+        X = len(attacker.statusPos) + len(defender.statusPos)
+
+        defr.true_all_hits += min(X * 5, 30)
+        defr.TDR_all_hits += min(X * 3, 18)
+        defr.TDR_on_foe_sp += min(X * 3, 18)
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    # Fluttering Fan - SF!Nephenee
+    if "sfNepheneeBoost" in atkSkills and atkAllyWithin3RowsCols:
+        tile_cond = False
+        for tile in atkr.tile.tilesWithinNSpaces(2):
+            if (tile.terrain == 1 or tile.terrain == 3) or (tile.divine_vein_turn > 0):
+                tile_cond = True
+                break
+
+        X = 14 if tile_cond else min(len(atkAllyWithin3RowsCols) * 3 + 5, 14)
+
+        atkCombatBuffs = [x + X for x in atkCombatBuffs]
+        defBonusesNeutralized[SPD] = True
+        defBonusesNeutralized[RES] = True
+        atkSkills.update({"flutteringFanSp": 0})
+
+        if atkSpTriggeredByAttack:
+            atkr.sp_jump_first += 1
+            atkr.sp_jump_followup += 1
+
+    if "sfNepheneeBoost" in defSkills and defAllyWithin3RowsCols:
+        tile_cond = False
+        for tile in defr.tile.tilesWithinNSpaces(2):
+            if (tile.terrain == 1 or tile.terrain == 3) or (tile.divine_vein_turn > 0):
+                tile_cond = True
+                break
+
+        X = 14 if tile_cond else min(len(defAllyWithin3RowsCols) * 3 + 5, 14)
+
+        defCombatBuffs = [x + X for x in defCombatBuffs]
+        atkBonusesNeutralized[SPD] = True
+        atkBonusesNeutralized[RES] = True
+        defSkills.update({"flutteringFanSp": 0})
+
+        if defSpTriggeredByAttack:
+            defr.sp_jump_first += 1
+            defr.sp_jump_followup += 1
+
+    if "sfNepheneeBoost_f" in atkSkills and atkSpTriggeredByAttack:
+        atkr.offensive_tempo = True
+        atkr.sp_jump_first += atkSkills["sfNepheneeBoost_f"]
+        atkSkills.update({"flutteringFanSp_f": atkSkills["sfNepheneeBoost_f"]})
+
+    if "sfNepheneeBoost_f" in defSkills and defSpTriggeredByAttack:
+        atkr.offensive_tempo = True
+        atkr.sp_jump_first += defSkills["sfNepheneeBoost_f"]
+        atkSkills.update({"flutteringFanSp_f": defSkills["sfNepheneeBoost_f"]})
 
     # Large War Axe (Base) - CH!Boyd
     if "chBoydBoost" in atkSkills:
@@ -7859,7 +8855,18 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[RES] += 9
         defr.stat_scaling_DR.append((RES, 40))
 
-    # yeah we'll be here for a while
+    # Arcadian Axes - DE!Altina
+    if "OOF, my goodness, oh" in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= trunc(0.20 * atkStats[RES])
+        defCombatBuffs[DEF] -= trunc(0.20 * atkStats[RES])
+        defCombatBuffs[RES] -= trunc(0.20 * atkStats[RES])
+
+    if "OOF, my goodness, oh" in defSkills and defHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] -= trunc(0.20 * defStats[RES])
+        atkCombatBuffs[DEF] -= trunc(0.20 * defStats[RES])
+        atkCombatBuffs[RES] -= trunc(0.20 * defStats[RES])
+
+    # Queensblade - Lucia
     if "You get NOTHING" in atkSkills:
         atkr.special_disabled = True
         defr.special_disabled = True
@@ -7903,6 +8910,49 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             defCombatBuffs = [x + 5 for x in defCombatBuffs]
             defr.true_stat_damages.append((SPD, 20))
             defr.DR_all_hits_NSP.append(30)
+
+    # Breezy Spear - SF!Lucia
+    if "sfLuciaBoost" in atkSkills:
+        atkr.special_disabled = True
+        defr.special_disabled = True
+
+        atkr.defensive_terrain = False
+        defr.defensive_terrain = False
+
+        atkr.defensive_NFU = True
+        atkr.offensive_NFU = True
+        defr.defensive_NFU = True
+        defr.offensive_NFU = True
+
+        disableCannotCounter = True
+
+        atkr.hardy_bearing = True
+        defr.hardy_bearing = True
+
+        atkCombatBuffs = [x + 5 + trunc(0.15 * atkStats[SPD]) for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((SPD, 20))
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "sfLuciaBoost" in defSkills:
+        atkr.special_disabled = True
+        defr.special_disabled = True
+
+        atkr.defensive_terrain = False
+        defr.defensive_terrain = False
+
+        atkr.defensive_NFU = True
+        atkr.offensive_NFU = True
+        defr.defensive_NFU = True
+        defr.offensive_NFU = True
+
+        disableCannotCounter = True
+
+        atkr.hardy_bearing = True
+        defr.hardy_bearing = True
+
+        defCombatBuffs = [x + 5 + trunc(0.15 * defStats[SPD]) for x in defCombatBuffs]
+        defr.true_stat_damages.append((SPD, 20))
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
 
     # Command Lance (Base) - Sigrun
     if "Maybe it's the way you're dressed" in atkSkills and atkAllyWithin3Spaces:
@@ -8087,6 +9137,21 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[ATK] += 6
         defCombatBuffs[RES] += 6
 
+    # Silver of Dawn - X!Micaiah
+    if "silverOfDawn" in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= 6 + trunc(0.20 * atkStats[RES])
+        defCombatBuffs[RES] -= 6 + trunc(0.20 * atkStats[RES])
+        defBonusesNeutralized[ATK] = True
+        defBonusesNeutralized[RES] = True
+        atkr.true_all_hits += min(len(atkAllyWithin3RowsCols) * 5, 15)
+
+    if "silverOfDawn" in defSkills and defHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] -= 6 + trunc(0.20 * defStats[RES])
+        atkCombatBuffs[RES] -= 6 + trunc(0.20 * defStats[RES])
+        atkBonusesNeutralized[ATK] = True
+        atkBonusesNeutralized[RES] = True
+        defr.true_all_hits += min(len(defAllyWithin3RowsCols) * 5, 15)
+
     # Peshkatz (Base) - Sothe
     if "sotheDagger" in atkSkills:
         val = atkSkills["sotheDagger"]
@@ -8127,6 +9192,40 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         defPostCombatEffs[2].append(("sp_charge", 1, "self_and_allies", "within_2_spaces_self"))
         defPostCombatEffs[2].append(("sp_charge", -1, "foe_and_foes_allies", "within_2_spaces_foe"))
+
+    # Arcane Tempest
+    if "arcaneTempest" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + max(5, min(trunc(0.25 * defStats[ATK]) - 4, 14)) for x in atkCombatBuffs]
+        atkr.DR_first_strikes_NSP.append(30)
+        atkr.speed_NFU = True
+
+    if "arcaneTempest" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + max(5, min(trunc(0.25 * atkStats[ATK]) - 4, 14)) for x in defCombatBuffs]
+        defr.DR_first_strikes_NSP.append(30)
+        defr.speed_NFU = True
+
+    # Bane - Sothe
+    if "sotheBane" in atkSkills: atkr.DR_sp_trigger_by_any_special_SP.append(30)
+    if "sotheBane" in defSkills: defr.DR_sp_trigger_by_any_special_SP.append(30)
+
+    # Caladbolg - Edward
+    if "edwardBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + max(5, min(trunc(0.25 * defStats[ATK]), 14)) for x in atkCombatBuffs]
+        atkr.offensive_tempo = True
+        atkr.damage_reduction_reduction.append(50)
+        atkr.sp_jump_foe_first += 1
+        atkr.TDR_all_hits += 8
+        atkr.TDR_on_foe_sp += 8
+        atkr.retaliatory_reduced += 1
+
+    if "edwardBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + max(5, min(trunc(0.25 * atkStats[ATK]), 14)) for x in defCombatBuffs]
+        defr.offensive_tempo = True
+        defr.damage_reduction_reduction.append(50)
+        defr.sp_jump_foe_first += 1
+        defr.TDR_all_hits += 8
+        defr.TDR_on_foe_sp += 8
+        defr.retaliatory_reduced += 1
 
     # Tome of Favors (Base) - Oliver
     if "oliverBoost" in atkSkills and defender.wpnType not in BEAST_WEAPONS:
@@ -8432,6 +9531,21 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[SPD] += 5
         defr.offensive_NFU = True
         defr.defensive_NFU = True
+
+    # Hungry Cat Fang - H!Lethe
+    if "hLetheBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + min(len(atkFoeWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
+        atkr.offensive_NFU = True
+        atkr.defensive_NFU = True
+        atkr.offensive_tempo = True
+        atkr.sp_pierce_DR = True
+
+    if "hLetheBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + min(len(atkFoeWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
+        defr.offensive_NFU = True
+        defr.defensive_NFU = True
+        defr.offensive_tempo = True
+        defr.sp_pierce_DR = True
 
     # Sabertooth Fang (Refine Base) - Mordecai
     if "mordecaiRefineLink" in atkSkills and defHPGreaterEqual75Percent:
@@ -8808,18 +9922,120 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if Status.RallySpectrum in attacker.statusPos:
         atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
 
-        if attacker.special and "slaying" in atkSkills and atkSkills["slaying"] >= 0:
-            atkr.sp_jump_first += 1
-        else:
-            atkr.sp_jump_first += 2
+        if atkSpTriggeredByAttack:
+            if "slaying" in atkSkills and atkSkills["slaying"] >= 0:
+                atkr.sp_jump_first += 1
+            else:
+                atkr.sp_jump_first += 2
 
     if Status.RallySpectrum in defender.statusPos:
         defCombatBuffs = [x + 5 for x in defCombatBuffs]
 
-        if defender.special and "slaying" in defSkills and defSkills["slaying"] >= 0:
-            defr.sp_jump_first += 1
-        else:
-            defr.sp_jump_first += 2
+        if defSpTriggeredByAttack:
+            if "slaying" in defSkills and defSkills["slaying"] >= 0:
+                defr.sp_jump_first += 1
+            else:
+                defr.sp_jump_first += 2
+
+    # Fell War Tome - CH!M!Robin
+    if "fellWarTome" in atkSkills:
+        X = 8 if defender.specialMax != -1 else max(16 - defender.specialMax * 2, 8)
+        atkCombatBuffs = [x + X for x in atkCombatBuffs]
+        atkr.DR_first_strikes_NSP.append(30)
+        atkr.offensive_tempo = True
+
+        if attacker.specialMax >= 3:
+            atkr.sp_pierce_DR = True
+
+        atkPostCombatEffs[GIVEN_UNIT_SURVIVED].append(("dv_flame", 1, "foe", "one"))
+
+    if "fellWarTome" in defSkills and defAllyWithin2Spaces:
+        X = 8 if attacker.specialMax != -1 else max(16 - attacker.specialMax * 2, 8)
+        defCombatBuffs = [x + X for x in defCombatBuffs]
+        defr.DR_first_strikes_NSP.append(30)
+        defr.offensive_tempo = True
+
+    # Draconic Pacts - CH!F!Robin
+    if "chFRobinBoost" in atkSkills:
+        X = 8 if defender.specialMax != -1 else max(16 - defender.specialMax * 2, 8)
+        atkCombatBuffs = [x + X for x in atkCombatBuffs]
+        atkr.DR_first_strikes_NSP.append(30)
+        atkr.offensive_tempo = True
+
+    if "chFRobinBoost" in defSkills and defAllyWithin2Spaces:
+        X = 8 if attacker.specialMax != -1 else max(16 - attacker.specialMax * 2, 8)
+        defCombatBuffs = [x + X for x in defCombatBuffs]
+        defr.DR_first_strikes_NSP.append(30)
+        defr.offensive_tempo = True
+
+    if Status.HushSpectrum in attacker.statusPos:
+        atkCombatBuffs = [x - 5 for x in atkCombatBuffs]
+
+        if atkSpTriggeredByAttack:
+            atkr.sp_jump_first -= 1
+
+        if "slaying" in atkSkills and atkSkills["slaying"] >= 0 and defSpTriggeredByAttack:
+            defr.sp_jump_foe_first += 1
+
+    if Status.HushSpectrum in defender.statusPos:
+        defCombatBuffs = [x - 5 for x in defCombatBuffs]
+
+        if defSpTriggeredByAttack:
+            defr.sp_jump_first -= 1
+
+        if "slaying" in defSkills and defSkills["slaying"] >= 0 and atkSpTriggeredByAttack:
+            defr.sp_jump_foe_first += 1
+
+    # Fell Wyrmscale - CH!F!Robin
+    if "fellWyrmscale" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 8 for x in atkCombatBuffs]
+        defBonusesNeutralized = [True] * 5
+        atkr.true_stat_damages.append((ATK, 15))
+        atkr.sp_pierce_DR = True
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "fellWyrmscale" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 8 for x in defCombatBuffs]
+        atkBonusesNeutralized = [True] * 5
+        defr.true_stat_damages.append((ATK, 15))
+        defr.sp_pierce_DR = True
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    # Exalt's Tactics - B!F!Robin
+    if "exaltsTactics" in atkSkills and atkHPGreaterEqual25Percent:
+        X = min(len(atkAllyWithin3RowsCols) * 3 + 5, 14)
+        defCombatBuffs[ATK] -= X
+        defCombatBuffs[SPD] -= X
+        defCombatBuffs[RES] -= X
+        atkr.offensive_tempo = True
+        atkr.sp_pierce_DR = True
+
+    if "exaltsTactics" in defSkills and defHPGreaterEqual25Percent:
+        X = min(len(defAllyWithin3RowsCols) * 3 + 5, 14)
+        atkCombatBuffs[ATK] -= X
+        atkCombatBuffs[SPD] -= X
+        atkCombatBuffs[RES] -= X
+        defr.offensive_tempo = True
+        defr.sp_pierce_DR = True
+
+    # According to Plan - B!F!Robin
+    if "accordingToPlan" in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= 5
+        defCombatBuffs[SPD] -= 5
+        defCombatBuffs[RES] -= 5
+
+        X = len(attacker.statusPos) + len(defender.statusNeg)
+        atkr.true_all_hits += min(X * 5, 25)
+        atkr.TDR_first_strikes += min(X * 3, 15)
+
+    if "accordingToPlan" in defSkills and defHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] -= 5
+        atkCombatBuffs[SPD] -= 5
+        atkCombatBuffs[RES] -= 5
+
+        X = len(defender.statusPos) + len(attacker.statusNeg)
+        defr.true_all_hits += min(X * 5, 25)
+        defr.TDR_first_strikes += min(X * 3, 15)
 
     # Grima's Truth (Base) - M!Morgan
     if "morganCombatDebuff" in atkSkills:
@@ -8889,6 +10105,39 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "vLucinaBoost" in defSkills:
         defCombatBuffs = [x + 5 for x in defCombatBuffs]
         defr.DR_first_hit_NSP.append(40)
+
+    # Ylisse Ninja Bow - NI!Lucina
+    if "niLucinaBoost" in atkSkills:
+        atkCombatBuffs = [x + 5 + trunc(atkStats[SPD] * 0.15) for x in atkCombatBuffs]
+        atkr.true_all_hits += min((len(attacker.statusPos) + len(defender.statusNeg)) * 5, 25)
+        atkr.damage_reduction_reduction.append(50)
+        atkr.offensive_tempo = True
+
+        if atkSpTriggeredByAttack:
+            atkr.triggered_sp_charge += 1
+
+    if "niLucinaBoost" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + 5 + trunc(defStats[SPD] * 0.15) for x in defCombatBuffs]
+        atkr.true_all_hits += min((len(defender.statusPos) + len(attacker.statusNeg)) * 5, 25)
+        defr.damage_reduction_reduction.append(50)
+        defr.offensive_tempo = True
+
+        if defSpTriggeredByAttack:
+            defr.triggered_sp_charge += 1
+
+    if Status.FutureWitness in attacker.statusPos:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        atkr.TDR_first_strikes += 7
+
+        if defSpTriggeredByAttack:
+            defr.sp_jump_first -= 1
+
+    if Status.FutureWitness in defender.statusPos:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defr.TDR_first_strikes += 7
+
+        if atkSpTriggeredByAttack:
+            atkr.sp_jump_first -= 1
 
     # Missiletainn (Owain)
     if "BY MISSILETAINN!!!" in atkSkills:
@@ -8962,6 +10211,53 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.true_stat_damages.append((SPD, 15))
         defr.offensive_NFU = True
 
+    # New War Axe - CH!Lissa
+    if "Who does?" in atkSkills and atkAllyWithin3Spaces:
+        atkCombatBuffs[ATK] += min(max(5, trunc(0.25 * defStats[ATK])), 14)
+        atkCombatBuffs[DEF] += min(max(5, trunc(0.25 * defStats[ATK])), 14)
+        atkCombatBuffs[RES] += min(max(5, trunc(0.25 * defStats[ATK])), 14)
+        atkr.offensive_tempo = True
+        atkr.defensive_tempo = True
+        atkr.deep_wounds_allowance.append(50)
+        atkr.DR_second_strikes_NSP.append(80)
+        atkSkills.update({"newWarAxeSP": attacker.specialMax})
+
+    if "Who does?" in defSkills and defAllyWithin3Spaces:
+        defCombatBuffs[ATK] += min(max(5, trunc(0.25 * atkStats[ATK])), 14)
+        defCombatBuffs[DEF] += min(max(5, trunc(0.25 * atkStats[ATK])), 14)
+        defCombatBuffs[RES] += min(max(5, trunc(0.25 * atkStats[ATK])), 14)
+        defr.offensive_tempo = True
+        defr.defensive_tempo = True
+        defr.deep_wounds_allowance.append(50)
+        defr.DR_second_strikes_NSP.append(80)
+        defSkills.update({"newWarAxeSP": defender.specialMax})
+
+    # Exalt's War Staff - CH!Emmeryn
+    if "chEmmerynBoost" in atkSkills and atkAllyWithin3Spaces:
+        atkCombatBuffs[ATK] += 6
+        atkCombatBuffs[RES] += 6
+        atkr.follow_ups_skill += 1
+        atkr.true_stat_damages.append((RES, 20))
+
+    if "chEmmerynBoost" in defSkills and defAllyWithin3Spaces:
+        defCombatBuffs[ATK] += 6
+        defCombatBuffs[RES] += 6
+        defr.follow_ups_skill += 1
+        defr.true_stat_damages.append((RES, 20))
+
+    # Heavy War Axe - CH!Frederick
+    if "He's gotta get his head in the game." in atkSkills:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        atkr.follow_ups_skill += 1
+        atkr.true_stat_damages.append((DEF, 20))
+        atkr.DR_all_hits_NSP.append(30)
+
+    if "He's gotta get his head in the game." in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defr.follow_ups_skill += 1
+        defr.true_stat_damages.append((DEF, 20))
+        defr.DR_all_hits_NSP.append(30)
+
     # Cordelia's Lance
     if "cordeliaLance" in atkSkills and atkHPCur / atkStats[HP] >= 0.70:
         atkCombatBuffs[ATK] += 4
@@ -9001,6 +10297,29 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "spSeveraBoost" in defSkills and atkHPGreaterEqual75Percent:
         defCombatBuffs[ATK] += 6
         defCombatBuffs[SPD] += 6
+
+    # Striving Sword - Severa
+    if "severaBlade" in atkSkills and atkAllyWithin3Spaces:
+        X = max(5, min(trunc(0.25 * defStats[ATK]) - 4, 14))
+        atkCombatBuffs = [x + X for x in atkCombatBuffs]
+        defr.spLossOnAtk -= 1
+        defr.spLossWhenAtkd -= 1
+
+        if atkSpTriggeredByAttack:
+            atkr.sp_pierce_DR = True
+        elif attacker.getSpecialType() == "Defense":
+            atkr.sp_pierce_after_def_sp = True
+
+    if "severaBlade" in defSkills and defAllyWithin3Spaces:
+        X = max(5, min(trunc(0.25 * atkStats[ATK]) - 4, 14))
+        defCombatBuffs = [x + X for x in defCombatBuffs]
+        atkr.spLossOnAtk -= 1
+        atkr.spLossWhenAtkd -= 1
+
+        if defSpTriggeredByAttack:
+            defr.sp_pierce_DR = True
+        elif defender.getSpecialType() == "Defense":
+            defr.sp_pierce_after_def_sp = True
 
     # Flower Lance (Base) - Sumia
     if "sumiaBoost" in atkSkills and defHPGreaterEqual75Percent:
@@ -9156,6 +10475,16 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "complexRein3_f" in defSkills:
         defCombatBuffs[SPD] -= defSkills["complexRein3_f"]
         defCombatBuffs[RES] -= defSkills["complexRein3_f"]
+
+    # Scroll of Curses - NI!Tharja
+    if "niTharjaBoost" in atkSkills:
+        atkr.self_desperation = True
+        atkCombatBuffs[ATK] += 6 + trunc(0.20 * atkStats[SPD])
+        atkCombatBuffs[SPD] += 6 + trunc(0.20 * atkStats[SPD])
+
+    if "niTharjaBoost" in defSkills and atkHPGreaterEqual75Percent:
+        defCombatBuffs[ATK] += 6 + trunc(0.20 * defStats[SPD])
+        defCombatBuffs[SPD] += 6 + trunc(0.20 * defStats[SPD])
 
     # Masking Axe (Base) - Gerome
     if "geromeBoost" in atkSkills and defHPGreaterEqual75Percent:
@@ -9368,6 +10697,33 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[ATK] -= trunc(0.20 * atkStats[SPD])
         defCombatBuffs[DEF] -= trunc(0.20 * atkStats[SPD])
 
+    # Full Rabbit Fang - H!Yarne
+    if "hYarneBoost" in atkSkills:
+        non_dragon_beast = 0
+
+        for ally in atkAdjacentToAlly:
+            if ally.wpnType not in DRAGON_WEAPONS + BEAST_WEAPONS:
+                non_dragon_beast += 1
+
+        if attacker.transformed or non_dragon_beast <= 1:
+            atkCombatBuffs = [x + min(len(atkFoeWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
+            atkr.true_stat_damages.append((SPD, 20))
+            atkr.offensive_NFU = True
+            atkr.defensive_NFU = True
+
+    if "hYarneBoost" in defSkills:
+        non_dragon_beast = 0
+
+        for ally in defAdjacentToAlly:
+            if ally.wpnType not in DRAGON_WEAPONS + BEAST_WEAPONS:
+                non_dragon_beast += 1
+
+        if defender.transformed or non_dragon_beast <= 1:
+            defCombatBuffs = [x + min(len(defFoeWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
+            defr.true_stat_damages.append((SPD, 20))
+            defr.offensive_NFU = True
+            defr.defensive_NFU = True
+
     # FATES
 
     # Yato (Refine Eff) - M!Corrin
@@ -9576,6 +10932,24 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs = [x - 7 for x in atkCombatBuffs]
         defr.TDR_first_strikes += 7
 
+    # Hoshido's Breath - L!M!Corrin
+    if "HoshidosBreath" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + min(len(atkAllyWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
+        atkr.TDR_first_strikes += 7
+
+    if "HoshidosBreath" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + min(len(defAllyWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
+        defr.TDR_first_strikes += 7
+
+    # Dragon Fang Shot - L!M!Corrin
+    if "dragonFangShot" in atkSkills:
+        atkr.damage_reduction_reduction_finish.append(50)
+        atkr.DR_dragon_fang_shot_SP = True
+
+    if "dragonFangShot" in defSkills:
+        defr.damage_reduction_reduction_finish.append(50)
+        defr.DR_dragon_fang_shot_SP = True
+
     # Dusk Dragonstone (Base) - M!Kana
     if "secondKanaBoost" in atkSkills and defHPGreaterEqual75Percent: atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
     if "secondKanaBoost" in defSkills: defCombatBuffs = [x + 4 for x in defCombatBuffs]
@@ -9601,6 +10975,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "deAzuraRefresh" in defSkills and defHPGreaterEqual25Percent:
         defCombatBuffs[ATK] += 6
         defCombatBuffs[SPD] += 6
+
+    # Tri-Path Splitter - X!Azura
+    if "Vince" in atkSkills and atkAllyWithin3Spaces:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+
+    if "Vince" in defSkills and defAllyWithin3Spaces:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
 
     # Azure Lance (Base) - Shigure
     if "I'm Shigure" in atkSkills:
@@ -9643,6 +11024,28 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         atkCombatBuffs[ATK] -= trunc(diff * 0.50)
         atkCombatBuffs[SPD] -= trunc(diff * 0.50)
+
+    # Ice-Tribe Axe - FF!Felicia
+    if "iceFeliciaBoost" in atkSkills:
+        atkCombatBuffs = [x + 5 + trunc(0.15 * atkStats[SPD]) for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((SPD, 20))
+        atkr.damage_reduction_reduction.append(50)
+        atkr.DR_first_strikes_NSP.append(40)
+
+    if "iceFeliciaBoost" in defSkills and any([ally for ally in defAllyWithin3Spaces if Status.NullEffDragons in ally.statusPos]):
+        defCombatBuffs = [x + 5 + trunc(0.15 * defStats[SPD]) for x in defCombatBuffs]
+        defr.true_stat_damages.append((SPD, 20))
+        defr.damage_reduction_reduction.append(50)
+        defr.DR_first_strikes_NSP.append(40)
+
+    if "iceFelicia_f" in atkSkills:
+        atkPenaltiesNeutralized[SPD] = True
+        atkPenaltiesNeutralized[RES] = True
+
+    if "iceFelicia_f" in defSkills:
+        defPenaltiesNeutralized[SPD] = True
+        defPenaltiesNeutralized[RES] = True
+        disableCannotCounter = True
 
     # Sæhrímnir (Refine Base) - SP!Flora
     if "spFloraBoost" in atkSkills:
@@ -10168,6 +11571,34 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "niCamillaBoost" in atkSkills: atkr.brave = True
     if "niCamillaBoost" in defSkills: defr.brave = True
 
+    # Bewitching Tome - L!Camilla
+    if "LCamillaBoost" in atkSkills:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        atkCombatBuffs[ATK] += trunc(0.20 * atkStats[SPD])
+        atkCombatBuffs[SPD] += trunc(0.20 * atkStats[SPD])
+        atkr.DR_first_hit_NSP.append(30)
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "LCamillaBoost" in defSkills and defender.wpnType in RANGED_WEAPONS:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defCombatBuffs[ATK] += trunc(0.20 * defStats[SPD])
+        defCombatBuffs[SPD] += trunc(0.20 * defStats[SPD])
+        defr.DR_first_hit_NSP.append(30)
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    # Spoil Rotten - L!Camilla
+    if "spoilRotten" in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[SPD] -= 5
+        defCombatBuffs[RES] -= 5
+        atkr.offensive_NFU = True
+        atkr.offensive_tempo = True
+
+    if "spoilRotten" in defSkills and defHPGreaterEqual25Percent:
+        atkCombatBuffs[SPD] -= 5
+        atkCombatBuffs[RES] -= 5
+        defr.offensive_NFU = True
+        defr.offensive_tempo = True
+
     # Beruka
     if "berukaAxe" in atkSkills and atkHPGreaterEqual50Percent:
         defCombatBuffs[ATK] -= 4
@@ -10684,6 +12115,64 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.DR_first_hit_NSP.append(40)
         defr.retaliatory_reduced += 1
 
+    # Forager Naginata - Mozu
+    if "mozuBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        X = 10 if any([tile for tile in atkr.tile.tilesWithinNSpaces(2) if (atkr.tile.has_divine_vein() or atkr.tile.is_difficult_terrain())]) else min(len(atkAllyWithin3Spaces) * 3 + 1, 10)
+
+        atkCombatBuffs = [x + 5 + X for x in atkCombatBuffs]
+        atkr.TDR_first_strikes += X
+        atkr.all_hits_heal += X
+
+    if "mozuBoost" in defSkills and defHPGreaterEqual25Percent:
+        X = 10 if any([tile for tile in defr.tile.tilesWithinNSpaces(2) if (defr.tile.has_divine_vein() or defr.tile.is_difficult_terrain())]) else min(len(defAllyWithin3Spaces) * 3 + 1, 10)
+
+        defCombatBuffs = [x + 5 + X for x in defCombatBuffs]
+        defr.TDR_first_strikes += X
+        defr.all_hits_heal += X
+
+    # Perspicacious
+    if "yukimuraBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        ally_count = 0
+
+        tiles_within_7_row = atkr.tile.tilesWithinNRows(7)
+        tiles_within_7_col = atkr.tile.tilesWithinNCols(7)
+        tiles_within_7_row_and_column = list(set(tiles_within_7_row) & set(tiles_within_7_col))
+
+        for tile in tiles_within_7_row_and_column:
+            if tile.hero_on and tile.hero_on.isAllyOf(attacker):
+                ally_count += 1
+
+        defCombatBuffs[ATK] -= min(6 + ally_count * 3, 15)
+        defCombatBuffs[DEF] -= min(6 + ally_count * 3, 15)
+        atkr.damage_reduction_reduction.append(50)
+        atkr.spGainOnAtk += 1
+        atkr.spGainWhenAtkd += 1
+
+    if "yukimuraBoost" in defSkills and defHPGreaterEqual25Percent:
+        ally_count = 0
+
+        tiles_within_7_row = defr.tile.tilesWithinNRows(7)
+        tiles_within_7_col = defr.tile.tilesWithinNCols(7)
+        tiles_within_7_row_and_column = list(set(tiles_within_7_row) & set(tiles_within_7_col))
+
+        for tile in tiles_within_7_row_and_column:
+            if tile.hero_on and tile.hero_on.isAllyOf(defender):
+                ally_count += 1
+
+        atkCombatBuffs[ATK] -= min(6 + ally_count * 3, 15)
+        atkCombatBuffs[DEF] -= min(6 + ally_count * 3, 15)
+        defr.damage_reduction_reduction.append(50)
+        defr.spGainOnAtk += 1
+        defr.spGainWhenAtkd += 1
+
+    if "drPierce30_f" in atkSkills:
+        for i in range(0, atkSkills["drPierce30_f"]):
+            atkr.damage_reduction_reduction.append(30)
+
+    if "drPierce30_f" in defSkills:
+        for i in range(0, defSkills["drPierce30_f"]):
+            defr.damage_reduction_reduction.append(30)
+
     # THREE HOUSES/THREE HOPES
 
     # Sword of the Creator (Base/Refine Base) - Byleth
@@ -10896,15 +12385,43 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.defensive_tempo = True
 
     # Captain's Sword - FA!F!Byleth
-    if "Hardy Bearing or Die Swearing" in atkSkills and atkCombatBuffs:
+    if "Hardy Bearing or Die Swearing" in atkSkills and atkHPGreaterEqual25Percent:
         atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
         defBonusesNeutralized = [True] * 5
         atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
 
-    if "Hardy Bearing or Die Swearing" in defSkills and defCombatBuffs:
+    if "Hardy Bearing or Die Swearing" in defSkills and defHPGreaterEqual25Percent:
         defCombatBuffs = [x + 5 for x in defCombatBuffs]
         atkBonusesNeutralized = [True] * 5
         defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    # Holy Yule Blade - WI!M!Byleth
+    if "festivities" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] += 5 + trunc(0.20 * atkStats[RES])
+        atkCombatBuffs[DEF] += 5 + trunc(0.20 * atkStats[RES])
+        atkCombatBuffs[RES] += 5 + trunc(0.20 * atkStats[RES])
+        atkr.offensive_tempo = True
+
+        if defSpTriggeredByAttack:
+            X = 3 if savior_triggered else min(spaces_moved_by_atkr, 3)
+            defr.sp_jump_first -= X
+
+    if "festivities" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] += 5 + trunc(0.20 * defStats[RES])
+        defCombatBuffs[DEF] += 5 + trunc(0.20 * defStats[RES])
+        defCombatBuffs[RES] += 5 + trunc(0.20 * atkStats[RES])
+        defr.offensive_tempo = True
+
+        if atkSpTriggeredByAttack:
+            X = 3 if savior_triggered else min(spaces_moved_by_atkr, 3)
+            atkr.sp_jump_first -= X
+
+        if attacker.wpnType in RANGED_WEAPONS:
+            disableCannotCounter = True
+
+    # Supreme Heaven - WI!M!Byleth
+    if "supremeHeaven" in atkSkills and defender.wpnType in RANGED_WEAPONS: atkr.DR_sp_trigger_by_any_special_SP.append(30)
+    if "supremeHeaven" in defSkills and attacker.wpnType in RANGED_WEAPONS: defr.DR_sp_trigger_by_any_special_SP.append(30)
 
     # Breaker Lance (Base) - Jeralt
     if "he lives" in atkSkills and atkHPGreaterEqual25Percent:
@@ -11124,6 +12641,38 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if X <= numFoesWithin3Columns3Rows:
             defr.brave = True
 
+    # Black Yule Lance - WI!Edelgard
+    if "wiEdelgardBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkPostCombatEffs[GIVEN_UNIT_SURVIVED].append(("dv_flame", 2, "foe", "one"))
+
+        defCombatBuffs[ATK] -= max(15 - (len(atkAdjacentToAlly) * 2), 6)
+        defCombatBuffs[DEF] -= max(15 - (len(atkAdjacentToAlly) * 2), 6)
+
+        Y = 3 if defender.tile.divine_vein == DV_FLAME and defender.tile.divine_vein_turn >= 1 and defender.tile.divine_vein_side != defender.side else min(spaces_moved_by_atkr, 3)
+        atkr.sp_jump_first += Y
+
+        atkr.damage_reduction_reduction.append(max(100 - 30 * len(atkAdjacentToAlly), 0))
+
+    if "wiEdelgardBoost" in defSkills and defHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] -= max(15 - (len(defAdjacentToAlly) * 2), 6)
+        atkCombatBuffs[DEF] -= max(15 - (len(defAdjacentToAlly) * 2), 6)
+
+        Y = 3 if attacker.attacking_tile.divine_vein == DV_FLAME and attacker.attacking_tile.divine_vein_turn >= 1 and attacker.attacking_tile.divine_vein_side != attacker.side else min(spaces_moved_by_atkr, 3)
+        defr.sp_jump_first += Y
+
+        defr.damage_reduction_reduction.append(max(100 - 30 * len(atkAdjacentToAlly), 0))
+
+    # Raging Tempest - WI!Edelgard
+    if "ragingTempest" in atkSkills and len(atkAdjacentToAlly) <= 1:
+        atkCombatBuffs[ATK] -= 5
+        atkCombatBuffs[DEF] -= 5
+        atkr.true_stat_damages.append((ATK, 15))
+
+    if "ragingTempest" in defSkills and len(defAdjacentToAlly) <= 1:
+        defCombatBuffs[ATK] -= 5
+        defCombatBuffs[DEF] -= 5
+        defr.true_stat_damages.append((ATK, 15))
+
     # Flame Battleaxe (Base) - Flame Emperor
     if "flameEmpBoost" in atkSkills and atkHPGreaterEqual25Percent:
         if defender.special:
@@ -11191,7 +12740,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             defr.offensive_NFU = True
             defr.offensive_tempo = True
 
-
     # Hunting Blade (Base) - Petra
     if "petraEff" in atkSkills and atkAllyWithin2Spaces:
         for i in range(1, 5):
@@ -11241,19 +12789,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         num_ally_high_atk = 0
         num_ally_high_spd = 0
 
-        tiles_within_3_col = attacker.attacking_tile.tilesWithinNCols(3)
-        tiles_within_3_row = attacker.attacking_tile.tilesWithinNRows(3)
-        tiles_within_3_row_or_column = list(set(tiles_within_3_col) | set(tiles_within_3_row))
+        for ally in atkAllyWithin3RowsCols:
+            if ally.get_visible_stat(ATK) >= 55:
+                num_ally_high_atk += 1
 
-        for tile in tiles_within_3_row_or_column:
-            if tile.hero_on and tile.hero_on.isAllyOf(attacker):
-                ally_atk = tile.hero_on.get_visible_stat(ATK)
-
-                if ally_atk >= 55: num_ally_high_atk += 1
-
-                ally_spd = tile.hero_on.get_visible_stat(SPD)
-
-                if ally_spd >= 40: num_ally_high_spd += 1
+            if ally.get_visible_stat(SPD) >= 40:
+                num_ally_high_spd += 1
 
         # X is capped for stats, but not cooldown gain. Currently bugged?
         # https://twitter.com/i/status/1809296394047701142
@@ -11262,7 +12803,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[ATK] += 6 * min(X, 3)
         atkCombatBuffs[SPD] += 6 * min(X, 3)
 
-        if attacker.getSpecialType() == "Offense":
+        if atkSpTriggeredByAttack:
             A = X + 1
             B = max(X + 1 - atkr.start_of_combat_special, 0)
 
@@ -11278,26 +12819,19 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         num_ally_high_atk = 0
         num_ally_high_spd = 0
 
-        tiles_within_3_col = defender.tile.tilesWithinNCols(3)
-        tiles_within_3_row = defender.tile.tilesWithinNRows(3)
-        tiles_within_3_row_or_column = list(set(tiles_within_3_col) | set(tiles_within_3_row))
+        for ally in defAllyWithin3RowsCols:
+            if ally.get_visible_stat(ATK) >= 55:
+                num_ally_high_atk += 1
 
-        for tile in tiles_within_3_row_or_column:
-            if tile.hero_on is not None and tile.hero_on.isAllyOf(defender):
-                ally_atk = tile.hero_on.get_visible_stat(ATK)
+            if ally.get_visible_stat(SPD) >= 40:
+                num_ally_high_spd += 1
 
-                if ally_atk >= 55: num_ally_high_atk += 1
+        X = num_ally_high_atk + num_ally_high_spd
 
-                ally_spd = tile.hero_on.get_visible_stat(SPD)
+        defCombatBuffs[ATK] += 6 * min(X, 3)
+        defCombatBuffs[SPD] += 6 * min(X, 3)
 
-                if ally_spd >= 40: num_ally_high_spd += 1
-
-        X = min(num_ally_high_atk + num_ally_high_spd, 3)
-
-        defCombatBuffs[ATK] += 6 * X
-        defCombatBuffs[SPD] += 6 * X
-
-        if defender.getSpecialType() == "Offense":
+        if defSpTriggeredByAttack:
             A = X + 1
             B = max(X + 1 - defr.start_of_combat_special, 0)
 
@@ -11447,6 +12981,46 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "suDimitriBoost" in defSkills and defHPGreaterEqual25Percent:
         defCombatBuffs = [x + 5 for x in defCombatBuffs]
 
+    # Blue Yule Axe - WI!Dimitri
+    if "Are you gonna release the demon wra-" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 5 + trunc(0.15 * atkStats[SPD]) for x in atkCombatBuffs]
+
+        Y = 3 if len(attacker.statusPos) >= 4 else min(spaces_moved_by_atkr, 3)
+        atkr.sp_jump_first += Y
+
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "Are you gonna release the demon wra-" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 5 + trunc(0.15 * defStats[SPD]) for x in defCombatBuffs]
+
+        Y = 3 if len(defender.statusPos) >= 4 else min(spaces_moved_by_atkr, 3)
+        defr.sp_jump_first += Y
+
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    # Barbarity - WI!Dimitri
+    if "barbarity" in atkSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= 4
+        defCombatBuffs[SPD] -= 4
+        defCombatBuffs[DEF] -= 4
+        atkr.true_stat_damages.append((ATK, 25))
+        atkr.DR_first_strikes_NSP.append(40)
+
+        atkPostCombatEffs[UNCONDITIONAL].append(("status", Status.Vantage, "self", "one"))
+        atkPostCombatEffs[UNCONDITIONAL].append(("status", Status.Dodge, "self", "one"))
+        atkPostCombatEffs[GIVEN_UNIT_SURVIVED].append(("debuff_omni", 6, "foe_and_foes_allies", "within_3_spaces_foe"))
+
+    if "barbarity" in defSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] -= 4
+        atkCombatBuffs[SPD] -= 4
+        atkCombatBuffs[DEF] -= 4
+        defr.true_stat_damages.append((ATK, 25))
+        defr.DR_first_strikes_NSP.append(40)
+
+        defPostCombatEffs[UNCONDITIONAL].append(("status", Status.Vantage, "self", "one"))
+        defPostCombatEffs[UNCONDITIONAL].append(("status", Status.Dodge, "self", "one"))
+        defPostCombatEffs[GIVEN_UNIT_SURVIVED].append(("debuff_omni", 6, "foe_and_foes_allies", "within_3_spaces_foe"))
+
     # Taciturn Axe (Base) - Dedue
     if "dedueBoost" in atkSkills and atkAllyWithin3Spaces:
         defCombatBuffs[ATK] -= 6
@@ -11464,6 +13038,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                 highest_atk_allies.append(ally)
             elif ally.get_visible_stat(ATK) > highest_atk_allies[0].get_visible_stat(ATK):
                 highest_atk_allies = [ally]
+
+        if disableSupportEffects:
+            support_partners = []
 
         if support_partners:
             target_allies = support_partners
@@ -11491,6 +13068,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                 highest_atk_allies.append(ally)
             elif ally.get_visible_stat(ATK) > highest_atk_allies[0].get_visible_stat(ATK):
                 highest_atk_allies = [ally]
+
+        if disableSupportEffects:
+            support_partners = []
 
         if support_partners:
             target_allies = support_partners
@@ -11670,6 +13250,28 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             atkCombatBuffs[SPD] -= 5
             atkCombatBuffs[DEF] -= 5
 
+    # New Levin Sword - B!Felix
+    if "bFelixBoost" in atkSkills and (len(atkAdjacentToAlly) <= 1 or defHPGreaterEqual75Percent):
+        atkCombatBuffs = [x + 5 + trunc(0.15 * atkStats[SPD]) for x in atkCombatBuffs]
+        atkr.offensive_tempo = True
+        atkr.damage_reduction_reduction.append(50)
+
+    if "bFelixBoost" in defSkills and (len(defAdjacentToAlly) <= 1 or atkHPGreaterEqual75Percent):
+        defCombatBuffs = [x + 5 + trunc(0.15 * defStats[SPD]) for x in defCombatBuffs]
+        defr.offensive_tempo = True
+        defr.damage_reduction_reduction.append(50)
+
+    # Lone Wolf - B!Felix
+    if "lone_wolf" in atkSkills and (atkHPGreaterEqual25Percent or len(atkAdjacentToAlly) <= 1):
+        defCombatBuffs = [x - 5 for x in defCombatBuffs]
+        atkr.true_stat_damages.append((SPD, 20))
+        atkr.TDR_stats.append((SPD, 20))
+
+    if "lone_wolf" in defSkills and (defHPGreaterEqual25Percent or len(defAdjacentToAlly) <= 1):
+        atkCombatBuffs = [x - 5 for x in atkCombatBuffs]
+        defr.true_stat_damages.append((SPD, 20))
+        defr.TDR_stats.append((SPD, 20))
+
     # Flingster Spear (SP!Sylvain)
     if "sling a thing" in atkSkills and atkHPGreaterEqual25Percent:
         atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
@@ -11677,6 +13279,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.DR_first_strikes_NSP.append(40)
         if Status.SpecialCharge in attacker.statusPos:
             atkr.offensive_tempo = True
+
+    if "sling a thing" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defr.offensive_NFU = True
+        defr.DR_first_strikes_NSP.append(40)
+        if Status.SpecialCharge in defender.statusPos:
+            defr.offensive_tempo = True
 
     # Failnaught (Base) - L!Claude
     if "LClaudeBoost" in atkSkills and atkHPGreaterEqual25Percent:
@@ -11992,6 +13601,28 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.true_stat_damages.append((SPD, 20))
         defr.damage_reduction_reduction.append(50)
         defr.offensive_tempo = True
+
+    # Arcane Blutgang
+    if "arcaneBlutgang" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + max(5, min(trunc(0.25 * defStats[ATK]) - 4, 14)) for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((ATK, 15))
+        atkr.TDR_first_strikes += 7
+        atkr.offensive_tempo = True
+        atkr.sp_jump_first += 1
+
+    if "arcaneBlutgang" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + max(5, min(trunc(0.25 * atkStats[ATK]) - 4, 14)) for x in defCombatBuffs]
+        defr.true_stat_damages.append((ATK, 15))
+        defr.TDR_first_strikes += 7
+        defr.offensive_tempo = True
+        defr.sp_jump_first += 1
+
+    # Requiem Prayer - R!Marianne
+    if "requiemPrayer" in atkSkills:
+        atkr.DR_dragon_fang_shot_SP = True
+
+    if "requiemPrayer" in defSkills:
+        defr.DR_dragon_fang_shot_SP = True
 
     # Honorable Blade (Base) - Yuri
     if "yuriBoost" in atkSkills and defHPGreaterEqual50Percent:
@@ -12705,6 +14336,44 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "summerSHEZ!" in atkSkills: atkr.true_stat_damages.append((SPD, 20))
     if "summerSHEZ!" in defSkills: defr.true_stat_damages.append((SPD, 20))
 
+    # Dual Sword - L!M!Shez
+    if "SHEZ! ultimate" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + min(len(atkAllyWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
+        atkr.DR_first_strikes_NSP.append(30)
+        atkr.offensive_tempo = True
+        atkr.defensive_tempo = True
+
+    if "SHEZ! ultimate" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + min(len(defAllyWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
+        defr.DR_first_strikes_NSP.append(30)
+        defr.offensive_tempo = True
+        defr.defensive_tempo = True
+
+    if "dualSword_f" in atkSkills:
+        combat_count = attacker.unitCombatInitiates + sum([ally.unitCombatInitiates for ally in atkAllAllies])
+        defCombatBuffs = [x - min(4 + (4 * combat_count), 12) for x in defCombatBuffs]
+
+    if "dualSword_f" in defSkills:
+        combat_count = defender.unitCombatInitiates + sum([ally.unitCombatInitiates for ally in defAllAllies])
+        atkCombatBuffs = [x - min(4 + (4 * combat_count), 12) for x in atkCombatBuffs]
+
+    # Shadow Slide - L!M!Shez
+    if "shadowSlide" in atkSkills and atkAllyWithin3Spaces:
+        defCombatBuffs[ATK] -= 5
+        defCombatBuffs[SPD] -= 5
+        defCombatBuffs[DEF] -= 5
+        atkr.true_stat_damages.append((SPD, 20))
+        atkr.damage_reduction_reduction.append(50)
+        atkr.TDR_first_strikes += 7
+
+    if "shadowSlide" in defSkills and defAllyWithin3Spaces:
+        atkCombatBuffs[ATK] -= 5
+        atkCombatBuffs[SPD] -= 5
+        atkCombatBuffs[DEF] -= 5
+        defr.true_stat_damages.append((SPD, 20))
+        defr.damage_reduction_reduction.append(50)
+        defr.TDR_first_strikes += 7
+
     # Rite of Souls (Base) - Arval
     if "arvalBoost" in atkSkills:
         atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
@@ -12922,7 +14591,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "BONDS OF FIIIIRE, CONNECT US" in atkSkills and atkHPGreaterEqual25Percent:
         titlesAmongAllies = []
 
-        for ally in atkAllyWithin2Spaces:
+        for ally in atkAllyWithin3Spaces:
             titlesAmongAllies.append(ally.primary_game)
 
             if ally.secondary_game != -1:
@@ -12938,7 +14607,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "BONDS OF FIIIIRE, CONNECT US" in defSkills and defHPGreaterEqual25Percent:
         titlesAmongAllies = []
 
-        for ally in defAllyWithin2Spaces:
+        for ally in defAllyWithin3Spaces:
             titlesAmongAllies.append(ally.primary_game)
 
             if ally.secondary_game != -1:
@@ -12957,7 +14626,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         titlesAmongAllies = []
 
-        for ally in atkAllyWithin2Spaces:
+        for ally in atkAllyWithin3Spaces:
             titlesAmongAllies.append(ally.primary_game)
             if ally.secondary_game != -1: titlesAmongAllies.append(ally.secondary_game)
 
@@ -12971,7 +14640,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         titlesAmongAllies = []
 
-        for ally in defAllyWithin2Spaces:
+        for ally in defAllyWithin3Spaces:
             titlesAmongAllies.append(ally.primary_game)
             if ally.secondary_game != -1: titlesAmongAllies.append(ally.secondary_game)
 
@@ -12991,145 +14660,122 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     # Maritime Arts (SU!F!Alear)
     if "summerAlearBoost" in atkSkills and atkAllyWithin3Spaces:
-        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
-
-        ally_games_arr_3_spaces = []
+        titlesAmongAlliesWithin3 = []
 
         for ally in atkAllyWithin3Spaces:
-            ally_games_arr_3_spaces.append(ally.primary_game)
+            titlesAmongAlliesWithin3.append(ally.primary_game)
+            if ally.secondary_game != -1: titlesAmongAlliesWithin3.append(ally.secondary_game)
 
-        num_dist_games = len(set(ally_games_arr_3_spaces))
+        titlesAmongAlliesWithin3 = len(set(titlesAmongAlliesWithin3))
 
-        defCombatBuffs = [x - min(10, num_dist_games * 3 + 4) for x in defCombatBuffs]
-
+        titlesAmongAllies = 0
         engaged_count = 0
-        ally_games_arr_all = []
 
         for ally in atkAllAllies:
-            ally_games_arr_all.append(ally.primary_game)
+            titlesAmongAllies.append(ally.primary_game)
+            if ally.secondary_game != -1: titlesAmongAllies.append(ally.secondary_game)
 
             if ally.emblem:
                 engaged_count += 1
 
-        X = min(15, 5 * len(set(ally_games_arr_all)) + engaged_count)
+        titlesAmongAllies = len(set(titlesAmongAllies))
+        X = min(15, 5 * (titlesAmongAllies + engaged_count))
 
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        defCombatBuffs = [x - min(4 + titlesAmongAlliesWithin3 * 3, 10) for x in defCombatBuffs]
         atkr.true_all_hits += X
         atkr.TDR_first_strikes += X
-
         atkr.offensive_tempo = True
 
     if "summerAlearBoost" in defSkills and defAllyWithin3Spaces:
-        defCombatBuffs = [x + 5 for x in defCombatBuffs]
 
-        ally_games_arr_3_spaces = []
+        titlesAmongAlliesWithin3 = []
 
         for ally in defAllyWithin3Spaces:
-            ally_games_arr_3_spaces.append(ally.primary_game)
+            titlesAmongAlliesWithin3.append(ally.primary_game)
+            if ally.secondary_game != -1: titlesAmongAlliesWithin3.append(ally.secondary_game)
 
-        num_dist_games = len(set(ally_games_arr_3_spaces))
+        titlesAmongAlliesWithin3 = len(set(titlesAmongAlliesWithin3))
 
-        atkCombatBuffs = [x - min(10, num_dist_games * 3 + 4) for x in atkCombatBuffs]
-
+        titlesAmongAllies = 0
         engaged_count = 0
-        ally_games_arr_all = []
 
         for ally in defAllAllies:
-            ally_games_arr_all.append(ally.primary_game)
+            titlesAmongAllies.append(ally.primary_game)
+            if ally.secondary_game != -1: titlesAmongAllies.append(ally.secondary_game)
 
             if ally.emblem:
                 engaged_count += 1
 
-        X = min(15, 5 * len(set(ally_games_arr_all)) + engaged_count)
+        titlesAmongAllies = len(set(titlesAmongAllies))
+        X = min(15, 5 * (titlesAmongAllies + engaged_count))
 
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defCombatBuffs = [x - min(4 + titlesAmongAlliesWithin3 * 3, 10) for x in defCombatBuffs]
         defr.true_all_hits += X
         defr.TDR_first_strikes += X
-
         defr.offensive_tempo = True
 
     # REDO ALL THIS WITH COMBAT FIELDS
 
-    # Bond Blast (SU!Alear)
+    # Bond Blast - SU!Alear
     if "summerAlearBonds" in atkSkills:
-        # Special-piercing effect
-
         bonded_cond = False
+
         for ally in atkAllAllies:
-            # Support partner present
-            if ally.isSupportOf(attacker) and not disableSupportEffects:
-                bonded_cond = True
-            # Ally with bonded present
-            if Status.Bonded in ally.statusPos:
-                bonded_cond = True
+            if (ally.isSupportOf(attacker) and not disableSupportEffects) or Status.Bonded in ally.statusPos:
+                atkr.sp_pierce_DR = True
+                break
 
-        if bonded_cond:
-            atkr.sp_pierce_DR = True
-
-        # Special DR effect
-        within_3_bonded_cond = False
         for ally in atkAllyWithin3Spaces:
             if (ally.isSupportOf(attacker) and not disableSupportEffects) or Status.Bonded in ally.statusPos:
-                within_3_bonded_cond = True
-
-        if within_3_bonded_cond:
-            atkr.DR_sp_trigger_by_any_special_SP.append(40)
-
-    # Enable for all support partners
-    for ally in atkAllAllies:
-        if "summerAlearBonds" in ally.getSkills() and (ally.isSupportOf(attacker) and not disableSupportEffects):
-            atkr.sp_pierce_DR = True
-
-    # Enable for all allies with [Bonded]
-    if Status.Bonded in attacker.statusPos:
-        for ally in atkAllAllies:
-
-            if "summerAlearBonds" in ally.getSkills():
-                atkr.sp_pierce_DR = True
+                atkr.DR_sp_trigger_by_any_special_SP.append(40)
+                break
 
     if "summerAlearBonds" in defSkills:
         bonded_cond = False
+
         for ally in defAllAllies:
-            # Support partner present
-            if ally.allySupport == defender.intName:
-                bonded_cond = True
-            # Ally with bonded present
-            if Status.Bonded in ally.statusPos:
-                bonded_cond = True
+            if (ally.isSupportOf(defender) and not disableSupportEffects) or Status.Bonded in ally.statusPos:
+                atkr.sp_pierce_DR = True
+                break
 
-        if bonded_cond:
-            defr.sp_pierce_DR = True
-
-        within_3_bonded_cond = False
         for ally in defAllyWithin3Spaces:
-            if ally.allySupport == defender.intName or Status.Bonded in ally.statusPos:
-                within_3_bonded_cond = True
+            if (ally.isSupportOf(defender) and not disableSupportEffects) or Status.Bonded in ally.statusPos:
+                defr.DR_sp_trigger_by_any_special_SP.append(40)
+                break
 
-        if within_3_bonded_cond:
-            defr.DR_sp_trigger_by_any_special_SP.append(40)
+    if "tropicalBidenBlast" in atkSkills: atkr.sp_pierce_DR = True
+    if "tropicalBidenBlast" in defSkills: defr.sp_pierce_DR = True
 
-    for ally in defAllAllies:
-        if "summerAlearBonds" in ally.getSkills() and defender.allySupport == ally.intName:
-            defr.sp_pierce_DR = True
-
-    if Status.Bonded in defender.statusPos:
-        for ally in defAllAllies:
-
-            if "summerAlearBonds" in ally.getSkills():
-                defr.sp_pierce_DR = True
-
+    # Divine One's Arts - L!M!Alear
     if "Mr. Fire Emblem" in atkSkills and atkHPGreaterEqual25Percent:
-        titlesAmongAllies = 0
-        atkr.brave = True
+        titlesAmongAllies = []
+
+        for ally in atkAllyWithin3Spaces:
+            titlesAmongAllies.append(ally.primary_game)
+            if ally.secondary_game != -1: titlesAmongAllies.append(ally.secondary_game)
+
+        titlesAmongAllies = len(set(titlesAmongAllies))
+
         atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
         defCombatBuffs = [x - min(titlesAmongAllies * 3 + 4, 10) for x in defCombatBuffs]
         atkr.DR_first_strikes_NSP.append(50)
 
     if "Mr. Fire Emblem" in defSkills and defHPGreaterEqual25Percent:
-        titlesAmongAllies = 0
-        defr.brave = True
+        titlesAmongAllies = []
+
+        for ally in defAllyWithin3Spaces:
+            titlesAmongAllies.append(ally.primary_game)
+            if ally.secondary_game != -1: titlesAmongAllies.append(ally.secondary_game)
+
+        titlesAmongAllies = len(set(titlesAmongAllies))
+
         defCombatBuffs = [x + 5 for x in defCombatBuffs]
         atkCombatBuffs = [x - min(titlesAmongAllies * 3 + 4, 10) for x in defCombatBuffs]
         defr.DR_first_strikes_NSP.append(50)
 
+    # Emblems' Miracle - L!M!Alear
     if "Miracle O' Emblems" in atkSkills:
         if atkAllyWithin3Spaces:
             atkCombatBuffs = [x + 9 for x in atkCombatBuffs]
@@ -13140,7 +14786,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if defAllyWithin3Spaces:
             defCombatBuffs = [x + 9 for x in defCombatBuffs]
             defr.DR_first_strikes_NSP.append(40)
-        if len(defAllyWithin3Spaces) >= 3:
+            
+        if len(defAllyWithin3Spaces) >= 3 and not defender.once_per_map_cond:
             defr.pseudo_miracle = True
 
     # Arcane Qiang
@@ -13190,6 +14837,21 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             defr.true_all_hits += min(5 * num_healthy_allies, 15)
             defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
 
+    # Scroll of Teas - NI!Céline
+    if "niCelineBoost" in atkSkills:
+        num_healthy_allies = len([ally for ally in atkAllAllies if ally.HPCur / ally.get_visible_stat(HP) >= 0.50])
+        atkCombatBuffs = [x + 5 + trunc(atkStats[SPD] * 0.15) for x in atkCombatBuffs]
+
+        atkr.true_all_hits += min(6 * num_healthy_allies, 18)
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 10, "self", "one"))
+
+    if "niCelineBoost" in defSkills and defAllyWithin3Spaces:
+        num_healthy_allies = len([ally for ally in defAllAllies if ally.HPCur / ally.get_visible_stat(HP) >= 0.50])
+        defCombatBuffs = [x + 5 + trunc(defStats[SPD] * 0.15) for x in defCombatBuffs]
+
+        defr.true_all_hits += min(6 * num_healthy_allies, 18)
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 10, "self", "one"))
+
     # Dreaming Spear (Base) - Chloé
     if "mmm salamander" in atkSkills:
         condition = False
@@ -13225,27 +14887,36 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             defr.true_stat_damages.append((RES, 20))
             defr.TDR_stats.append((RES, 20))
 
-    if "hippity-hop" in atkSkills and atkAllyWithin3Spaces:
-        Y = min(atkAllyWithin3Spaces * 3 + 5, 14)
-        allies = attacker.attacking_tile.unitsWithinNSpaces(3, True)
-        for x in allies:
-            if x.getWeaponType() in ["RDragon", "BDragon", "GDragon", "CDragon"]:
+    # Hippity-Hop Axe - SP!Framme
+    if "It's a shuffling in the seat." in atkSkills and atkAllyWithin3Spaces:
+        Y = min(len(atkAllyWithin3Spaces) * 3 + 5, 14)
+
+        for ally in atkAllyWithin3Spaces:
+            if ally.getWeaponType() in DRAGON_WEAPONS:
                 Y = 14
+
         atkCombatBuffs = [x + Y for x in atkCombatBuffs]
         atkr.defensive_tempo = True
         atkr.offensive_tempo = True
         atkr.DR_first_strikes_NSP.append(min(atkHPCur, 60))
 
-    if "hippity-hop" in defSkills and defAllyWithin3Spaces:
-        Y = min(defAllyWithin3Spaces * 3 + 5, 14)
-        allies = defender.tile.unitsWithinNSpaces(3, True)
-        for x in allies:
-            if x.getWeaponType() in ["RDragon", "BDragon", "GDragon", "CDragon"]:
+    if "It's a shuffling in the seat." in defSkills and defAllyWithin3Spaces:
+        Y = min(len(defAllyWithin3Spaces) * 3 + 5, 14)
+
+        for ally in defAllyWithin3Spaces:
+            if ally.getWeaponType() in DRAGON_WEAPONS:
                 Y = 14
+
         defCombatBuffs = [x + Y for x in atkCombatBuffs]
         defr.defensive_tempo = True
         defr.offensive_tempo = True
         defr.DR_first_strikes_NSP.append(min(defHPCur, 60))
+
+    if "frammeChainGuard_f" in atkSkills:
+        defPostCombatEffs[GIVEN_UNIT_ATTACKED].append(("damage", 1, "foe_frammes", "within_2_spaces_foe"))
+
+    if "frammeChainGuard_f" in defSkills:
+        atkPostCombatEffs[GIVEN_UNIT_ATTACKED].append(("damage", 1, "foe_frammes", "within_2_spaces_foe"))
 
     # Monarch Blade (Base) - Lumera
     if "LOVE PROVIIIIDES, PROTECTS US" in atkSkills and atkHPGreaterEqual25Percent:
@@ -13262,13 +14933,109 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.true_stat_damages.append((SPD, 15))
         defr.stat_scaling_DR.append((SPD, 40))
 
+    # Monarch's Stone - MY!Lumera
+    if "myLumeraBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + min(max(5, trunc(defStats[ATK]) - 4), 14) for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((SPD, 20))
+        atkr.DR_first_strikes_NSP.append(40)
+        defr.spLossOnAtk -= 1
+        defr.spLossWhenAtkd -= 1
+
+    if "myLumeraBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + min(max(5, trunc(atkStats[ATK]) - 4), 14) for x in defCombatBuffs]
+        defr.true_stat_damages.append((SPD, 20))
+        defr.DR_first_strikes_NSP.append(40)
+        atkr.spLossOnAtk -= 1
+        atkr.spLossWhenAtkd -= 1
+
+    # Dragon Monarch - MY!Lumera
+    if "dragonMonarch" in atkSkills:
+        ally_count = 0
+
+        tiles_within_5_row = atkr.tile.tilesWithinNRows(5)
+        tiles_within_5_col = atkr.tile.tilesWithinNCols(5)
+        tiles_within_5_row_and_column = list(set(tiles_within_5_row) & set(tiles_within_5_col))
+
+        for tile in tiles_within_5_row_and_column:
+            if tile.hero_on and tile.hero_on.isAllyOf(attacker):
+                ally_count += 1
+
+        if ally_count > 0:
+            atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
+            atkr.DR_all_hits_NSP.append(30)
+            atkr.offensive_tempo = True
+
+    if "dragonMonarch" in defSkills:
+        ally_count = 0
+
+        tiles_within_5_row = defr.tile.tilesWithinNRows(5)
+        tiles_within_5_col = defr.tile.tilesWithinNCols(5)
+        tiles_within_5_row_and_column = list(set(tiles_within_5_row) & set(tiles_within_5_col))
+
+        for tile in tiles_within_5_row_and_column:
+            if tile.hero_on and tile.hero_on.isAllyOf(defender):
+                ally_count += 1
+
+        if ally_count > 0:
+            defCombatBuffs = [x + 4 for x in defCombatBuffs]
+            defr.DR_all_hits_NSP.append(30)
+            defr.offensive_tempo = True
+
+    # Arcane Fellstone
+    if "arcaneFellstone" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + max(5, min(trunc(0.25 * defStats[ATK]) - 4, 14)) for x in atkCombatBuffs]
+        atkr.DR_first_strikes_NSP.append(40)
+        atkr.spGainOnAtk += 1
+        atkr.spGainWhenAtkd += 1
+        atkr.speed_NFU = True
+
+    if "arcaneFellstone" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + max(5, min(trunc(0.25 * atkStats[ATK]) - 4, 14)) for x in defCombatBuffs]
+        defr.DR_first_strikes_NSP.append(40)
+        defr.spGainOnAtk += 1
+        defr.spGainWhenAtkd += 1
+        defr.speed_NFU = True
+
+    # Corrupted Dragon - FA!Lumera
+    if "corruptedDragon" in atkSkills:
+        ally_count = 0
+
+        tiles_within_5_row = atkr.tile.tilesWithinNRows(5)
+        tiles_within_5_col = atkr.tile.tilesWithinNCols(5)
+        tiles_within_5_row_and_column = list(set(tiles_within_5_row) & set(tiles_within_5_col))
+
+        for tile in tiles_within_5_row_and_column:
+            if tile.hero_on and tile.hero_on.isAllyOf(attacker):
+                ally_count += 1
+
+        if ally_count > 0:
+            atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
+            atkr.offensive_tempo = True
+            atkr.sp_pierce_DR = True
+
+    if "corruptedDragon" in defSkills:
+        ally_count = 0
+
+        tiles_within_5_row = defr.tile.tilesWithinNRows(5)
+        tiles_within_5_col = defr.tile.tilesWithinNCols(5)
+        tiles_within_5_row_and_column = list(set(tiles_within_5_row) & set(tiles_within_5_col))
+
+        for tile in tiles_within_5_row_and_column:
+            if tile.hero_on and tile.hero_on.isAllyOf(defender):
+                ally_count += 1
+
+        if ally_count > 0:
+            defCombatBuffs = [x + 4 for x in defCombatBuffs]
+            defr.offensive_tempo = True
+            defr.sp_pierce_DR = True
+
+    # Sky-Hopper Egg - SP!Chloé
     if "sky-hopper" in atkSkills and atkHPGreaterEqual25Percent:
         charge_count = 0
-        if is_in_sim:
-            team = attacker.attacking_tile.unitsWithinNSpaces(n=20, lookForSameSide=True)
-            for x in team:
-                if Status.Charge in x.statusPos:
-                    charge_count += 1
+
+        for ally in atkAllAllies:
+            if Status.Charge in ally.statusPos:
+                charge_count += 1
 
         atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
         atkCombatBuffs[ATK] += min(charge_count * 4, 8)
@@ -13276,12 +15043,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.damage_reduction_reduction.append(50)
 
     if "sky-hopper" in defSkills and defHPGreaterEqual25Percent:
-        charge_count = 0
-        if is_in_sim:
-            team = defender.tile.unitsWithinNSpaces(n=20, lookForSameSide=True)
-            for x in team:
-                if Status.Charge in x.statusPos:
-                    charge_count += 1
+
+        for ally in defAllAllies:
+            if Status.Charge in ally.statusPos:
+                charge_count += 1
 
         defCombatBuffs = [x + 5 for x in defCombatBuffs]
         defCombatBuffs[ATK] += min(charge_count * 4, 8)
@@ -13322,6 +15087,37 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.offensive_tempo = True
         defr.surge_heal += 10
 
+    # Bold Kusarigama - NI!Diamant
+    if "niDiamant" in atkSkills:
+        atkCombatBuffs = [x + 5 + trunc(0.15 * atkStats[DEF]) for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((DEF, 25))
+        atkr.TDR_stats.append((DEF, 25))
+
+        atkr.always_pierce_DR = True
+        defr.always_pierce_DR = True
+        atkr.offensive_NFU = True
+        atkr.defensive_NFU = True
+        defr.offensive_NFU = True
+        defr.defensive_NFU = True
+        atkr.outspeed_factor += 20
+        defr.outspeed_factor += 20
+
+        atkr.sp_jump_first += 1
+
+    if "niDiamant" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + 5 + trunc(0.15 * defStats[DEF]) for x in defCombatBuffs]
+        defr.true_stat_damages.append((DEF, 25))
+        defr.TDR_stats.append((DEF, 25))
+
+        atkr.always_pierce_DR = True
+        defr.always_pierce_DR = True
+        atkr.offensive_NFU = True
+        atkr.defensive_NFU = True
+        defr.offensive_NFU = True
+        defr.defensive_NFU = True
+        atkr.outspeed_factor += 20
+        defr.outspeed_factor += 20
+
     # Arcane Darkbow
     if "darkbow" in atkSkills and atkHPGreaterEqual25Percent:
         atkCombatBuffs[ATK] += 6
@@ -13356,6 +15152,71 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs = [x + 5 for x in defCombatBuffs]
         defr.true_stat_damages.append((RES, 15))
 
+    # Wildflower Edge - BR!Lapis
+    if "wildflowerEdge" in atkSkills:
+        atkCombatBuffs = [x + 5 + trunc(0.15 * atkStats[SPD]) for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((SPD, 20))
+
+        if attacker.unitCombatInitiates == 0:
+            atkr.DR_first_strikes_NSP.append(80)
+        else:
+            atkr.DR_first_strikes_NSP.append(40)
+
+        atkPostCombatEffs[GIVEN_UNIT_SURVIVED].append(("damage", 10, "foe_and_foes_allies", "within_2_spaces_foe"))
+        atkPostCombatEffs[GIVEN_UNIT_SURVIVED].append(("status", Status.ShareSpoils, "foe", "one"))
+
+    if "wildflowerEdge" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + 5 + trunc(0.15 * defStats[SPD]) for x in defCombatBuffs]
+        defr.true_stat_damages.append((SPD, 20))
+
+        if defender.unitCombatInitiates == 0:
+            defr.DR_first_strikes_NSP.append(80)
+        else:
+            defr.DR_first_strikes_NSP.append(40)
+
+    if Status.ShareSpoils in attacker.statusNeg:
+        atkCombatBuffs = [x - 5 for x in atkCombatBuffs]
+        defr.always_pierce_DR = True
+
+    if Status.ShareSpoils in defender.statusNeg:
+        defCombatBuffs = [x - 5 for x in defCombatBuffs]
+        atkr.always_pierce_DR = True
+
+    # Silent Yule Knife - WI!Yunaka
+    if "wiYunakaBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        atkCombatBuffs[ATK] += max(9 - (2 * len(atkAdjacentToAlly)), 0)
+        atkCombatBuffs[SPD] += max(9 - (2 * len(atkAdjacentToAlly)), 0)
+        atkr.offensive_NFU = True
+        atkr.offensive_tempo = True
+
+        tile_cond = False
+        for tile in atkr.tile.tilesWithinNSpaces(2):
+            if (tile.terrain == 1 or tile.terrain == 3) or (tile.divine_vein_turn > 0):
+                tile_cond = True
+                break
+
+        X = 3 if tile_cond else min(spaces_moved_by_atkr, 3)
+        atkr.damage_reduction_reduction.append(X * 30)
+        atkr.DR_first_strikes_NSP.append(X * 30)
+
+    if "wiYunakaBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defCombatBuffs[ATK] += max(9 - (2 * len(defAdjacentToAlly)), 0)
+        defCombatBuffs[SPD] += max(9 - (2 * len(defAdjacentToAlly)), 0)
+        defr.offensive_NFU = True
+        defr.offensive_tempo = True
+
+        tile_cond = False
+        for tile in defr.tile.tilesWithinNSpaces(2):
+            if (tile.terrain == 1 or tile.terrain == 3) or (tile.divine_vein_turn > 0):
+                tile_cond = True
+                break
+
+        X = 3 if tile_cond else min(spaces_moved_by_atkr, 3)
+        defr.damage_reduction_reduction.append(X * 30)
+        defr.DR_first_strikes_NSP.append(X * 30)
+
     # Payday Pouch - H!E!Anna
     if "hAnnaBoost" in atkSkills:
         atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
@@ -13372,6 +15233,29 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         if len(defender.statusPos) >= 3:
             defr.damage_reduction_reduction.append(50)
+
+    # Desert Spear - Timerra
+    if "timerraBoost" in atkSkills and atkAllyWithin3Spaces:
+        atkCombatBuffs = [x + 5 + trunc(0.15 * atkStats[DEF]) for x in atkCombatBuffs]
+        defBonusesNeutralized = [True] * 5
+        atkr.TDR_on_foe_sp += 10
+
+    if "timerraBoost" in defSkills and defAllyWithin3Spaces:
+        defCombatBuffs = [x + 5 + trunc(0.15 * defStats[DEF]) for x in defCombatBuffs]
+        atkBonusesNeutralized = [True] * 5
+        defr.TDR_on_foe_sp += 10
+
+    if "timerraBoost_f" in atkSkills: atkr.TDR_on_foe_sp += atkSkills["timerraBoost_f"]
+    if "timerraBoost_f" in defSkills: atkr.TDR_on_foe_sp += defSkills["timerraBoost_f"]
+
+    # Sandstorm - Timerra
+    if "sandstorm" in atkSkills:
+        atkr.DR_king_making_SP = True
+        atkr.alternative_sp_stat = 1
+
+    if "sandstorm" in defSkills:
+        defr.DR_king_making_SP = True
+        defr.alternative_sp_stat = 1
 
     # Inspirited Spear - H!Timerra
     if "meat" in atkSkills and atkHPGreaterEqual25Percent:
@@ -13394,6 +15278,51 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[DEF] -= X
         defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
 
+    # Suave Blade - Merrin
+    if "suavamente" in atkSkills:
+        atkCombatBuffs = [x + min(len(atkAllyWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
+        atkr.offensive_NFU = True
+        atkr.defensive_NFU = True
+        atkr.TDR_first_strikes += min(len(attacker.statusPos) * 3, 15)
+
+    if "suavamente" in defSkills:
+        defCombatBuffs = [x + min(len(defAllyWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
+        defr.offensive_NFU = True
+        defr.defensive_NFU = True
+        defr.TDR_first_strikes += min(len(defender.statusPos) * 3, 15)
+
+    # Berserker Axe - Panette
+    if "hmm today I will crash the game" in atkSkills and defHPGreaterEqual75Percent:
+        atkCombatBuffs = [x + max(5, min(trunc(0.25 * defStats[ATK]) - 4, 14)) for x in atkCombatBuffs]
+        atkr.follow_ups_skill += 1
+        atkr.true_damage_taken_30 = True
+        atkr.true_stat_damages.append((ATK, 15))
+
+    if "hmm today I will crash the game" in defSkills:
+        defCombatBuffs = [x + max(5, min(trunc(0.25 * atkStats[ATK]) - 4, 14)) for x in defCombatBuffs]
+        defr.follow_ups_skill += 1
+        defr.true_damage_taken_30 = True
+        defr.true_stat_damages.append((ATK, 15))
+
+    # Sentinel Bow - Fogado
+    if "fogadoBoost" in atkSkills:
+        defr.special_disabled = True
+        atkCombatBuffs = [x + 5 + trunc(0.15 * atkStats[SPD]) for x in atkCombatBuffs]
+        atkr.damage_reduction_reduction.append(50)
+        atkr.offensive_NFU = True
+        atkr.defensive_NFU = True
+        atkr.DR_first_strikes_NSP.append(70)
+        atkr.retaliatory_reduced += 1
+
+    if "fogadoBoost" in defSkills and attacker.wpnType in RANGED_WEAPONS:
+        atkr.special_disabled = True
+        defCombatBuffs = [x + 5 + trunc(0.15 * atkStats[SPD]) for x in defCombatBuffs]
+        defr.damage_reduction_reduction.append(50)
+        defr.offensive_NFU = True
+        defr.defensive_NFU = True
+        defr.DR_first_strikes_NSP.append(70)
+        defr.retaliatory_reduced += 1
+
     # Obscurité - Veyle
     if "veyleBoost" in atkSkills:
         atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
@@ -13409,6 +15338,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkBonusesNeutralized[ATK] = True
         atkBonusesNeutralized[RES] = True
 
+    # Fell Protection - Veyle
     if "fellProtection" in atkSkills:
         atkCombatBuffs[ATK] += 5
         atkCombatBuffs[RES] += 5
@@ -13419,12 +15349,84 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[RES] += 5
         defr.DR_all_hits_NSP.append(30)
 
-    # Fell Protection - Veyle
     if "fellProtection_f" in atkSkills and defSpTriggeredByAttack:
-        defr.sp_jump_first -= atkSkills["fellProtection_f"]
+        atkr.sp_jump_first -= atkSkills["fellProtection_f"]
 
     if "fellProtection_f" in defSkills and atkSpTriggeredByAttack:
-        atkr.sp_jump_first -= defSkills["fellProtection_f"]
+        defr.sp_jump_first -= defSkills["fellProtection_f"]
+
+    # Fell Child's Might - FA!Veyle
+    if "if you don't have a cinnamon roll, you're of no use to me" in atkSkills:
+        defCombatBuffs[ATK] -= 6 + trunc(0.20 * atkStats[RES])
+        defCombatBuffs[RES] -= 6 + trunc(0.20 * atkStats[RES])
+        atkr.DR_all_hits_NSP.append(30)
+        atkr.spGainOnAtk += 1
+        atkr.spGainWhenAtkd += 1
+
+    if "if you don't have a cinnamon roll, you're of no use to me" in defSkills and defender.wpnType in RANGED_WEAPONS:
+        atkCombatBuffs[ATK] -= 6 + trunc(0.20 * defStats[RES])
+        atkCombatBuffs[RES] -= 6 + trunc(0.20 * defStats[RES])
+        defr.DR_all_hits_NSP.append(30)
+        defr.spGainOnAtk += 1
+        defr.spGainWhenAtkd += 1
+
+    if "fellSuccessor" in atkSkills:
+        defCombatBuffs[ATK] -= 5
+        defCombatBuffs[RES] -= 5
+
+    if "fellSuccessor" in defSkills:
+        atkCombatBuffs[ATK] -= 5
+        atkCombatBuffs[RES] -= 5
+
+    if "fellSuccessor_f" in atkSkills and defSpTriggeredByAttack:
+        atkr.sp_jump_first -= atkSkills["fellSuccessor_f"]
+
+        if attacker.wpnType in RANGED_WEAPONS:
+            atkr.sp_jump_followup -= atkSkills["fellSuccessor_f"]
+
+    if "fellSuccessor_f" in defSkills and atkSpTriggeredByAttack:
+        defr.sp_jump_first -= defSkills["fellSuccessor_f"]
+
+        if defender.wpnType in RANGED_WEAPONS:
+            defr.sp_jump_followup -= defSkills["fellSuccessor_f"]
+
+    # Penitent Lance - Mauvier
+    if "mauvierBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkr.follow_ups_skill += 1
+        defCombatBuffs[ATK] -= min(len(attacker.statusPos) * 2 + 6, 12)
+        defCombatBuffs[DEF] -= min(len(attacker.statusPos) * 2 + 6, 12)
+
+        if len(attacker.statusPos) >= 3:
+            atkr.DR_first_strikes_NSP.append(80)
+        else:
+            atkr.DR_first_strikes_NSP.append(40)
+
+    if "mauvierBoost" in defSkills and defHPGreaterEqual25Percent:
+        defr.follow_ups_skill += 1
+        atkCombatBuffs[ATK] -= min(len(defender.statusPos) * 2 + 6, 12)
+        atkCombatBuffs[DEF] -= min(len(defender.statusPos) * 2 + 6, 12)
+
+        if len(defender.statusPos) >= 3:
+            defr.DR_first_strikes_NSP.append(80)
+        else:
+            defr.DR_first_strikes_NSP.append(40)
+
+    # Praise-Piner Axe - Marni
+    if "marniBoost" in atkSkills and defHPGreaterEqual75Percent:
+        defCombatBuffs[ATK] -= 5 + trunc(0.15 * atkStats[DEF])
+        defCombatBuffs[DEF] -= 5 + trunc(0.15 * atkStats[DEF])
+        defCombatBuffs[RES] -= 5 + trunc(0.15 * atkStats[DEF])
+        atkr.TDR_stats.append((DEF, 15))
+        atkr.pseudo_miracle = True
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "marniBoost" in defSkills:
+        atkCombatBuffs[ATK] -= 5 + trunc(0.15 * defStats[DEF])
+        atkCombatBuffs[DEF] -= 5 + trunc(0.15 * defStats[DEF])
+        atkCombatBuffs[RES] -= 5 + trunc(0.15 * defStats[DEF])
+        defr.TDR_stats.append((DEF, 15))
+        defr.pseudo_miracle = True
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
 
     if "nullBonuses" in atkSkills: defBonusesNeutralized = [True] * 5
     if "nullBonuses" in defSkills: atkBonusesNeutralized = [True] * 5
@@ -13487,6 +15489,37 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.spLossWhenAtkd -= 1
         defr.deep_wounds_allowance.append(50)
 
+    # Majestic Glitnir - B!Alfonse
+    if "bAlfonseBoost" in atkSkills:
+        X = min(len(atkAllyWithin3RowsCols) * 3 + 5, 14)
+
+        atkCombatBuffs[DEF] += 6 + X
+        atkCombatBuffs[RES] += 6 + X
+
+        defCombatBuffs[DEF] += 6 + X
+        defCombatBuffs[RES] += 6 + X
+
+        atkr.true_stat_damages.append((DEF, 10))
+        atkr.TDR_stats.append((DEF, 10))
+        atkr.sp_pierce_DR = True
+
+    if "bAlfonseBoost" in defSkills and defAllyWithin3RowsCols:
+        X = min(len(defAllyWithin3RowsCols) * 3 + 5, 14)
+
+        defCombatBuffs[DEF] += 6 + X
+        defCombatBuffs[RES] += 6 + X
+
+        atkCombatBuffs[DEF] += 6 + X
+        atkCombatBuffs[RES] += 6 + X
+
+        defr.true_stat_damages.append((DEF, 10))
+        defr.TDR_stats.append((DEF, 10))
+        defr.sp_pierce_DR = True
+
+    # Makings of a King - B!Alfonse
+    if "makingsOfAKing" in atkSkills: atkr.DR_king_making_SP = True
+    if "makingsOfAKing" in defSkills: defr.DR_king_making_SP = True
+
     if "sharenaDualChill" in atkSkills and defHPGreaterEqual75Percent:
         atkCombatBuffs[ATK] += 4
         atkCombatBuffs[SPD] += 4
@@ -13507,36 +15540,19 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[SPD] += 4
         defCombatBuffs[RES] += 4
 
+    # United Bouquet - BR!Sharena
     if "bridal_shenanigans" in atkSkills and atkHPGreaterEqual25Percent:
-        local_boost = 0
-        valid_area = list(set(attacker.attacking_tile.tilesWithinNCols(3)) | set(attacker.attacking_tile.tilesWithinNRows(3)))
-
-        for tile in valid_area:
-            if tile.hero_on is not None and tile.hero_on is not attacker and tile.hero_on.side == attacker.side:
-                local_boost += 1
-        atkCombatBuffs = [x + min(local_boost * 3 + 5, 14) for x in atkCombatBuffs]
-
+        atkCombatBuffs = [x + min(len(atkAllyWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
         atkr.offensive_NFU = True
         atkr.defensive_NFU = True
-
         atkr.true_stat_damages.append((SPD, 20))
-
         atkr.all_hits_heal += min(spaces_moved_by_atkr * 3, 12)
 
     if "bridal_shenanigans" in defSkills and defHPGreaterEqual25Percent:
-        local_boost = 0
-        valid_area = list(set(defender.tile.tilesWithinNCols(3)) | set(defender.tile.tilesWithinNRows(3)))
-
-        for tile in valid_area:
-            if tile.hero_on is not None and tile.hero_on is not defender and tile.hero_on.side == defender.side:
-                local_boost += 1
-        defCombatBuffs = [x + min(local_boost * 3 + 5, 14) for x in defCombatBuffs]
-
+        defCombatBuffs = [x + min(len(defAllyWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
         defr.offensive_NFU = True
         defr.defensive_NFU = True
-
         defr.true_stat_damages.append((SPD, 20))
-
         defr.all_hits_heal += min(spaces_moved_by_atkr * 3, 12)
 
     if "and they were roommates" in atkSkills:
@@ -13688,6 +15704,42 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.spLossOnAtk -= 1
         atkr.spLossWhenAtkd -= 1
         defr.TDR_stats.append((DEF, 20))
+
+    # Horn of Harvest - H!Askr
+    if "hAskrBoost" in atkSkills and defHPGreaterEqual75Percent:
+        defCombatBuffs[ATK] -= min(len(atkAllyWithin3RowsCols) * 3 + 6, 15)
+        defCombatBuffs[DEF] -= min(len(atkAllyWithin3RowsCols) * 3 + 6, 15)
+        atkr.deep_wounds_allowance.append(50)
+        atkr.true_stat_damages.append((DEF, 20))
+        atkr.TDR_stats.append((DEF, 20))
+
+    if "hAskrBoost" in defSkills:
+        atkCombatBuffs[ATK] -= min(len(defAllyWithin3RowsCols) * 3 + 6, 15)
+        atkCombatBuffs[DEF] -= min(len(defAllyWithin3RowsCols) * 3 + 6, 15)
+        defr.deep_wounds_allowance.append(50)
+        defr.true_stat_damages.append((DEF, 20))
+        defr.TDR_stats.append((DEF, 20))
+
+    if "hAskrBoost_f" in atkSkills:
+        for i in range(0, atkSkills["hAskrBoost_f"]):
+            atkr.deep_wounds_allowance.append(50)
+
+    if "hAskrBoost_f" in defSkills:
+        for i in range(0, defSkills["hAskrBoost_f"]):
+            defr.deep_wounds_allowance.append(50)
+
+    # Connected World - H!Askr
+    if "connectedWorld" in atkSkills and atkAllyWithin3Spaces:
+        atkCombatBuffs[ATK] += 5
+        atkCombatBuffs[DEF] += 5
+        atkCombatBuffs[RES] += 5
+        atkr.DR_all_hits_NSP.append(40)
+
+    if "connectedWorld" in defSkills and defAllyWithin3Spaces:
+        defCombatBuffs[ATK] += 5
+        defCombatBuffs[DEF] += 5
+        defCombatBuffs[RES] += 5
+        defr.DR_all_hits_NSP.append(40)
 
     # EMBLA
 
@@ -13861,6 +15913,28 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             atkr.spLossOnAtk -= 1
             atkr.spLossWhenAtkd -= 1
 
+    # Enclosing Florets - BR!Embla
+    if "brEmblaBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + min(5 + len(atkFoeWithin3RowsCols) * 3, 14) for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((SPD, 20))
+        atkr.TDR_stats.append((SPD, 20))
+
+    if "brEmblaBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + min(5 + len(defFoeWithin3RowsCols) * 3, 14) for x in defCombatBuffs]
+        defr.true_stat_damages.append((SPD, 20))
+        defr.TDR_stats.append((SPD, 20))
+
+    # Absolute Closure - BR!Embla
+    if "absoluteClosure" in atkSkills and attacker.transformed:
+        atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
+        atkr.offensive_NFU = True
+        atkr.defensive_NFU = True
+
+    if "absoluteClosure" in defSkills and defender.transformed:
+        defCombatBuffs = [x + 4 for x in defCombatBuffs]
+        defr.offensive_NFU = True
+        defr.defensive_NFU = True
+
     # NIFL
 
     # Leiptr (Refine Eff) - Fjorm
@@ -13928,6 +16002,28 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         if defSpCountCur == 0:
             ignore_range = True
+
+    # Ice-Crystal Spear - FF!Fjorm
+    if "iceFjormBoost" in atkSkills and defHPGreaterEqual75Percent:
+        atkCombatBuffs = [x + min(len(atkAllyWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
+        atkr.TDR_stats.append((SPD, 20))
+        atkPenaltiesNeutralized = [True] * 5
+        atkr.offensive_NFU = True
+        atkr.defensive_NFU = True
+        atkr.all_hits_heal += 7
+
+    if "iceFjormBoost" in defSkills:
+        defCombatBuffs = [x + min(len(defAllyWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
+        defr.TDR_stats.append((SPD, 20))
+        defPenaltiesNeutralized = [True] * 5
+        defr.offensive_NFU = True
+        defr.defensive_NFU = True
+        defr.all_hits_heal += 7
+        disableCannotCounter = True
+
+    # Dual Ice Mirrors - FF!
+    if "dualIceMirrors" in atkSkills: atkr.sp_pierce_after_def_sp = True
+    if "dualIceMirrors" in defSkills: defr.sp_pierce_after_def_sp = True
 
     # Blizzard (Refine Eff) - Gunnthrá
     if "gunnBoost" in atkSkills and defHPGreaterEqual75Percent:
@@ -14631,14 +16727,42 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "reginnField_f" in atkSkills and turn <= 4:
         atkCombatBuffs[ATK] += atkSkills["reginnField_f"]
         atkCombatBuffs[SPD] += atkSkills["reginnField_f"]
-        if attacker.special is not None and attacker.special.type == "Offense":
-            atkr.sp_jump_first += atkSkills["reginnField_f"] / 4
+        if attacker.special is not None and atkSpTriggeredByAttack:
+            atkr.sp_jump_first += atkSkills["reginnField_f"] // 4
 
     if "reginnField_f" in defSkills and turn <= 4:
         defCombatBuffs[ATK] += defSkills["reginnField_f"]
         defCombatBuffs[SPD] += defSkills["reginnField_f"]
-        if defender.special is not None and defender.special.type == "Offense":
-            defr.sp_jump_first += defSkills["reginnField_f"] / 4
+        if defender.special is not None and defSpTriggeredByAttack:
+            defr.sp_jump_first += defSkills["reginnField_f"] // 4
+
+    # Seiðr Burst - AI!Reginn
+    if "reginnBurst" in atkSkills:
+        atkr.special_hexblade = True
+
+        if turn <= 4:
+            atkr.sp_jump_first += 2
+            atkr.sp_jump_followup += 1
+
+    if "reginnBurst" in defSkills:
+        defr.special_hexblade = True
+
+        if turn <= 4:
+            defr.sp_jump_first += 2
+            defr.sp_jump_followup += 1
+
+    # Niðavellir Ballista - Niðavellir
+    if "niðavellirBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] += 6 + trunc(0.20 * atkStats[SPD])
+        atkCombatBuffs[SPD] += 6 + trunc(0.20 * atkStats[SPD])
+        atkr.true_stat_damages.append((SPD, 20))
+        atkr.DR_first_strikes_NSP.append(30)
+
+    if "niðavellirBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] += 6 + trunc(0.20 * defStats[SPD])
+        defCombatBuffs[SPD] += 6 + trunc(0.20 * defStats[SPD])
+        defr.true_stat_damages.append((SPD, 20))
+        defr.DR_first_strikes_NSP.append(30)
 
     # Auto-Lofnheiðr (Base) - Ótr
     if "otrBoost" in atkSkills:
@@ -14720,7 +16844,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         X = min(12, 3 * (len(attacker.statusPos) + len(defender.statusNeg)))
 
         atkr.TDR_all_hits += X
-        atkr.TDR_on_foe_special += X
+        atkr.TDR_on_foe_sp += X
 
     if "book 5 sure was a book" in defSkills and defHPGreaterEqual25Percent:
         atkCombatBuffs[ATK] -= 5 + len(atkAllyWithin3Spaces) + 1
@@ -14730,7 +16854,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         X = min(12, 3 * (len(defender.statusPos) + len(attacker.statusNeg)))
 
         defr.TDR_all_hits += X
-        defr.TDR_on_foe_special += X
+        defr.TDR_on_foe_sp += X
 
     # Divine Recreation - Eitri
     if "divineRec" in atkSkills and defHPGreaterEqual50Percent:
@@ -14755,6 +16879,47 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.DR_first_strikes_NSP.append(50)
         defr.damage_reduction_reduction.append(50)
         defr.retaliatory_reduced += 1
+
+    # JÖTUNHEIMR
+
+    # Veðrfölnir's Edge - AI!Dagr
+    if "aiDagrBoost" in atkSkills:
+        atkCombatBuffs = [x + min(len(atkAllyWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
+        atkPenaltiesNeutralized = [True] * 5
+        atkr.offensive_tempo = True
+
+    if "aiDagrBoost" in defSkills and defAllyWithin3RowsCols:
+        defCombatBuffs = [x + min(len(defAllyWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
+        defPenaltiesNeutralized = [True] * 5
+        defr.offensive_tempo = True
+
+    # Arcane Giant Axe
+    if "giantAxe" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + max(5, min(trunc(0.25 * defStats[ATK]) - 4, 14)) for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((ATK, 15))
+        atkr.TDR_stats.append((ATK, 15))
+        atkr.sp_jump_first -= 1
+
+    if "giantAxe" in defSkills:
+        defCombatBuffs = [x + max(5, min(trunc(0.25 * atkStats[ATK]) - 4, 14)) for x in defCombatBuffs]
+        defr.true_stat_damages.append((ATK, 15))
+        defr.TDR_stats.append((ATK, 15))
+        defr.sp_jump_first -= 1
+
+    # Brutal Ferocity - Þjazi
+    if "brutalFerocity" in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= 5 + max(8, min(atkStats[HP] - defHPCur, 18))
+        defCombatBuffs[DEF] -= 5 + max(8, min(atkStats[HP] - defHPCur, 18))
+        atkr.follow_ups_skill += 1
+        atkr.offensive_tempo = True
+        atkr.damage_reduction_reduction.append(50)
+
+    if "brutalFerocity" in defSkills:
+        atkCombatBuffs[ATK] -= 5 + max(8, min(defStats[HP] - atkHPCur, 18))
+        atkCombatBuffs[DEF] -= 5 + max(8, min(defStats[HP] - atkHPCur, 18))
+        defr.follow_ups_skill += 1
+        defr.offensive_tempo = True
+        defr.damage_reduction_reduction.append(50)
 
     # VANAHEIMR
 
@@ -14824,6 +16989,79 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             defr.offensive_NFU = True
             defPostCombatEffs[UNCONDITIONAL].append(("status", Status.Gravity, "foe_and_foes_allies", "within_1_spaces_foe"))
 
+    # Cute Paper Crane - NY!Nerþuz
+    if "nyNerþuzBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        if attacker.specialMax != -1:
+            atkCombatBuffs = [x + 5 + attacker.specialMax * 2 for x in atkCombatBuffs]
+        else:
+            atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+
+        atkr.offensive_NFU = True
+        atkr.defensive_NFU = True
+
+    if "nyNerþuzBoost" in defSkills and defHPGreaterEqual25Percent:
+        if defender.specialMax != -1:
+            defCombatBuffs = [x + 5 + defender.specialMax * 2 for x in defCombatBuffs]
+        else:
+            defCombatBuffs = [x + 5 for x in defCombatBuffs]
+
+        defr.offensive_NFU = True
+        defr.defensive_NFU = True
+
+    # Love of Nerþuz - SU!Nerþuz
+    if "loveONerþuz" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + min(len(atkAllyWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
+        atkr.offensive_NFU = True
+        atkr.defensive_NFU = True
+        atkr.DR_first_strikes_NSP.append(40)
+
+        atkr.damage_reduction_reduction.append(min(attacker.specialMax * 30 + 10, 100))
+
+        if attacker.specialMax >= 3 and atkSpTriggeredByAttack:
+            atkr.sp_jump_first += 1
+
+    if "loveONerþuz" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + min(len(defAllyWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
+        defr.offensive_NFU = True
+        defr.defensive_NFU = True
+        defr.DR_first_strikes_NSP.append(40)
+
+        defr.damage_reduction_reduction.append(min(defender.specialMax * 30 + 10, 100))
+
+        if defender.specialMax >= 3 and defSpTriggeredByAttack:
+            defr.sp_jump_first += 1
+
+    if "loveONerþuz_f" in atkSkills:
+        for i in range(0, atkSkills["loveONerþuz_f"]):
+            atkr.damage_reduction_reduction.append(min(attacker.specialMax * 30 + 10, 100))
+
+            if attacker.specialMax >= 3 and atkSpTriggeredByAttack:
+                atkr.sp_jump_first += 1
+
+    if "loveONerþuz_f" in defSkills:
+        for i in range(0, defSkills["loveONerþuz_f"]):
+            defr.damage_reduction_reduction.append(min(defender.specialMax * 30 + 10, 100))
+
+            if defender.specialMax >= 3 and defSpTriggeredByAttack:
+                defr.sp_jump_first += 1
+
+    # Under the Sun - SU!Nerþuz
+    if "underTheSun" in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[SPD] -= 5
+        defCombatBuffs[DEF] -= 5
+        atkr.offensive_tempo = True
+        atkr.true_stat_damages.append((SPD, 20))
+        atkr.retaliatory_reduced += 1
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "underTheSun" in defSkills and defHPGreaterEqual25Percent:
+        atkCombatBuffs[SPD] -= 5
+        atkCombatBuffs[DEF] -= 5
+        defr.offensive_tempo = True
+        defr.true_stat_damages.append((SPD, 20))
+        defr.retaliatory_reduced += 1
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
     # Incipit Kvasir - Kvasir
     if "kvasirBoost" in atkSkills and atkHPGreaterEqual25Percent:
         atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
@@ -14851,6 +17089,29 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if defender.unitCombatInitiates == 0:
             defr.DR_first_strikes_NSP.append(70)
 
+    # Faded Paper Fan - NY!Kvasir
+    if "nyKvasirBoost" in atkSkills:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        defCombatBuffs[SPD] -= trunc(0.20 * atkStats[SPD])
+        defCombatBuffs[RES] -= trunc(0.20 * atkStats[SPD])
+        atkr.damage_reduction_reduction.append(50)
+
+        if attacker.unitCombatInitiates == 0:
+            atkr.DR_first_strikes_NSP.append(70)
+
+        atkPostCombatEffs[GIVEN_UNIT_ATTACKED].append(("status", Status.Flash, "foe_and_foes_allies", "within_2_spaces_foe"))
+
+    if "nyKvasirBoost" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        atkCombatBuffs[SPD] -= trunc(0.20 * defStats[SPD])
+        atkCombatBuffs[RES] -= trunc(0.20 * defStats[SPD])
+        defr.damage_reduction_reduction.append(50)
+
+        if defender.unitCombatInitiates == 0:
+            defr.DR_first_strikes_NSP.append(70)
+
+        defPostCombatEffs[GIVEN_UNIT_ATTACKED].append(("status", Status.Flash, "foe_and_foes_allies", "within_2_spaces_foe"))
+
     # Quietus Gullveig - Gullveig
     if "gullveigBoost" in atkSkills:
         atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
@@ -14868,19 +17129,240 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.offensive_NFU = True
         defr.defensive_NFU = True
 
+    # Golden Sunlight - SU!Gullveig
+    if "suGullveigBoost" in atkSkills:
+        X = 14 if attacker.unitCombatInitiates > 0 else min(len(atkAllyWithin3RowsCols) * 3 + 5, 14)
+
+        atkCombatBuffs = [x + X for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((SPD, 20))
+        atkr.damage_reduction_reduction.append(50)
+        atkr.DR_first_strikes_NSP.append(70)
+
+    if "suGullveigBoost" in defSkills and atkHPGreaterEqual75Percent:
+        X = 14 if defender.unitCombatInitiates > 0 else min(len(defAllyWithin3RowsCols) * 3 + 5, 14)
+
+        defCombatBuffs = [x + X for x in defCombatBuffs]
+        defr.true_stat_damages.append((SPD, 20))
+        defr.damage_reduction_reduction.append(50)
+
     # YGGDRASIL
 
-    # Enticing Dose (Base) - Níðhöggr (ENEMY)
-    if "the_dose" in atkSkills and atkHPGreaterEqual25Percent:
-        atkr.capped_foe_burn_damage = max(atkr.capped_foe_burn_damage, 8)
-        X = trunc(atkStats[DEF] * 0.2) + 6
-        defCombatBuffs[ATK] -= X
-        defCombatBuffs[DEF] -= X
+    # World-Tree Tail - Ratatoskr
+    if "rata" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+
+        low_hp_allies = 0
+
+        for ally in atkAllAllies:
+            if ally.HPcur / ally.visible_stats[HP] <= 0.40:
+                low_hp_allies += 1
+
+        atkCombatBuffs[ATK] += max(9 - 3 * low_hp_allies, 0)
+        atkCombatBuffs[SPD] += max(9 - 3 * low_hp_allies, 0)
+        atkr.spGainOnAtk += 1
+        atkr.spGainWhenAtkd += 1
+        atkr.DR_first_strikes_NSP.append(40)
+
+    if "rata" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+
+        low_hp_allies = 0
+
+        for ally in defAllAllies:
+            if ally.HPcur / ally.visible_stats[HP] <= 0.40:
+                low_hp_allies += 1
+
+        defCombatBuffs[ATK] += max(9 - 3 * low_hp_allies, 0)
+        defCombatBuffs[SPD] += max(9 - 3 * low_hp_allies, 0)
+        defr.spGainOnAtk += 1
+        defr.spGainWhenAtkd += 1
+        defr.DR_first_strikes_NSP.append(40)
+
+    # Mending Heart - Ratatoskr
+    if "it's her!" in atkSkills:
+        atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
+        defr.spLossOnAtk -= 1
+        defr.spLossWhenAtkd -= 1
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "it's her!" in defSkills:
+        defCombatBuffs = [x + 4 for x in defCombatBuffs]
+        atkr.spLossOnAtk -= 1
+        atkr.spLossWhenAtkd -= 1
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    # Nectar Horn - Heiðrún
+    if "heiðrúnBoost" in atkSkills and defHPGreaterEqual75Percent:
+        defCombatBuffs[ATK] -= 6 + trunc(0.20 * defStats[RES])
+        defCombatBuffs[DEF] -= 6 + trunc(0.20 * defStats[RES])
+        atkr.TDR_stats.append((RES, 20))
+        defBonusesNeutralized[ATK] = True
+        defBonusesNeutralized[DEF] = True
+        atkr.spGainOnAtk += 1
+        atkr.spGainWhenAtkd += 1
+
+    if "heiðrúnBoost" in defSkills:
+        atkCombatBuffs[ATK] -= 6 + trunc(0.20 * atkStats[RES])
+        atkCombatBuffs[DEF] -= 6 + trunc(0.20 * atkStats[RES])
+        defr.TDR_stats.append((RES, 20))
+        atkBonusesNeutralized[ATK] = True
+        atkBonusesNeutralized[DEF] = True
+        defr.spGainOnAtk += 1
+        defr.spGainWhenAtkd += 1
+
+    # Divine Nectar - Heiðrún
+    if "divineNectar" in atkSkills and atkAllyWithin3Spaces:
+        defCombatBuffs[ATK] -= 5
+        defCombatBuffs[DEF] -= 5
+        defr.spLossOnAtk -= 1
+        defr.spLossWhenAtkd -= 1
+
+    if "divineNectar" in defSkills and defAllyWithin3Spaces:
+        atkCombatBuffs[ATK] -= 5
+        atkCombatBuffs[DEF] -= 5
+        atkr.spLossOnAtk -= 1
+        atkr.spLossWhenAtkd -= 1
+
+    if Status.DivineNectar in attacker.statusPos: atkr.TDR_all_hits += 10
+    if Status.DivineNectar in defender.statusPos: defr.TDR_all_hits += 10
+
+    # Quieting Claw - Hræsvelgr
+    if "hræsvelgrBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+
+        X = 0
+        Y = len(defender.statusNeg) + len(defender.statusPos)
+
+        for ally in defAllyWithin2Spaces:
+            if ally.hasPenalty():
+                X += 1
+
+            Y += len(ally.statusNeg) + len(ally.statusPos)
+
+        defCombatBuffs[ATK] -= min(X * 3 + 4, 10)
+        defCombatBuffs[SPD] -= min(X * 3 + 4, 10)
+        defCombatBuffs[DEF] -= min(X * 3 + 4, 10)
+
+        atkr.true_all_hits += Y * 3
+        atkr.DR_all_hits_NSP.append(40)
         atkr.damage_reduction_reduction.append(50)
-        atkr.true_all_hits += trunc(defStats[HP] * 0.3)
-        atkr.TDR_dmg_taken_cap = 20
-        if defender.getSpecialType() == "Offense":
-            atkr.TDR_dmg_taken_extra_stacks += 1
+
+    if "hræsvelgrBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+
+        X = 0
+        Y = len(attacker.statusNeg) + len(attacker.statusPos)
+
+        for ally in atkAllyWithin2Spaces:
+            if ally.hasPenalty():
+                X += 1
+
+            Y += len(ally.statusNeg) + len(ally.statusPos)
+
+        atkCombatBuffs[ATK] -= min(X * 3 + 4, 10)
+        atkCombatBuffs[SPD] -= min(X * 3 + 4, 10)
+        atkCombatBuffs[DEF] -= min(X * 3 + 4, 10)
+
+        defr.true_all_hits += Y * 3
+        defr.DR_all_hits_NSP.append(40)
+        defr.damage_reduction_reduction.append(50)
+
+    # Divine Talon
+    if "divineTalon" in atkSkills and (attacker.transformed or defHPGreaterEqual75Percent):
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        atkr.offensive_NFU = True
+        atkr.defensive_NFU = True
+        atkr.offensive_tempo = True
+        atkr.TDR_all_hits += min(spaces_moved_by_atkr * 4, 12)
+        atkr.TDR_on_foe_sp += min(spaces_moved_by_atkr * 4, 12)
+
+    if "divineTalon" in defSkills and (defender.transformed or atkHPGreaterEqual75Percent):
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defr.offensive_NFU = True
+        defr.defensive_NFU = True
+        defr.offensive_tempo = True
+        defr.TDR_all_hits += min(spaces_moved_by_atkr * 4, 12)
+        defr.TDR_on_foe_sp += min(spaces_moved_by_atkr * 4, 12)
+
+    # Enticing Dose (Base) - Níðhöggr
+    if "God's strongest drunk driver" in atkSkills and (atkHPGreaterEqual25Percent or attacker.transformed):
+        defCombatBuffs[ATK] -= 6 + trunc(atkStats[DEF] * 0.20)
+        defCombatBuffs[DEF] -= 6 + trunc(atkStats[DEF] * 0.20)
+        atkr.damage_reduction_reduction.append(50)
+        atkr.true_all_hits += trunc(defStats[HP] * 0.30)
+        atkr.TDR_snake = True
+
+    if "God's strongest drunk driver" in defSkills and (defHPGreaterEqual25Percent or defender.transformed):
+        atkCombatBuffs[ATK] -= 6 + trunc(defStats[DEF] * 0.20)
+        atkCombatBuffs[DEF] -= 6 + trunc(defStats[DEF] * 0.20)
+        defr.damage_reduction_reduction.append(50)
+        defr.true_all_hits += trunc(defStats[HP] * 0.30)
+        defr.TDR_snake = True
+
+    # Divine Toxin - Níðhöggr
+    if "divineToxin" in atkSkills and attacker.transformed:
+        atkCombatBuffs[ATK] += 10
+        atkCombatBuffs[DEF] += 10
+        atkCombatBuffs[RES] += 10
+        defBonusesNeutralized[ATK] = True
+        defBonusesNeutralized[DEF] = True
+        atkr.offensive_tempo = True
+
+    if "divineToxin" in defSkills:
+        defCombatBuffs[ATK] += 10
+        defCombatBuffs[DEF] += 10
+        defCombatBuffs[RES] += 10
+        atkBonusesNeutralized[ATK] = True
+        atkBonusesNeutralized[DEF] = True
+        defr.offensive_tempo = True
+
+    if Status.Dosage in attacker.statusPos:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 10, "self", "one"))
+
+    if Status.Dosage in defender.statusPos:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 10, "self", "one"))
+
+    # Quieting Branch - Læraðr
+    if "treePowerActivate" in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= 6 + trunc(atkStats[RES] * 0.20)
+        defCombatBuffs[DEF] -= 6 + trunc(atkStats[RES] * 0.20)
+        atkr.sp_jump_foe_first += 2
+        atkr.TDR_stats.append((RES, 20))
+
+    if "treePowerActivate" in defSkills and defHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] -= 6 + trunc(defStats[RES] * 0.20)
+        atkCombatBuffs[DEF] -= 6 + trunc(defStats[RES] * 0.20)
+        defr.sp_jump_foe_first += 2
+        defr.TDR_stats.append((RES, 20))
+
+    # Yggdrasill's Alter - Læraðr
+    if "yggdrasillsAlter" in atkSkills:
+        discord_foe_count = 1 if Status.Discord in defender.statusNeg else 0
+
+        for ally in defAllAllies:
+            if Status.Discord in ally.statusNeg:
+                discord_foe_count += 1
+
+        defCombatBuffs[ATK] -= min(len(discord_foe_count) * 3 + 5, 14)
+        defCombatBuffs[DEF] -= min(len(discord_foe_count) * 3 + 5, 14)
+        atkr.true_stat_damages.append((RES, 20))
+        atkr.follow_ups_skill += 1
+        atkr.sp_pierce_DR = True
+
+    if "yggdrasillsAlter" in defSkills:
+        discord_foe_count = 1 if Status.Discord in attacker.statusNeg else 0
+
+        for ally in atkAllAllies:
+            if Status.Discord in ally.statusNeg:
+                discord_foe_count += 1
+
+        atkCombatBuffs[ATK] -= min(len(discord_foe_count) * 3 + 5, 14)
+        atkCombatBuffs[DEF] -= min(len(discord_foe_count) * 3 + 5, 14)
+        defr.true_stat_damages.append((RES, 20))
+        defr.follow_ups_skill += 1
+        defr.sp_pierce_DR = True
 
     # ÁSGARÐR
 
@@ -14892,6 +17374,19 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "lokiGuard" in defSkills and defHPGreaterEqual25Percent:
         defCombatBuffs[ATK] += 4
         defCombatBuffs[SPD] += 4
+
+    # Supreme Thökk - Loki
+    if "supremeThokk" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] += 6 + trunc(0.20 * atkStats[RES])
+        atkCombatBuffs[RES] += 6 + trunc(0.20 * atkStats[RES])
+        atkr.follow_ups_skill += 1
+        atkr.true_stat_damages.append((RES, 20))
+
+    if "supremeThokk" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] += 6 + trunc(0.20 * defStats[RES])
+        defCombatBuffs[RES] += 6 + trunc(0.20 * defStats[RES])
+        defr.follow_ups_skill += 1
+        defr.true_stat_damages.append((RES, 20))
 
     # War-God Mjölnir (Base) - Thórr
     if "thorrBoost" in atkSkills and atkHPGreaterEqual25Percent:
@@ -15205,6 +17700,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "dullCloseW" in atkSkills and defender.wpnType in MELEE_WEAPONS: defBonusesNeutralized = [True] * 5
     if "dullCloseW" in defSkills and attacker.wpnType in MELEE_WEAPONS: atkBonusesNeutralized = [True] * 5
 
+    # Spd/Def Detect
+    if "dullSpdDef_f" in atkSkills:
+        atkBonusesNeutralized[SPD] = True
+        atkBonusesNeutralized[DEF] = True
+
+    if "dullSpdDef_f" in defSkills:
+        defBonusesNeutralized[SPD] = True
+        defBonusesNeutralized[DEF] = True
+
     # True damage on specials (not treated as special damage, not reduced by Marth ring)
     if "spDamageAdd" in atkSkills: atkr.true_sp += atkSkills["spDamageAdd"]
     if "spDamageAdd" in defSkills: defr.true_sp += defSkills["spDamageAdd"]
@@ -15346,6 +17850,32 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.follow_up_denials -= 1
         defr.follow_up_denials -= 1
 
+    if ("uncanny_fighter" in atkSkills or "canny_fighter" in atkSkills) and atkHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= 4
+
+        if "uncanny_fighter" in atkSkills:
+            defCombatBuffs[DEF] -= 4
+        else:
+            defCombatBuffs[RES] -= 4
+
+        atkr.follow_up_denials -= 1
+        defr.follow_up_denials -= 1
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+        atkr.DR_second_strikes_NSP.append(40)
+
+    if ("uncanny_fighter" in defSkills or "canny_fighter" in defSkills) and defHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] -= 4
+
+        if "uncanny_fighter" in defSkills:
+            atkCombatBuffs[DEF] -= 4
+        else:
+            atkCombatBuffs[RES] -= 4
+
+        atkr.follow_up_denials -= 1
+        defr.follow_up_denials -= 1
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+        defr.DR_second_strikes_NSP.append(40)
+
     if "bold_fighter" in atkSkills and atkHPCur / atkStats[HP] >= 1.5 - 0.5 * atkSkills["bold_fighter"]:
         atkr.follow_ups_skill += 1
         atkr.spGainOnAtk += 1
@@ -15367,6 +17897,20 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.spLossOnAtk -= 1
 
     if "slick_fighter" in defSkills and defHPCur / defStats[HP] >= 1.0 - 0.25 * defSkills["slick_fighter"]:
+        defr.follow_ups_skill += 1
+        defPenaltiesNeutralized = [True] * 5
+
+    if "slick_fighter4" in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= 5
+        atkr.true_stat_damages.append((DEF, 20))
+        atkr.TDR_stats.append((DEF, 20))
+        atkr.follow_ups_skill += 1
+        atkPenaltiesNeutralized = [True] * 5
+
+    if "slick_fighter4" in defSkills:
+        atkCombatBuffs[ATK] -= 5
+        defr.true_stat_damages.append((DEF, 20))
+        defr.TDR_stats.append((DEF, 20))
         defr.follow_ups_skill += 1
         defPenaltiesNeutralized = [True] * 5
 
@@ -15433,7 +17977,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if "hardy_fighter" in atkSkills:
         atkr.defensive_NFU = True
-        atk.apply_def_sp_twice = True
+        atkr.apply_def_sp_twice = True
 
         if atkSkills["hardy_fighter"] > 1:
             atkr.TDR_on_def_sp += 5
@@ -15444,6 +17988,22 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         if defSkills["hardy_fighter"] > 1:
             defr.TDR_on_def_sp += 5
+
+    if "shield_fighter" in atkSkills:
+        atkr.apply_def_sp_twice = True
+        atkr.TDR_on_def_sp += 7
+
+        atkr.sp_jump_foe_first += 1
+        atkr.sp_jump_foe_first_brave += 1
+        atkr.sp_jump_foe_followup += 1
+
+    if "shield_fighter" in defSkills:
+        defr.apply_def_sp_twice = True
+        defr.TDR_on_def_sp += 7
+
+        defr.sp_jump_foe_first += 1
+        defr.sp_jump_foe_first_brave += 1
+        defr.sp_jump_foe_followup += 1
 
     # FLOW SKILLS
     if "flowRefresh" in atkSkills and atkHPCur / atkStats[HP] >= 1.5 - 0.5 * atkSkills["flowRefresh"]:
@@ -15467,6 +18027,17 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.spLossOnAtk -= 1
         defr.spLossWhenAtkd -= 1
 
+    if "flowGuard4" in atkSkills:
+        defCombatBuffs[SPD] -= 4
+        defCombatBuffs[DEF] -= 4
+        atkr.offensive_NFU = True
+        atkr.defensive_NFU = True
+        defr.spLossOnAtk -= 1
+        defr.spLossWhenAtkd -= 1
+
+        if defSpTriggeredByAttack:
+            defr.sp_jump_first -= 1
+
     if "flowNTrace" in atkSkills and atkHPCur / atkStats[HP] >= 1.5 - 0.5 * atkSkills["flowNTrace"]:
         atkr.offensive_NFU = True
 
@@ -15476,10 +18047,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if spaces_moved_by_atkr >= 2 or atkHPCur / atkStats[HP] <= 0.75:
             atkr.self_desperation = True
 
-    if "disarmTrap4" in atkSkills:
+    if "disarmNFU" in atkSkills:
         atkr.offensive_NFU = True
 
-    # COMMON A SKILLS, ENEMY PHASE ONLY
+    # COMMON A SKILLS
     if "stanceGuard" in defSkills:
         atkr.spGainWhenAtkd -= 1
         atkr.spGainOnAtk -= 1
@@ -15511,8 +18082,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[RES] += atkSkills["distGuard_f"]
 
     if "distGuard_f" in defSkills and attacker.wpnType in RANGED_WEAPONS:
-        defCombatBuffs[DEF] += atkSkills["distGuard_f"]
-        defCombatBuffs[RES] += atkSkills["distGuard_f"]
+        defCombatBuffs[DEF] += defSkills["distGuard_f"]
+        defCombatBuffs[RES] += defSkills["distGuard_f"]
 
     # Joint Close Guard
     if "jointCloseGuard" in atkSkills and [ally for ally in atkAllyWithin2Spaces if ally.wpnType in MELEE_WEAPONS]:
@@ -15531,6 +18102,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "jointDistGuard" in defSkills and [ally for ally in defAllyWithin2Spaces if ally.wpnType in RANGED_WEAPONS]:
         defCombatBuffs[DEF] += 4
         defCombatBuffs[RES] += 4
+
+    # Barricade
+    if "barricade_dull" in atkSkills:
+        atkPenaltiesNeutralized[DEF] = True
+        atkPenaltiesNeutralized[RES] = True
+
+    if "barricade_dull" in defSkills:
+        defPenaltiesNeutralized[DEF] = True
+        defPenaltiesNeutralized[RES] = True
 
     if "DDpenalty" in defSkills and attacker.wpnType in RANGED_WEAPONS:
         atkBonusesNeutralized = [True] * 5
@@ -15711,42 +18291,92 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "trueDefsvSp" in defSkills:
         defr.TDR_on_def_sp += 5
 
-    # PART 1
+    # Laguz Friend
     if "laguz_friend" in atkSkills:
-        skill_lvl = atkSkills["laguz_friend"]
-        if skill_lvl == 4: defStats[ATK] -= 5
-
-        if attacker.getMaxSpecialCooldown() >= 3 and attacker.getSpecialType() == "Offense" or attacker.getSpecialType() == "Defense":
+        if attacker.specialMax >= 3 and atkSpTriggeredByAttack or attacker.getSpecialType() == "Defense":
             defr.damage_reduction_reduction.append(50)
             atkr.sp_jump_foe_first += 2
 
     if "laguz_friend" in defSkills:
-        skill_lvl = defSkills["laguz_friend"]
-        if skill_lvl == 4: atkStats[ATK] -= 5
-
-        if defender.getMaxSpecialCooldown() >= 3 and defender.getSpecialType() == "Offense" or defender.getSpecialType() == "Defense":
+        if defender.specialMax >= 3 and defSpTriggeredByAttack or defender.getSpecialType() == "Defense":
             atkr.damage_reduction_reduction.append(50)
             defr.sp_jump_foe_first += 2
 
     if "resonance" in atkSkills:
-        X = max(trunc(0.2 * (atkStats[HP] - 20)), 0)
-
+        base_max_HP = atkStats[HP] - attacker.battle_stat_mods[HP]
+        X = max(trunc(0.2 * (base_max_HP - 20)), 0)
         atkr.self_burn_damage += X
 
-        defCombatBuffs[SPD] -= 4
-        defCombatBuffs[RES] -= 4
-
-        atkr.resonance = True
+        atkr.resonance = atkSkills["resonance"]
 
     if "resonance" in defSkills:
-        X = max(trunc(0.2 * (defStats[HP] - 20)), 0)
+        defr.resonance = defSkills["resonance"]
 
-        defr.self_burn_damage += X
+    # Momentum
+    if "momentum" in atkSkills and spaces_moved_by_atkr > 0:
+        atkr.follow_ups_skill += 1
+        atkr.true_all_hits += min(spaces_moved_by_atkr * atkSkills["momentum"], 5 * atkSkills["momentum"])
 
-        atkCombatBuffs[SPD] -= 4
-        atkCombatBuffs[RES] -= 4
+        if atkSkills["momentum"] == 4:
+            defCombatBuffs[ATK] -= 4
+            defCombatBuffs[DEF] -= 4
 
-        defr.resonance = True
+    if "momentum" in defSkills and spaces_moved_by_atkr > 0:
+        defr.follow_ups_skill += 1
+        defr.true_all_hits += min(spaces_moved_by_atkr * defSkills["momentum"], 5 * defSkills["momentum"])
+
+        if defSkills["momentum"] == 4:
+            atkCombatBuffs[ATK] -= 4
+            atkCombatBuffs[DEF] -= 4
+
+    if "momentumCharge" in atkSkills and spaces_moved_by_atkr > 0 and attacker.getSpecialType() == "Offense":
+        if spaces_moved_by_atkr >= 3:
+            atkr.sp_jump += 2
+        else:
+            atkr.sp_jump += 1
+
+    if "momentumCharge" in defSkills and spaces_moved_by_atkr > 0 and defender.getSpecialType() == "Offense":
+        if spaces_moved_by_atkr >= 3:
+            defr.sp_jump += 2
+        else:
+            defr.sp_jump += 1
+
+    # Deadly Miasma
+    if "deadlyMiasma" in atkSkills:
+        defCombatBuffs = [x - 5 for x in defCombatBuffs]
+        defBonusesNeutralized = [True] * 5
+
+    # Breath of Life 4
+    if "breath_of_life4" in atkSkills and atkAllyWithin2Spaces:
+        atkCombatBuffs[DEF] += 4
+        atkr.deep_wounds_allowance.append(50)
+
+    if "breath_of_life4" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs[DEF] += 4
+        defr.deep_wounds_allowance.append(50)
+
+    if "breath_of_life4_f" in atkSkills:
+        for i in range(0, atkSkills["breath_of_life4_f"]):
+            atkCombatBuffs[DEF] += 4
+            atkr.deep_wounds_allowance.append(50)
+
+    if "breath_of_life4_f" in defSkills:
+        for i in range(0, defSkills["breath_of_life4_f"]):
+            defCombatBuffs[DEF] += 4
+            defr.deep_wounds_allowance.append(50)
+
+    # Far Trace Echo
+    if "traceEchoDmg" in atkSkills:
+        atkr.true_all_hits += 3
+
+    if "traceEchoDmg" in defSkills:
+        defr.true_all_hits += 3
+
+    if "traceDmg" in atkSkills:
+        atkr.true_all_hits += 7
+
+    if "traceDmg" in defSkills:
+        defr.true_all_hits += 7
 
     # DIVINE VEIN SKILLS
 
@@ -15757,12 +18387,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if atkTile.divine_vein == DV_STONE and atkTile.divine_vein_turn >= 1 and atkTile.divine_vein_side == attacker.side:
         atkCombatBuffs[DEF] += 6
         atkCombatBuffs[RES] += 6
-        atkr.TDR_on_foe_special += 10
+        atkr.TDR_on_foe_sp += 10
 
     if defTile.divine_vein == DV_STONE and defTile.divine_vein_turn >= 1 and defTile.divine_vein_side == defender.side:
         defCombatBuffs[DEF] += 6
         defCombatBuffs[RES] += 6
-        defr.TDR_on_foe_special += 10
+        defr.TDR_on_foe_sp += 10
 
     # FLAME
     if atkTile.divine_vein == DV_FLAME and atkTile.divine_vein_turn >= 1 and atkTile.divine_vein_side != attacker.side:
@@ -15771,11 +18401,16 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if defTile.divine_vein == DV_FLAME and defTile.divine_vein_turn >= 1 and defTile.divine_vein_side != defender.side:
         atkr.foe_burn_damage += 7
 
-    # HAZE
-    if "deadlyMiasma" in atkSkills:
-        defCombatBuffs = [x - 5 for x in defCombatBuffs]
-        defBonusesNeutralized = [True] * 5
+    # GREEN
+    if atkTile.divine_vein == DV_GREEN and atkTile.divine_vein_turn >= 1 and atkTile.divine_vein_side != attacker.side:
+        atkr.spLossOnAtk -= 1
+        atkr.spLossWhenAtkd -= 1
 
+    if defTile.divine_vein == DV_GREEN and defTile.divine_vein_turn >= 1 and defTile.divine_vein_side != defender.side:
+        defr.spLossOnAtk -= 1
+        defr.spLossWhenAtkd -= 1
+
+    # HAZE
     if atkTile.divine_vein == DV_HAZE and atkTile.divine_vein_turn >= 1 and atkTile.divine_vein_side != attacker.side:
         atkCombatBuffs = [x - 5 for x in atkCombatBuffs]
         atkBonusesNeutralized = [True] * 5
@@ -15784,10 +18419,24 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs = [x - 5 for x in defCombatBuffs]
         defBonusesNeutralized = [True] * 5
 
+    # WATER
+    if atkTile.divine_vein == DV_WATER and atkTile.divine_vein_turn >= 1 and atkTile.divine_vein_side != attacker.side:
+        defr.damage_reduction_reduction.append(50)
+        atkCombatBuffs[SPD] -= 5
 
-    # LITERALLY EVERYTHING THAT USES BONUS AND PENALTY VALUES GOES HERE
-    # INCLUDING [Bonus] AND [Penalty] KEYWORDS
-    # Basically, no neutralizing bonuses/penalties past this point
+    if defTile.divine_vein == DV_WATER and defTile.divine_vein_turn >= 1 and defTile.divine_vein_side != defender.side:
+        atkr.damage_reduction_reduction.append(50)
+        defCombatBuffs[SPD] -= 5
+
+    # GROUP 2
+    # Skills within this group can perform the following:
+    # - Use stats at start of combat
+    # - Use exact values of bonuses/penalties, or if skill uses [Bonus] or [Penalty] keywords
+    # - Add combat buffs
+    # Cannot perform the following:
+    # - Use stats during combat
+    # - Neutralize Bonuses/Penalties
+
 
     # exact value of buffs after buff neutralization
     atkNeutrBuffsStats = [0, 0, 0, 0, 0]
@@ -15940,13 +18589,42 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         for i in range(1, 5):
             defCombatBuffs[i] += 4 + max(defNeutrBuffsStats[i], max([ally.get_total_buff(i) for ally in defAllyWithin2Spaces], default=0))
 
+    # Golden Yule Bow
+    if "goldenYuleBow" in atkSkills and atkHPGreaterEqual25Percent:
+        X = 3 if defHasPenalty else min(spaces_moved_by_atkr, 3)
+
+        atkCombatBuffs = [x + 4 + X for x in atkCombatBuffs]
+        atkr.sp_jump_first += X
+
+    if "goldenYuleBow" in defSkills and defHPGreaterEqual25Percent:
+        X = 3 if atkHasPenalty else min(spaces_moved_by_atkr, 3)
+
+        defCombatBuffs = [x + 4 + X for x in defCombatBuffs]
+        defr.sp_jump_first += X
+
     # Tier 4 Sabotage skills
+    if "sabotageAtkDef" in atkSkills and atkStats[RES] + atkPhantomStats[RES] > defStats[RES] + defPhantomStats[RES]:
+        defCombatBuffs[ATK] += -3 + min(defNeutrDebuffsStats[ATK], min([ally.get_total_debuff(ATK) for ally in defAllyWithin2Spaces], default=0))
+        defCombatBuffs[DEF] += -3 + min(defNeutrDebuffsStats[DEF], min([ally.get_total_debuff(DEF) for ally in defAllyWithin2Spaces], default=0))
+
+    if "sabotageAtkDef" in defSkills and defStats[RES] + defPhantomStats[RES] > atkStats[RES] + atkPhantomStats[RES]:
+        atkCombatBuffs[ATK] += -3 + min(atkNeutrDebuffsStats[ATK], min([ally.get_total_debuff(ATK) for ally in atkAllyWithin2Spaces], default=0))
+        atkCombatBuffs[DEF] += -3 + min(atkNeutrDebuffsStats[DEF], min([ally.get_total_debuff(DEF) for ally in atkAllyWithin2Spaces], default=0))
+
     if "sabotageAtkRes" in atkSkills and atkStats[RES] + atkPhantomStats[RES] > defStats[RES] + defPhantomStats[RES]:
         defCombatBuffs[ATK] += -3 + min(defNeutrDebuffsStats[ATK], min([ally.get_total_debuff(ATK) for ally in defAllyWithin2Spaces], default=0))
         defCombatBuffs[RES] += -3 + min(defNeutrDebuffsStats[RES], min([ally.get_total_debuff(RES) for ally in defAllyWithin2Spaces], default=0))
 
     if "sabotageAtkRes" in defSkills and defStats[RES] + defPhantomStats[RES] > atkStats[RES] + atkPhantomStats[RES]:
         atkCombatBuffs[ATK] += -3 + min(atkNeutrDebuffsStats[ATK], min([ally.get_total_debuff(ATK) for ally in atkAllyWithin2Spaces], default=0))
+        atkCombatBuffs[RES] += -3 + min(atkNeutrDebuffsStats[RES], min([ally.get_total_debuff(RES) for ally in atkAllyWithin2Spaces], default=0))
+
+    if "sabotageSpdRes" in atkSkills and atkStats[RES] + atkPhantomStats[RES] > defStats[RES] + defPhantomStats[RES]:
+        defCombatBuffs[SPD] += -3 + min(defNeutrDebuffsStats[SPD], min([ally.get_total_debuff(SPD) for ally in defAllyWithin2Spaces], default=0))
+        defCombatBuffs[RES] += -3 + min(defNeutrDebuffsStats[RES], min([ally.get_total_debuff(RES) for ally in defAllyWithin2Spaces], default=0))
+
+    if "sabotageSpdRes" in defSkills and defStats[RES] + defPhantomStats[RES] > atkStats[RES] + atkPhantomStats[RES]:
+        atkCombatBuffs[SPD] += -3 + min(atkNeutrDebuffsStats[SPD], min([ally.get_total_debuff(SPD) for ally in atkAllyWithin2Spaces], default=0))
         atkCombatBuffs[RES] += -3 + min(atkNeutrDebuffsStats[RES], min([ally.get_total_debuff(RES) for ally in atkAllyWithin2Spaces], default=0))
 
     # Discord Skills
@@ -15977,6 +18655,56 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[SPD] -= min(4 + afflicted_foes * 2, 10)
         atkCombatBuffs[RES] -= min(4 + afflicted_foes * 2, 10)
         defr.true_stat_damages.append((RES, 15))
+
+    # Tier 4 Link Skills
+    if "atkSpdLink4" in atkSkills:
+        defCombatBuffs[SPD] -= 4
+        defCombatBuffs[DEF] -= 2
+        defCombatBuffs[RES] -= 2
+
+        ally_total = max([sum(ally.get_total_buff(ATK) + ally.get_total_buff(SPD)) for ally in atkAllAllies if Status.Canto1 in ally.statusPos], default=0)
+
+        atkr.true_all_hits += max(sum(atkNeutrBuffsStats[ATK] + atkNeutrBuffsStats[SPD]), ally_total)
+
+    if "atkSpdLink4" in defSkills:
+        atkCombatBuffs[SPD] -= 4
+        atkCombatBuffs[DEF] -= 2
+        atkCombatBuffs[RES] -= 2
+
+        ally_total = max([sum(ally.get_total_buff(ATK) + ally.get_total_buff(SPD)) for ally in defAllAllies if Status.Canto1 in ally.statusPos], default=0)
+
+        defr.true_all_hits += max(sum(defNeutrBuffsStats[ATK] + defNeutrBuffsStats[SPD]), ally_total)
+
+    if "spdDefLink4" in atkSkills:
+        defCombatBuffs[ATK] -= 4
+        defCombatBuffs[SPD] -= 4
+
+        ally_total = max([sum(ally.get_total_buff(SPD) + ally.get_total_buff(DEF)) for ally in atkAllAllies if Status.Canto1 in ally.statusPos], default=0)
+
+        atkr.true_all_hits += max(sum(atkNeutrBuffsStats[SPD] + atkNeutrBuffsStats[DEF]), ally_total)
+
+    if "spdDefLink4" in defSkills:
+        atkCombatBuffs[ATK] -= 4
+        atkCombatBuffs[SPD] -= 4
+
+        ally_total = max([sum(ally.get_total_buff(SPD) + ally.get_total_buff(DEF)) for ally in defAllAllies if Status.Canto1 in ally.statusPos], default=0)
+
+        defr.true_all_hits += max(sum(defNeutrBuffsStats[SPD] + defNeutrBuffsStats[DEF]), ally_total)
+
+    # Creation Pulse
+    if "creationPulse" in atkSkills and defHasPenalty:
+        atkCombatBuffs[ATK] += 3
+        atkCombatBuffs[SPD] += 3
+        
+        if atkSpTriggeredByAttack:
+            atkr.sp_jump_first += min(len(defender.StatusNeg), 2)
+
+    if "creationPulse" in defSkills and atkHasPenalty:
+        defCombatBuffs[ATK] += 3
+        defCombatBuffs[SPD] += 3
+
+        if defSpTriggeredByAttack:
+            defr.sp_jump_first += min(len(attacker.StatusNeg), 2)
 
     # Exalted Falchion (Refine Base) - L!Marth
     if "ILOVEBONUSES" in atkSkills and (atkHPGreaterEqual50Percent or atkHasBonus):
@@ -16172,6 +18900,37 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         else:
             defr.TDR_first_strikes += trunc(0.40 * X)
 
+    # Believe in Love? - X!Caeda
+    if "doYouBelieveInLove?" in atkSkills:
+        defCombatBuffs[ATK] -= 5
+        defCombatBuffs[SPD] -= 5
+        defCombatBuffs[DEF] -= 5
+        atkr.stat_scaling_DR.append((SPD, 50))
+
+        for i in range(1, 5):
+            atkCombatBuffs[i] += 4 + atkNeutrDebuffsStats[i] * -2
+
+        X = max(sum(atkNeutrBuffsStats), max([ally.get_bonus_total() for ally in atkAllyWithin2Spaces], default=0))
+        if defender.move == 1 or defender.move == 3:
+            atkr.TDR_all_hits += X
+        else:
+            atkr.TDR_first_strikes += trunc(0.40 * X)
+
+    if "doYouBelieveInLove?" in defSkills:
+        atkCombatBuffs[ATK] -= 5
+        atkCombatBuffs[SPD] -= 5
+        atkCombatBuffs[DEF] -= 5
+        defr.stat_scaling_DR.append((SPD, 50))
+
+        for i in range(1, 5):
+            defCombatBuffs[i] += 4 + defNeutrDebuffsStats[i] * -2
+
+        X = max(sum(defNeutrBuffsStats), max([ally.get_bonus_total() for ally in defAllyWithin2Spaces], default=0))
+        if attacker.move == 1 or attacker.move == 3:
+            defr.TDR_all_hits += X
+        else:
+            defr.TDR_first_strikes += trunc(0.40 * X)
+
     # Winds of Change (Base) - CH!Merric
     if "I hope no instructor steals my gimmick" in atkSkills and (sum(atkNeutrBuffsStats) or atkHPGreaterEqual50Percent):
         atkCombatBuffs[ATK] += 5
@@ -16199,6 +18958,31 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.offensive_NFU = True
         defr.defensive_NFU = True
         defr.true_stat_damages.append((SPD, 15))
+
+    # Lightburst Tome - Arlen
+    if "arlenBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        if atkSpTriggeredByAttack:
+            atkr.sp_jump += 1
+
+        X = 8 if defender.specialMax == -1 else max(16 - defender.specialMax * 2, 8)
+        defCombatBuffs[ATK] -= X
+        defCombatBuffs[SPD] -= X
+        defCombatBuffs[RES] -= X
+        atkr.DR_first_hit_NSP.append(30)
+        atkr.retaliatory_reduced += 1
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "arlenBoost" in defSkills and defHPGreaterEqual25Percent:
+        if defSpTriggeredByAttack:
+            defr.sp_jump += 1
+
+        X = 8 if attacker.specialMax == -1 else max(16 - attacker.specialMax * 2, 8)
+        atkCombatBuffs[ATK] -= X
+        atkCombatBuffs[SPD] -= X
+        atkCombatBuffs[RES] -= X
+        defr.DR_first_hit_NSP.append(30)
+        defr.retaliatory_reduced += 1
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
 
     # Eagle's Egg (Refine Eff) - SP!Est
     if "EST BEST TIME ZONE" in atkSkills and atkHPGreaterEqual25Percent:
@@ -16856,6 +19640,31 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[SPD] += 6
         defCombatBuffs[DEF] += 6
 
+    # Wild Wind Sword - Forde
+    if "fordeBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+
+        for i in range(1, 5):
+            atkCombatBuffs[i] += atkNeutrDebuffsStats[i] * -2
+
+        atkr.true_all_hits += trunc(1.5 * abs(sum(atkNeutrDebuffsStats)))
+        atkr.offensive_NFU = True
+        atkr.defensive_NFU = True
+        atkr.DR_first_strikes_NSP.append(40)
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "fordeBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+
+        for i in range(1, 5):
+            defCombatBuffs[i] += defNeutrDebuffsStats[i] * -2
+
+        defr.true_all_hits += trunc(1.5 * abs(sum(defNeutrDebuffsStats)))
+        defr.offensive_NFU = True
+        defr.defensive_NFU = True
+        defr.DR_first_strikes_NSP.append(40)
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
     # Weirding Tome (Refine Eff) - Lute
     if "luteBoost" in atkSkills and defHasPenalty:
         atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
@@ -17153,6 +19962,22 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.DR_first_hit_NSP.append(30)
         defr.offensive_tempo = True
 
+    # Yune's Protection - X!Micaiah
+    # https://www.reddit.com/r/FireEmblemHeroes/comments/1d9diea/mistranslation_in_attuned_micaiahs_b_skill_its/
+    if "yunesProtection" in atkSkills:
+        X = abs(min(sum(defNeutrDebuffsStats), min([ally.get_penalty_total() for foe in defAllyWithin2Spaces], default=0)))
+
+        defCombatBuffs[ATK] -= 5 + X
+        defCombatBuffs[RES] -= 5 + X
+        atkr.damage_reduction_reduction.append(50)
+
+    if "yunesProtection" in defSkills and defAllyWithin2Spaces:
+        X = abs(min(sum(atkNeutrDebuffsStats), min([ally.get_penalty_total() for foe in atkAllyWithin2Spaces], default=0)))
+
+        atkCombatBuffs[ATK] -= 5 + X
+        atkCombatBuffs[RES] -= 5 + X
+        defr.damage_reduction_reduction.append(50)
+
     # Chaos Manifest (Base) - Yune
     if "yunePenalty" in atkSkills and defHasPenalty:
         atkCombatBuffs[ATK] += 6
@@ -17402,6 +20227,26 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "lucinaPenaltyPunisher" in defSkills and defAllyWithin3Spaces:
         for i in range(1, 4): atkCombatBuffs[i] += -4 + atkNeutrDebuffsStats[i]
 
+
+    # Arcane Þrima
+    if "thrima" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+
+        for i in range(1, 5):
+            defCombatBuffs[i] -= abs(min(defNeutrDebuffsStats[i], min([ally.get_total_debuff(i) for ally in defAllyWithin2Spaces], default=0)))
+
+        atkr.offensive_tempo = True
+        atkr.defensive_tempo = True
+
+    if "thrima" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+
+        for i in range(1, 5):
+            atkCombatBuffs[i] -= abs(min(atkNeutrDebuffsStats[i], min([ally.get_total_debuff(i) for ally in atkAllyWithin2Spaces], default=0)))
+
+        defr.offensive_tempo = True
+        defr.defensive_tempo = True
+
     # Blade of Favors (Base) - Gregor
     if "gregorSword!" in atkSkills:
         atkr.DR_first_hit_NSP.append(40)
@@ -17516,6 +20361,31 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             defCombatBuffs[i] += highest_stats[i]
             i += 1
 
+    # Stone of Delights - H!Nah
+    if "hNahBoost" in atkSkills and atkAllyWithin3Spaces:
+        Y = min(len(atkAllyWithin3RowsCols) * 3 + 5, 14)
+
+        defCombatBuffs[ATK] -= Y
+        defCombatBuffs[DEF] -= Y
+        defCombatBuffs[RES] -= Y
+
+        X = max(8, min(atkHPCur - defHPCur, 16))
+
+        atkr.true_all_hits += X
+        atkr.TDR_all_hits += X
+
+    if "hNahBoost" in defSkills and defAllyWithin3Spaces:
+        Y = 14 if savior_triggered else min(len(defAllyWithin3RowsCols) * 3 + 5, 14)
+
+        atkCombatBuffs[ATK] -= Y
+        atkCombatBuffs[DEF] -= Y
+        atkCombatBuffs[RES] -= Y
+
+        X = max(8, min(defHPCur - atkHPCur, 16))
+
+        defr.true_all_hits += X
+        defr.TDR_all_hits += X
+
     # Lance of Heroics (Refine Eff) - Cynthia
     if "cynthiaBoost" in atkSkills and atkAllyWithin3Spaces:
         for i in range(1, 5):
@@ -17566,6 +20436,19 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.DR_first_hit_NSP.append(30)
         for i in range(1, 5):
             atkCombatBuffs[i] += min(atkNeutrDebuffsStats[i], min([ally.get_total_debuff(i) for ally in atkAllyWithin2Spaces], default=0))
+
+    # Grimleal Text - Validar
+    if "validarFINALLY" in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= 6
+        defCombatBuffs[RES] -= 6
+        atkr.follow_ups_skill += 1
+        atkr.true_all_hits += 4 * (len(defender.statusNeg) + sum(len(ally.statusNeg) for ally in defAllyWithin2Spaces))
+
+    if "validarFINALLY" in defSkills and defHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] -= 6
+        atkCombatBuffs[RES] -= 6
+        defr.follow_ups_skill += 1
+        defr.true_all_hits += 4 * (len(attacker.statusNeg) + sum(len(ally.statusNeg) for ally in atkAllyWithin2Spaces))
 
     # Gloom Breath (Refine Eff) - F!Corrin
     if "corrinPenaltyTheft" in atkSkills:
@@ -17712,6 +20595,38 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.spGainOnAtk += 1
         defr.spGainWhenAtkd += 1
 
+    # The Inexhaustible - B!Bernadetta
+    if "bBernieBoost" in atkSkills:
+        atkCombatBuffs = [x + 5 + trunc(0.15 * atkStats[SPD]) for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((SPD, 20))
+        atkr.damage_reduction_reduction.append(50)
+
+    if "bBernieBoost" in defSkills and defHasBonus:
+        defCombatBuffs = [x + 5 + trunc(0.15 * defStats[SPD]) for x in defCombatBuffs]
+        defr.true_stat_damages.append((SPD, 20))
+        defr.damage_reduction_reduction.append(50)
+
+    # Paranoia - B!Bernadetta
+    if "paranoia" in atkSkills and not atkHPEqual100Percent:
+        atkCombatBuffs[ATK] += 5
+        atkCombatBuffs[SPD] += 5
+        atkr.offensive_tempo = True
+
+    if "paranoia" in defSkills and not defHPEqual100Percent:
+        defCombatBuffs[ATK] += 5
+        defCombatBuffs[SPD] += 5
+        defr.offensive_tempo = True
+
+    if Status.Paranoia in attacker.statusPos and not atkHPEqual100Percent:
+        atkCombatBuffs[ATK] += 5
+        atkr.self_desperation = True
+
+    if Status.Paranoia in defender.statusPos and not defHPEqual100Percent:
+        atkCombatBuffs[ATK] += 5
+
+        if (attacker.getRange() == defender.getRange()) or len(attacker.statusNeg) >= 3:
+            defr.vantage = True
+
     # Sevenfold Gifts (Base) - WI!Dorothea
     if "wiDorotheaBoost" in atkSkills and atkHPGreaterEqual25Percent:
         atkCombatBuffs[ATK] += 6
@@ -17767,6 +20682,26 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[SPD] -= defNeutrBuffsStats[SPD]
         atkCombatBuffs[DEF] += 3 + defNeutrBuffsStats[DEF]
         defCombatBuffs[DEF] -= defNeutrBuffsStats[DEF]
+
+    # Just Bow
+    if "asheBoost" in atkSkills:
+        atkCombatBuffs = [x + 5 + trunc(0.15 * atkStats[SPD]) for x in atkCombatBuffs]
+        atkr.true_all_hits += 7
+        atkr.offensive_tempo = True
+        atkr.sp_pierce_DR = True
+
+        atkr.sp_jump_first += 1
+        if defSpTriggeredByAttack:
+            defr.sp_jump_first -= 1
+
+    if "asheBoost" in defSkills and defAllyWithin3RowsCols:
+        defCombatBuffs = [x + 5 + trunc(0.15 * defStats[SPD]) for x in defCombatBuffs]
+        defr.true_all_hits += 7
+        defr.offensive_tempo = True
+        defr.sp_pierce_DR = True
+
+    if "asheBoost_f" in atkSkills and defSpTriggeredByAttack:
+        defr.sp_jump_first -= atkSkills["asheBoost_f"]
 
     # Cunning Bow (Base) - Claude
     if "claudeDebuff" in atkSkills and sum(atkNeutrBuffsStats) + abs(sum(defNeutrDebuffsStats)) >= 10:
@@ -17951,6 +20886,32 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs = [x + 4 for x in defCombatBuffs]
         defr.follow_ups_skill += 1
 
+    # Icebound Tome - Ivy
+    if "ivyBoost" in atkSkills:
+        atkCombatBuffs = [x + min(max(5, trunc(0.25 * defStats[ATK]) - 4), 14) for x in atkCombatBuffs]
+        atkr.offensive_tempo = True
+        atkr.DR_all_hits_NSP.append(min(20 + spaces_moved_by_atkr * 10, 70))
+        atkr.follow_up_heal += 7
+
+    if "ivyBoost" in defSkills and defender.wpnType in RANGED_WEAPONS:
+        defCombatBuffs = [x + min(max(5, trunc(0.25 * atkStats[ATK]) - 4), 14) for x in defCombatBuffs]
+        defr.offensive_tempo = True
+        defr.DR_all_hits_NSP.append(min(20 + spaces_moved_by_atkr * 10, 70))
+        defr.follow_up_heal += 7
+
+    # Obsession - Ivy
+    if "https://www.youtube.com/watch?v=x5cdtS1HDq4" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 9 for x in atkCombatBuffs]
+        atkr.follow_ups_skill += 1
+        defr.follow_up_denials -= 1
+        atkr.pierce_DR_FU = True
+
+    if "https://www.youtube.com/watch?v=x5cdtS1HDq4" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 9 for x in defCombatBuffs]
+        defr.follow_ups_skill += 1
+        atkr.follow_up_denials -= 1
+        defr.pierce_DR_FU = True
+
     # Divine Draught - SU!Ivy
     if "suIvyBoost" in atkSkills and atkHPGreaterEqual25Percent:
         atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
@@ -17977,6 +20938,92 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         if cond_count >= 2:
             defr.brave = True
+
+    # Arcane Charmer
+    if "charmer" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        atkr.follow_ups_skill += 1
+        atkr.spGainOnAtk += 1
+        atkr.spGainWhenAtkd += 1
+        atkr.true_all_hits += 7
+
+    if "charmer" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defr.follow_ups_skill += 1
+        defr.spGainOnAtk += 1
+        defr.spGainWhenAtkd += 1
+        defr.true_all_hits += 7
+
+    # Glittering Anima - Hortensia
+    if "glitteringAnima" in atkSkills and atkAllyWithin3Spaces:
+        atkCombatBuffs[ATK] += 5
+        atkCombatBuffs[SPD] += 5
+        atkr.offensive_tempo = True
+
+    if "glitteringAnima" in defSkills and defAllyWithin3Spaces:
+        defCombatBuffs[ATK] += 5
+        defCombatBuffs[SPD] += 5
+        defr.offensive_tempo = True
+
+    # Axe of Adoration - Rosado
+    if "GGs, Donkey Kong got thisss" in atkSkills and atkHPGreaterEqual25Percent:
+        X = 8 if defender.specialMax == -1 else max(16 - defender.specialMax * 2, 8)
+
+        defCombatBuffs[ATK] -= X
+        defCombatBuffs[SPD] -= X
+        defCombatBuffs[DEF] -= X
+        atkr.DR_first_strikes_NSP.append(40)
+        atkr.spGainOnAtk += 1
+        atkr.spGainWhenAtkd += 1
+
+        if defStats[DEF] >= defStats[RES]:
+            atkr.damage_reduction_reduction.append(70)
+        else:
+            atkr.damage_reduction_reduction.append(30)
+
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "GGs, Donkey Kong got thisss" in defSkills and defHPGreaterEqual25Percent:
+        X = 8 if attacker.specialMax == -1 else max(16 - attacker.specialMax * 2, 8)
+
+        atkCombatBuffs[ATK] -= X
+        atkCombatBuffs[SPD] -= X
+        atkCombatBuffs[DEF] -= X
+        defr.DR_first_strikes_NSP.append(40)
+        defr.spGainOnAtk += 1
+        defr.spGainWhenAtkd += 1
+
+        if atkStats[DEF] >= atkStats[RES]:
+            defr.damage_reduction_reduction.append(70)
+        else:
+            defr.damage_reduction_reduction.append(30)
+
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    # Diva-Pair Parasol - SU!Goldmary
+    if "suGoldmaryBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + min(len(atkAllyWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((ATK, 15))
+        defr.spLossOnAtk -= 1
+        defr.spLossWhenAtkd -= 1
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "suGoldmaryBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + min(len(defAllyWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
+        defr.true_stat_damages.append((ATK, 15))
+        atkr.spLossOnAtk -= 1
+        atkr.spLossWhenAtkd -= 1
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "goldmaryDebuff_f" in atkSkills:
+        atkCombatBuffs[ATK] -= trunc(0.15 * atkStats[ATK]) * atkSkills["goldmaryDebuff_f"]
+        atkCombatBuffs[SPD] -= trunc(0.15 * atkStats[ATK]) * atkSkills["goldmaryDebuff_f"]
+        atkBonusesNeutralized = [True] * 5
+
+    if "goldmaryDebuff_f" in defSkills:
+        defCombatBuffs[ATK] -= trunc(0.15 * defStats[ATK]) * defSkills["goldmaryDebuff_f"]
+        defCombatBuffs[SPD] -= trunc(0.15 * defStats[ATK]) * defSkills["goldmaryDebuff_f"]
+        defBonusesNeutralized = [True] * 5
 
     # Packleader Tome - Zephia
     if "zephiaBoost" in atkSkills and atkHPGreaterEqual25Percent:
@@ -18012,6 +21059,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         defCombatBuffs[ATK] += sum(defNeutrBuffsStats) * -1
 
+    # Gjöll (Base) - Hríd
     if "ICE UPON YOU" in atkSkills and defHasPenalty:
         atkr.follow_ups_skill += 1
         defr.follow_up_denials -= 1
@@ -18020,6 +21068,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.follow_ups_skill += 1
         atkr.follow_up_denials -= 1
 
+    # Gjöll (Refine Base) - Hríd
     if "FREEZE NOW" in atkSkills and (atkHPGreaterEqual25Percent or defHasPenalty):
         defCombatBuffs[ATK] -= 5
         defCombatBuffs[DEF] -= 5
@@ -18028,6 +21077,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[ATK] -= 5
         atkCombatBuffs[DEF] -= 5
 
+    # Gjöll (Refine Eff) - Hríd
     if "Minecraft Gaming" in atkSkills:
         for i in range(1, 5):
             defCombatBuffs[i] += -5 + defNeutrBuffsStats[i] * -2
@@ -18035,6 +21085,40 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "Minecraft Gaming" in defSkills and defAllyWithin2Spaces:
         for i in range(1, 5):
             atkCombatBuffs[i] += -5 + atkNeutrBuffsStats[i] * -2
+
+    # Prince's Lance - SU!Hríd
+    if "suHridBoost" in atkSkills:
+        atkCombatBuffs = [x + max(5, min(trunc(0.25 * defStats[ATK]) - 4, 14)) for x in atkCombatBuffs]
+        atkr.DR_all_hits_NSP.append(40)
+        atkr.surge_heal += trunc(atkStats[HP] * min(0.10 + 0.20 * attacker.specialMax, 1))
+
+        for i in range(1, 5):
+            defCombatBuffs[i] -= 5 + defNeutrBuffsStats[i] * 2
+
+    if "suHridBoost" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + max(5, min(trunc(0.25 * atkStats[ATK]) - 4, 14)) for x in defCombatBuffs]
+        defr.DR_all_hits_NSP.append(40)
+        defr.surge_heal += trunc(defStats[HP] * min(0.10 + 0.20 * defender.specialMax, 1))
+
+        for i in range(1, 5):
+            atkCombatBuffs[i] -= 5 + atkNeutrBuffsStats[i] * 2
+
+    # Ice Prince's Seal - SU!Hríd
+    if "icePrinceSeal" in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= 5
+        defCombatBuffs[SPD] -= 5
+        defCombatBuffs[DEF] -= 5
+        atkr.follow_ups_skill += 1
+        atkr.true_stat_damages.append((SPD, 20))
+        atkr.TDR_stats.append((SPD, 20))
+
+    if "icePrinceSeal" in defSkills and defHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] -= 5
+        atkCombatBuffs[SPD] -= 5
+        atkCombatBuffs[DEF] -= 5
+        defr.follow_ups_skill += 1
+        defr.true_stat_damages.append((SPD, 20))
+        defr.TDR_stats.append((SPD, 20))
 
     # Sandfort Spade/Shoreline Rake
     if "heroesSummerBonusDef" in atkSkills and sum(atkBonusesNeutralized):
@@ -18294,6 +21378,27 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[ATK] += 5
         atkCombatBuffs[DEF] += 5
         atkCombatBuffs[RES] += 5
+        atkr.TDR_stats.append((RES, 20))
+
+    if "daydream_egg" in defSkills and (atkHPGreaterEqual75Percent or atkHasPenalty):
+        defCombatBuffs[ATK] += 5
+        defCombatBuffs[DEF] += 5
+        defCombatBuffs[RES] += 5
+        defr.TDR_stats.append((RES, 20))
+
+    if "spMirabilisField_f" in atkSkills and atkHasPenalty:
+        atkCombatBuffs[ATK] -= 5
+        atkCombatBuffs[DEF] -= 5
+        atkCombatBuffs[RES] -= 5
+        atkr.spLossOnAtk -= 1
+        atkr.spLossWhenAtkd -= 1
+
+    if "spMirabilisField_f" in defSkills and defHasPenalty:
+        atkCombatBuffs[ATK] -= defSkills["spMirabilisField_f"]
+        atkCombatBuffs[DEF] -= defSkills["spMirabilisField_f"]
+        atkCombatBuffs[RES] -= defSkills["spMirabilisField_f"]
+        atkr.spLossOnAtk -= 1
+        atkr.spLossWhenAtkd -= 1
 
     # Binding Necklace - Freyja
     if "bindingNecklace" in atkSkills and not atkAdjacentToAlly:
@@ -18389,13 +21494,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs[ATK] -= 5
         defCombatBuffs[DEF] -= 5
         if atkSpTriggeredByAttack:
-            atkr.sp_charge_first += 1
+            atkr.sp_jump_first += 1
 
     if "arcaneVoid" in defSkills and (atkHPGreaterEqual75Percent or atkHasPenalty):
         atkCombatBuffs[ATK] -= 5
         atkCombatBuffs[DEF] -= 5
         if defSpTriggeredByAttack:
-            defr.sp_charge_first += 1
+            defr.sp_jump_first += 1
 
     # Auto-Lofnheiðr (Refine Eff) - Ótr
     if "F Tier Banner Sales" in atkSkills and atkHPGreaterEqual25Percent:
@@ -18470,7 +21575,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.true_stat_damages.append((SPD, 20))
         defr.damage_reduction_reduction.append(50)
 
-    # Jötnar Bow (Base) - Dagr
+    # Jötnar Bow (Base) - NY!Dagr
     if "nyDagrBoost" in atkSkills:
         defCombatBuffs[ATK] -= 5 + atkNeutrBuffsStats[ATK] * 2
         defCombatBuffs[SPD] -= 5 + atkNeutrBuffsStats[SPD] * 2
@@ -18516,6 +21621,36 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[DEF] -= 5
         defr.offensive_NFU = True
         defr.defensive_NFU = True
+
+    # Veðrfölnir's Edge - AI!Dagr
+    if "aiDagrBoost" in atkSkills:
+        X = max(sum(atkNeutrBuffsStats), max([ally.get_bonus_total() for ally in atkAllyWithin3Spaces], default=0))
+
+        atkr.true_all_hits += trunc(0.50 * X)
+        atkr.TDR_first_strikes += trunc(0.50 * X)
+        atkr.TDR_on_foe_sp += trunc(0.50 * X)
+
+    if "aiDagrBoost" in defSkills and defAllyWithin3RowsCols:
+        X = max(sum(defNeutrBuffsStats), max([ally.get_bonus_total() for ally in defAllyWithin3Spaces], default=0))
+
+        defr.true_all_hits += trunc(0.50 * X)
+        defr.TDR_first_strikes += trunc(0.50 * X)
+        defr.TDR_on_foe_sp += trunc(0.50 * X)
+
+    # Veðrfölnir's Wing - AI!Dagr
+    if "veðrfolnirsWing" in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= 5 + defNeutrBuffsStats[ATK] * 2
+        defCombatBuffs[SPD] -= 5 + defNeutrBuffsStats[SPD] * 2
+        defCombatBuffs[DEF] -= 5 + defNeutrBuffsStats[DEF] * 2
+        atkr.damage_reduction_reduction.append(50)
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "veðrfolnirsWing" in defSkills and defHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] -= 5 + atkNeutrBuffsStats[ATK] * 2
+        atkCombatBuffs[SPD] -= 5 + atkNeutrBuffsStats[SPD] * 2
+        atkCombatBuffs[DEF] -= 5 + atkNeutrBuffsStats[DEF] * 2
+        defr.damage_reduction_reduction.append(50)
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
 
     # Hrímfaxi (Base) - Nótt
     if "the moon" in atkSkills and atkHPGreaterEqual25Percent:
@@ -18613,6 +21748,40 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         atkCombatBuffs = [x - min(3 * conditions_met, 9) for x in atkCombatBuffs]
 
+    # Goddess Temari - Seiðr
+    if "nySeiðrBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        cur_turn = 4 if Status.TimesGate in attacker.statusPos or Status.TimesGrip in defender.statusNeg else turn
+
+        atkCombatBuffs = [x + 5 + min(cur_turn * 2, 8) for x in atkCombatBuffs]
+
+        if cur_turn >= 3:
+            atkr.true_all_hits += max(sum(atkNeutrBuffsStats), max([ally.get_bonus_total() for ally in atkAllyWithin2Spaces], default=0))
+
+    if "nySeiðrBoost" in defSkills and defHPGreaterEqual25Percent:
+        cur_turn = 4 if Status.TimesGate in defender.statusPos or Status.TimesGrip in attacker.statusNeg else turn
+
+        defCombatBuffs = [x + 5 + min(cur_turn * 2, 8) for x in defCombatBuffs]
+
+        if cur_turn >= 3:
+            defr.true_all_hits += max(sum(defNeutrBuffsStats), max([ally.get_bonus_total() for ally in defAllyWithin2Spaces], default=0))
+
+    # Future-Sighted - NY!Seiðr
+    if "futureSighted" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
+        atkr.follow_ups_skill += 1
+        atkr.DR_first_hit_NSP.append(30)
+
+    if "futureSighted" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + 4 for x in defCombatBuffs]
+        defr.follow_ups_skill += 1
+        defr.DR_first_hit_NSP.append(30)
+
+    if Status.TimesGrip in attacker.statusPos:
+        atkCombatBuffs = [x - 4 for x in atkCombatBuffs]
+
+    if Status.TimesGrip in defender.statusPos:
+        defCombatBuffs = [x - 4 for x in defCombatBuffs]
+
     # The Cycle's Turn (Base) - B!Gullveig
     if "bGullveigBoost" in atkSkills:
         atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
@@ -18633,6 +21802,61 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     # Gold Unwinding - B!Gullveig
     if "goldUnwinding" in atkSkills and atkHPGreaterEqual50Percent: atkr.DR_first_hit_NSP.append(60)
     if "goldUnwinding" in defSkills and defHPGreaterEqual50Percent: defr.DR_first_hit_NSP.append(60)
+
+    # Quieting Antler - Eikþyrnir
+    if "eikBoost" in atkSkills:
+        defCombatBuffs[ATK] -= 6 + trunc(0.20 * defStats[DEF])
+        defCombatBuffs[DEF] -= 6 + trunc(0.20 * defStats[DEF])
+
+        X = max(sum(atkNeutrBuffsStats), max([ally.get_bonus_total() for ally in atkAllyWithin3Spaces], default=0))
+        atkr.true_all_hits += X
+        atkr.TDR_all_hits += trunc(0.50 * X)
+
+    if "eikBoost" in defSkills:
+        atkCombatBuffs[ATK] -= 6 + trunc(0.20 * atkStats[DEF])
+        atkCombatBuffs[DEF] -= 6 + trunc(0.20 * atkStats[DEF])
+
+        X = max(sum(defNeutrBuffsStats), max([ally.get_bonus_total() for ally in defAllyWithin3Spaces], default=0))
+        defr.true_all_hits += X
+        defr.TDR_all_hits += trunc(0.50 * X)
+
+    # Divine Strength - Eikþyrnir
+    if "divineStrength" in atkSkills:
+        defCombatBuffs[ATK] -= 5
+        defCombatBuffs[DEF] -= 5
+        atkr.follow_ups_skill += 1
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+        if atkStats[ATK] + atkPhantomStats[ATK] >= defStats[ATK] + defPhantomStats[ATK] - 5:
+            defCombatBuffs[ATK] -= 6
+            defCombatBuffs[DEF] -= 6
+
+        if atkStats[DEF] + atkPhantomStats[DEF] >= defStats[DEF] + defPhantomStats[DEF] - 5:
+            defCombatBuffs[ATK] -= 6
+            defCombatBuffs[DEF] -= 6
+
+    if "divineStrength" in defSkills:
+        atkCombatBuffs[ATK] -= 5
+        atkCombatBuffs[DEF] -= 5
+        defr.follow_ups_skill += 1
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+        if defStats[ATK] + defPhantomStats[ATK] >= atkStats[ATK] + atkPhantomStats[ATK] - 5:
+            defCombatBuffs[ATK] -= 6
+            defCombatBuffs[DEF] -= 6
+
+        if defStats[DEF] + defPhantomStats[DEF] >= atkStats[DEF] + atkPhantomStats[DEF] - 5:
+            defCombatBuffs[ATK] -= 6
+            defCombatBuffs[DEF] -= 6
+
+    # Divine Deceit - Loki
+    if "divineDeceit" in atkSkills and defHasPenalty:
+        atkCombatBuffs[ATK] += 5
+        atkCombatBuffs[RES] += 5
+
+    if "divineDeceit" in defSkills and atkHasPenalty:
+        defCombatBuffs[ATK] += 5
+        defCombatBuffs[RES] += 5
 
     # oops! all bonus doubler
     if "bonusDoublerW" in atkSkills:
@@ -18682,6 +21906,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "bonusDoubler4" in defSkills and (defHasBonus or defAllyWithin2Spaces):
         for i in range(1, 5):
             defCombatBuffs[i] += 4 + max(defNeutrBuffsStats[i], max([ally.get_total_buff(i) for ally in defAllyWithin2Spaces], default=0))
+
+    if "dcBonusDoubler" in atkSkills:
+        for i in range(1, 5):
+            atkCombatBuffs[i] += max(atkNeutrBuffsStats[i], max([ally.get_total_buff(i) for ally in atkAllyWithin2Spaces], default=0))
+
+    if "dcBonusDoubler" in defSkills:
+        for i in range(1, 5):
+            defCombatBuffs[i] += max(defNeutrBuffsStats[i], max([ally.get_total_buff(i) for ally in defAllyWithin2Spaces], default=0))
 
     # Ylgr Combat Field
     if atkYlgrStats[0]:
@@ -18778,6 +22010,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "unityAtkResW" in defSkills and defAllyWithin2Spaces:
         defCombatBuffs[ATK] += 5 + defNeutrDebuffsStats[ATK] * -2
         defCombatBuffs[RES] += 5 + defNeutrDebuffsStats[RES] * -2
+
+    if "unitySpdDef" in atkSkills and atkAllyWithin2Spaces:
+        atkCombatBuffs[SPD] += 5 + atkNeutrDebuffsStats[SPD] * -2
+        atkCombatBuffs[DEF] += 5 + atkNeutrDebuffsStats[DEF] * -2
+
+    if "unitySpdDef" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs[SPD] += 5 + defNeutrDebuffsStats[SPD] * -2
+        defCombatBuffs[DEF] += 5 + defNeutrDebuffsStats[DEF] * -2
 
     if "unityDefRes" in atkSkills and atkAllyWithin2Spaces:
         atkCombatBuffs[DEF] += 5 + atkNeutrDebuffsStats[DEF] * -2
@@ -18901,6 +22141,35 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             if "def4Catch" in defSkills: defCombatBuffs[DEF] += 2
             if "res4Catch" in defSkills: defCombatBuffs[RES] += 2
 
+    # MASTERY
+    if "atkSpdMastery" in atkSkills and defHPGreaterEqual50Percent:
+        atkCombatBuffs[ATK] += 7
+        atkCombatBuffs[SPD] += 7
+
+        tile_cond = False
+        for tile in atkr.tile.tilesWithinNSpaces(2):
+            if (tile.terrain == 1 or tile.terrain == 3) or (tile.divine_vein_turn > 0):
+                tile_cond = True
+                break
+
+        if tile_cond:
+            atkCombatBuffs[ATK] += 4
+            atkCombatBuffs[SPD] += 4
+
+    if "atkSpdMastery" in defSkills and atkHPGreaterEqual50Percent:
+        defCombatBuffs[ATK] += 7
+        defCombatBuffs[SPD] += 7
+
+        tile_cond = False
+        for tile in defr.tile.tilesWithinNSpaces(2):
+            if (tile.terrain == 1 or tile.terrain == 3) or (tile.divine_vein_turn > 0):
+                tile_cond = True
+                break
+
+        if tile_cond:
+            defCombatBuffs[ATK] += 4
+            defCombatBuffs[SPD] += 4
+
     # HEXBLADE SKILLS
     if atkHasBonus:
         if "hexbladeAtk" in atkSkills: atkCombatBuffs[ATK] += 7
@@ -19001,6 +22270,72 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if not atkPenaltiesNeutralized[RES]:
             atkCombatBuffs[RES] -= max(7 + atkNeutrDebuffsStats[RES], 0)
         else:
+            atkr.spLossOnAtk -= 1
+            atkr.spLossWhenAtkd -= 1
+
+    if "sealSpdDef" in atkSkills:
+        defCombatBuffs[SPD] -= 3
+        defCombatBuffs[DEF] -= 3
+
+        defCombatBuffs[SPD] -= max(6 + defender.get_total_debuff(SPD), 0)
+        defCombatBuffs[DEF] -= max(6 + defender.get_total_debuff(DEF), 0)
+
+        if defender.get_total_debuff(SPD) or defender.get_total_debuff(DEF):
+            defr.spLossOnAtk -= 1
+            defr.spLossWhenAtkd -= 1
+
+    if "sealSpdDef" in defSkills:
+        atkCombatBuffs[SPD] -= 3
+        atkCombatBuffs[DEF] -= 3
+
+        atkCombatBuffs[SPD] -= max(6 + attacker.get_total_debuff(SPD), 0)
+        atkCombatBuffs[DEF] -= max(6 + attacker.get_total_debuff(DEF), 0)
+
+        if attacker.get_total_debuff(SPD) or attacker.get_total_debuff(DEF):
+            atkr.spLossOnAtk -= 1
+            atkr.spLossWhenAtkd -= 1
+
+    if "sealSpdRes" in atkSkills:
+        defCombatBuffs[SPD] -= 3
+        defCombatBuffs[RES] -= 3
+
+        defCombatBuffs[SPD] -= max(6 + defender.get_total_debuff(SPD), 0)
+        defCombatBuffs[RES] -= max(6 + defender.get_total_debuff(RES), 0)
+
+        if defender.get_total_debuff(SPD) or defender.get_total_debuff(RES):
+            defr.spLossOnAtk -= 1
+            defr.spLossWhenAtkd -= 1
+
+    if "sealSpdRes" in defSkills:
+        atkCombatBuffs[SPD] -= 3
+        atkCombatBuffs[RES] -= 3
+
+        atkCombatBuffs[SPD] -= max(6 + attacker.get_total_debuff(SPD), 0)
+        atkCombatBuffs[RES] -= max(6 + attacker.get_total_debuff(RES), 0)
+
+        if attacker.get_total_debuff(SPD) or attacker.get_total_debuff(RES):
+            atkr.spLossOnAtk -= 1
+            atkr.spLossWhenAtkd -= 1
+
+    if "sealDefRes" in atkSkills:
+        defCombatBuffs[DEF] -= 3
+        defCombatBuffs[RES] -= 3
+
+        defCombatBuffs[DEF] -= max(6 + defender.get_total_debuff(DEF), 0)
+        defCombatBuffs[RES] -= max(6 + defender.get_total_debuff(RES), 0)
+
+        if defender.get_total_debuff(DEF) or defender.get_total_debuff(RES):
+            defr.spLossOnAtk -= 1
+            defr.spLossWhenAtkd -= 1
+
+    if "sealDefRes" in defSkills:
+        atkCombatBuffs[DEF] -= 3
+        atkCombatBuffs[RES] -= 3
+
+        atkCombatBuffs[DEF] -= max(6 + attacker.get_total_debuff(DEF), 0)
+        atkCombatBuffs[RES] -= max(6 + attacker.get_total_debuff(RES), 0)
+
+        if attacker.get_total_debuff(DEF) or attacker.get_total_debuff(RES):
             atkr.spLossOnAtk -= 1
             atkr.spLossWhenAtkd -= 1
 
@@ -19148,6 +22483,51 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.defensive_NFU = True
         defr.offensive_NFU = True
 
+    # Sea Tambourine
+    if "seaTembourine" in atkSkills and atkHPGreaterEqual25Percent and atkPhantomStats[SPD] >= defPhantomStats[SPD] - 5:
+        atkr.defensive_NFU = True
+        atkr.offensive_NFU = True
+
+    if "seaTembourine" in defSkills and defHPGreaterEqual25Percent and defPhantomStats[SPD] >= atkPhantomStats[SPD] - 5:
+        defr.defensive_NFU = True
+        defr.offensive_NFU = True
+
+    # Tropical Conch
+    if "tropicalConch" in atkSkills and atkHPGreaterEqual25Percent and atkPhantomStats[DEF] >= defPhantomStats[DEF] - 5:
+        atkr.offensive_tempo = True
+        atkr.defensive_tempo = True
+
+    if "tropicalConch" in defSkills and defHPGreaterEqual25Percent and defPhantomStats[DEF] >= atkPhantomStats[DEF] - 5:
+        defr.offensive_tempo = True
+        defr.defensive_tempo = True
+
+    # Even Atk Wave N
+    if "waveNearDmg" in atkSkills and atkPhantomStats[ATK] >= defPhantomStats[ATK] - 5:
+        atkr.true_all_hits += 5
+        atkr.all_hits_heal += 5
+
+    if "waveNearDmg" in defSkills and defPhantomStats[ATK] >= atkPhantomStats[ATK] - 5:
+        defr.true_all_hits += 5
+        defr.all_hits_heal += 5
+
+    # Odd Spd Wave 4
+    if "premiumOddSpd" in atkSkills and atkPhantomStats[SPD] >= defPhantomStats[SPD] - 5:
+        atkr.defensive_NFU = True
+        atkr.offensive_NFU = True
+
+    if "premiumOddSpd" in defSkills and defPhantomStats[SPD] >= atkPhantomStats[SPD] - 5:
+        defr.defensive_NFU = True
+        defr.offensive_NFU = True
+
+    # Odd Def Wave 4
+    if "premiumOddDef" in atkSkills and atkPhantomStats[DEF] >= defPhantomStats[DEF] - 5:
+        atkr.offensive_tempo = True
+        atkr.defensive_tempo = True
+
+    if "premiumOddDef" in defSkills and defPhantomStats[DEF] >= atkPhantomStats[DEF] - 5:
+        defr.offensive_tempo = True
+        defr.defensive_tempo = True
+
     # Null Blade/Spear
     if "nullWeapon" in atkSkills and atkHPGreaterEqual25Percent and atkPhantomStats[SPD] > defPhantomStats[SPD]:
         atkr.defensive_NFU = True
@@ -19168,12 +22548,52 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.defensive_NFU = True
         defr.offensive_NFU = True
 
+    # Dragon's Stone
+    if "dragonsStone" in atkSkills and atkHPGreaterEqual25Percent:
+        atkr.TDR_first_strikes += trunc(0.20 * atkStats[SPD])
+
+        if atkPhantomStats[SPD] > defPhantomStats[SPD]:
+            atkr.offensive_NFU = True
+            atkr.defensive_NFU = True
+
+    if "dragonsStone" in defSkills and defHPGreaterEqual25Percent:
+        defr.TDR_first_strikes += trunc(0.20 * defStats[SPD])
+
+        if defPhantomStats[SPD] > atkPhantomStats[SPD]:
+            defr.offensive_NFU = True
+            defr.defensive_NFU = True
+
+    # New-Sun Stone
+    if "newSunStone" in atkSkills and atkHPGreaterEqual25Percent:
+        atkr.TDR_first_strikes += trunc(0.15 * atkStats[ATK])
+
+    if "newSunStone" in defSkills and defHPGreaterEqual25Percent:
+        defr.TDR_first_strikes += trunc(0.15 * defStats[ATK])
+
+    # SPEED NFU
+    if atkr.speed_NFU and atkPhantomStats[SPD] > defPhantomStats[SPD]:
+        atkr.defensive_NFU = True
+        atkr.offensive_NFU = True
+
+    if defr.speed_NFU and defPhantomStats[SPD] > atkPhantomStats[SPD]:
+        defr.defensive_NFU = True
+        defr.offensive_NFU = True
+
     # Arcane Lúin
     if "when the weapon that slowly kills you if you lack a crest can be given to everyone bottom text" in atkSkills and atkHPGreaterEqual25Percent and atkPhantomStats[SPD] > defPhantomStats[SPD]:
         atkr.defensive_NFU = True
         atkr.offensive_NFU = True
 
     if "when the weapon that slowly kills you if you lack a crest can be given to everyone bottom text" in defSkills and defHPGreaterEqual25Percent and defPhantomStats[SPD] > atkPhantomStats[SPD]:
+        defr.defensive_NFU = True
+        defr.offensive_NFU = True
+
+    # Arcane Thunder
+    if "arcaneThunder" in atkSkills and atkHPGreaterEqual25Percent and atkPhantomStats[SPD] > defPhantomStats[SPD]:
+        atkr.defensive_NFU = True
+        atkr.offensive_NFU = True
+
+    if "arcaneThunder" in defSkills and defHPGreaterEqual25Percent and defPhantomStats[SPD] > atkPhantomStats[SPD]:
         defr.defensive_NFU = True
         defr.offensive_NFU = True
 
@@ -19195,6 +22615,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.defensive_NFU = True
         defr.offensive_NFU = True
 
+    # Arcane
+    if "thrima" in atkSkills and atkHPGreaterEqual25Percent and atkPhantomStats[SPD] > defPhantomStats[SPD]:
+        atkr.defensive_NFU = True
+        atkr.offensive_NFU = True
+
+    if "thrima" in defSkills and defHPGreaterEqual25Percent and defPhantomStats[SPD] > atkPhantomStats[SPD]:
+        defr.defensive_NFU = True
+        defr.offensive_NFU = True
+
     # Beast Agility
     if "beastAgility" in atkSkills and atkPhantomStats[SPD] >= defPhantomStats[SPD] + atkSkills["beastAgility"]:
         atkr.offensive_NFU = True
@@ -19202,12 +22631,26 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "beastAgility" in defSkills and defPhantomStats[SPD] >= atkPhantomStats[SPD] + defSkills["beastAgility"]:
         defr.offensive_NFU = True
 
+    if "beastAgility4" in atkSkills and atkPhantomStats[SPD] > defPhantomStats[SPD]:
+        atkr.defensive_NFU = True
+        atkr.offensive_NFU = True
+        atkr.true_all_hits += trunc(0.10 * atkStats[SPD])
+
+    if "beastAgility4" in defSkills and defPhantomStats[SPD] > atkPhantomStats[SPD]:
+        defr.defensive_NFU = True
+        defr.offensive_NFU = True
+        defr.true_all_hits += trunc(0.10 * defStats[SPD])
+
     # Beast Follow-Up
     if "beastFU" in atkSkills and atkHPCur / atkStats[HP] >= 1.5 - 0.5 * atkSkills["beastFU"]:
         atkr.follow_ups_skill += 1
 
     if "beastFU" in defSkills and defHPCur / defStats[HP] >= 1.5 - 0.5 * defSkills["beastFU"]:
         defr.follow_ups_skill += 1
+
+    # Beast Assault
+    if "beastAssault" in atkSkills: atkr.damage_reduction_reduction.append(atkSkills["beastAssault"])
+    if "beastAssault" in defSkills: defr.damage_reduction_reduction.append(defSkills["beastAssault"])
 
     # Professorial Text (Base) - L!M!Byleth
     if "LMBylethBoost" in atkSkills and atkPhantomStats[SPD] > defPhantomStats[SPD]:
@@ -19269,14 +22712,46 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.retaliatory_full_damages.append(defSkills["counterRoar"])
 
     if "counterRoar4" in atkSkills:
-        atkr.DR_first_strikes_NSP.append(atkSkills["counterRoar"])
-        atkr.retaliatory_full_damages.append(atkSkills["counterRoar"])
+        atkr.DR_first_strikes_NSP.append(30)
+        atkr.retaliatory_full_damages.append(30)
         atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
 
     if "counterRoar4" in defSkills:
-        defr.DR_first_strikes_NSP.append(defSkills["counterRoar"])
-        defr.retaliatory_full_damages.append(defSkills["counterRoar"])
+        defr.DR_first_strikes_NSP.append(30)
+        defr.retaliatory_full_damages.append(30)
         defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "wyvernRift" in atkSkills and atkStats[SPD] + atkStats[DEF] >= defStats[SPD] + defStats[DEF] - 10:
+        X = min(max(0, (attacker.getStats() + attacker.buffs[DEF] * AtkPanicFactor + attacker.debuffs[DEF]) - 35), 7)
+        atkr.true_all_hits += X
+        atkr.TDR_first_strikes += X
+        atkr.follow_ups_skill += 1
+        defr.follow_up_denials -= 1
+        defr.outspeed_factor += 20
+
+    if "wyvernRift" in defSkills and defStats[SPD] + defStats[DEF] >= atkStats[SPD] + atkStats[DEF] - 10:
+        X = min(max(0, (defender.getStats() + defender.buffs[DEF] * DefPanicFactor + defender.debuffs[DEF]) - 35), 7)
+        defr.true_all_hits += X
+        defr.TDR_first_strikes += X
+        defr.follow_ups_skill += 1
+        defr.follow_up_denials -= 1
+        atkr.outspeed_factor += 20
+
+    if "pegasusRift" in atkSkills and atkStats[SPD] + atkStats[DEF] >= defStats[SPD] + defStats[DEF] - 10:
+        X = min(max(0, (attacker.getStats() + attacker.buffs[RES] * AtkPanicFactor + attacker.debuffs[RES]) - 35), 7)
+        atkr.true_all_hits += X
+        atkr.TDR_first_strikes += X
+        atkr.follow_ups_skill += 1
+        defr.follow_up_denials -= 1
+        defr.outspeed_factor += 20
+
+    if "pegasusRift" in defSkills and defStats[SPD] + defStats[DEF] >= atkStats[SPD] + atkStats[DEF] - 10:
+        X = min(max(0, (defender.getStats() + defender.buffs[RES] * DefPanicFactor + defender.debuffs[RES]) - 35), 7)
+        defr.true_all_hits += X
+        defr.TDR_first_strikes += X
+        defr.follow_ups_skill += 1
+        defr.follow_up_denials -= 1
+        atkr.outspeed_factor += 20
 
     # Binding Shield II
     if "bindingShieldII" in atkSkills and (atkPhantomStats[SPD] >= defPhantomStats[SPD] + 5 or defender.wpnType in DRAGON_WEAPONS):
@@ -19366,11 +22841,11 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     # Moonlight Bangle - B!Eirika
     if "moonlightBangle" in atkSkills:
         atkr.offensive_tempo = True
-        atkr.true_sp += trunc(defStats[DEF] * (0.10 + 0.20 * attacker.specialMax))
+        atkr.true_sp += trunc(defStats[DEF] * (0.20 + 0.10 * attacker.specialMax))
 
     if "moonlightBangle" in defSkills:
         defr.offensive_tempo = True
-        defr.true_sp += trunc(atkStats[DEF] * (0.10 + 0.20 * defender.specialMax))
+        defr.true_sp += trunc(atkStats[DEF] * (0.20 + 0.10 * defender.specialMax))
 
     # Festive Siegmund (Refine Eff) - WI!Ephraim
     if "twoTurtleDoves" in defSkills and defHPGreaterEqual25Percent and defPhantomStats[ATK] > atkPhantomStats[ATK]:
@@ -19684,7 +23159,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.offensive_NFU = True
         defr.defensive_NFU = True
 
-    # Guard
+    # Guard 1-3
     if "guardHP" in atkSkills and atkHPCur / atkStats[HP] >= atkSkills["guardHP"] / 10:
         defr.spLossWhenAtkd -= 1
         defr.spLossOnAtk -= 1
@@ -19693,6 +23168,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.spLossWhenAtkd -= 1
         atkr.spLossOnAtk -= 1
 
+    # Guard 4
     if "guard4" in atkSkills and atkHPGreaterEqual25Percent:
         defCombatBuffs[ATK] -= 4
         defr.spLossWhenAtkd -= 1
@@ -19704,6 +23180,16 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.spLossWhenAtkd -= 1
         atkr.spLossOnAtk -= 1
         defr.DR_first_hit_NSP.append(30)
+
+    # Guard Echo
+    if "guardEcho" in atkSkills and atkHPGreaterEqual25Percent:
+        defr.spLossWhenAtkd -= 1
+        defr.spLossOnAtk -= 1
+
+    if "guardEcho" in defSkills and defHPGreaterEqual25Percent:
+        defr.spLossWhenAtkd -= 1
+        defr.spLossOnAtk -= 1
+        defr.DR_first_strikes_NSP.append(20)
 
     if Status.Guard in attacker.statusNeg:
         atkr.spLossWhenAtkd -= 1
@@ -19763,13 +23249,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     defr.spGainOnAtk = min(defr.spGainOnAtk, 1) + max(defr.spLossOnAtk, -1)
     defr.spGainWhenAtkd = min(defr.spGainWhenAtkd, 1) + max(defr.spLossWhenAtkd, -1)
 
-    # Pre-strike SP charge/slow
-    if "Mr. Fire Emblem" in atkSkills and atkHPGreaterEqual25Percent and defender.getSpecialType() == "Offense" and atkPhantomStats[RES] >= defPhantomStats[RES]:
-        defr.sp_jump_first -= 1
-
-    if "Mr. Fire Emblem" in defSkills and defHPGreaterEqual25Percent and attacker.getSpecialType() == "Offense" and defPhantomStats[RES] >= atkPhantomStats[RES]:
-        atkr.sp_jump_first -= 1
-
     # Stat-Dependant Skills
     if "windsweep" in atkSkills:
         atkr.follow_up_denials -= 1
@@ -19801,6 +23280,22 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         if defPhantomStats[SPD] >= atkPhantomStats[SPD] - 10:
             defr.DR_first_strikes_NSP.append(40)
+
+    if "clever_fighter" in atkSkills:
+        atkr.offensive_NFU = True
+        atkr.defensive_NFU = True
+        defr.outspeed_factor += 10
+
+        if atkPhantomStats[SPD] >= defPhantomStats[SPD] - 10:
+            atkr.TDR_first_strikes += 10
+
+    if "clever_fighter" in defSkills:
+        defr.offensive_NFU = True
+        defr.defensive_NFU = True
+        atkr.outspeed_factor += 10
+
+        if defPhantomStats[SPD] >= atkPhantomStats[SPD] - 10:
+            defr.TDR_first_strikes += 10
 
     # Spd Preempt
     if "spdPreempt" in defSkills and defender.wpnType in RANGED_WEAPONS and atkPhantomStats[SPD] >= defPhantomStats[SPD] + (7 - (2 * defSkills["spdPreempt"])) and not savior_triggered:
@@ -19863,11 +23358,19 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if Status.DenyFollowUp in defSkills:
         atkr.follow_up_denials -= 1
 
+    # Moonlit Bangle Q - X!Eirika
+    if "moonlitBangleQ" in defSkills and defPhantomStats[SPD] >= atkPhantomStats[SPD] - 4:
+        defr.vantage = True
+
     # Spirit Breath (Base) - H!Myrrh
     if "HMyrrhFU" in atkSkills and atkPhantomStats[DEF] >= defPhantomStats[DEF] + 5:
         atkr.follow_ups_skill += 1
 
     if "sueSweep" in atkSkills and atkPhantomStats[SPD] >= defPhantomStats[SPD] + 5:
+        cannotCounter = True
+
+    # Fluttering Fan - SF!Nephenee
+    if "sfNepheneeBoost" in atkSkills and atkAllyWithin3RowsCols and atkPhantomStats[SPD] > defPhantomStats[SPD]:
         cannotCounter = True
 
     # Brynhildr (Refine Eff) - Leo
@@ -19926,6 +23429,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "hDumaBoost" in defSkills and defHPGreaterEqual25Percent and defPhantomStats[RES] >= atkPhantomStats[RES] + 5 and atkSpTriggeredByAttack:
         atkr.sp_jump_first -= 1
 
+    # Arcadian Axes - DE!Altina
+    if "OOF, my goodness, oh" in atkSkills and atkHPGreaterEqual25Percent and atkPhantomStats[RES] >= defPhantomStats[RES] + 5 and defSpTriggeredByAttack:
+        defr.sp_jump_first -= 1
+
+    if "OOF, my goodness, oh" in defSkills and defHPGreaterEqual25Percent and defPhantomStats[RES] >= atkPhantomStats[RES] + 5 and atkSpTriggeredByAttack:
+        atkr.sp_jump_first -= 1
+
     # Dazzling Breath (Refine Eff) - L!Fae
     if "LEMME HELP!" in atkSkills and atkAllyWithin3Spaces and atkPhantomStats[RES] >= defPhantomStats[RES] + 5 and defSpTriggeredByAttack:
         defr.sp_jump_first -= 1
@@ -19940,12 +23450,46 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "hfGrimaScowl" in defSkills and defHPGreaterEqual25Percent and defPhantomStats[RES] >= atkPhantomStats[RES] + 5 and atkSpTriggeredByAttack:
         atkr.sp_jump_first -= 1
 
+    # Stone of Delights - H!Nah
+    if "hNahBoost" in atkSkills and atkAllyWithin3Spaces and atkPhantomStats[RES] >= defPhantomStats[RES] + 5 and defSpTriggeredByAttack:
+        defr.sp_jump_first -= 1
+
+    if "hNahBoost" in defSkills and defAllyWithin3Spaces and defPhantomStats[RES] >= atkPhantomStats[RES] + 5 and atkSpTriggeredByAttack:
+        atkr.sp_jump_first -= 1
+
+    # Hoshido's Breath - L!M!Corrin
+    if "HoshidosBreath" in atkSkills and atkHPGreaterEqual25Percent and atkPhantomStats[RES] >= defPhantomStats[RES] + 5 and defSpTriggeredByAttack:
+        defr.sp_jump_first -= 1
+
+    if "HoshidosBreath" in defSkills and defHPGreaterEqual25Percent and defPhantomStats[RES] >= atkPhantomStats[RES] + 5 and atkSpTriggeredByAttack:
+        atkr.sp_jump_first -= 1
+
+    # Divine One's Arts - L!M!Alear
+    if "Mr. Fire Emblem" in atkSkills and atkHPGreaterEqual25Percent and defSpTriggeredByAttack and atkPhantomStats[RES] >= defPhantomStats[RES]:
+        defr.sp_jump_first -= 1
+
+    if "Mr. Fire Emblem" in defSkills and defHPGreaterEqual25Percent and atkSpTriggeredByAttack and defPhantomStats[RES] >= atkPhantomStats[RES]:
+        atkr.sp_jump_first -= 1
+
     # Fell Protection - Veyle
     if "fellProtection" in atkSkills and atkPhantomStats[RES] >= defPhantomStats[RES] + 5 and defSpTriggeredByAttack:
         defr.sp_jump_first -= 1
 
     if "fellProtection" in defSkills and defAllyWithin2Spaces and defPhantomStats[RES] >= atkPhantomStats[RES] + 5 and atkSpTriggeredByAttack:
         atkr.sp_jump_first -= 1
+
+    # Fell Successor - FA!Veyle
+    if "fellSuccessor" in atkSkills and atkPhantomStats[RES] >= defPhantomStats[RES] + 5 and defSpTriggeredByAttack:
+        defr.sp_jump_first -= 1
+
+        if defender.wpnType in RANGED_WEAPONS:
+            defr.sp_jump_followup -= 1
+
+    if "fellSuccessor" in defSkills and defAllyWithin2Spaces and defPhantomStats[RES] >= atkPhantomStats[RES] + 5 and atkSpTriggeredByAttack:
+        atkr.sp_jump_first -= 1
+
+        if attacker.wpnType in RANGED_WEAPONS:
+            atkr.sp_jump_followup -= 1
 
     # Scowl skill
     if "resSpSlow" in atkSkills and atkPhantomStats[RES] >= defPhantomStats[RES] + atkSkills["resSpSlow"] and defSpTriggeredByAttack and defHPGreaterEqual75Percent:
@@ -19954,11 +23498,30 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "resSpSlow" in defSkills and defPhantomStats[RES] >= atkPhantomStats[RES] + defSkills["resSpSlow"] and atkSpTriggeredByAttack:
         atkr.sp_jump_first -= 1
 
-    if "waveScowl" in atkSkills and atkPhantomStats[RES] >= defPhantomStats[RES] + 5 and defender.getSpecialType() == "Offense":
+    if "waveScowl" in atkSkills and atkPhantomStats[RES] >= defPhantomStats[RES] + 5 and defSpTriggeredByAttack:
         defr.sp_jump_first -= 1
 
-    if "waveScowl" in defSkills and defPhantomStats[RES] >= atkPhantomStats[RES] + 5 and attacker.getSpecialType() == "Offense":
+    if "waveScowl" in defSkills and defPhantomStats[RES] >= atkPhantomStats[RES] + 5 and atkSpTriggeredByAttack:
         atkr.sp_jump_first -= 1
+
+    # Dragon's Roar
+    if "dragonsRoar" in atkSkills and atkPhantomStats[RES] >= defPhantomStats[RES] - 4: atkr.DR_sp_trigger_by_any_special_SP.append(40)
+    if "dragonsRoar" in defSkills and defPhantomStats[RES] >= atkPhantomStats[RES] - 4: defr.DR_sp_trigger_by_any_special_SP.append(40)
+
+    # Gust
+    if "gustDR" in atkSkills and atkPhantomStats[SPD] >= defPhantomStats[SPD] - 4: atkr.DR_sp_trigger_by_any_special_SP.append(40)
+    if "gustDR" in defSkills and defPhantomStats[SPD] >= atkPhantomStats[SPD] - 4: defr.DR_sp_trigger_by_any_special_SP.append(40)
+
+    if "boulderDR" in atkSkills and atkPhantomStats[DEF] >= defPhantomStats[DEF] - 4: atkr.DR_sp_trigger_by_any_special_SP.append(40)
+    if "boulderDR" in defSkills and defPhantomStats[DEF] >= atkPhantomStats[DEF] - 4: defr.DR_sp_trigger_by_any_special_SP.append(40)
+
+    # Sturdy Beast
+    if "defBeastAnyDR" in atkSkills and (atkPhantomStats[DEF] >= defPhantomStats[DEF] - 4 or attacker.transformed): atkr.DR_sp_trigger_by_any_special_SP.append(40)
+    if "defBeastAnyDR" in defSkills and (defPhantomStats[DEF] >= atkPhantomStats[DEF] - 4 or defender.transformed): defr.DR_sp_trigger_by_any_special_SP.append(40)
+
+    # Nimble Beast
+    if "spdBeastAnyDR" in atkSkills and (atkPhantomStats[SPD] >= defPhantomStats[SPD] - 4 or attacker.transformed): atkr.DR_sp_trigger_by_any_special_SP.append(40)
+    if "spdBeastAnyDR" in defSkills and (defPhantomStats[SPD] >= atkPhantomStats[SPD] - 4 or defender.transformed): defr.DR_sp_trigger_by_any_special_SP.append(40)
 
     # TRUE DAMAGE ADDITION
     for x in atkr.true_stat_damages:
@@ -20143,25 +23706,22 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if defStats[ATK] > atkStats[RES]:
             defr.true_first_hit += trunc(0.01 * defSkills["dragonsWrath"] * (defStats[ATK] - atkStats[RES]))
 
-    # TRUE DAMAGE SUBTRACTION
-    if "daydream_egg" in atkSkills and defHPGreaterEqual75Percent:
-        atkr.TDR_all_hits += trunc(0.2 * atkStats[RES])
-
-    if "daydream_egg" in defSkills and atkHPGreaterEqual75Percent:
-        defr.TDR_all_hits += trunc(0.2 * defStats[RES])
-
     # Jokers Wild (Base) - H!Xane
     if "xaneStuff!" in atkSkills and atkAllyWithin3Spaces:
         atkr.TDR_all_hits += trunc(0.20 * max(atkStats[DEF], atkStats[RES]))
 
-        if atkPhantomStats[RES] >= defPhantomStats[RES] + 5 and defender.getSpecialType() == "Offense":
+        if atkPhantomStats[RES] >= defPhantomStats[RES] + 5 and defSpTriggeredByAttack:
             defr.sp_jump_first -= 1
 
     if "xaneStuff!" in defSkills and defAllyWithin3Spaces:
         defr.TDR_all_hits += trunc(0.20 * max(defStats[DEF], defStats[RES]))
 
-        if defPhantomStats[RES] >= atkPhantomStats[RES] + 5 and attacker.getSpecialType() == "Offense":
+        if defPhantomStats[RES] >= atkPhantomStats[RES] + 5 and atkSpTriggeredByAttack:
             atkr.sp_jump_first -= 1
+
+    # Gray Illusion
+    if "grayIllusion" in atkSkills and atkPhantomStats[RES] > defPhantomStats[RES]:
+        cannotCounter = True
 
     # Adroit War Tome (Base) - CH!Soren
     if "chSorenBoost" in atkSkills and atkHPGreaterEqual25Percent:
@@ -20256,6 +23816,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.DR_sp_trigger_next_all_SP.append(75)
         defr.true_sp_next += trunc(atkStats[SPD] * 0.20)
 
+    # Lone Wolf - B!Felix
+    if "lone_wolf" in atkSkills and (atkHPGreaterEqual25Percent or len(atkAdjacentToAlly) <= 1):
+        atkr.TDR_on_foe_sp += trunc(atkStats[SPD] * 0.20)
+
+    if "lone_wolf" in defSkills and (defHPGreaterEqual25Percent or len(defAdjacentToAlly) <= 1):
+        defr.TDR_on_foe_sp += trunc(defStats[SPD] * 0.20)
+
     # Fuming Freikugel (Base) - A!3H!Hilda
     if "aHildaBoost" in atkSkills and (not any([ally.get_visible_stat(DEF) > attacker.get_visible_stat(DEF) for ally in atkAllyWithin2Spaces]) or not atkAdjacentToAlly):
         atkr.true_sp += trunc(atkStats[SPD] * (0.10 * attacker.specialMax + 0.20))
@@ -20293,18 +23860,60 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if cond_count >= 3:
             defr.true_all_hits += max(trunc(0.15 * atkStats[ATK]), trunc(0.15 * defStats[ATK]))
 
+    # Fell Child's Might - FA!Veyle
+    if "if you don't have a cinnamon roll, you're of no use to me" in atkSkills and atkPhantomStats[RES] >= defPhantomStats[RES] + 10:
+        atkr.brave = True
+
+    if "if you don't have a cinnamon roll, you're of no use to me" in defSkills and defender.wpnType in RANGED_WEAPONS and defPhantomStats[RES] >= atkPhantomStats[RES] + 10:
+        defr.brave = True
+
     # Horn of Opening (Refine Base) - Ash
     if "ashRefine" in atkSkills and atkAllyWithin3Spaces:
-        atkr.TDR_on_foe_special += trunc(min(len(atkAllyWithin3Spaces) * 0.10, 0.30) * atkStats[DEF])
+        atkr.TDR_on_foe_sp += trunc(min(len(atkAllyWithin3Spaces) * 0.10, 0.30) * atkStats[DEF])
 
     if "ashRefine" in defSkills and defAllyWithin3Spaces:
-        defr.TDR_on_foe_special += trunc(min(len(defAllyWithin3Spaces) * 0.10, 0.30) * defStats[DEF])
+        defr.TDR_on_foe_sp += trunc(min(len(defAllyWithin3Spaces) * 0.10, 0.30) * defStats[DEF])
 
     # Chilled Breath (Base) - SU!Nifl
     if "suNiflBoost" in atkSkills and atkPhantomStats[SPD] > defPhantomStats[SPD] + 5:
         cannotCounter = True
 
+    # Goddess Temari - NY!Seiðr
+    if "nySeiðrBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        cur_turn = 4 if Status.TimesGate in attacker.statusPos or Status.TimesGrip in defender.statusNeg else turn
+
+        if cur_turn >= 4 and atkPhantomStats[RES] >= defPhantomStats[RES] + 5:
+            atkr.brave = True
+
+    if "nySeiðrBoost" in defSkills and defHPGreaterEqual25Percent:
+        cur_turn = 4 if Status.TimesGate in defender.statusPos or Status.TimesGrip in attacker.statusNeg else turn
+
+    # Cute Paper Crane - NY!Nerþuz
+    if "nyNerþuzBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkr.TDR_first_strikes += trunc(0.25 * atkStats[SPD])
+
+    if "nyNerþuzBoost" in defSkills and defHPGreaterEqual25Percent:
+        defr.TDR_first_strikes += trunc(0.25 * defStats[SPD])
+
+    # Under the Sun - SU!Nerþuz
+    if "underTheSun" in atkSkills and atkHPGreaterEqual25Percent:
+        atkr.TDR_first_strikes += trunc(0.25 * atkStats[SPD])
+
+    if "underTheSun" in defSkills and defHPGreaterEqual25Percent:
+        defr.TDR_first_strikes += trunc(0.25 * defStats[SPD])
+
+    # Quieting Branch - Læraðr
+    if "treePowerActivate" in atkSkills and atkHPGreaterEqual25Percent:
+        atkr.TDR_on_foe_sp += trunc(0.20 * atkStats[RES])
+
+    if "treePowerActivate" in defSkills and defHPGreaterEqual25Percent:
+        defr.TDR_on_foe_sp += trunc(0.20 * defStats[RES])
+
     # SKILLS
+
+    # BULWARK 4
+    if "bulwarkDR" in atkSkills: atkr.DR_first_strikes_NSP.append(40)
+    if "bulwarkDR" in defSkills: defr.DR_first_strikes_NSP.append(40)
 
     # SPIKED WALL
     if "atkDefSpikedWall" in atkSkills:
@@ -20321,28 +23930,34 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "laguz_friend" in atkSkills:
         skill_lvl = atkSkills["laguz_friend"]
 
-        if attacker.getMaxSpecialCooldown() >= 3 and attacker.getSpecialType() == "Offense" or attacker.getSpecialType() == "Defense":
+        if attacker.specialMax >= 3 and atkSpTriggeredByAttack or attacker.getSpecialType() == "Defense":
             atkr.TDR_all_hits += trunc(0.05 * skill_lvl * max(atkStats[DEF], atkStats[RES]))
 
-        if attacker.getMaxSpecialCooldown() >= 3 and attacker.getSpecialType() == "Offense":
+        if attacker.specialMax >= 3 and atkSpTriggeredByAttack:
             atkr.true_sp += trunc(0.05 * skill_lvl * max(atkStats[DEF], atkStats[RES]))
-            if skill_lvl == 4: atkr.sp_pierce_DR = True
-        if attacker.getSpecialType() == "Defense":
+            if skill_lvl == 4:
+                atkr.sp_pierce_DR = True
+
+        elif attacker.getSpecialType() == "Defense":
             atkr.true_sp_next += trunc(0.05 * skill_lvl * max(atkStats[DEF], atkStats[RES]))
-            if skill_lvl == 4: atkr.sp_pierce_after_DSP = True
+            if skill_lvl == 4:
+                atkr.sp_pierce_after_def_sp = True
 
     if "laguz_friend" in defSkills:
         skill_lvl = defSkills["laguz_friend"]
 
-        if defender.getMaxSpecialCooldown() >= 3 and defender.getSpecialType() == "Offense" or defender.getSpecialType() == "Defense":
+        if defender.specialMax >= 3 and defSpTriggeredByAttack or defender.getSpecialType() == "Defense":
             defr.TDR_all_hits += trunc(0.05 * skill_lvl * max(defStats[DEF], defStats[RES]))
 
-        if defender.getMaxSpecialCooldown() >= 3 and defender.getSpecialType() == "Offense":
+        if defender.specialMax >= 3 and defSpTriggeredByAttack:
             defr.true_sp += trunc(0.05 * skill_lvl * max(defStats[DEF], defStats[RES]))
-            if skill_lvl == 4: defr.sp_pierce_DR = True
-        if defender.getSpecialType() == "Defense":
+            if skill_lvl == 4:
+                defr.sp_pierce_DR = True
+
+        elif defender.getSpecialType() == "Defense":
             defr.true_sp_next += trunc(0.05 * skill_lvl * max(defStats[DEF], defStats[RES]))
-            if skill_lvl == 4: defr.sp_pierce_after_DSP = True
+            if skill_lvl == 4:
+                defr.sp_pierce_after_def_sp = True
 
     for x in atkr.TDR_stats:
         stat, percentage = x
@@ -20530,24 +24145,89 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         spd_diff = atkPhantomStats[SPD] - defPhantomStats[SPD]
 
         if spd_diff >= 4 and wpnAdvHero == 0 and defSpTriggeredByAttack:
-            defr.sp_charge_first -= 1
+            defr.sp_jump_first -= 1
 
     if "vTakumiBoost" in defSkills and defHPGreaterEqual25Percent:
         spd_diff = defPhantomStats[SPD] - atkPhantomStats[SPD]
 
         if spd_diff >= 4 and wpnAdvHero == 1 and atkSpTriggeredByAttack:
-            atkr.sp_charge_first -= 1
+            atkr.sp_jump_first -= 1
 
     # Mermaid Bow (Base) - PI!Hinoka
     if "piHinokaBoost" in atkSkills and atkHPGreaterEqual25Percent and atkPhantomStats[SPD] > defPhantomStats[SPD] and wpnAdvHero == 0:
         atkr.offensive_NFU = True
 
-    # Heralding Horn (Base) - NY!Ash
-    if "nyAshBoost" in atkSkills and defHPGreaterEqual75Percent and len(atkAllyWithin2Spaces) >= 1 and wpnAdvHero == 0:
-        atkr.brave = True
+    # Bewitching Tome - L!Camilla
+    if "LCamillaBoost" in atkSkills:
+        if atkPhantomStats[SPD] > defPhantomStats[SPD] or wpnAdvHero == 0:
+            atkr.foe_burn_damage += trunc(0.40 * defStats[ATK])
+        else:
+            atkr.foe_burn_damage += trunc(0.20 * defStats[ATK])
+
+    if "LCamillaBoost" in defSkills and defAllyWithin2Spaces:
+        if defPhantomStats[SPD] > atkPhantomStats[SPD] or wpnAdvHero == 1:
+            defr.foe_burn_damage += trunc(0.40 * atkStats[ATK])
+        else:
+            defr.foe_burn_damage += trunc(0.20 * atkStats[ATK])
 
     # This is the final variable which determines if a foe can counterattack
     cannotCounterFinal = (cannotCounter and not disableCannotCounter) or not (attacker.getRange() == defender.getRange() or ignore_range) or defender.weapon is None
+
+    # Tender Vessel - V!Lyon
+    if "vLyonBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        if atkPhantomStats[RES] > defPhantomStats[RES] or wpnAdvHero == 0:
+            atkr.foe_burn_damage += trunc(0.40 * defStats[ATK])
+        else:
+            atkr.foe_burn_damage += trunc(0.20 * defStats[ATK])
+
+    if "vLyonBoost" in defSkills and defHPGreaterEqual25Percent and not cannotCounterFinal:
+        if defPhantomStats[RES] > atkPhantomStats[RES] or wpnAdvHero == 1:
+            defr.foe_burn_damage += trunc(0.40 * atkStats[ATK])
+        else:
+            defr.foe_burn_damage += trunc(0.20 * atkStats[ATK])
+
+    # Devoted Basket/Axe of Devotion
+    if "devotedWeapon" in atkSkills and atkHPGreaterEqual25Percent:
+        if atkPhantomStats[atkSkills["devotedWeapon"]] > defPhantomStats[atkSkills["devotedWeapon"]] or wpnAdvHero == 0:
+            atkr.foe_burn_damage += trunc(0.30 * defStats[ATK])
+        else:
+            atkr.foe_burn_damage += trunc(0.15 * defStats[ATK])
+
+    if "devotedWeapon" in defSkills and defHPGreaterEqual25Percent and not cannotCounterFinal:
+        if defPhantomStats[defSkills["devotedWeapon"]] > atkPhantomStats[defSkills["devotedWeapon"]] or wpnAdvHero == 1:
+            defr.foe_burn_damage += trunc(0.30 * defStats[ATK])
+        else:
+            defr.foe_burn_damage += trunc(0.15 * defStats[ATK])
+
+    # Fell War Tome - CH!M!Robin
+    if "fellWarTome" in atkSkills:
+        atkr.foe_burn_damage += 7
+
+    if "fellWarTome" in defSkills and defAllyWithin2Spaces and not cannotCounterFinal:
+        defr.foe_burn_damage += 7
+
+    if "resonance" in defSkills and not cannotCounterFinal:
+        base_max_HP = defStats[HP] - defender.battle_stat_mods[HP]
+        X = max(trunc(0.2 * (base_max_HP - 20)), 0)
+        defr.self_burn_damage += X
+
+    # Enticing Dose - Níðhöggr
+    if "God's strongest drunk driver" in atkSkills and (attacker.transformed or atkHPGreaterEqual25Percent):
+        atkr.foe_burn_damage = trunc(defStats[HP] * 0.25)
+
+    if "God's strongest drunk driver" in defSkills and (attacker.transformed or defHPGreaterEqual25Percent) and not cannotCounterFinal:
+        defr.foe_burn_damage = trunc(atkStats[HP] * 0.25)
+
+    # Black Yule Lance - WI!Edelgard
+    if "wiEdelgardBoost" in atkSkills and (wpnAdvHero == 0 or defender.tile.divine_vein == DV_FLAME and defender.tile.divine_vein_turn >= 1 and defender.tile.divine_vein_side):
+        atkr.disable_foe_miracle = True
+
+    if "wiEdelgardBoost" in defSkills and (wpnAdvHero == 1 or attacker.attacking_tile.divine_vein == DV_FLAME and attacker.attacking_tile.divine_vein_turn >= 1 and attacker.attacking_tile.divine_vein_side):
+        defr.disable_foe_miracle = True
+
+    # Heralding Horn (Base) - NY!Ash
+    if "nyAshBoost" in atkSkills and defHPGreaterEqual75Percent and len(atkAllyWithin2Spaces) >= 1 and wpnAdvHero == 0:
+        atkr.brave = True
 
     # SKILLS THAT RELY ON THE FOE's ABILITY TO COUNTERATTACK
     if "brashAssault" in atkSkills and not cannotCounterFinal and atkHPCur / atkStats[HP] <= 0.1 * atkSkills["brashAssault"] + 0.2:
@@ -20576,6 +24256,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if "floraEasyBoost" in atkSkills and not cannotCounterFinal:
         atkr.follow_ups_skill += 1
+
+    # Curved Shot
+    if "canCounterAnySpecialDR" in atkSkills:
+        atkr.DR_sp_trigger_by_any_special_SP.append(atkSkills["canCounterAnySpecialDR"])
+
+    if "canCounterAnySpecialDR" in defSkills and not cannotCounterFinal:
+        defr.DR_sp_trigger_by_any_special_SP.append(defSkills["canCounterAnySpecialDR"])
 
     # GET TARGETED DEFENSE
 
@@ -20681,6 +24368,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if Status.Frozen in defender.statusNeg:
         defr.outspeed_factor += 10 + max(defPhantomStats[DEF] - atkPhantomStats[DEF], 0)
 
+    # Sandstorm - Timerra
+    if "sandstorm" in atkSkills and atkPhantomStats[DEF] > defPhantomStats[DEF]:
+        atkr.outspeed_factor -= min(atkPhantomStats[DEF] - defPhantomStats[DEF], 10)
+        defr.outspeed_factor += min(atkPhantomStats[DEF] - defPhantomStats[DEF], 10)
+
+    if "sandstorm" in defSkills and defPhantomStats[DEF] > atkPhantomStats[DEF]:
+        defr.outspeed_factor -= min(defPhantomStats[DEF] - atkPhantomStats[DEF], 10)
+        atkr.outspeed_factor += min(defPhantomStats[DEF] - atkPhantomStats[DEF], 10)
+
     # Crimson Lance (Base) - Melady
     if "meladyBoost" in atkSkills and atkHPGreaterEqual25Percent:
         defr.outspeed_factor += 2 * max(atkPhantomStats[DEF] - defPhantomStats[DEF], 0)
@@ -20690,37 +24386,73 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.outspeed_factor += 2 * max(defPhantomStats[DEF] - atkPhantomStats[DEF], 0)
         defr.TDR_first_strikes += trunc(0.20 * defStats[DEF])
 
-    if "wyvernRift" in atkSkills and atkStats[SPD] + atkStats[DEF] >= defStats[SPD] + defStats[DEF] - 10:
-        defr.outspeed_factor += 20
-
-    if "wyvernRift" in defSkills and defStats[SPD] + defStats[DEF] >= atkStats[SPD] + atkStats[DEF] - 10:
-        atkr.outspeed_factor += 20
-
     # HANDLE POTENT ATTACKS
 
     # Potent 1-4
-    if "potentStrike" in atkSkills and atkStats[SPD] >= defStats[SPD] + (atkr.outspeed_factor - 25): atkr.potent_FU = True
-    if "potentStrike" in defSkills and defStats[SPD] >= atkStats[SPD] + (defr.outspeed_factor - 25): defr.potent_FU = True
+    if "potentStrike" in atkSkills and atkStats[SPD] >= defStats[SPD] + (atkr.outspeed_factor - 25):
+        atkr.potent_percent_strong.append(40 + 10 * atkSkills["potentStrike"])
+        atkr.potent_percent_weak.append(10 * atkSkills["potentStrike"])
 
-    if Status.PotentFollow in attacker.statusPos and atkStats[SPD] >= defStats[SPD] + (atkr.outspeed_factor - 25): atkr.potent_FU = True
-    if Status.PotentFollow in defender.statusPos and defStats[SPD] >= atkStats[SPD] + (defr.outspeed_factor - 25): defr.potent_FU = True
+    if "potentStrike" in defSkills and defStats[SPD] >= atkStats[SPD] + (defr.outspeed_factor - 25):
+        defr.potent_percent_strong.append(40 + 10 * defSkills["potentStrike"])
+        defr.potent_percent_weak.append(10 * defSkills["potentStrike"])
+
+    # Potent Disarm
+    if "disarmPotent" in atkSkills and atkStats[SPD] >= defStats[SPD] + (atkr.outspeed_factor - 25):
+        atkr.potent_percent_strong.append(80)
+        atkr.potent_percent_weak.append(40)
+
+    if "disarmPotent" in defSkills and defStats[SPD] >= atkStats[SPD] + (defr.outspeed_factor - 25):
+        defr.potent_percent_strong.append(80)
+        defr.potent_percent_weak.append(40)
+
+    # Potent Follow Status
+    if Status.PotentFollow in attacker.statusPos and atkStats[SPD] >= defStats[SPD] + (atkr.outspeed_factor - 25):
+        atkr.potent_percent_strong.append(80)
+        atkr.potent_percent_weak.append(40)
+
+    if Status.PotentFollow in defender.statusPos and defStats[SPD] >= atkStats[SPD] + (defr.outspeed_factor - 25):
+        defr.potent_percent_strong.append(80)
+        defr.potent_percent_weak.append(40)
 
     # Sparking Tome (Refine Base) - Azelle
-    if "azelleRefineBoost" in atkSkills and atkStats[SPD] >= defStats[SPD] + (atkr.outspeed_factor - 25): atkr.potent_FU = True
-    if "azelleRefineBoost" in defSkills and atkHPGreaterEqual50Percent and defStats[SPD] >= atkStats[SPD] + (defr.outspeed_factor - 25): atkr.potent_FU = True
+    if "azelleRefineBoost" in atkSkills and atkStats[SPD] >= defStats[SPD] + (atkr.outspeed_factor - 25):
+        atkr.potent_percent_strong.append(80)
+        atkr.potent_percent_weak.append(40)
+
+    if "azelleRefineBoost" in defSkills and atkHPGreaterEqual50Percent and defStats[SPD] >= atkStats[SPD] + (defr.outspeed_factor - 25):
+        defr.potent_percent_strong.append(80)
+        defr.potent_percent_weak.append(40)
 
     # Yngvi Ascendant+ - Ullr
     if "yngviAscPlus" in atkSkills and atkStats[SPD] >= defStats[SPD] + (atkr.outspeed_factor - 10):
-        atkr.potent_FU = True
-        atkr.potent_FU_full = True
+        atkr.potent_percent_strong.append(100)
+        atkr.potent_percent_weak.append(100)
 
     if "yngviAscPlus" in defSkills and defStats[SPD] >= atkStats[SPD] + (defr.outspeed_factor - 10):
-        defr.potent_FU = True
-        defr.potent_FU_full = True
+        defr.potent_percent_strong.append(100)
+        defr.potent_percent_weak.append(100)
 
     # Thunderbrand (Refine Eff) - Catherine
-    if "burger attack!" in atkSkills and atkStats[SPD] >= defStats[SPD] + (atkr.outspeed_factor - 25): atkr.potent_FU = True
-    if "burger attack!" in defSkills and defAllyWithin2Spaces and defStats[SPD] >= atkStats[SPD] + (defr.outspeed_factor - 25): defr.potent_FU = True
+    if "burger attack!" in atkSkills and atkStats[SPD] >= defStats[SPD] + (atkr.outspeed_factor - 25):
+        atkr.potent_percent_strong.append(80)
+        atkr.potent_percent_weak.append(40)
+
+    if "burger attack!" in defSkills and defAllyWithin2Spaces and defStats[SPD] >= atkStats[SPD] + (defr.outspeed_factor - 25):
+        defr.potent_percent_strong.append(80)
+        defr.potent_percent_weak.append(40)
+
+    # Obsession - Ivy
+    if "https://www.youtube.com/watch?v=x5cdtS1HDq4" in atkSkills and atkHPGreaterEqual25Percent and atkStats[SPD] >= defStats[SPD] + (atkr.outspeed_factor - 25):
+        atkr.potent_percent_strong.append(80)
+        atkr.potent_percent_weak.append(40)
+
+    if "https://www.youtube.com/watch?v=x5cdtS1HDq4" in defSkills and defHPGreaterEqual25Percent and defStats[SPD] >= atkStats[SPD] + (defr.outspeed_factor - 25):
+        defr.potent_percent_strong.append(80)
+        defr.potent_percent_weak.append(40)
+
+    if atkr.potent_percent_strong: atkr.potent_FU = True
+    if defr.potent_percent_strong: defr.potent_FU = True
 
     # Lodestar Rush - E!Marth
     if "potentFix" in atkSkills: atkr.potent_new_percentage = atkSkills["potentFix"]
@@ -20733,7 +24465,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     atkAlive = True
     defAlive = True
 
-    def getSpecialDamage(effs, initStats, initHP, otherStats, defOrRes, base_damage, num_foe_atks, selfModifier, otherModifier, otherMoveType, otherWpnType):
+    def getSpecialDamage(effs, initStats, initHP, otherStats, defOrRes, base_damage, num_foe_atks, selfModifier, otherModifier, striker, strikee):
         total_special = 0.0
         total_nonspecial = 0.0
 
@@ -20750,22 +24482,25 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             total_special += initStats[RES] * 0.01 * effs["resBoostSp"]
 
         if "rupturedSky" in effs:
-            if otherWpnType in DRAGON_WEAPONS + BEAST_WEAPONS:
+            if strikee.wpnType in DRAGON_WEAPONS + BEAST_WEAPONS:
                 total_special += otherStats[ATK] * 0.02 * effs["rupturedSky"]
             else:
                 total_special += otherStats[ATK] * 0.01 * effs["rupturedSky"]
 
         if "sublimeHeaven" in effs:
-            if otherWpnType in DRAGON_WEAPONS + BEAST_WEAPONS:
-                total_special += otherStats[ATK] * 0.02 * effs["sublimeHeaven"]
+            if strikee.wpnType in DRAGON_WEAPONS + BEAST_WEAPONS:
+                total_special += initStats[ATK] * 0.02 * effs["sublimeHeaven"]
             else:
-                total_special += otherStats[ATK] * 0.01 * effs["sublimeHeaven"]
+                total_special += initStats[ATK] * 0.01 * effs["sublimeHeaven"]
 
         if "atkBoostSpFoe" in effs:
             total_special += otherStats[ATK] * 0.01 * effs["atkBoostSp"]
 
         if "staffRes" in effs:
             total_special += otherStats[ATK] * 0.01 * effs["staffRes"]
+
+        if "spdOrDefBoostSp" in effs:
+            total_special += max(initStats[SPD], initStats[DEF]) * 0.01 * effs["spdOrDefBoostSp"]
 
         # Vengeance/Reprisal
         if "retaliatoryBoost" in effs:
@@ -20793,9 +24528,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             else:
                 total_special += initStats[RES] * 0.60
 
+        if "newWarAxeSP" in effs:
+            if initHP / initStats[HP] >= 0.70:
+                total_nonspecial += initStats[DEF] * (0.10 + 0.10 * effs["newWarAxeSP"])
+
         # No Quarter
         if "atkBoostSpArmor" in effs:
-            if otherMoveType == 3:
+            if strikee.move == 3:
                 total_special += initStats[ATK] * 0.01 * 4
             else:
                 total_special += initStats[ATK] * 0.01 * 3
@@ -20833,6 +24572,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             if initHP / initStats[HP] <= 0.75:
                 total_nonspecial += 5
 
+        # Fluttering Fan - SF!Nephenee
+        if "flutteringFanSp" in effs:
+            if initHP != initStats[HP]:
+                total_nonspecial += 10
+
+        if "flutteringFanSp_f" in effs:
+            if initHP != initStats[HP]:
+                total_nonspecial += 10 * effs["flutteringFanSp_f"]
+
         # Owain (Should be ignored w/ Emblem Marth Ring)
         if "spMissiletainn" in effs:
             total_nonspecial += min(initStats[HP] - initHP, 30)
@@ -20840,6 +24588,31 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         # H!Timerra (Should be ignored w/ Emblem Marth Ring)
         if "meat" in effs:
             total_nonspecial += math.trunc(initStats[DEF] * 0.40)
+
+        # Fierce Beast
+        if "beastAtkSp" in effs:
+            if striker.transformed:
+                total_special += initStats[ATK] * 0.25
+            else:
+                total_special += initStats[ATK] * 0.20
+
+        # Nimble Beast
+        if "beastSpdSp" in effs:
+            if striker.transformed:
+                total_special += initStats[SPD] * 0.50
+            else:
+                total_special += initStats[SPD] * 0.40
+
+        # Sturdy Beast
+        if "beastDefSp" in effs:
+            if striker.transformed:
+                total_special += initStats[DEF] * 0.50
+            else:
+                total_special += initStats[DEF] * 0.40
+
+        # Makings of a King
+        if "defBoostTalentSp" in effs:
+            total_special += initStats[DEF] * 0.30 + striker.great_talent[DEF]
 
         return trunc(total_special), trunc(total_nonspecial)
 
@@ -20854,10 +24627,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     # Follow-Up Granted if sum of allowed - denied follow-ups is > 0
     followupA = atkr.follow_ups_spd + atkr.follow_ups_skill + atkr.follow_up_denials > 0
     followupD = defr.follow_ups_spd + defr.follow_ups_skill + defr.follow_up_denials > 0
-
-    # Special case which checks for follow-up, THEN applies desperation, Gift of Magic - Gotoh
-    if "giftOMagic" in atkSkills and defender.wpnType in RANGED_WEAPONS and (followupA or atkr.potent_FU):
-        atkr.self_desperation = True
 
     # Hardy bearing
     if atkr.hardy_bearing:
@@ -20882,8 +24651,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             startString += "A"
         if followupD or (defr.potent_FU and not followupD):
             startString += "D"
-
-
 
     if startString[0] == 'A':
         firstCheck = atkr.self_desperation or defr.other_desperation
@@ -20945,25 +24712,63 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             atkCanFollowUp = A_Count == 2 and (followupA or atkr.potent_FU) and not atkr.brave or A_Count in [3, 4, 5]
             isConsecutive = True if A_Count >= 2 and startString2[i - 1] == "A" else False
 
-            potentRedu = 100
-            if "potentStrike" in atkSkills and i == atkPotentIndex and not atkr.potent_FU_full:
-                potentRedu = 10 * atkSkills["potentStrike"] + 40 * int(not (atkr.brave or followupA))
+            potentRedu = False
+            if atkr.potent_FU and i == atkPotentIndex:
+                potentRedu = True
 
             attackList.append(Attack(0, atkCanFollowUp, isConsecutive, A_Count, A_Count + D_Count, None if A_Count + D_Count == 1 else attackList[i - 1], potentRedu))
         else:
             D_Count += 1
             defCanFollowUp = D_Count == 2 and (followupD or defr.potent_FU) and not defr.brave or D_Count in [3, 4, 5]
             isConsecutive = True if D_Count >= 2 and startString2[i - 1] == "D" else False
-            potentRedu = 100
+            potentRedu = False
 
-            if "potentStrike" in defSkills and i == defPotentIndex and not defr.potent_FU_full:
-                potentRedu = 10 * defSkills["potentStrike"] + 40 * int(not (defr.brave or followupD))
+            if defr.potent_FU and i == defPotentIndex:
+                potentRedu = True
 
             attackList.append(Attack(1, defCanFollowUp, isConsecutive, D_Count, A_Count + D_Count,
                                      None if A_Count + D_Count == 1 else attackList[i - 1], potentRedu))
         i += 1
 
     # Damage reduction caused by a unit's ability to make a follow up
+
+    if ("uncanny_fighter" in atkSkills or "canny_fighter" in atkSkills) and atkHPGreaterEqual25Percent:
+        if defCanFollowUp:
+            atkr.DR_first_strikes_NSP.append(80)
+        else:
+            defr.DR_first_strikes_NSP.append(40)
+
+    if ("uncanny_fighter" in defSkills or "canny_fighter" in defSkills) and defHPGreaterEqual25Percent:
+        if atkCanFollowUp:
+            defr.DR_first_strikes_NSP.append(80)
+        else:
+            defr.DR_first_strikes_NSP.append(40)
+
+    # Reopening
+    if "reopening" in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= 5
+        defr.spLossOnAtk -= 1
+        defr.spLossWhenAtkd -= 1
+
+        if atkCanFollowUp or atkr.brave:
+            atkr.true_all_hits += trunc(0.10 * atkStats[DEF])
+            atkr.TDR_all_hits += trunc(0.10 * atkStats[DEF])
+        else:
+            atkr.true_all_hits += trunc(0.20 * atkStats[DEF])
+            atkr.TDR_all_hits += trunc(0.20 * atkStats[DEF])
+
+    if "reopening" in defSkills and defHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] -= 5
+        atkr.spLossOnAtk -= 1
+        atkr.spLossWhenAtkd -= 1
+
+        if defCanFollowUp or atkr.brave:
+            defr.true_all_hits += trunc(0.10 * defStats[DEF])
+            defr.TDR_all_hits += trunc(0.10 * defStats[DEF])
+        else:
+            defr.true_all_hits += trunc(0.20 * defStats[DEF])
+            defr.TDR_all_hits += trunc(0.20 * defStats[DEF])
+
     if "idunnDR" in atkSkills and defHPGreaterEqual75Percent and defCanFollowUp:
         atkr.DR_first_hit_NSP.append(70)
 
@@ -21033,10 +24838,33 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.DR_first_hit_NSP.append(75)
 
     # Thorn Lance (Refine Base) - V!Rudolf
-    if "fireShootTheLaser" in atkSkills and (atkHPGreaterEqual25Percent or atkStats[ATK] + atkPhantomStats[ATK] > defStats[ATK] + defPhantomStats[ATK]):
+    if "fireShootTheLaser" in atkSkills and (atkHPGreaterEqual25Percent or atkPhantomStats[ATK] > defPhantomStats[ATK]):
         atkr.DR_all_hits_NSP.append(min(2 * (atkPhantomStats[ATK] - defPhantomStats[ATK], 40)))
-    if "fireShootTheLaser" in defSkills and (defHPGreaterEqual25Percent or defStats[ATK] + defPhantomStats[ATK] > atkStats[ATK] + atkPhantomStats[ATK]):
+    if "fireShootTheLaser" in defSkills and (defHPGreaterEqual25Percent or defPhantomStats[ATK] > atkPhantomStats[ATK]):
         defr.DR_all_hits_NSP.append(min(2 * (defPhantomStats[ATK] - atkPhantomStats[ATK], 40)))
+
+    # Arms of the Three
+    if "specialResDR" in atkSkills and atkSpCountCur == 0:
+        atkr.DR_all_hits_SP.append(min(3 * (atkPhantomStats[RES] - defPhantomStats[RES], 30)))
+
+    if "specialResDR" in defSkills and defSpCountCur == 0:
+        defr.DR_all_hits_SP.append(min(3 * (defPhantomStats[RES] - atkPhantomStats[RES], 30)))
+
+    # Set Potent Percentages
+    atkPotentPercentages = []
+    defPotentPercentages = []
+
+    if atkr.potent_FU:
+        if atkr.brave or atkCanFollowUp:
+            atkr.potent_percentage = max(atkr.potent_percent_weak)
+        else:
+            atkr.potent_percentage = max(atkr.potent_percent_strong)
+
+    if defr.potent_FU:
+        if defr.brave or defCanFollowUp:
+            defr.potent_percentage = max(atkr.potent_percent_weak)
+        else:
+            defr.potent_percentage = max(atkr.potent_percent_strong)
 
     # Dodge Status
     if Status.Dodge in attacker.statusPos and atkPhantomStats[SPD] > defPhantomStats[SPD]: atkr.stat_scaling_DR.append((SPD, 40))
@@ -21080,6 +24908,37 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         if defSkills["gambit"] == 4:
             defr.true_all_hits += max(0, min((defender.specialMax - 2) * 5, 15))
+
+    # Magic Gambit
+    if "magic_gambit" in atkSkills:
+
+        if atkSkills["magic_gambit"] == 4:
+            defCombatBuffs[SPD] -= 4
+            defCombatBuffs[RES] -= 4
+
+        if (atkSpTriggeredByAttack or attacker.getSpecialType() == "Defense"):
+            increment = min(atkSkills["magic_gambit"], 3) * 3 + 1
+            maximum = increment * 4
+
+            atkr.DR_all_hits_NSP.append(min((attacker.specialMax - 1) * increment, maximum))
+
+            if atkSkills["magic_gambit"] == 4:
+                atkr.true_all_hits += max(0, min((attacker.specialMax - 2) * 4, 12))
+
+    if "magic_gambit" in defSkills and attacker.wpnType in RANGED_WEAPONS:
+
+        if defSkills["magic_gambit"] == 4:
+            atkCombatBuffs[SPD] -= 4
+            atkCombatBuffs[RES] -= 4
+
+        if (defSpTriggeredByAttack or defender.getSpecialType() == "Defense"):
+            increment = min(defSkills["magic_gambit"], 3) * 3 + 1
+            maximum = increment * 4
+
+            defr.DR_all_hits_NSP.append(min((defender.specialMax - 1) * increment, maximum))
+
+            if defSkills["magic_gambit"] == 4:
+                defr.true_all_hits += max(0, min((defender.specialMax - 2) * 4, 12))
 
     # Damage reduction calculated based on a difference between two stats (Dodge, etc.)
     for stat_type, stat_max in atkr.stat_scaling_DR:
@@ -21155,10 +25014,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         if stkr_sp_triggered:
             num_foe_atks = curAttack.attackNumAll - curAttack.attackNumSelf
             striker_tile = attacker.attacking_tile if striker.side == 0 else defender.tile
-            dmgBoost, nsp_dmgBoost = getSpecialDamage(stkSpEffects, stkStats, stkHPCur, steStats, defOrRes, attack, num_foe_atks, I_stkr, I_ster, strikee.move, strikee.wpnType)
-
-            if I_stkr.brave:  # emblem marth effect, the brave condition shouldn't be checked here
-                dmgBoost = max(dmgBoost - I_stkr.reduce_self_sp_damage, 0)
+            dmgBoost, nsp_dmgBoost = getSpecialDamage(stkSpEffects, stkStats, stkHPCur, steStats, defOrRes, attack, num_foe_atks, I_stkr, I_ster, striker, strikee)
+            dmgBoost = max(dmgBoost - I_stkr.reduce_self_sp_damage, 0)
 
         attack += dmgBoost  # true damage by specials
 
@@ -21168,7 +25025,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         # true damage on all hits
         attack += I_stkr.true_all_hits
 
-        if I_stkr.resonance:
+        if I_stkr.resonance > 0:
             resonance_damage = min(max((I_stkr.start_of_combat_HP - stkHPCur) * 2, 6), 12)
             attack += resonance_damage
 
@@ -21203,12 +25060,30 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         for x in I_stkr.retaliatory_full_damages_CACHE:
             attack += math.trunc(I_stkr.most_recent_atk * (x / 100))
 
+        # Berserker Axe - Panette
+        if I_stkr.true_damage_taken_30:
+            attack += min(stkStats[HP] - stkHPCur, 30)
+
         # Half damage if staff user without wrathful staff, rounded down
         if striker.getWeaponType() == "Staff" and not I_stkr.wrathful_staff:
             attack = math.trunc(attack * 0.5)
 
         # potent FU reduction
-        attack = trunc(attack * curAttack.potentRedu / 100)
+        potent_percent = 100
+
+        if curAttack.potentRedu:
+            potent_percent = I_stkr.potent_percentage
+
+            if I_stkr.potent_new_percentage != 0 and (stkSpCount == 0 or I_stkr.special_triggered) and potent_percent <= I_stkr.potent_new_percentage - 1:
+                potent_percent = I_stkr.potent_new_percentage
+
+        attack = trunc(attack * potent_percent / 100)
+
+        if I_stkr.bane_sp and stkr_sp_triggered and attack < steHPCur - 1:
+            attack = steHPCur - 1
+
+        if I_stkr.bane_first_hit and curAttack.attackNumSelf == 1 and attack < steHPCur - 1:
+            attack = steHPCur - 1
 
         # the final attack in all it's glory
         full_atk = attack
@@ -21223,9 +25098,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         for pierce in I_stkr.damage_reduction_reduction:
             stkr_DRR *= 1 - (min(pierce, 100) / 100)
 
+        if I_stkr.special_triggered and stkSpCount:
+            for pierce in I_stkr.damage_reduction_reduction_finish:
+                stkr_DRR *= 1 - (min(pierce, 100) / 100)
+
         # Resonance Piercing
-        if I_stkr.resonance:
-            stkr_DRR *= (min(max((I_stkr.start_of_combat_HP - stkHPCur) * 10, 30), 60)) / 100
+        if I_stkr.resonance and I_stkr.resonance > 2:
+            stkr_DRR *= (min(max((I_stkr.start_of_combat_HP - stkHPCur) * I_stkr.resonance, I_stkr.resonance * 3), I_stkr.resonance * 6)) / 100
 
         if not (I_stkr.always_pierce_DR or
                 (stkr_sp_triggered and I_stkr.sp_pierce_DR) or
@@ -21276,12 +25155,20 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         total_true_damage_reduction = I_ster.TDR_all_hits
 
         if stkr_sp_triggered:
-            total_true_damage_reduction += I_ster.TDR_on_foe_special
+            total_true_damage_reduction += I_ster.TDR_on_foe_sp
 
         if not curAtk.isFollowUp:
             total_true_damage_reduction += I_ster.TDR_first_strikes
         else:
             total_true_damage_reduction += I_ster.TDR_second_strikes
+
+        if I_ster.TDR_snake:
+            X = max(10, min(steStats[HP] - steHPCur, 20))
+
+            total_true_damage_reduction += X
+
+            if stkr_sp_triggered:
+                total_true_damage_reduction += X
 
         attack = max(attack - total_true_damage_reduction, 0)
 
@@ -21332,6 +25219,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             elif "frostbiteMirror" in steSpEffects and ster_sp_triggered:
                 I_ster.stacking_retaliatory_damage += full_atk - attack
 
+            elif "dualIceMirrors" in steSpEffects and ster_sp_triggered:
+                I_ster.stacking_retaliatory_damage += min(full_atk - attack, math.trunc(steStats[RES] * 0.40))
+
             elif "iceMirrorII" in steSpEffects and ster_sp_triggered:
                 I_ster.stacking_retaliatory_damage += math.trunc(steStats[RES] * 0.40)
 
@@ -21357,6 +25247,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         presented_attack = attack
         # to evaluate noontime heal on hit that kills
         if steHPCur < 1: attack += steHPCur
+
+        # Finish healing
+        mid_combat_skill_dmg = I_stkr.all_hits_heal + I_stkr.finish_mid_combat_heal * bool(stkSpCount == 0 or I_stkr.special_triggered)
 
         stkSpCount = max(stkSpCount - (1 + I_stkr.spGainOnAtk), 0)
         steSpCount = max(steSpCount - (1 + I_ster.spGainWhenAtkd), 0)
@@ -21387,12 +25280,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         # healing
         totalHealedAmount = 0
-
-        mid_combat_skill_dmg = I_stkr.all_hits_heal + I_stkr.finish_mid_combat_heal * (stkSpCount == 0 or I_stkr.special_triggered)
         surge_heal = I_stkr.surge_heal
-
-        # save for skills
-        # += trunc(stkStats[0] * (min(striker.getMaxSpecialCooldown() * 20 + 10, 100) / 100))
 
         totalHealedAmount += mid_combat_skill_dmg
 
@@ -21413,6 +25301,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
             if "flareSp" in stkSpEffects and stkHPCur / stkStats[HP] < 0.70:
                 totalHealedAmount += math.trunc(0.30 * stkStats[HP])
+
+            if "newWarAxeSP" in stkSpEffects and stkHPCur / stkStats[HP] < 0.70:
+                totalHealedAmount += math.trunc(stkStats[DEF] * (0.10 + 0.10 * striker.specialMax))
 
         if Status.DeepWounds in striker.statusNeg or I_ster.disable_foe_healing:
             total_prevention = 1
@@ -21469,6 +25360,25 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         heal_total = min(trunc(0.20 * defStats[HP]) + max(defPhantomStats[DEF] - atkPhantomStats[DEF], 0) * 4, trunc(0.40 * defStats[HP]) + burn_damages[DEFENDER])
         precombat_heals[DEFENDER] = max(precombat_heals[DEFENDER], heal_total)
 
+    if ("breath_of_life4" in atkSkills and atkAllyWithin2Spaces) or "breath_of_life4_f" in atkSkills:
+        heal_total = min(trunc(0.20 * atkStats[HP]) + max(atkPhantomStats[DEF] - defPhantomStats[DEF], 0) * 4, trunc(0.40 * atkStats[HP]) + burn_damages[ATTACKER])
+        precombat_heals[ATTACKER] = max(precombat_heals[ATTACKER], heal_total)
+
+    if ("breath_of_life4" in defSkills and defAllyWithin2Spaces) or "breath_of_life4_f" in defSkills:
+        heal_total = min(trunc(0.20 * defStats[HP]) + max(defPhantomStats[DEF] - atkPhantomStats[DEF], 0) * 4, trunc(0.40 * defStats[HP]) + burn_damages[DEFENDER])
+        precombat_heals[DEFENDER] = max(precombat_heals[DEFENDER], heal_total)
+
+    if ("hAskrBoost" in atkSkills and defHPGreaterEqual75Percent) or "hAskrBoost_f" in atkSkills:
+        heal_total = min(trunc(0.20 * atkStats[HP]) + max(atkPhantomStats[DEF] - defPhantomStats[DEF], 0) * 4, trunc(0.40 * atkStats[HP]) + burn_damages[ATTACKER])
+        precombat_heals[ATTACKER] = max(precombat_heals[ATTACKER], heal_total)
+
+    if "hAskrBoost" in defSkills or "hAskrBoost_f" in defSkills:
+        heal_total = min(trunc(0.20 * defStats[HP]) + max(defPhantomStats[DEF] - atkPhantomStats[DEF], 0) * 4, trunc(0.40 * defStats[HP]) + burn_damages[DEFENDER])
+        precombat_heals[DEFENDER] = max(precombat_heals[DEFENDER], heal_total)
+
+    if Status.DivineNectar in attacker.statusPos: precombat_heals[ATTACKER] = max(precombat_heals[ATTACKER], 20)
+    if Status.DivineNectar in defender.statusPos: precombat_heals[DEFENDER] = max(precombat_heals[DEFENDER], 20)
+
     # Apply Deep Wounds to BoL healing
     atk_total_prevention = 0
     if Status.DeepWounds in attacker.statusNeg or defr.disable_foe_healing:
@@ -21507,46 +25417,54 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     while i < len(attackList) and (atkAlive and defAlive or is_in_sim):
         curAtk = attackList[i]
 
-        # post-combat status effects & mid-combat special charges
+        # post-combat status effects & mid-combat special jumps
         if curAtk.attackOwner == 0 and curAtk.attackNumSelf == 1 and atkAlive:
 
             atkPostCombatEffs[0] += atkPostCombatEffs[2]
-            #defPostCombatEffs[0] += defPostCombatEffs[1]
+            atkPostCombatEffs[2] = []
             atkPerformedAttack = True
 
             atkSpCountCur = max(0, atkSpCountCur - atkr.sp_jump_first)
-            atkSpCountCur = min(atkSpCountCur, attacker.specialMax)
-
             defSpCountCur = max(0, defSpCountCur - defr.sp_jump_foe_first)
+
+            atkSpCountCur = min(atkSpCountCur, attacker.specialMax)
+            defSpCountCur = min(defSpCountCur, defender.specialMax)
+
+        if curAtk.attackOwner == 0 and (curAtk.attackNumSelf == 2 and atkr.brave):
+            defSpCountCur = max(0, defSpCountCur - defr.sp_jump_foe_first_brave)
+            defSpCountCur = min(defSpCountCur, defender.specialMax)
 
         # On attacker's follow-up attack
         if curAtk.attackOwner == 0 and (curAtk.attackNumSelf == 2 and not atkr.brave or curAtk.attackNumSelf == 3 and atkr.brave):
             atkSpCountCur = max(0, atkSpCountCur - atkr.sp_jump_followup)
             atkSpCountCur = min(atkSpCountCur, attacker.specialMax)
 
+            defSpCountCur = max(0, defSpCountCur - defr.sp_jump_foe_followup)
+            defSpCountCur = min(defSpCountCur, defender.specialMax)
+
         if curAtk.attackOwner == 1 and curAtk.attackNumSelf == 1 and defAlive:
 
             defPostCombatEffs[0] += defPostCombatEffs[2]
-            #atkPostCombatEffs[0] += atkPostCombatEffs[1]
+            defPostCombatEffs[2] = []
             defPerformedAttack = True
 
             defSpCountCur = max(0, defSpCountCur - defr.sp_jump_first)
-            defSpCountCur = min(defSpCountCur, defender.specialMax)
-
             atkSpCountCur = max(0, atkSpCountCur - atkr.sp_jump_foe_first)
+
+            defSpCountCur = min(defSpCountCur, defender.specialMax)
+            atkSpCountCur = min(atkSpCountCur, attacker.specialMax)
+
+        if curAtk.attackOwner == 1 and (curAtk.attackNumSelf == 2 and defr.brave):
+            atkSpCountCur = max(0, atkSpCountCur - atkr.sp_jump_foe_first_brave)
+            atkSpCountCur = min(atkSpCountCur, attacker.specialMax)
 
         # On defender's follow-up attack
         if curAtk.attackOwner == 1 and (curAtk.attackNumSelf == 2 and not defr.brave or curAtk.attackNumSelf == 3 and defr.brave):
             defSpCountCur = max(0, defSpCountCur - defr.sp_jump_followup)
             defSpCountCur = min(defSpCountCur, defender.specialMax)
 
-        # If unit has a percentage that changes upon special activation, set to new percentage
-        # i.e. Lodestar Rush
-        if (atkr.special_triggered or atkSpCountCur == 0) and atkr.potent_new_percentage != -1 and i == atkPotentIndex:
-            curAtk.potentRedu = 100
-
-        if (defr.special_triggered or defSpCountCur == 0) and defr.potent_new_percentage != -1 and i == defPotentIndex:
-            curAtk.potentRedu = 100
+            atkSpCountCur = max(0, atkSpCountCur - atkr.sp_jump_foe_followup)
+            atkSpCountCur = min(atkSpCountCur, attacker.specialMax)
 
         # damage reductions
         damage_reductions = []
@@ -21561,6 +25479,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                     special_damage_reductions.append(70 - (defSpCountCur * 10))
                 else:
                     special_damage_reductions.append(40 - (defSpCountCur * 10))
+
+            if defr.DR_dragon_fang_shot_SP:
+                special_damage_reductions.append((4 - defSpCountCur) * max(0, min(defPhantomStats[RES] - atkPhantomStats[RES], 10)))
+
+            if defr.DR_king_making_SP:
+                special_damage_reductions.append(40 - (10 * defSpCountCur))
 
             if atkr.special_triggered or atkSpCountCur == 0 or defr.special_triggered or defSpCountCur == 0:
                 special_damage_reductions += defr.DR_sp_trigger_by_any_special_SP
@@ -21609,6 +25533,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                     special_damage_reductions.append(70 - (atkSpCountCur * 10))
                 else:
                     special_damage_reductions.append(40 - (atkSpCountCur * 10))
+
+            if atkr.DR_dragon_fang_shot_SP:
+                special_damage_reductions.append((4 - atkSpCountCur) * max(0, min(atkPhantomStats[RES] - defPhantomStats[RES], 10)))
+
+            if atkr.DR_king_making_SP:
+                special_damage_reductions.append(40 - (10 * atkSpCountCur))
 
             if atkr.special_triggered or atkSpCountCur == 0 or defr.special_triggered or defSpCountCur == 0:
                 special_damage_reductions += atkr.DR_sp_trigger_by_any_special_SP
@@ -21732,6 +25662,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "timesPulse4" in defSkills and defFinalSpCount == defender.specialMax:
         defPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
 
+    if "timePulseEcho" in atkSkills and atkFinalSpCount == attacker.specialMax:
+        atkPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
+
+    if "timePulseEcho" in defSkills and defFinalSpCount == defender.specialMax:
+        defPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
+
     if "holyPressure" in atkSkills and atkr.special_triggered:
         atkPostCombatEffs[UNCONDITIONAL].append(("status", Status.Gravity, "foe_and_foes_allies", "within_1_spaces_foe"))
 
@@ -21756,6 +25692,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defPostCombatEffs[UNCONDITIONAL].append(("debuff_atk", 6, "foe_and_foes_allies", "within_2_spaces_foe"))
         defPostCombatEffs[UNCONDITIONAL].append(("debuff_spd", 6, "foe_and_foes_allies", "within_2_spaces_foe"))
 
+    if "glitterOfLight" in atkSkills and atkr.special_triggered:
+        atkPostCombatEffs[UNCONDITIONAL].append(("status", Status.Flash, "foe_and_foes_allies", "within_2_spaces_foe"))
+
+    if "glitterOfLight" in defSkills and defr.special_triggered:
+        defPostCombatEffs[UNCONDITIONAL].append(("status", Status.Flash, "foe_and_foes_allies", "within_2_spaces_foe"))
+
     if Status.EssenceDrain in attacker.statusPos and not defAlive: atkPostCombatEffs[0].append(("heal", 10, "self_and_essence_drainers", "global"))
     if Status.EssenceDrain in defender.statusPos and not atkAlive: defPostCombatEffs[0].append(("heal", 10, "self_and_essence_drainers", "global"))
 
@@ -21775,6 +25717,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkPostCombatEffs[UNCONDITIONAL].append(("enable_once_per_map", 0, "self", "one"))
 
     if "circletOfBalance" in defSkills and defender.wpnType in RANGED_WEAPONS and not defr.circlet_miracle and not defender.once_per_map_cond:
+        defPostCombatEffs[UNCONDITIONAL].append(("enable_once_per_map", 0, "self", "one"))
+
+    # Emblems' Miracle
+    if "Miracle O' Emblems" in atkSkills and atkr.pseudo_miracle_triggered:
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 99, "self", "one"))
+        atkPostCombatEffs[UNCONDITIONAL].append(("enable_once_per_map", 0, "self", "one"))
+
+    if "Miracle O' Emblems" in defSkills and defr.pseudo_miracle_triggered:
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 99, "self", "one"))
         defPostCombatEffs[UNCONDITIONAL].append(("enable_once_per_map", 0, "self", "one"))
 
     # Gifted Magic II - L!Lilina
@@ -21837,6 +25788,27 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "nyYarneBoost" in defSkills and not defAdjacentToAlly and defHPCur / defStats[HP] <= 0.90 and defAlive:
         defPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 2, "self", "one"))
 
+    # Full Rabbit Fang - H!Yarne
+    if "hYarneBoost" in atkSkills and atkHPCur / atkStats[HP] <= 0.90 and atkAlive:
+        non_dragon_beast = 0
+
+        for ally in atkAdjacentToAlly:
+            if ally.wpnType not in DRAGON_WEAPONS + BEAST_WEAPONS:
+                non_dragon_beast += 1
+
+        if attacker.transformed or non_dragon_beast <= 1:
+            atkPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 2, "self", "one"))
+
+    if "hYarneBoost" in defSkills and defHPCur / defStats[HP] <= 0.90 and defAlive:
+        non_dragon_beast = 0
+
+        for ally in defAdjacentToAlly:
+            if ally.wpnType not in DRAGON_WEAPONS + BEAST_WEAPONS:
+                non_dragon_beast += 1
+
+        if defender.transformed or non_dragon_beast <= 1:
+            defPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 2, "self", "one"))
+
     # Larcei's Edge (Refine Eff)
     if "infiniteSpecial" in atkSkills and atkHPGreaterEqual25Percent and atkFinalSpCount == attacker.specialMax:
         atkPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
@@ -21850,6 +25822,27 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if "godSword?" in defSkills and defHPGreaterEqual25Percent and defFinalSpCount == defender.specialMax:
         defPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
+
+    # Striving Sword - Severa
+    if "severaBlade" in atkSkills and atkAllyWithin3Spaces and atkr.special_triggered:
+        atkPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 2, "self", "one"))
+
+    if "severaBlade" in defSkills and defAllyWithin3Spaces and defr.special_triggered:
+        defPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 2, "self", "one"))
+
+    # Hoshido's Breath - L!M!Corrin
+    if "HoshidosBreath" in atkSkills and atkHPGreaterEqual25Percent and atkFinalSpCount == attacker.specialMax:
+        atkPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
+
+    if "HoshidosBreath" in defSkills and defHPGreaterEqual25Percent and defFinalSpCount == defender.specialMax:
+        defPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
+
+    # Dragon Fang Shot - L!M!Corrin
+    if "dragonFangShot" in atkSkills and atkr.special_triggered:
+        atkPostCombatEffs[UNCONDITIONAL].append(("dv_water", 2, "foe", "one"))
+
+    if "dragonFangShot" in defSkills and defr.special_triggered:
+        defPostCombatEffs[UNCONDITIONAL].append(("dv_water", 2, "foe", "one"))
 
     # Inner Wellspring
     if ("bfBylethBoost" in atkSkills or "bfBylethRefine" in atkSkills) and atkr.special_triggered:
@@ -21894,6 +25887,32 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "kronyaExposure" in atkSkills and atkAlive and atkPerformedAttack:
         atkPostCombatEffs[GIVEN_UNIT_ATTACKED].append(("damage", 5, "foe_and_foes_allies", "within_2_spaces_foe"))
         atkPostCombatEffs[GIVEN_UNIT_ATTACKED].append(("status", Status.Exposure, "foe_and_foes_allies", "within_2_spaces_foe"))
+
+    # Majestic Glitnir - B!Alfonse
+    if "bAlfonseBoost" in atkSkills and atkFinalSpCount == attacker.specialMax:
+        atkPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
+
+    if "bAlfonseBoost" in defSkills and defAllyWithin3RowsCols and defFinalSpCount == defender.specialMax:
+        defPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
+
+    # Makings of a King - B!Alfonse
+    if "makingsOfAKing" in atkSkills and atkr.special_triggered:
+        atkPostCombatEffs[UNCONDITIONAL].append(("great_talent_atk", (4, 20), "self", "one"))
+        atkPostCombatEffs[UNCONDITIONAL].append(("great_talent_def", (4, 20), "self", "one"))
+        atkPostCombatEffs[UNCONDITIONAL].append(("great_talent_res", (4, 20), "self", "one"))
+
+        atkPostCombatEffs[UNCONDITIONAL].append(("great_talent_atk", (2, 10), "allies", "within_3_rows_cols_self"))
+        atkPostCombatEffs[UNCONDITIONAL].append(("great_talent_def", (2, 10), "allies", "within_3_rows_cols_self"))
+        atkPostCombatEffs[UNCONDITIONAL].append(("great_talent_res", (2, 10), "allies", "within_3_rows_cols_self"))
+
+    if "makingsOfAKing" in defSkills and defr.special_triggered:
+        defPostCombatEffs[UNCONDITIONAL].append(("great_talent_atk", (4, 20), "self", "one"))
+        defPostCombatEffs[UNCONDITIONAL].append(("great_talent_def", (4, 20), "self", "one"))
+        defPostCombatEffs[UNCONDITIONAL].append(("great_talent_res", (4, 20), "self", "one"))
+
+        defPostCombatEffs[UNCONDITIONAL].append(("great_talent_atk", (2, 10), "allies", "within_3_rows_cols_self"))
+        defPostCombatEffs[UNCONDITIONAL].append(("great_talent_def", (2, 10), "allies", "within_3_rows_cols_self"))
+        defPostCombatEffs[UNCONDITIONAL].append(("great_talent_res", (2, 10), "allies", "within_3_rows_cols_self"))
 
     # Deadly Balance+
     if "deadlyBalancePlus" in atkSkills and atkr.special_triggered:
@@ -21991,6 +26010,16 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "pulseSmoke" in defSkills and defAlive and defSkills["pulseSmoke"] == 3:
         defPostCombatEffs[UNCONDITIONAL].append(("charge_sp", -1, "foe_and_foes_allies", "within_2_spaces_foe"))
 
+    if "pulseSmog" in atkSkills and atkAlive:
+        atkPostCombatEffs[UNCONDITIONAL].append(("debuff_atk", 7, "foe_and_foes_allies", "within_3_spaces_foe"))
+        atkPostCombatEffs[UNCONDITIONAL].append(("status", Status.Guard, "foe_and_foes_allies", "within_3_spaces_foe"))
+        atkPostCombatEffs[UNCONDITIONAL].append(("charge_sp", -1, "foe_and_foes_allies", "within_3_spaces_foe"))
+
+    if "pulseSmog" in atkSkills and defAlive:
+        defPostCombatEffs[UNCONDITIONAL].append(("debuff_atk", 7, "foe_and_foes_allies", "within_3_spaces_foe"))
+        defPostCombatEffs[UNCONDITIONAL].append(("status", Status.Guard, "foe_and_foes_allies", "within_3_spaces_foe"))
+        defPostCombatEffs[UNCONDITIONAL].append(("charge_sp", -1, "foe_and_foes_allies", "within_3_spaces_foe"))
+
     if "panicSmoke" in atkSkills and atkAlive:
         if atkSkills["panicSmoke"] == 1:
             area = "within_1_spaces_foe"
@@ -22008,7 +26037,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defPostCombatEffs[UNCONDITIONAL].append(("status", Status.Panic, "foe_and_foes_allies", "within_2_spaces_foe"))
 
         if defSkills["panicSmoke"] == 4:
-            defPostCombatEffs[UNCONDITIONAL].append(("debuff_omni", 6, "foe_and_foes_allies", area))
+            defPostCombatEffs[UNCONDITIONAL].append(("debuff_omni", 6, "foe_and_foes_allies", "within_2_spaces_foe"))
             defPostCombatEffs[UNCONDITIONAL].append(("status", Status.FoePenaltyDoubler, "self_and_allies", "within_1_rows_cols_self"))
 
     if "fatalSmoke" in atkSkills and atkAlive:
@@ -22026,7 +26055,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defPostCombatEffs[UNCONDITIONAL].append(("status", Status.DeepWounds, "foe_and_foes_allies", "within_2_spaces_foe"))
 
         if defSkills["fatalSmoke"] == 4:
-            defPostCombatEffs[UNCONDITIONAL].append(("status", Status.NullMiracle, "foe_and_foes_allies", area))
+            defPostCombatEffs[UNCONDITIONAL].append(("status", Status.NullMiracle, "foe_and_foes_allies", "within_2_spaces_foe"))
 
     # Wizened Breath (Base) - Bantu
     if "bantuBoost" in atkSkills and atkHPGreaterEqual25Percent and atkAlive:
@@ -22048,10 +26077,16 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     # Winds of Change - CH!Merric
     if "healingWinds" in atkSkills and atkr.special_triggered:
-        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 10, "self_and_allies", "global"))
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", atkSkills["healingWinds"], "self_and_allies", "global"))
 
     if "healingWinds" in defSkills and atkr.special_triggered:
-        defPostCombatEffs[UNCONDITIONAL].append(("heal", 10, "self_and_allies", "global"))
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", defSkills["healingWinds"], "self_and_allies", "global"))
+
+    if "and a canto" in atkSkills and atkr.special_triggered:
+        atkPostCombatEffs[UNCONDITIONAL].append(("status", Status.Canto1, "self", "one"))
+
+    if "and a canto" in defSkills and defr.special_triggered:
+        defPostCombatEffs[UNCONDITIONAL].append(("status", Status.Canto1, "self", "one"))
 
     # Holy-Knight Aura - L!Sigurd
     if "holyKnight" in atkSkills and atkr.special_triggered:
@@ -22083,8 +26118,80 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defPostCombatEffs[UNCONDITIONAL].append(("buff_atk", 6, "self_and_allies", "global"))
         defPostCombatEffs[UNCONDITIONAL].append(("status", Status.MobilityUp, "self_and_allies", "global"))
 
-    atkFehMath = min(max(atkStats[ATK] - defStats[atkTargetingDefRes + 3], 0) + atkr.true_all_hits, 99)
-    defFehMath = min(max(defStats[ATK] - atkStats[defTargetingDefRes + 3], 0) + defr.true_all_hits, 99)
+    # Great Aether - E!Ike
+    if "AETHER_GREAT" in atkSkills and atkr.special_triggered:
+        X = min(len(atkFoeWithin3RowsCols) * 5 + 10, trunc(0.50 * atkStats[HP]))
+
+        atkPostCombatEffs[UNCONDITIONAL].append(("damage", 5, "foe_and_foes_allies", "within_3_rows_cols_self"))
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", X, "self", "one"))
+
+    if "AETHER_GREAT" in defSkills and defr.special_triggered:
+        X = min(len(defFoeWithin3RowsCols) * 5 + 10, trunc(0.50 * defStats[HP]))
+
+        defPostCombatEffs[UNCONDITIONAL].append(("damage", 5, "foe_and_foes_allies", "within_3_rows_cols_self"))
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", X, "self", "one"))
+
+    # Connected World - H!Askr
+    if "connectedWorld" in atkSkills and atkAllyWithin3Spaces and attacker.specialMax == atkFinalSpCount:
+        atkPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
+
+    if "connectedWorld" in defSkills and defAllyWithin3Spaces and defender.specialMax == defFinalSpCount:
+        defPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
+
+    if "connectedWorld_f" in atkSkills and attacker.specialMax == atkFinalSpCount:
+        atkPostCombatEffs[UNCONDITIONAL].append(("sp_charge", atkSkills["connectedWorld_f"], "self", "one"))
+
+    if "connectedWorld_f" in defSkills and defender.specialMax == defFinalSpCount:
+        defPostCombatEffs[UNCONDITIONAL].append(("sp_charge", defSkills["connectedWorld_f"], "self", "one"))
+
+    # Hungry Cat Fang - H!Lethe
+    if "hLetheBoost" in atkSkills and atkHPGreaterEqual25Percent and attacker.specialMax == atkFinalSpCount:
+        atkPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
+
+    if "hLetheBoost" in defSkills and defHPGreaterEqual25Percent and defender.specialMax == defFinalSpCount:
+        defPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
+
+    # Opposing Stones - H!Nagi
+    if "hNagiBoost" in atkSkills and defHPGreaterEqual75Percent and attacker.specialMax == atkFinalSpCount:
+        atkPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
+
+    if "hNagiBoost" in defSkills and defender.specialMax == defFinalSpCount:
+        defPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
+
+    if "hNahBoost" in atkSkills and atkAllyWithin3Spaces and attacker.specialMax == atkFinalSpCount:
+        atkPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
+
+    if "hNahBoost" in defSkills and defAllyWithin3Spaces and defender.specialMax == defFinalSpCount:
+        defPostCombatEffs[UNCONDITIONAL].append(("sp_charge", 1, "self", "one"))
+
+    atkFEHMathAtk = atkStats[ATK]
+    defFEHMathAtk = defStats[ATK]
+
+    if atkr.effective: atkFEHMathAtk += trunc(atkFEHMathAtk * 0.5)
+
+    if atkr.triangle_advantage > 0:
+        atkFEHMathAtk += trunc(atkFEHMathAtk * atkr.triangle_advantage)
+    elif atkr.triangle_advantage < 0:
+        atkFEHMathAtk -= trunc(atkFEHMathAtk * atkr.triangle_advantage * -1)
+
+    if defr.effective: defFEHMathAtk += trunc(defFEHMathAtk * 0.5)
+
+    if defr.triangle_advantage > 0:
+        defFEHMathAtk += trunc(defFEHMathAtk * defr.triangle_advantage)
+    elif defr.triangle_advantage < 0:
+        defFEHMathAtk -= trunc(defFEHMathAtk * defr.triangle_advantage * -1)
+
+    atkFEHMathDef = atkStats[atkTargetingDefRes + 3]
+    defFEHMathDef = defStats[defTargetingDefRes + 3]
+
+    if atkr.defensive_terrain:
+        atkFEHMathDef += trunc(defFEHMathDef * 0.3)
+
+    if defr.defensive_terrain:
+        defFEHMathDef += trunc(defFEHMathDef * 0.3)
+
+    atkFehMath = min(max(atkFEHMathAtk - defFEHMathDef, 0) + atkr.true_all_hits, 99)
+    defFehMath = min(max(defFEHMathAtk - atkFEHMathDef, 0) + defr.true_all_hits, 99)
 
     if attacker.getWeaponType() == "Staff" and (not atkr.wrathful_staff or defr.disable_foe_wrathful):
         atkFehMath = atkFehMath // 2
@@ -22101,7 +26208,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
 # Get AOE damage from attacker to foe
 
-def get_AOE_damage(attacker, defender):
+def get_AOE_damage(attacker, defender, spaces_moved_by_atkr):
     atkSkills = attacker.getSkills()
     atkStats = attacker.getStats()
 
@@ -22280,6 +26387,14 @@ def get_AOE_damage(attacker, defender):
     if "aCelicaBoost" in atkSkills:
         true_damage += trunc(defStats[ATK] * 0.10)
 
+    # E!Sigurd
+    if "eSigurdBoost" in atkSkills:
+        true_damage += trunc(atkStats[DEF] * 0.20)
+
+    # Sigurd Ring
+    if "provide for us" in atkSkills:
+        true_damage += min(spaces_moved_by_atkr, 4) * 2
+
     # Ares
     if "DRINK" in atkSkills and defender.HPcur / defStats[HP] >= 0.75:
         true_damage += 7
@@ -22312,8 +26427,13 @@ def get_AOE_damage(attacker, defender):
     if "AOEqueen" in atkSkills:
         true_damage += trunc(atkStats[RES] * 0.15)
 
+    # BR!Lilina
     if "brLilinaBoost" in atkSkills:
         true_damage += trunc(atkStats[RES] * 0.10)
+
+    # Arcane Truthfire
+    if "truthfire" in atkSkills:
+        true_damage += trunc(atkStats[ATK] * 0.15)
 
     # BR!Shanna
     if "brShannaBoost" in atkSkills:
@@ -22330,6 +26450,10 @@ def get_AOE_damage(attacker, defender):
     # Noah
     if "insert Xenoblade 3 thingy" in atkSkills and len(allies_within_n(attacker, attacker.attacking_tile, 1)) <= 1:
         true_damage += trunc(defStats[ATK] * 0.15)
+
+    # DE!Igrene
+    if "deIgreneBoost" in atkSkills:
+        atkr.true_sp += trunc(((attacker.specialMax * 10 + 10) / 100) * atkStats[SPD]) + trunc(atkStats[ATK] * 0.15)
 
     # L!Eliwood
     if "hamburger" in atkSkills:
@@ -22355,9 +26479,17 @@ def get_AOE_damage(attacker, defender):
     if "He's eating unlimited burgers" in atkSkills and atkHPGreaterEqual25Percent:
         true_damage += trunc(atkStats[ATK] * 0.10)
 
+    # FA!Ursula
+    if "faUrsulaBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        true_damage += trunc(atkStats[SPD] * 0.20)
+
     # Legault
     if "ghetsis holding a ducklett" in atkSkills and atkHPGreaterEqual25Percent and atkStats[SPD] + atkPhantomStats[SPD] > defStats[SPD] + defPhantomStats[SPD]:
         true_damage += 5
+
+    # B!Eirika
+    if "moonlightBangle" in atkSkills:
+        true_damage += trunc(defStats[DEF] * (0.20 + 0.10 * attacker.specialMax))
 
     # Ross
     if "hisFathersSonsFathersSonsFathersSons" in atkSkills:
@@ -22404,6 +26536,12 @@ def get_AOE_damage(attacker, defender):
     # Yarne
     if "yarneBoost" in atkSkills and defender.HPcur / defStats[HP] >= 0.50:
         true_damage += trunc(atkStats[SPD] * 0.10)
+
+    # H!Nah
+    if "hNahBoost" in atkSkills and allies_within_n(attacker, attacker.attacking_tile, 3):
+        X = max(8, min(attacker.HPcur - defender.HPcur, 16))
+
+        true_damage += X
 
     # BR!Anna
     if "brAnnaBoost" in atkSkills:
@@ -22464,9 +26602,21 @@ def get_AOE_damage(attacker, defender):
     if "when the weapon that slowly kills you if you lack a crest can be given to everyone bottom text" in atkSkills and atkHPGreaterEqual25Percent:
         true_damage += trunc(atkStats[SPD] * 0.20)
 
+    # B!Felix
+    if "lone_wolf" in atkSkills and (atkHPGreaterEqual25Percent or len(allies_within_n(attacker, attacker.attacking_tile, 1)) <= 1):
+        true_damage += trunc(atkStats[SPD] * 0.20)
+
     # B!Marianne
     if "Goddess, forgive me…" in atkSkills and atkHPGreaterEqual25Percent:
         true_damage += trunc(atkStats[SPD] * 0.20)
+
+    # Arcane Blutgang
+    if "arcaneBlutgang" in atkSkills and atkHPGreaterEqual25Percent:
+        true_damage += trunc(atkStats[ATK] * 0.15)
+
+    # R!Marianne
+    if "requiemPrayer" in defSkills and defPhantomStats[RES] > atkPhantomStats[RES]:
+        aoe_damage_reduction.append((4 - defender.specialCount) * min(defPhantomStats[RES] - atkPhantomStats[RES], 10))
 
     # L!Yuri
     if "LYuriBoost" in atkSkills:
@@ -22488,6 +26638,10 @@ def get_AOE_damage(attacker, defender):
     if "newAlfonseGuy" in atkSkills and allies_within_n(attacker, attacker.attacking_tile, 3):
         true_damage += trunc(atkStats[SPD] * 0.15)
 
+    # H!Askr
+    if "hAskrBoost" in atkSkills and defHPGreaterEqual75Percent:
+        true_damage += trunc(atkStats[DEF] * 0.20)
+
     # Ylgr
     if "ylgrMoreBoost" in atkSkills and (atkStats[SPD] + atkPhantomStats[SPD] > defStats[SPD] + defPhantomStats[SPD] or defender.HPcur / defStats[HP] >= 0.75):
         true_damage += trunc(atkStats[SPD] * 0.15)
@@ -22503,6 +26657,14 @@ def get_AOE_damage(attacker, defender):
     # Arcane Nihility
     if "curseOfNihility" in atkSkills and atkHPGreaterEqual25Percent:
         true_damage += trunc(atkStats[SPD] * 0.15)
+
+    # Niðavellir
+    if "niðavellirBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        true_damage += trunc(atkStats[SPD] * 0.20)
+
+    # Arcane Giant Axe
+    if "giantAxe" in atkSkills and atkHPGreaterEqual25Percent:
+        true_damage += trunc(atkStats[ATK] * 0.15)
 
     # Seiðr
     if "seiðrBoost" in atkSkills:
@@ -22533,11 +26695,25 @@ def get_AOE_damage(attacker, defender):
     if "spurn4" in atkSkills and attacker.HPcur / atkStats[HP] <= 0.75:
         true_damage += 5
 
+    # Tier 4 Trace Skills
+    if "traceDmg" in atkSkills:
+        true_damage += 7
+
+    if "traceEchoDmg" in atkSkills:
+        true_damage += 3
+
+    # Sly Blow Skills
+    if "slyBlow" in atkSkills and (len(attacker.statusPos) >= 2 or len(defender.StatusNeg) >= 2):
+        true_damage += 5
+
     if Status.Exposure in defender.statusNeg:
         true_damage += 10
 
     if Status.Dominance in attacker.statusPos:
         true_damage += abs(defender.get_penalty_total())
+
+    if Status.Treachery in attacker.statusPos and Status.Ploy not in attacker.statusNeg:
+        true_damage += attacker.get_bonus_total()
 
     # AOE Damage Reduction
     aoe_damage_reduction = []
@@ -22565,6 +26741,12 @@ def get_AOE_damage(attacker, defender):
 
         aoe_damage_reduction.append(min(defender.specialMax * increment, maximum))
 
+    if "magic_gambit" in defSkills and attacker.wpnType in RANGED_WEAPONS and (defSpTriggeredByAttack or defender.getSpecialType() == "Defense"):
+        increment = min(defSkills["magic_gambit"], 3) * 3 + 1
+        maximum = increment * 4
+
+        aoe_damage_reduction.append(min((defender.specialMax - 1) * increment, maximum))
+
     if "vitalAstra" in atkSkills and defPhantomStats[SPD] > atkPhantomStats[SPD] and defender.specialCount == 0:
         stat_scaling_DR.append((SPD, 30))
 
@@ -22574,9 +26756,24 @@ def get_AOE_damage(attacker, defender):
         else:
             aoe_damage_reduction.append(30)
 
+    # Potent
+    if "potentDR" in defSkills:
+        aoe_damage_reduction.append(defSkills["potentDR"])
+
     # Divine Vein Stone
     if defender.tile.divine_vein == DV_STONE and defender.tile.divine_vein_turn >= 1 and defender.tile.divine_vein_side == defender.side:
         aoe_damage_reduction.append(50)
+
+    # Believe in Love?
+    if "doYouBelieveInLove?" in defSkills:
+        stat_scaling_DR.append((SPD, 50))
+
+        X = max(sum(defender.buffs), max([ally.get_bonus_total() for ally in defAllyWithin2Spaces], default=0))
+
+        if attacker.move == 1 or attacker.move == 3:
+            true_damage_reduction += X
+        else: # i dunno if this bottom part is applied or not
+            true_damage_reduction += trunc(0.40 * X)
 
     # Gharnef
     if "gharnefBoost" in defSkills and defender.HPcur / defStats[HP] >= 0.25 and attacker.wpnType not in TOME_WEAPONS:
@@ -22610,6 +26807,10 @@ def get_AOE_damage(attacker, defender):
 
     if "nagiReduction" in defSkills:
         stat_scaling_DR.append((RES, 40))
+
+    # H!Nagi
+    if "hNagiBoost" in defSkills:
+        aoe_damage_reduction.append(80)
 
     # Conrad
     if "mmm melon collie" in defSkills and defender.HPcur / defStats[HP] >= 0.25:
@@ -22675,10 +26876,6 @@ def get_AOE_damage(attacker, defender):
     if "Just Lean" in defSkills and defender.HPcur / defStats[HP] >= 0.25:
         stat_scaling_DR.append((SPD, 40))
 
-    # B!Eirika
-    if "moonlightBangle" in atkSkills:
-        atkr.true_sp += trunc(defStats[DEF] * (0.10 + 0.20 * attacker.specialMax))
-
     # SP!Myrrh
     if "spMyrrhBoost" in defSkills:
         aoe_damage_reduction.append(40)
@@ -22687,6 +26884,10 @@ def get_AOE_damage(attacker, defender):
     if "LMyrrhBoost" in defSkills and allies_within_n(defender, defender.tile, 2):
         aoe_damage_reduction.append(30)
 
+    # V!Myrrh
+    if "myrrhLove" in defSkills:
+        stat_scaling_DR.append((RES, 40))
+
     # FA!Lyon
     if ("colorlessAdvRanged" in defSkills or "colorlessAdvRefine" in defSkills) and attacker.wpnType in RANGED_WEAPONS:
         aoe_damage_reduction.append(80)
@@ -22694,6 +26895,10 @@ def get_AOE_damage(attacker, defender):
     # B!Soren
     if "bSorenBoost" in defSkills and allies_within_n(defender, defender.tile, 3):
         stat_scaling_DR.append((RES, 40))
+
+    # SF!Nephenee - Unsure if drive effect applies to allies' AOE specials. If so, GOD DAMNIT.
+    if "sfNepheneeBoost" in atkSkills and attacker.HPcur != atkStats[HP]:
+        true_damage += 10
 
     # CH!Ilyana
     if "chIlyanaBoost" in defSkills:
@@ -22723,6 +26928,10 @@ def get_AOE_damage(attacker, defender):
     if "primordia" in defSkills and defender.HPcur / defStats[HP] >= 0.25:
         aoe_damage_reduction.append(30)
 
+    # L!M!Corrin
+    if "dragonFangShot" in defSkills and defPhantomStats[RES] > atkPhantomStats[RES]:
+        aoe_damage_reduction.append((4 - defender.specialCount) * min(defPhantomStats[RES] - atkPhantomStats[RES], 10))
+
     # L!Ryoma
     if "bushidoII" in defSkills:
         stat_scaling_DR.append((SPD, 40))
@@ -22741,6 +26950,9 @@ def get_AOE_damage(attacker, defender):
     # Felix
     if ">:(" in defSkills and defHPGreaterEqual25Percent:
         aoe_damage_reduction.append(30)
+
+    if "lone_wolf" in defSkills and (defHPGreaterEqual25Percent or len(allies_within_n(defender, defender.tile, 1)) <= 1):
+        true_damage_reduction += 2 * trunc(atkStats[SPD] * 0.20)
 
     # Seiros
     if "seirosDragonWall" in defSkills and defHPGreaterEqual25Percent:
@@ -22798,6 +27010,10 @@ def get_AOE_damage(attacker, defender):
         difference = (defStats[DEF] + defPhantomStats[DEF]) - (atkStats[DEF] + atkPhantomStats[DEF])
         true_damage_reduction += trunc(1.50 * difference)
 
+    # H!Askr
+    if "hAskrBoost" in defSkills:
+        true_damage_reduction += trunc(0.20 * defStats[DEF])
+
     # NY!Elm
     if "nyElmBoost" in defSkills and not allies_within_n(defender, defender.tile, 1):
         aoe_damage_reduction.append(min(20 + 20 * len(allies_within_n(attacker, attacker.attacking_tile, 3)), 60))
@@ -22824,6 +27040,10 @@ def get_AOE_damage(attacker, defender):
 
     if "moonTwinWingPlus" in defSkills and defHPGreaterEqual25Percent:
         stat_scaling_DR.append((SPD, 50))
+
+    # Arcane Giant Axe
+    if "giantAxe" in defSkills:
+        true_damage_reduction += trunc(0.15 * defStats[ATK])
 
     # Apply stat-scaling DR
     for stat_type, stat_max in stat_scaling_DR:

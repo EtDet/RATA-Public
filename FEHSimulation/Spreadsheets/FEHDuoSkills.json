@@ -545,6 +545,147 @@
       }
     ]
   },
+  "WI!M!Byleth": {
+    "desc": "Grants Def/Res+6, \"reduces damage from area-of-effect Specials by 80% (excluding Røkkr area-of-effect Specials),\" and [Hexblade] to unit and allies within 2 spaces of unit for 1 turn. Grants the following effect to unit for 1 turn: \"Neutralizes 'effective against armored' bonuses.\"",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "buff_def",
+        "degree": 6,
+        "targets": "self_and_allies",
+        "area": "within_2_spaces"
+      },
+      {
+        "effect": "buff_res",
+        "degree": 6,
+        "targets": "self_and_allies",
+        "area": "within_2_spaces"
+      },
+      {
+        "effect": "status",
+        "degree": "AOEReduce80Percent",
+        "targets": "self_and_allies",
+        "area": "within_2_spaces"
+      },
+      {
+        "effect": "status",
+        "degree": "Hexblade",
+        "targets": "self_and_allies",
+        "area": "within_2_spaces"
+      },
+      {
+        "effect": "status",
+        "degree": "NullEffArmor",
+        "targets": "self",
+        "area": "one"
+      }
+    ]
+  },
+  "NY!Seiðr": {
+    "desc": "Grants [Time's Gate] and \"Special cooldown charge +1 per attack during combat (only highest value applied; does not stack)\" to unit and allies within 4 spaces of unit for 1 turn.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "TimesGate",
+        "targets": "self_and_allies",
+        "area": "within_4_spaces"
+      },
+      {
+        "effect": "status",
+        "degree": "SpecialCharge",
+        "targets": "self_and_allies",
+        "area": "within_4_spaces"
+      }
+    ]
+  },
+  "V!Lyon": {
+    "desc": "Inflicts the following status on foes in cardinal directions of unit through their next actions: \"after start-of-turn skills trigger, action ends immediately\" (for foes who have not yet taken an action in Summoner Duels, instead of inflicting this effect, ends their action immediately).",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "CancelAction",
+        "targets": "foes",
+        "area": "within_1_rows_or_cols"
+      }
+    ]
+  },
+  "CH!F!Robin": {
+    "desc": "Grants [Rally Spectrum] and [Dual Strike] to unit and allies within 7 rows and 7 columns centered on unit.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "RallySpectrum",
+        "targets": "self_and_allies",
+        "area": "within_7_rows_and_cols"
+      },
+      {
+        "effect": "status",
+        "degree": "DualStrike",
+        "targets": "self_and_allies",
+        "area": "within_7_rows_and_cols"
+      }
+    ]
+  },
+  "BR!Sharena": {
+    "desc": "Grants unit another action, and if Canto has already been triggered, re-enables Canto. (May be used only if unit has already acted and an ally within 3 spaces of unit has entered combat during the current turn.)",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "galeforce_plus_canto",
+        "targets": "self",
+        "area": "one"
+
+      }
+    ]
+  },
+  "SU!Gullveig": {
+    "desc": "Grants unit another action. (May be used only if unit has already entered combat during the current turn.)",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "galeforce",
+        "targets": "self",
+        "area": "one"
+
+      }
+    ]
+  },
+  "FF!Fjorm": {
+    "desc": "Applies [Divine Vein (Ice)] to unit's space and spaces within 2 spaces of unit for 2 turns (excludes spaces occupied by a foe, destructible terrain other than [Divine Vein (Ice)], and warp spaces in Rival Domains).",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "divine_vein_ice",
+        "degree": 2,
+        "targets": "self",
+        "area": "within_2_spaces"
+
+      }
+    ]
+  },
+  "NI!Lucina": {
+    "desc": "Grants unit another action, and if Canto has already been triggered, re-enables Canto. (May be used only if unit has already entered combat during the current turn.)",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "galeforce_plus_canto_better",
+        "targets": "self",
+        "area": "one"
+
+      }
+    ]
+  },
   "SU!Mia": {
     "desc": "Grants [Resonance: Blades] to unit and allies from the same titles as unit.\n\nOnce used, Harmonized Skill cannot be activated again right away. At start of every third turn, if Harmonized Skill has already been used, unit can use Harmonized Skill again.",
     "type": "harmonic",
@@ -1032,6 +1173,177 @@
         "degree": 5,
         "targets": "self",
         "area": "one"
+      }
+    ]
+  },
+  "DE!Igrene": {
+    "desc": "Grants [Resonance: Blades], [Treachery], and [Desperation] to unit and allies from the same titles as unit.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "Treachery",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "Desperation",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "SP!Chloé": {
+    "desc": "Grants Special cooldown count-2 to unit and allies from the same titles as unit. Grants [Resonance: Blades] and [Incited] to unit and allies from the same titles as unit.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "Incited",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "sp_charge",
+        "degree": 2,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "SU!Goldmary": {
+    "desc": "Grants Def/Res+6, [Resonance: Shields], [Bonus Doubler], and [Bulwark] to unit and allies from the same titles as unit for 1 turn.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "buff_def",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "buff_res",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "ResonanceShields",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "BonusDoubler",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "Bulwark",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "SF!Nephenee": {
+    "desc": "Grants Atk/Spd+6, [Resonance: Blades], and \"unit can move 1 extra space (that turn only; does not stack)\" to unit and allies from the same titles as unit for 1 turn and neutralizes any [Penalty] on unit and allies from the same titles as unit.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "buff_atk",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "buff_spd",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "MobilityUp",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "clear_penalties",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "H!Nagi": {
+    "desc": "For unit and allies from the same titles as unit, grants Atk/Res+6, [Resonance: Shields], \"neutralizes 'effective against dragons' bonuses,\" and [Warp Bubble] for 1 turn, neutralizes any [Penalty], and restores 30 HP.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "buff_atk",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "buff_res",
+        "degree": 6,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "ResonanceShields",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "NullEffDragons",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "WarpBubble",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "clear_penalties",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "heal",
+        "degree": 30,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
       }
     ]
   }

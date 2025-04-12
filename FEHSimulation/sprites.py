@@ -39,13 +39,18 @@ def normalize_string(input_string):
     # Remove quotes and apostrophes
     input_string = input_string.replace('"', '').replace("'", "")
 
-    # Replace Eth and Thorn
+    # Replace Eth, Thorn, and Ash
     input_string = input_string.replace('ð', 'd')
+    input_string = input_string.replace('Ð', 'D')
     input_string = input_string.replace('þ', 'th')
+    input_string = input_string.replace('Þ', 'Th')
+    input_string = input_string.replace('æ', 'ae')
 
     # Remove accented characters, set to ASCII
     normalized_string = unicodedata.normalize('NFKD', input_string)
     ascii_string = normalized_string.encode('ASCII', 'ignore').decode('ASCII')
+
+    #ascii_string = ascii_string.replace('__ae__', 'æ')
 
     # Replace spaces
     ascii_string = ascii_string.replace(' ', '_')
@@ -66,8 +71,6 @@ while i < len(names):
     epithet = normalize_string(epithets[i])
     has_resp = has_resps[i]
     weapon = weapons[i]
-
-    #print(name + "_" + epithet)
 
     image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + name + "_" + epithet + "_Mini_Unit_Ok.png"
 

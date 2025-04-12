@@ -28,8 +28,8 @@ class Tile:
 
         # Divine Veins
         # 0 - none
-        # 1 - flame
-        # 2 - stone
+        # 1 - stone
+        # 2 - flame
         # 3 - green
         # 4 - haze
         # 5 - water
@@ -212,6 +212,13 @@ class Tile:
         if n % 2 == 0 or m % 2 == 0: return []
 
         return list(set(self.tilesWithinNRows(m)).intersection(set(self.tilesWithinNCols(n))))
+
+    def has_divine_vein(self):
+        return bool(self.divine_vein_turn >= 1)
+
+    def is_difficult_terrain(self):
+        return bool(self.terrain == 1 or self.terrain == 3)
+
 
 # Bolt Tower, Healing Tower
 def get_tower_hp_change(level):

@@ -1,5 +1,5 @@
 # RATA: An FE Heroes Simulator</h1>
-### Version 2.5.0
+### Version 2.6.0
 
 RATA is a desktop application made with the Python language and Tkinter library which simulates and facilitates 
 the gameplay of the Fire Emblem Heroes (2017) mobile game. Fire Emblem Heroes (FEH) is a strategy game developed
@@ -17,7 +17,7 @@ Sprites and gameplay assets are downloaded from the https://feheroes.fandom.com 
 
 <h2>Current Features</h2>
 <ul>
-  <li>Access to 1027 units (up to Book VII) and the skills within their base kits.</li>
+  <li>Access to 1172 units (up to Book VII) and the skills within their base kits.</li>
   <li>Units can be freely customized with skills, levels, merges, supports, IVs, and more.</li>
   <li>Full map and combat simulations can be performed by complete user control, with the ability to undo actions.</li>
 </ul>

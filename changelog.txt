@@ -1,6 +1,38 @@
+2.6.0 (4/12/25)
+New Features:
+-Added all 145 heroes introduced in Year 8.
+-Emblems can now be equipped, currently up to Emblem Sigurd.
+-Heroes can be marked as Aided for an additional stat boost.
+
+Bug Fixes:
+-Slaying effect was added to Ninja Sanaki's Radiant Scrolls.
+-Slaying effect was added to Arcane Void.
+-Fixed the start-of-combat conditions for Fallen Female Byleth's Captain's Sword.
+-Legendary Male Byleth's Sublime Heaven (II) will now use his Atk stat instead of his foe's when special triggers.
+-Triggering an AOE special with a Finish skill will no longer result in 3500 HP in healing.
+-Brave Chrom is now considered a cavalry unit instead of infantry.
+-Treachery now applies true damage to AOE attacks.
+-Skills that clear debuffs at the start of turn (not during like Dream Deliverer) will no longer clear debuffs inflicted at the same time.
+-Igrene's Guardian's Bow will now behave correctly when initiated against.
+-Fixed certain interactions that allowed units to utilize Pathfinder through enemy units.
+-Mila's Nurturing Breath now works properly.
+-Fixed the conditions for Potent Follow-Ups to trigger properly.
+-Fireflood Boost 3 now gives a proper Res boost in combat, instead of visible Res.
+-Céline's Joyous Tome now heals in the correct area at start of turn.
+-FEH Math in the forecast is now once again calculated properly for effective damage, triangle advantage, and more.
+-The combat forecast will now properly calculate evaluate conditions which track allies' HP when the target and those allies hit with an AOE special.
+-Mirabilis' Whimsical Dream+ now inflicts its debuff on nearest foes within 5 spaces, instead of 4.
+-Fixed the condition for skills that require "specials triggered by unit's attack".
+-Rally Spectrum will no longer cause a special jump for non-offensive specials.
+-Atk/Spd Gap now works properly.
+-Counter Roar 4 now works properly.
+-Drive Scowl effects, such as from Halloween Female Grima's Moonless Breath or Veyle's Fell Protection now work properly.
+-Brave Eirika's Moonlight Bangle and Summer Eirika's Moonlit Bangle F will now deal the correct amount of true damage.
+-Distant Guard now works properly.
+
 2.5.0 (4/3/25)
 New Features:
--Added all 144 heroes introduced in Year 7.
+-Added all 146 heroes introduced in Year 7.
 -Attuned/X Skills are now usable, with no PRF skill restrictions (Generosity or laziness? You call it).
 -Resplendent Outfit can now be used for Edelgard.
 -Added weapon refines for: Fernand's Proud Spear, Dedue's Taciturn Axe, Erinys' Silesse Frost, Miranda's Tome of Fury, Ninja Lyn's Tailwing Shuriken.
