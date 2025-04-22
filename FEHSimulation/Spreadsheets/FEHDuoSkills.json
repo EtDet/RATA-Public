@@ -686,6 +686,92 @@
       }
     ]
   },
+  "WI!M!Alear": {
+    "desc": "Neutralizes any [Penalty] effects on unit and allies within 3 spaces of unit, and grants the following to unit and those allies for 1 turn: \"neutralizes foe's bonuses during combat\" and \"reduces the percentage of foe's non-Special 'reduce damage by X%' skills by 50% during combat (excluding area-of-effect Specials).\"\n\nOnce used, Duo Skill cannot be activated again right away. At the start of every third turn, if Duo Skill has already been used, unit can use Duo Skill again.",
+    "type": "duo",
+    "skill_refresh": 3,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "NullBonuses",
+        "targets": "self_and_allies",
+        "area": "within_3_spaces"
+      },
+      {
+        "effect": "status",
+        "degree": "DamageReductionPierce50",
+        "targets": "self_and_allies",
+        "area": "within_3_spaces"
+      },
+      {
+        "effect": "clear_penalties",
+        "targets": "self_and_allies",
+        "area": "within_3_spaces"
+      }
+    ]
+  },
+  "NY!Heiðrún": {
+    "desc": "Grants Special cooldown count-1 to unit and allies within 3 rows or 3 columns centered on unit.\n\nApplies [Divine Vein (Green)] on spaces within 3 rows or 3 columns centered on unit for 2 turns.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "divine_vein_green",
+        "degree": 2,
+        "targets": "self",
+        "area": "within_3_rows_or_cols"
+
+      },
+      {
+        "effect": "sp_charge",
+        "degree": 1,
+        "targets": "self_and_allies",
+        "area": "within_3_rows_or_cols"
+      }
+    ]
+  },
+  "V!Rhea": {
+    "desc": "Grants the following status to unit and allies within 2 spaces of unit for 1 turn: \"neutralizes foe's bonuses during combat.\"\n\nApplies [Divine Vein (Stone)] to unit's space and spaces within 2 spaces of unit for 2 turns.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "divine_vein_stone",
+        "degree": 2,
+        "targets": "self",
+        "area": "within_2_spaces"
+
+      },
+      {
+        "effect": "status",
+        "degree": "NullBonuses",
+        "targets": "self_and_allies",
+        "area": "within_2_spaces"
+
+      }
+    ]
+  },
+  "CH!M!Corrin": {
+    "desc": "Grants the following status to unit and allies within 3 spaces of unit for 1 turn: increases Spd difference necessary for foe to make a follow-up attack by 10 during combat.\n\nApplies [Divine Vein (Water)] to unit's space and spaces within 3 spaces of unit for 2 turns.",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "divine_vein_water",
+        "degree": 3,
+        "targets": "self",
+        "area": "within_3_spaces"
+
+      },
+      {
+        "effect": "status",
+        "degree": "Outspeeding",
+        "targets": "self_and_allies",
+        "area": "within_3_spaces"
+
+      }
+    ]
+  },
   "SU!Mia": {
     "desc": "Grants [Resonance: Blades] to unit and allies from the same titles as unit.\n\nOnce used, Harmonized Skill cannot be activated again right away. At start of every third turn, if Harmonized Skill has already been used, unit can use Harmonized Skill again.",
     "type": "harmonic",
@@ -1342,6 +1428,50 @@
       {
         "effect": "heal",
         "degree": 30,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "DE!Marisa": {
+    "desc": "Grants \"unit can move 1 extra space\" to unit (that turn only; does not stack).\n\nGrants [Resonance: Blades] and \"unit cannot be slowed by terrain (does not apply to impassable terrain)\" to unit and allies from the same titles as unit for 1 turn.\n\nOnce used, Harmonized Skill cannot be activated again right away. At start of every third turn, if Harmonized Skill has already been used, unit can use Harmonized Skill again.",
+    "type": "harmonic",
+    "skill_refresh": 3,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "MobilityUp",
+        "targets": "self",
+        "area": "one"
+      },
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "status",
+        "degree": "TraverseTerrain",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
+  },
+  "SP!Plumeria": {
+    "desc": "Grants [Resonance: Blades] to unit and allies from the same titles as unit for 1 turn.\n\nIf unit has not entered combat on the current turn, grants another action to unit, and if Canto has already been triggered, re-enables Canto.",
+    "type": "harmonic",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "galeforce_noncombat",
+        "degree": "steamed hams",
+        "targets": "self",
+        "area": "one"
+      },
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
         "targets": "self_and_same_game_allies",
         "area": "global"
       }

@@ -50,10 +50,12 @@ def transform_string(input_str):
 
     return '\n'.join(transformed_lines)
 
-text = ''' if "SUPER FREAKING MARIO!" in atkSkills and atkHPGreaterEqual25Percent:
+text = '''if "SUPER FREAKING MARIO!" in atkSkills and atkHPGreaterEqual25Percent:
         atkCombatBuffs = [x + 4 for x in atkCombatBuffs]
         atkr.DR_first_strikes_NSP.append(40)
         atkr.true_stat_damages.append((SPD, 20))
         atkr.all_hits_heal += 7'''
 
 print(transform_string(text))
+
+

@@ -11,7 +11,7 @@
 # 'https://feheroes.fandom.com/wiki/Special:Redirect/file/Map_Z0096.png'
 
 import requests
-from hero import hero_sheet, implemented_heroes, generics
+from hero import hero_sheet, generics
 from map import struct_sheet
 from PIL import Image
 from io import BytesIO
@@ -78,11 +78,19 @@ while i < len(names):
     if int_name == "R!Tana":
         image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/Tana_Soaring_Princess_Mini_Unit_Ready.png"
 
+    # Emblem Lyn's Sprite is severely offcenter with how she holds her bow. This is being used until all sprites are manually centered.
+    if int_name == "E!Lyn":
+        image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/Lyn_Of_Blazing_Mini_Unit_Ready.png"
+
+    # Bruno uses a different visible name than on the Wiki (??? -> Bruno)
+    if int_name == "Bruno":
+        image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/Masked_Knight_Mini_Unit_Ok.png"
+
     # If image is currently of a character in this current build
-    if int_name in implemented_heroes and name + epithet != "BrunoMasked Knight":
+    #if int_name in implemented_heroes and name + epithet != "BrunoMasked Knight":
 
     # Only to be used for getting the most recent units for development, comment back as soon as you're done!
-    #if True:
+    if True:
         download_and_save_image(image_url, "TestSprites/" + int_name + ".png")
 
         if has_resp:
@@ -97,11 +105,6 @@ while i < len(names):
             download_and_save_image(beast_image_url, "TestSprites/" + beast_name + ".png")
 
     i += 1
-
-# Bruno: Masked Knight
-# Uses name different from visible name on Wiki (??? -> Bruno)
-download_and_save_image("https://feheroes.fandom.com/wiki/Special:Redirect/file/Masked_Knight_Mini_Unit_Ok.png", "TestSprites/" + "Bruno" + ".png")
-
 
 for generic in generics:
     image_url = "https://feheroes.fandom.com/wiki/Special:Redirect/file/" + generic + "_Mini_Unit_Idle.png"

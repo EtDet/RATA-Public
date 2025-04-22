@@ -88,10 +88,10 @@ def _generate_all_units_option():
 
     i = 0
     while i < len(names):
-        if int_names[i] in hero.implemented_heroes:
-            cur_string = names[i] + ": " + epithets[i]
-            options.append(cur_string)
-            intName_dict[cur_string] = int_names[i]
+        #if int_names[i] in hero.implemented_heroes:
+        cur_string = names[i] + ": " + epithets[i]
+        options.append(cur_string)
+        intName_dict[cur_string] = int_names[i]
 
         i += 1
 
@@ -117,159 +117,6 @@ def _get_valid_weapons(cur_hero):
 
     weapons_of_type = []
     prf_weapons = []
-
-    # Implemented weapons
-    implemented_weapons = ["Iron Sword", "Steel Sword", "Silver Sword", "Silver Sword+", "Armorslayer", "Armorslayer+", "Brave Sword", "Brave Sword+", "Ruby Sword", "Ruby Sword+", "Killing Edge", "Killing Edge+",
-                           "Iron Lance", "Steel Lance", "Silver Lance", "Silver Lance+", "Heavy Spear", "Heavy Spear+", "Brave Lance", "Brave Lance+", "Sapphire Lance", "Sapphire Lance+", "Killer Lance", "Killer Lance+",
-                           "Iron Axe", "Steel Axe", "Silver Axe", "Silver Axe+", "Hammer", "Hammer+", "Brave Axe", "Brave Axe+", "Emerald Axe", "Emerald Axe+", "Killer Axe", "Killer Axe+",
-                           "Iron Bow", "Steel Bow", "Silver Bow", "Silver Bow+", "Killer Bow", "Killer Bow+", "Brave Bow", "Brave Bow+", "Assassin's Bow", "Assassin's Bow+",
-                           "Iron Dagger", "Steel Dagger", "Silver Dagger", "Silver Dagger+", "Smoke Dagger", "Smoke Dagger+", "Rogue Dagger", "Rogue Dagger+", "Poison Dagger", "Poison Dagger+", "Barb Shuriken", "Barb Shuriken+",
-                           "Fire", "Elfire", "Bolganone", "Bolganone+", "Flux", "Ruin", "Fenrir", "Fenrir+", "Rauðrblade", "Rauðrblade+", "Rauðrraven", "Rauðrraven+", "Rauðrwolf", "Rauðrwolf+",
-                           "Thunder", "Elthunder", "Thoron", "Thoron+", "Light", "Ellight", "Shine", "Shine+", "Blárblade", "Blárblade+", "Blárraven", "Blárraven+",  "Blárwolf", "Blárwolf+",
-                           "Wind", "Elwind", "Rexcalibur", "Rexcalibur+", "Gronnblade", "Gronnblade+", "Gronnraven", "Gronnraven+",  "Gronnwolf", "Gronnwolf+",
-                           "Stone", "Elstone", "Atlas", "Atlas+",
-                           "Assault", "Absorb", "Absorb+", "Fear", "Fear+", "Slow", "Slow+", "Gravity", "Gravity+", "Panic", "Panic+", "Pain", "Pain+", "Trilemma", "Trilemma+",
-                           "Fire Breath", "Fire Breath+", "Flametongue", "Flametongue+", "Lightning Breath", "Lightning Breath+", "Light Breath", "Light Breath+", "Water Breath", "Water Breath+",
-
-                           "Whelp (Infantry)", "Yearling (Infantry)", "Adult (Infantry)", "Whelp (Cavalry)", "Yearling (Cavalry)", "Adult (Cavalry)",
-                           "Hatchling (Flier)", "Fledgling (Flier)", "Adult (Flier)", "Whelp (Armored)", "Yearling (Armored)", "Adult (Armored)",
-
-                           "Wo Dao", "Wo Dao+", "Harmonic Lance", "Harmonic Lance+", "Wo Gùn", "Wo Gùn+", "Short Bow", "Short Bow+",
-                           "Firesweep Bow", "Firesweep Bow+", "Firesweep Lance", "Firesweep L+", "Firesweep S", "Firesweep S+", "Firesweep Axe", "Firesweep Axe+",
-                           "Rauðrowl", "Rauðrowl+", "Gronnowl", "Gronnowl+", "Blárowl", "Blárowl+",
-                           "Zanbato", "Zanbato+", "Ridersbane", "Ridersbane+", "Poleaxe", "Poleaxe+", "Caltrop Dagger", "Caltrop Dagger+"
-                           "Slaying Edge", "Slaying Edge+", "Slaying Lance", "Slaying Lance+", "Slaying Axe", "Slaying Axe+", "Slaying Bow", "Slaying Bow+",
-                           "Keen Rauðrwolf", "Keen Rauðrwolf+", "Keen Blárwolf", "Keen Blárwolf+", "Keen Gronnwolf", "Keen Gronnwolf+",
-                           "Armorsmasher", "Armorsmasher+", "Slaying Spear", "Slaying Spear+", "Slaying Hammer", "Slaying Hammer+", "Guard Bow", "Guard Bow+",
-                           "Respisal Lance", "Reprisal Lance+", "Reprisal Axe", "Reprisal Axe+",
-                           "Safeguard", "Safeguard+", "Vanguard", "Vanguard+", "Rearguard", "Readguard+",
-                           "Barrier Blade", "Barrier Blade+", "Barrier Lance", "Barrier Lance+", "Barrier Axe", "Barrier Axe+",
-                           "The Cleaner", "The Cleaner+", "Shining Bow", "Shining Bow+", "Dragonslasher", "Dragonslasher+", "Spendthrift Bow", "Spendthrift Bow+",
-                           "Flash", "Flash+", "Melancholy", "Melancholy+", "Respite", "Respite+", "Aid", "Aid+", "Incurable", "Incurable+", "Sunlight", "Sunlight+",
-                           "Rauðrserpent", "Rauðrserpent+", "Blárserpent", "Blárserpent+", "Gronnserpent", "Gronnserpent+",
-                           "Rauðrfox", "Rauðrfox+", "Blárfox", "Blárfox+", "Gronnfox", "Gronnfox+",
-                           "Spirited Sword", "Spirited Sword+", "Spirited Spear", "Spirited Spear+", "Spirited Axe", "Spirited Axe+",
-                           "Instant Sword", "Instant Sword+", "Instant Lance", "Instant Lance+", "Instant Axe", "Instant Axe+", "Instant Bow", "Instant Bow+",
-                           "Unbound Blade", "Unbound Blade+", "Unbound Lance", "Unbound Lance+", "Unbound Axe", "Unbound Axe+", "Unbound Bow", "Unbound Bow+",
-                           "Steadfast Sword", "Steadfast Sword+", "Steadfast Lance", "Steadfast Lance+", "Steadfast Axe", "Steadfast Axe+",
-                           "Guard Sword", "Guard Sword+", "Guard Lance", "Guard Lance+", "Guard Axe", "Guard Axe+",
-                           "Rein Sword", "Rein Sword+", "Rein Lance", "Rein Lance+", "Rein Axe", "Rein Axe+", "Rein Bow", "Rein Bow+",
-                           "Rauðrrabbit", "Rauðrrabbit+", "Blárrabbit", "Blárrabbit+", "Gronnrabbit", "Gronnrabbit+",
-                           "Rauðrlion", "Rauðrlion+", "Blárlion", "Blárlion+",
-                           "Stout Lance", "Stout Lance+", "Axe Lance", "Axe Lance+",
-                           "Quick Dagger", "Quick Dagger+", "Vicious Dagger", "Vicious Dagger+", "Armorpin Dagger", "Armorpin Dagger+",
-                           "Miasma Dagger", "Miasma Dagger+", "Clever Dagger", "Clever Dagger+",
-                           "Rauðrvulture", "Rauðrvulture+", "Blárvulture", "Blárvulture+", "Gronnvulture", "Gronnvulture+", "Hvítrvulture", "Hvítrvulture+",
-                           "Allied Sword", "Allied Sword+", "Allied Lance", "Allied Lance+", "Allied Axe", "Allied Axe+",
-                           "Vulture Blade", "Vulture Blade+", "Vulture Lance", "Vulture Lance+", "Vulture Axe", "Vulture Axe+", "Vulture Bow", "Vulture Bow+",
-                           "Up-Front Blade", "Up-Front Blade+", "Up-Front Lance", "Up-Front Lance+", "Up-Front Axe", "Up-Front Axe+",
-                           "Defier's Sword", "Defier's Sword+", "Defier's Lance", "Defier's Lance+", "Defier's Axe", "Defier's Axe+", "Defier's Bow", "Defier's Bow+",
-                           "Protection Edge", "Protection Edge+", "Protection Pike", "Protection Pike+", "Protection Bow", "Protection Bow+",
-                           "Rauðrdeer", "Rauðrdeer+", "Blárdeer", "Blárdeer+", "Gronndeer", "Gronndeer+", "Hvítrdeer", "Hvítrdeer+"
-                           "Halting Bow", "Halting Bow+",
-                           "Null Blade", "Null Blade+", "Null Spear", "Null Spear+",
-                           "Reversal Blade", "Reversal Blade+", "Reversal Lance", "Reversal Lance+",
-                           "Rauðrlantern", "Rauðrlantern+",
-                           "Gainful Bow", "Gainful Bow+", "Gainful Dagger", "Gainful Dagger+",
-                           "Doubler Sword", "Doubler Sword+", "Doubler Lance", "Doubler Lance+", "Doubler Bow", "Doubler Bow+",
-                           "Pursual Lance", "Pursual Lance+",
-                           "Rauðrcrab", "Rauðrcrab+",
-
-                           "Legion's Axe", "Legion's Axe+", "Clarisse's Bow", "Clarisse's Bow+", "Berkut's Lance", "Berkut's Lance+",
-
-                           "Blue Egg", "Blue Egg+", "Green Egg", "Green Egg+", "Carrot Lance", "Carrot Lance+", "Carrot Axe", "Carrot Axe+",
-                           "Blessed Bouquet", "Blessed Bouquet+", "First Bite", "First Bite+", "Cupid Arrow", "Cupid Arrow+", "Candlelight", "Candlelight+",
-                           "Seashell", "Seashell+", "Refreshing Bolt", "Refreshing Bolt+", "Deft Harpoon", "Deft Harpoon+", "Melon Crusher", "Melon Crusher+",
-                           "Tomato Tome", "Tomato Tome+", "Sealife Tome", "Sealife Tome+", "Hibiscus Tome", "Hibiscus Tome+", "Lilith Floatie", "Lilith Floatie+",
-                           "Dancer's Fan", "Dancer's Fan+", "Dancer's Ring", "Dancer's Ring+", "Dancer's Score", "Dancer's Score+",
-                           "Spectral Tome", "Spectral Tome+", "Monstrous Bow", "Monstrous Bow+", "Kitty Paddle", "Kitty Paddle+",
-                           "Handbell", "Handbell+", "Sack o' Gifts", "Sack o' Gifts+", "Tannenboom!", "Tannenboom!+", "Candelabra", "Candelabra+",
-                           "Hagoita", "Hagoita+", "Kadomatsu", "Kadomatsu+", "Kagami Mochi", "Kagami Mochi+", "Hama Ya", "Hama Ya",
-                           "Green Gift", "Green Gift+", "Blue Gift", "Blue Gift+", "Gratia", "Gratia+", "Casa Blanca", "Casa Blanca+",
-                           "Giant Spoon", "Giant Spoon+", "Lethal Carrot", "Lethal Carrot+",
-                           "Fresh Bouquet", "Fresh Bouquet+", "Ardent Service", "Ardent Service+",
-                           "Shell Lance", "Shell Lance+", "Beach Banner", "Beach Banner+", "Cocobow", "Cocobow+",
-                           "Starfish", "Starfish+", "Fishie Bow", "Fishie Bow+", "Juicy Wave", "Juicy Wave+",
-                           "Cloud Maiougi", "Cloud Maiougi+", "Sky Maiougi", "Sky Maiougi+", "Dusk Uchiwa", "Dusk Uchiwa+",
-                           "Bottled Juice",  "Bottled Juice+", "Devilish Bow", "Devilish Bow+", "Witchy Wand", "Witchy Wand+", "Hack-o'-Lantern", "Hack-o'-Lantern+",
-                           "Joyous Lantern", "Joyous Lantern+", "Glittering Breath", "Glittering Breath+", "Goodie Boot", "Goodie Boot+",
-                           "Kabura Ya", "Kabura Ya+", "Geishun", "Geishun+", "Kumade", "Kumade+", "Wagasa", "Wagasa+",
-                           "It's Curtains...", "It's Curtains...+", "Grandscratcher", "Grandscratcher+", "Red-Hot Ducks", "Red-Hot Ducks+", "Splashy Bucket", "Splashy Bucket+", "Ouch Pouch", "Ouch Pouch+",
-                           "Faithful Axe", "Faithful Axe+", "Gronnblooms", "Gronnblooms+", "Blárblooms", "Blárblooms+", "Heart's Blade", "Heart's Blade+", "Loyal Wreath", "Loyal Wreath+",
-                           "Ovoid Staff", "Ovoid Staff+", "Flashing Carrot", "Flashing Carrot+", "Pegasus Carrot", "Pegasus Carrot+", "Beguiling Bow", "Beguiling Bow+",
-                           "Luncheon Lance", "Luncheon Lance+", "Toasty Skewer", "Toasty Skewer+", "Sandwiches!", "Sandwiches!+",
-                           "Vessel of Cheer", "Vessel of Cheer+", "Cake Cutter", "Cake Cutter+", "Lofty Blossoms", "Lofty Blossoms+", "Bouquet Bow", "Bouquet Bow+",
-                           "Tropical Treats", "Tropical Treats+", "Sandfort Spade", "Sandfort Spade+", "Buoyboard", "Buoyboard+", "Shoreline Rake", "Shoreline Rake+",
-                           "Broadleaf Fan", "Broadleaf Fan+", "Scallop Blade", "Scallop Blade+", "Big-Catch Bow", "Big-Catch Bow+", "Petal Parasol", "Petal Parasol+",
-                           "Fiddlestick Bow", "Fiddlestick Bow+", "Silver Goblet", "Silver Goblet+",
-                           "Pumpkin-a-Box", "Pumpkin-a-Box+", "Spooky Censer", "Spooky Censer+", "Madness Flask", "Madness Flask+", "Candlewax Bow", "Candlewax Bow+",
-                           "Tannenbit", "Tannenbit+", "Bellringer", "Bellringer+", "Minty Cane", "Minty Cane+",
-                           "Fortune Bow", "Fortune Bow+", "Temari", "Temari+",
-                           "Melee Bouquet", "Melee Bouquet+", "Budding Bow", "Budding Bow+", "Rapport Wand", "Rapport Wand+",
-                           "Gilt Fork", "Gilt Fork+", "Carrot Cudgel", "Carrot Cudgel+",
-                           "Pledged Blade", "Pledged Blade+", "Huge Fan", "Huge Fan+",
-                           "Coral Bow", "Coral Bow+", "Flora Guide", "Flora Guide+", "Palm Staff", "Palm Staff+",
-                           "Melon Float", "Melon Float+", "Hidden Thorns", "Hidden Thorns+", "Conch Bouquet", "Conch Bouquet+",
-                           "Flowing Lance", "Flowing Lance+", "Helm Bow", "Helm Bow+", "Deck Swabber", "Deck Swabber+",
-                           "Courtly Bow", "Courtly Bow+", "Courtly Mask", "Courtly Mask+", "Courtly Fan", "Courtly Fan+", "Courtly Candle", "Courtly Candle+",
-                           "Blackfire Breath", "Blackfire Breath+", "Pale Breath", "Pale Breath+",
-                           "Ninja Katana", "Ninja Katana+", "Ninja Yari", "Ninja Yari+", "Ninja Masakari", "Ninja Masakari+",
-                           "Candy Cane", "Candy Cane+", "Tannenbaton", "Tannenbaton+", "Reindeer Bow", "Reindeer Bow+",
-                           "Plegian Bow", "Plegian Bow+", "Plegian Torch", "Plegian Torch+", "Plegian Axe", "Plegian Axe+",
-                           "Unity Blooms", "Unity Blooms+", "Amity Blooms", "Amity Blooms+", "Pact Blooms", "Pact Blooms+",
-                           "Springy Lance", "Springy Lance+", "Springy Bow", "Springy Bow+", "Springy Axe", "Springy Axe+",
-                           "Observant Staff", "Observant Staff+", "Love Bouquet", "Love Bouquet+", "Love Candelabra", "Love Candelabra+",
-                           "Victorfish", "Victorfish+", "Peachy Parfait", "Peachy Parfait+", "Sunflower Bow", "Sunflower Bow+",
-                           "Helmsman Axe", "Helmsman Axe+",
-                           "Drifting Grace", "Drifting Grace+", "Luminous Grace", "Luminous Grace+", "Staff of Twelve", "Staff of Twelve+",
-                           "Lantern Breath", "Lantern Breath+", "Spider Plush", "Spider Plush+",
-                           "Ninja Yumi", "Ninja Yumi+", "Shuriken Cleaver", "Shuriken Cleaver+", "Ninja Naginata", "Ninja Naginata+",
-                           "Snow Globe", "Snow Globe+", "Tannenbow", "Tannenbow+", "Winter Rapier", "Winter Rapier+",
-                           "Serpentine Staff", "Serpentine Staff+", "Bone Carver", "Bone Carver+",
-                           "Staff of Tribute", "Staff of Tribute+", "Piercing Tribute", "Piercing Tribute+",
-                           "Carrot-Tip Spear", "Carrot-Tip Spear+", "Carrot-Tip Bow", "Carrot-Tip Bow+",
-                           "Bridal Orchid", "Bridal Orchid+", "Bridal Sunflower", "Bridal Sunflower+",
-                           "Whitecap Bow", "Whitecap Bow+",
-                           "Coral Saber", "Coral Saber+", "Seahorse Axe", "Seahorse Axe+",
-                           "Florid Cane", "Florid Cane+", "Florid Knife", "Florid Knife+",
-                           "Flame Gunbai", "Flame Gunbai+",
-                           "Serenity Breath", "Serenity Breath+", "Surprise Breath", "Surprise Breath+",
-                           "Wyvern Yumi", "Wyvern Yumi+", "Wyvern Katana", "Wyvern Katana+",
-                           "Peppy Bow", "Peppy Bow+", "Peppy Cane", "Peppy Cane+",
-                           "Magical Lantern", "Magical Lantern+",
-                           "Petalfall Blade", "Petalfall Blade+", "Petalfall Vase", "Petalfall Vase+",
-                           "Bunny's Egg", "Bunny's Egg+", "Hare's Lance", "Hare's Lance+",
-                           "Bridal Blade", "Bridal Blade+", "Ring of Affiance", "Ring of Affiance+",
-                           "Seaside Parasol", "Seaside Parasol+",
-                           "Wooden Tackle", "Wooden Tackle+", "Seashell Bowl", "Seashell Bow+",
-                           "Teatime Set", "Teatime Set+", "Teacake Tower", "Teacake Tower+",
-                           "Whitewind Bow", "Whitewind Bow+", "Wind Tribe Club", "Wind Tribe Club+",
-                           "Farmer's Tool", "Farmer's Tool+", "Pumpkin Stem", "Pumpkin Stem+",
-                           "Kumo Yumi", "Kumo Yumi+", "Kumo Naginata", "Kumo Naginata+",
-                           "Golden Yule Bow", "Golden Yule Bow+",
-                           "Dragon's Stone", "Dragon's Stone+", "New-Sun Stone", "New-Sun Stone+",
-                           "Nabata Lance", "Nabata Lance+", "Nabata Beacon", "Nabata Beacon+",
-                           "Devoted Basket", "Devoted Basket+", "Axe of Devotion", "Axe of Devotion+",
-                           "Carrot Bow", "Carrot Bow+",
-                           "Harp Bow", "Harp Bow+", "Dragonbloom", "Dragonbloom+",
-                           "Sea Tambourine", "Sea Tambourine+", "Tropical Conch", "Tropical Conch+",
-                           "Small Spade", "Small Spade+", "Anchor Axe", "Anchor Axe+",
-                           "Stall-Game Bow", "Stall-Game Bow+", "Juicy Bucketful", "Juicy Bucketful+",
-                           "Ice Dagger", "Ice Dagger+", "Ice Dragonstone", "Ice Dragonstone+",
-                           "Giant Shuriken", "Giant Shuriken+",
-
-                           "Arcane Éljúðnir", "Arcane Devourer",
-                           "Arcane Qiang", "Arcane Lúin",
-                           "Arcane Downfall", "Arcane Þrima", "Arcane Giant Axe",
-                           "Arcane Náströnd", "Arcane Darkbow",
-                           "Arcane Void", "Arcane Tempest",
-                           "Arcane Eclipse", "Arcane Blutgang",
-                           "Arcane Euphoria", "Arcane Thunder",
-                           "Arcane Caliburnus", "Arcane Truthfire",
-                           "Arcane Charmer",
-                           "Arcane Grima", "Arcane Fellstone",
-                           "Arcane Nihility"
-                           ]
 
     # Remove of different weapon
     i = 0
@@ -322,7 +169,7 @@ def _get_valid_weapons(cur_hero):
             if substring in string:
                 is_valid = False
 
-        if is_valid and string in implemented_weapons:
+        if is_valid:
             unrefined_weapons.append(string)
 
     unrefined_weapons = sorted(unrefined_weapons)
@@ -373,23 +220,12 @@ def _get_valid_assists(cur_hero):
     standard_assists = []
     prf_assists = []
 
-    implemented_assists = ["Heal", "Mend", "Reconcile", "Recover", "Recover+", "Martyr", "Martyr+", "Rehabilitate", "Rehabilitate+", "Restore", "Restore+",
-                           "Rescue", "Rescue+", "Return", "Return+", "Nudge", "Nudge+",
-                           "Magic Shield", "Magic Shield+",
-                           "Rally Attack", "Rally Speed", "Rally Defence", "Rally Resistance",
-                           "Rally Atk/Spd", "Rally Atk/Def", "Rally Atk/Res", "Rally Spd/Def", "Rally Spd/Res", "Rally Def/Res",
-                           "Rally Atk/Spd+", "Rally Atk/Def+", "Rally Atk/Res+", "Rally Spd/Def+", "Rally Spd/Res+", "Rally Def/Res+",
-                           "Rally Up Atk", "Rally Up Atk+", "Rally Up Spd", "Rally Up Spd+", "Rally Up Def", "Rally Up Def+", "Rally Up Res", "Rally Up Res+",
-                           "Dance", "Sing", "Play",
-                           "Harsh Command", "Harsh Command+", "Ardent Sacrifice", "Reciprocal Aid",
-                           "Draw Back", "Reposition", "Swap", "Pivot", "Shove", "Smite", "Reposition Gait"]
-
     i = 0
     while i < len(assist_names):
         if cur_hero.intName in exclusive_all[i]:
             prf_assists.append(assist_names[i])
 
-        elif assist_names[i] in implemented_assists:
+        else:
             if (len(exclusive_all[i]) == 0) and cur_hero.wpnType != "Staff":
                 standard_assists.append(assist_names[i])
 
@@ -406,7 +242,7 @@ def _get_valid_assists(cur_hero):
                 prf_assists.append(assist_names[i])
 
             elif "InfArmor" in exclusive_all[i] and (cur_hero.move == 0 or cur_hero.move == 3) and cur_hero.wpnType != "Staff":
-                prf_assists.append(assist_names[i])
+                standard_assists.append(assist_names[i])
 
         i += 1
 
@@ -424,7 +260,6 @@ def _get_valid_specials(cur_hero):
     restr_move = list(hero.special_sheet['RestrictedMovement'])
     restr_wpn = list(hero.special_sheet['RestrictedWeapons'])
 
-
     # Zip into 2D array by row
     exclusive_all = list(zip(exclusive1, exclusive2, exclusive3))
 
@@ -434,30 +269,13 @@ def _get_valid_specials(cur_hero):
     standard_specials = []
     prf_specials = []
 
-    # Implemented Specials
-    implemented_specials = ["Glowing Ember", "Bonfire", "Ignis", "Chilling Wind", "Iceberg", "Glacies", "New Moon", "Moonbow", "Luna",
-                            "Dragon Gaze", "Draconic Aura", "Dragon Fang", "Night Sky", "Glimmer", "Astra", "Retribution", "Reprisal", "Vengeance",
-                            "Daylight", "Noontime", "Sol", "Aether",
-                            "Blue Flame", "Ruptured Sky", "Deadeye", "Lethality", "Vital Astra", "Godlike Reflexes", "Flare", "No Quarter", "Fierce Beast",
-                            "Holy Pressure", "Light's Restraint", "Holy Panic", "Glitter of Light",
-                            "Armored Beacon", "Armored Floe", "Armored Blaze", "Dragon's Roar", "Gust", "Curved Shot", "Sturdy Beast", "Nimble Beast", "Boulder",
-                            "Galeforce",
-                            "Rising Flame", "Blazing Flame", "Growing Flame",
-                            "Rising Light", "Blazing Light", "Growing Light",
-                            "Rising Thunder", "Blazing Thunder", "Growing Thunder",
-                            "Rising Wind", "Blazing Wind", "Growing Wind",
-                            "Buckler", "Escutcheon", "Pavise", "Holy Vestments", "Sacred Cowl", "Aegis", "Miracle",
-                            "Imbue", "Heavenly Light", "Kindled-Fire Balm", "Swift-Winds Balm", "Solid-Earth Balm", "Still-Water Balm",
-                            "Windfire Balm", "Windfire Balm+", "Earthfire Balm", "Earthfire Balm+", "Fireflood Balm", "Fireflood Balm+",
-                            "Earthwind Balm", "Earthwind Balm+", "Deluge Balm", "Deluge Balm+", "Earthwater Balm", "Earthwater Balm+"]
-
     i = 0
     while i < len(special_names):
 
         if cur_hero.intName in exclusive_all[i]:
             prf_specials.append(special_names[i])
 
-        elif (len(exclusive_all[i]) == 0) and special_names[i] in implemented_specials:
+        elif (len(exclusive_all[i]) == 0):
 
             add_cond = True
 
@@ -876,6 +694,7 @@ def _apply_battle_stats(team, bonus_arr, mode, season, ar_structs):
         difference = max(0, ar_d_fortress - ar_o_fortress)
 
     i = 0
+
     while i < len(team):
         unit = team[i]
 
@@ -1653,7 +1472,7 @@ class HeroListing(tk.Frame):
         self.handle_selection_change_resp()
 
         # Aided
-        if len(cur_intName) > 3 and cur_intName.startswith("AI!"):
+        if len(cur_intName) > 3 and cur_intName in hero.aided_heroes:
             self.creation_comboboxes[25]['values'] = ['True']
             self.creation_comboboxes[25].set('True')
         else:
@@ -1858,7 +1677,7 @@ class HeroListing(tk.Frame):
                        "Edelgard", "Tiki", "Hector", "Soren", "Camilla", "Chrom", "Veronica",
                        "Ephraim", "Dimitri", "Claude", "Robin"]
 
-        emblems = ["None", "Marth", "Celica", "Sigurd", "Ike"]
+        emblems = ["None", "Marth", "Celica", "Sigurd", "Lyn", "Eirika", "Ike"]
         all_emblems = []
 
         if not self.creation_str_vars[11].get() or (self.created_hero.intName.replace("E!", "") == self.creation_str_vars[11].get()):
@@ -2082,7 +1901,9 @@ class HeroListing(tk.Frame):
             self.hero_proxy.asset = -1
 
         self.creation_str_vars[3].set(STAT_STR[self.hero_proxy.asset])
-        self.creation_str_vars[17].set(STAT_STR[self.hero_proxy.asc_asset])
+
+        if self.hero_proxy.asset != self.hero_proxy.asc_asset:
+            self.creation_str_vars[17].set(STAT_STR[self.hero_proxy.asc_asset])
 
         if self.created_hero is not None:
             self.hero_proxy.apply_proxy(self.created_hero)
@@ -3203,10 +3024,12 @@ class UnitState:
         self.sp_triggered = unit.specialTriggeredThisTurn
 
         self.canto = unit.canto_ready
+        self.style = unit.style_ready
 
         self.transformed = unit.transformed
 
         self.num_combats = unit.unitCombatInitiates
+        self.num_defeated = unit.num_foes_defeated
 
         self.num_assists_self = unit.assistTargetedSelf
         self.num_assists_self_rally = unit.assistTargetedSelf_Rally
@@ -3217,6 +3040,8 @@ class UnitState:
         self.num_assists_other_rally = unit.assistTargetedOther_Rally
         self.num_assists_other_move = unit.assistTargetedOther_Move
         self.num_assists_other_other = unit.assistTargetedOther_Other
+
+        self.num_movements_or_breaks = unit.moveOrDestroyActions
 
         self.duo_cooldown = unit.duo_cooldown
 
@@ -3327,6 +3152,9 @@ class GameplayCanvas(tk.Canvas):
         self.animation = False # true if an animation is currently playing, false otherwise
         self.canto = None # set to the current unit performing a canto action
         self.swap_mode = False # true if currently in swap mode, false otherwise
+
+        self.style_unit = None
+        self.style_name = None
 
         self.all_units = [[], []] # all units ever present in a map
         self.current_units = [[], []] # units leading a cohort and if that cohort is on the map
@@ -3653,15 +3481,17 @@ class GameplayCanvas(tk.Canvas):
         # Place player units in first available slot
         i = 0
         while i < len(self.all_units[PLAYER]):
-            tile_int = player_drag_points[i].tile
+            if self.all_units[PLAYER][i] not in self.reinf_point_units[PLAYER]:
+                tile_int = player_drag_points[i].tile
 
-            self.map.tiles[tile_int].hero_on = self.all_units[PLAYER][i]
-            self.all_units[PLAYER][i].tile = self.map.tiles[tile_int]
+                self.map.tiles[tile_int].hero_on = self.all_units[PLAYER][i]
+                self.all_units[PLAYER][i].tile = self.map.tiles[tile_int]
 
-            self.move_visuals_to_tile(PLAYER, i, tile_int)
-            self.refresh_unit_visuals(PLAYER, i)
+                self.move_visuals_to_tile(PLAYER, i, tile_int)
+                self.refresh_unit_visuals(PLAYER, i)
 
-            self.current_units[PLAYER].append(self.all_units[PLAYER][i])
+                self.current_units[PLAYER].append(self.all_units[PLAYER][i])
+
 
             # Prepare cohorts
             if self.game_mode in pair_up_modes and self.all_units[PLAYER][i].pair_up:
@@ -3677,6 +3507,8 @@ class GameplayCanvas(tk.Canvas):
                 self.all_cohorts.append(None)
 
             i += 1
+
+
 
         # Place units in the space they are currently if Aether Raids, otherwise place in first available slot
         if self.game_mode != hero.GameMode.AetherRaids:
@@ -3709,20 +3541,27 @@ class GameplayCanvas(tk.Canvas):
 
                     i += 1
 
+        present_player, present_enemy = self.map.get_heroes_present_by_side()
+
         # Apply stats present only within gameplay
-        _apply_battle_stats(self.all_units[PLAYER], result_bonus_units_player, self.game_mode, season, self.ar_structs)
-        _apply_battle_stats(self.all_units[ENEMY], result_bonus_units_enemy, self.game_mode, season, self.ar_structs)
+        _apply_battle_stats(present_player, result_bonus_units_player, self.game_mode, season, self.ar_structs)
+        _apply_battle_stats(present_enemy, result_bonus_units_enemy, self.game_mode, season, self.ar_structs)
 
         self.season = season[:]
 
         self.set_cohort_sprites()
 
-        for unit in self.current_units[PLAYER]:
+        # Hide AR reinforcements
+        for unit in self.reinf_point_units[PLAYER] + self.reinf_point_units[ENEMY]:
+            self.update_unit_graphics(unit)
+
+        # Set units who can act on turn 1
+        for unit in present_player:
             self.units_to_move.append(unit)
 
         # Create all combat fields
         self.combat_fields = []
-        self.combat_fields = feh.create_combat_fields(self.current_units[PLAYER], self.current_units[ENEMY])
+        self.combat_fields = feh.create_combat_fields(self.all_units[PLAYER], self.all_units[ENEMY])
 
         # Start enemy defeated count
         self.enemy_defeated_count = {}
@@ -3781,6 +3620,8 @@ class GameplayCanvas(tk.Canvas):
             unit.assistTargetedOther_Move = 0
             unit.assistTargetedOther_Other = 0
 
+            unit.moveOrDestroyActions = 0
+
         for unit in end_actions:
             self.units_to_move.remove(unit)
             self.update_unit_graphics(unit)
@@ -3797,6 +3638,14 @@ class GameplayCanvas(tk.Canvas):
                     cur_tile_struct = self.map.tiles[tile_int].structure_on
                     if self.map.tiles[tile_int].terrain != 4 and (not cur_tile_struct or (cur_tile_struct and cur_tile_struct.health != -1)):
                         self.map.tiles[tile_int].divine_vein = DV_STONE
+                        self.map.tiles[tile_int].divine_vein_side = side
+                        self.map.tiles[tile_int].divine_vein_turn = 1
+
+            if (side, "haze") in divine_veins:
+                for tile_int in divine_veins[(side, "haze")]:
+                    cur_tile_struct = self.map.tiles[tile_int].structure_on
+                    if self.map.tiles[tile_int].terrain != 4 and (not cur_tile_struct or (cur_tile_struct and cur_tile_struct.health != -1)):
+                        self.map.tiles[tile_int].divine_vein = DV_HAZE
                         self.map.tiles[tile_int].divine_vein_side = side
                         self.map.tiles[tile_int].divine_vein_turn = 1
 
@@ -3823,6 +3672,8 @@ class GameplayCanvas(tk.Canvas):
             return
 
         self.canto = None
+        self.style_name = None
+        self.style_unit = None
 
         for tile in self.canto_tile_imgs:
             self.delete(tile)
@@ -3841,6 +3692,9 @@ class GameplayCanvas(tk.Canvas):
             self.apply_mapstate(self.map_states[-1])
         else:
             self.apply_mapstate(self.map_states[0])
+
+        self.style_name = None
+        self.style_unit = None
 
         self.button_frame.action_button.config(state='disabled', text='Action\nButton')
         CreateToolTip(self.button_frame.action_button, text='')
@@ -3861,6 +3715,9 @@ class GameplayCanvas(tk.Canvas):
 
             # Update Swap Button
             self.button_frame.swap_spaces_button.config(text="Swap\nDone", bg="green3")
+
+            self.style_name = None
+            self.style_unit = None
 
             active_units = []
             for unit in self.all_units[PLAYER]:
@@ -3978,7 +3835,10 @@ class GameplayCanvas(tk.Canvas):
                 unit.assistTargetedOther_Move = 0
                 unit.assistTargetedOther_Other = 0
 
+                unit.moveOrDestroyActions = 0
+
                 unit.canto_ready = True
+                unit.style_ready = True
 
             for unit in end_actions:
                 self.units_to_move.remove(unit)
@@ -3993,6 +3853,14 @@ class GameplayCanvas(tk.Canvas):
                         cur_tile_struct = self.map.tiles[tile_int].structure_on
                         if self.map.tiles[tile_int].terrain != 4 and (not cur_tile_struct or (cur_tile_struct and cur_tile_struct.health != -1)):
                             self.map.tiles[tile_int].divine_vein = DV_STONE
+                            self.map.tiles[tile_int].divine_vein_side = side
+                            self.map.tiles[tile_int].divine_vein_turn = 1
+
+                if (side, "haze") in divine_veins:
+                    for tile_int in divine_veins[(side, "haze")]:
+                        cur_tile_struct = self.map.tiles[tile_int].structure_on
+                        if self.map.tiles[tile_int].terrain != 4 and (not cur_tile_struct or (cur_tile_struct and cur_tile_struct.health != -1)):
+                            self.map.tiles[tile_int].divine_vein = DV_HAZE
                             self.map.tiles[tile_int].divine_vein_side = side
                             self.map.tiles[tile_int].divine_vein_turn = 1
 
@@ -4105,13 +3973,18 @@ class GameplayCanvas(tk.Canvas):
             unit.nonspecial_galeforce_triggered = mapstate.unit_states[unit].nsp_galeforce
             unit.assist_galeforce_triggered = mapstate.unit_states[unit].ast_galeforce
             unit.once_per_map_cond = mapstate.unit_states[unit].once_per_map_cond
+
             unit.canto_ready = mapstate.unit_states[unit].canto
+            unit.style_ready = mapstate.unit_states[unit].style
+
             unit.specialTriggeredThisTurn = mapstate.unit_states[unit].sp_triggered
 
             if unit.tile:
                 unit.tile.hero_on = None
 
             unit.unitCombatInitiates = mapstate.unit_states[unit].num_combats
+            unit.num_foes_defeated = mapstate.unit_states[unit].num_defeated
+
             unit.assistTargetedSelf = mapstate.unit_states[unit].num_assists_self
             unit.assistTargetedOther = mapstate.unit_states[unit].num_assists_other
 
@@ -4122,6 +3995,8 @@ class GameplayCanvas(tk.Canvas):
             unit.assistTargetedOther_Rally = mapstate.unit_states[unit].num_assists_other_rally
             unit.assistTargetedOther_Move = mapstate.unit_states[unit].num_assists_other_move
             unit.assistTargetedOther_Other = mapstate.unit_states[unit].num_assists_other_other
+
+            unit.moveOrDestroyActions = mapstate.unit_states[unit].num_movements_or_breaks
 
             unit.transformed = mapstate.unit_states[unit].transformed
 
@@ -4201,7 +4076,11 @@ class GameplayCanvas(tk.Canvas):
             n = 0
             for spawn_point in self.unit_reinf_points.values():
 
-                reinf_unit = self.reinf_point_units[ENEMY][n]
+                if spawn_point.hero is None:
+                    #n += 1
+                    continue
+
+                reinf_unit = (self.reinf_point_units[PLAYER] + self.reinf_point_units[ENEMY])[n]
 
                 # Skip turn only conditions
                 if spawn_point.target_name is None:
@@ -4272,7 +4151,10 @@ class GameplayCanvas(tk.Canvas):
             n = 0
             for spawn_point in self.unit_reinf_points.values():
 
-                reinf_unit = self.reinf_point_units[ENEMY][n]
+                if spawn_point.hero is None:
+                    continue
+
+                reinf_unit = (self.reinf_point_units[PLAYER] + self.reinf_point_units[ENEMY])[n]
 
                 # Skip kill/alive conditions
                 if spawn_point.target_name is not None:
@@ -4289,27 +4171,84 @@ class GameplayCanvas(tk.Canvas):
 
                 if spawn_condition:
                     spawn_tile = -1
+                    #side = ENEMY
 
-                    if feh.can_be_on_tile(self.map.tiles[spawn_point.tile], reinf_unit) and self.map.tiles[spawn_point.tile].hero_on is None:
+                    if spawn_point.tile == -2 or spawn_point.tile == -3:
+                        if spawn_point.tile == -2:
+                            call_circle_tile = self.get_struct_tile_by_name("Calling Circle (O)")
+                            reinf_unit.statusOther['callingCircle'] = 1
+
+                            # Set stats based on Mythic heroes present
+                            highest_merge = 0
+
+                            for raiding_unit in self.all_units[PLAYER]:
+
+                                if raiding_unit != reinf_unit and reinf_unit.blessing:
+                                    if raiding_unit.blessing and raiding_unit.blessing.element in [LIGHT, ASTRA] and raiding_unit.blessing.element in self.season and raiding_unit.blessing.boostType == 3:
+                                        if reinf_unit.blessing.element == raiding_unit.blessing.element:
+                                            highest_merge = max(raiding_unit.merges, highest_merge)
+
+                            i = 0
+                            while i < highest_merge:
+                                cur_stat = reinf_unit.flower_order[i % 5]
+                                reinf_unit.battle_stat_mods[cur_stat] += 2
+
+                                i += 1
+
+                            reinf_unit.set_visible_stats()
+                        else:
+                            call_circle_tile = self.get_struct_tile_by_name("Calling Circle (D)")
+
+                            for raiding_unit in self.all_units[ENEMY]:
+                                if raiding_unit != reinf_unit and reinf_unit.blessing:
+                                    if raiding_unit.blessing and raiding_unit.blessing.element in [DARK, ANIMA] and raiding_unit.blessing.element in self.season and raiding_unit.blessing.boostType == 3:
+                                        if reinf_unit.blessing.element == raiding_unit.blessing.element:
+                                            highest_merge = max(raiding_unit.merges, highest_merge)
+
+                            i = 0
+                            while i < highest_merge:
+                                cur_stat = reinf_unit.flower_order[i % 5]
+                                reinf_unit.battle_stat_mods[cur_stat] += 2
+
+                                i += 1
+
+                            reinf_unit.set_visible_stats()
+
+                        if feh.can_be_on_tile(call_circle_tile, reinf_unit) and call_circle_tile.hero_on is None:
+                            spawn_tile = call_circle_tile.tileNum
+
+                        i = 1
+                        while spawn_tile == -1 and i < 20:
+                            cur_tiles = sorted([x.tileNum for x in self.map.tiles[call_circle_tile.tileNum].tilesNSpacesAway(i)], reverse=True)
+
+                            j = 0
+                            while spawn_tile == -1 and j < len(cur_tiles):
+                                if feh.can_be_on_tile(self.map.tiles[cur_tiles[j]], reinf_unit) and self.map.tiles[cur_tiles[j]].hero_on is None:
+                                    spawn_tile = cur_tiles[j]
+                                j += 1
+
+                            i += 1
+
+                    elif feh.can_be_on_tile(self.map.tiles[spawn_point.tile], reinf_unit) and self.map.tiles[spawn_point.tile].hero_on is None:
                         spawn_tile = spawn_point.tile
 
-                    i = 1
-                    while spawn_tile == -1 and i < 20:
-                        cur_tiles = sorted([x.tileNum for x in self.map.tiles[spawn_point.tile].tilesNSpacesAway(i)], reverse=True)
+                        i = 1
+                        while spawn_tile == -1 and i < 20:
+                            cur_tiles = sorted([x.tileNum for x in self.map.tiles[spawn_point.tile].tilesNSpacesAway(i)], reverse=True)
 
-                        j = 0
-                        while spawn_tile == -1 and j < len(cur_tiles):
-                            if feh.can_be_on_tile(self.map.tiles[cur_tiles[j]], reinf_unit) and self.map.tiles[cur_tiles[j]].hero_on is None:
-                                spawn_tile = cur_tiles[j]
-                            j += 1
+                            j = 0
+                            while spawn_tile == -1 and j < len(cur_tiles):
+                                if feh.can_be_on_tile(self.map.tiles[cur_tiles[j]], reinf_unit) and self.map.tiles[cur_tiles[j]].hero_on is None:
+                                    spawn_tile = cur_tiles[j]
+                                j += 1
 
-                        i += 1
+                            i += 1
 
                     if spawn_tile != -1:
                         self.map.tiles[spawn_tile].hero_on = reinf_unit
                         reinf_unit.tile = self.map.tiles[spawn_tile]
 
-                        self.current_units[ENEMY].append(reinf_unit)
+                        self.current_units[reinf_unit.side].append(reinf_unit)
 
                         reinf_unit.HPcur = reinf_unit.visible_stats[HP]
                         reinf_unit.specialCount = reinf_unit.specialMax
@@ -4326,7 +4265,8 @@ class GameplayCanvas(tk.Canvas):
             self.turn_info[0] += 1
             self.button_frame.help_info.config(text="Turn " + str(self.turn_info[0]) + ": Player Phase", font=("Helvetica", 16), fg="DodgerBlue2")
 
-            # Get duo's indulgence
+            # Get current player units after reinforcements
+            current_player_units, current_enemy_units = self.map.get_heroes_present_by_side()
 
 
             # Clear buffs, refresh galeforce/canto
@@ -4340,6 +4280,7 @@ class GameplayCanvas(tk.Canvas):
                 x.nonspecial_galeforce_triggered = False
                 x.assist_galeforce_triggered = False
                 x.canto_ready = True
+                x.style_ready = True
                 x.specialTriggeredThisTurn = False
 
                 struct_valid = self.get_struct_by_name("Duo's Indulgence") and self.get_struct_by_name("Duo's Indulgence").health != 0 and self.turn_info[0] <= self.get_struct_by_name("Duo's Indulgence").level + 3
@@ -4360,6 +4301,7 @@ class GameplayCanvas(tk.Canvas):
                     x.pair_up_obj.nonspecial_galeforce_triggered = False
                     x.pair_up_obj.assist_galeforce_triggered = False
                     x.pair_up_obj.canto_ready = True
+                    x.pair_up_obj.style_ready = True
                     x.pair_up_obj.specialTriggeredThisTurn = False
 
             # Clear debuffs of any unit on opposing team yet to act
@@ -4412,6 +4354,9 @@ class GameplayCanvas(tk.Canvas):
                     if x.pair_up_obj:
                         x.pair_up_obj.statusNeg = []
                         if Status.GrandStrategy not in x.pair_up_obj.statusPos: x.pair_up_obj.debuffs = [0] * 5
+
+                    if "callingCircle" in x.statusOther:
+                        x.statusOther.pop("callingCircle")
 
             for tile in self.map.tiles:
                 if tile.divine_vein != 0 and tile.divine_vein_side == ENEMY and tile.divine_vein_turn >= 1:
@@ -4489,6 +4434,8 @@ class GameplayCanvas(tk.Canvas):
             self.refresh_unit_visuals_obj(unit)
 
             unit.unitCombatInitiates = 0
+            unit.num_foes_defeated = 0
+
             unit.assistTargetedSelf = 0
             unit.assistTargetedOther = 0
 
@@ -4496,14 +4443,20 @@ class GameplayCanvas(tk.Canvas):
             unit.assistTargetedSelf_Move = 0
             unit.assistTargetedSelf_Other = 0
 
+            unit.moveOrDestroyActions = 0
+
             if unit.pair_up_obj:
                 unit.pair_up_obj.unitCombatInitiates = 0
+                unit.pair_up_obj.num_foes_defeated = 0
+
                 unit.pair_up_obj.assistTargetedSelf = 0
                 unit.pair_up_obj.assistTargetedOther = 0
 
                 unit.pair_up_obj.assistTargetedSelf_Rally = 0
                 unit.pair_up_obj.assistTargetedSelf_Move = 0
                 unit.pair_up_obj.assistTargetedSelf_Other = 0
+
+                unit.pair_up_obj.moveOrDestroyActions = 0
 
         for unit in end_actions:
             self.units_to_move.remove(unit)
@@ -4518,6 +4471,14 @@ class GameplayCanvas(tk.Canvas):
                     cur_tile_struct = self.map.tiles[tile_int].structure_on
                     if self.map.tiles[tile_int].terrain != 4 and (not cur_tile_struct or (cur_tile_struct and cur_tile_struct.health != -1)):
                         self.map.tiles[tile_int].divine_vein = DV_STONE
+                        self.map.tiles[tile_int].divine_vein_side = side
+                        self.map.tiles[tile_int].divine_vein_turn = 1
+
+            if (side, "haze") in divine_veins:
+                for tile_int in divine_veins[(side, "haze")]:
+                    cur_tile_struct = self.map.tiles[tile_int].structure_on
+                    if self.map.tiles[tile_int].terrain != 4 and (not cur_tile_struct or (cur_tile_struct and cur_tile_struct.health != -1)):
+                        self.map.tiles[tile_int].divine_vein = DV_HAZE
                         self.map.tiles[tile_int].divine_vein_side = side
                         self.map.tiles[tile_int].divine_vein_turn = 1
 
@@ -4537,6 +4498,8 @@ class GameplayCanvas(tk.Canvas):
             self.map_states.append(mapstate)
         else:
             self.next_phase()
+
+        self.refresh_layering()
 
         return
 
@@ -4572,7 +4535,7 @@ class GameplayCanvas(tk.Canvas):
             if tile in self.unit_drag_points and self.unit_drag_points[tile].hero:
                 self.unit_status.update_from_obj(self.unit_drag_points[tile].hero)
 
-        # Move Units withing Drag Points
+        # Move Units within Drag Points
         if not self.running and tile in self.unit_drag_points and self.unit_drag_points[tile].hero:
             S = self.unit_drag_points[tile].side
 
@@ -4609,7 +4572,10 @@ class GameplayCanvas(tk.Canvas):
 
                     # CASE 1: Moving Offense Side
                     if S == PLAYER:
-                        if 5 < cur_tile.tileNum < 12:
+
+                        cc_tile = self.get_struct_tile_by_name("Calling Circle (O)")
+
+                        if 5 < cur_tile.tileNum < 12 or (cc_tile and cur_tile.tileNum == cc_tile.tileNum):
                             swapable_img = self.create_image(x_move, y_move, anchor=tk.NW, image=self.move_tile_photos[5])
                             self.tag_lower(swapable_img, 6)
                             self.tile_sprites.append(swapable_img)
@@ -4622,7 +4588,9 @@ class GameplayCanvas(tk.Canvas):
 
                     # CASE 2: Moving Defense Side
                     else:
-                        if 35 < cur_tile.tileNum < 48:
+                        cc_tile = self.get_struct_tile_by_name("Calling Circle (D)")
+
+                        if 35 < cur_tile.tileNum < 48 or (cc_tile and cur_tile.tileNum == cc_tile.tileNum):
                             swapable_img = self.create_image(x_move, y_move, anchor=tk.NW, image=self.move_tile_photos[5])
                             self.tag_lower(swapable_img, 6)
                             self.tile_sprites.append(swapable_img)
@@ -4641,8 +4609,120 @@ class GameplayCanvas(tk.Canvas):
 
             self.drag_data['valid_moves'] = valid_unit_moves
 
+        # Dragging unit from Calling Circle (O)
+        if not self.running and self.get_struct_tile_by_name("Calling Circle (O)") and tile == self.get_struct_tile_by_name("Calling Circle (O)").tileNum and self.unit_reinf_points[-2].hero:
+            self.unit_status.update_from_obj(self.unit_reinf_points[-2].hero)
+
+            S = self.unit_reinf_points[-2].hero.side
+
+            index = len(self.drag_point_units[S])
+
+            self.drag_data = {
+                'cur_x': event.x,
+                'cur_y': event.y,
+                'start_tile': tile,
+                'prep_unit_id': self.unit_tags[S][index],
+                'side': S
+            }
+
+            self.tag_raise(self.unit_sprites[S][index])
+            self.tag_raise(self.unit_sprites_gs[S][index])
+            self.tag_raise(self.unit_sprites_trans[S][index])
+            self.tag_raise(self.unit_sprites_gs_trans[S][index])
+            self.tag_raise(self.unit_weapon_icon_sprites[S][index])
+            self.tag_raise(self.unit_hp_count_labels[S][index])
+            self.tag_raise(self.unit_sp_count_labels[S][index])
+            self.tag_raise(self.unit_hp_bars_bg[S][index])
+            self.tag_raise(self.unit_hp_bars_fg[S][index])
+
+            if self.game_mode == hero.GameMode.AetherRaids:
+                for starting_tile in self.starting_tile_photos:
+                    self.itemconfigure(starting_tile, state='hidden')
+
+                valid_unit_moves = []
+
+                for cur_tile in self.map.tiles:
+                    x_move = 90 * (cur_tile.tileNum % 6)
+                    y_move = 90 * (7 - (cur_tile.tileNum // 6))
+
+                    if 5 < cur_tile.tileNum < 12 or cur_tile.tileNum == self.get_struct_tile_by_name("Calling Circle (O)").tileNum:
+                        swapable_img = self.create_image(x_move, y_move, anchor=tk.NW, image=self.move_tile_photos[5])
+                        self.tag_lower(swapable_img, 6)
+                        self.tile_sprites.append(swapable_img)
+                        valid_unit_moves.append(cur_tile.tileNum)
+                    else:
+                        cur_dark_tile = self.create_rectangle_alpha(0, 0, 90, 90, fill='black', alpha=0.5, anchor=tk.CENTER)
+                        self.tag_lower(cur_dark_tile, 6)
+                        self.coords(cur_dark_tile, x_move, y_move)
+                        self.tile_sprites.append(cur_dark_tile)
+
+            else:
+                valid_unit_moves = []
+
+                for cur_tile in self.map.tiles:
+                    if cur_tile.tileNum in self.unit_drag_points and self.unit_drag_points[cur_tile.tileNum].side == S:
+                        valid_unit_moves.append(cur_tile.tileNum)
+
+            self.drag_data['valid_moves'] = valid_unit_moves
+
+        # Dragging unit from Calling Circle (D)
+        elif not self.running and self.get_struct_tile_by_name("Calling Circle (D)") and tile == self.get_struct_tile_by_name("Calling Circle (D)").tileNum and self.unit_reinf_points[-3].hero:
+            self.unit_status.update_from_obj(self.unit_reinf_points[-3].hero)
+
+            S = self.unit_reinf_points[-3].hero.side
+
+            index = len(self.drag_point_units[S])
+
+            self.drag_data = {
+                'cur_x': event.x,
+                'cur_y': event.y,
+                'start_tile': tile,
+                'prep_unit_id': self.unit_tags[S][index],
+                'side': S
+            }
+
+            self.tag_raise(self.unit_sprites[S][index])
+            self.tag_raise(self.unit_sprites_gs[S][index])
+            self.tag_raise(self.unit_sprites_trans[S][index])
+            self.tag_raise(self.unit_sprites_gs_trans[S][index])
+            self.tag_raise(self.unit_weapon_icon_sprites[S][index])
+            self.tag_raise(self.unit_hp_count_labels[S][index])
+            self.tag_raise(self.unit_sp_count_labels[S][index])
+            self.tag_raise(self.unit_hp_bars_bg[S][index])
+            self.tag_raise(self.unit_hp_bars_fg[S][index])
+
+            if self.game_mode == hero.GameMode.AetherRaids:
+                for starting_tile in self.starting_tile_photos:
+                    self.itemconfigure(starting_tile, state='hidden')
+
+                valid_unit_moves = []
+
+                for cur_tile in self.map.tiles:
+                    x_move = 90 * (cur_tile.tileNum % 6)
+                    y_move = 90 * (7 - (cur_tile.tileNum // 6))
+
+                    if 35 < cur_tile.tileNum < 48  or cur_tile.tileNum == self.get_struct_tile_by_name("Calling Circle (D)").tileNum:
+                        swapable_img = self.create_image(x_move, y_move, anchor=tk.NW, image=self.move_tile_photos[5])
+                        self.tag_lower(swapable_img, 6)
+                        self.tile_sprites.append(swapable_img)
+                        valid_unit_moves.append(cur_tile.tileNum)
+                    else:
+                        cur_dark_tile = self.create_rectangle_alpha(0, 0, 90, 90, fill='black', alpha=0.5, anchor=tk.CENTER)
+                        self.tag_lower(cur_dark_tile, 6)
+                        self.coords(cur_dark_tile, x_move, y_move)
+                        self.tile_sprites.append(cur_dark_tile)
+
+                else:
+                    valid_unit_moves = []
+
+                    for cur_tile in self.map.tiles:
+                        if cur_tile.tileNum in self.unit_drag_points and self.unit_drag_points[cur_tile.tileNum].side == S:
+                            valid_unit_moves.append(cur_tile.tileNum)
+
+                self.drag_data['valid_moves'] = valid_unit_moves
+
         # Move Aether Raids structures
-        if not self.running and self.map.tiles[tile].structure_on and self.map.tiles[tile].structure_on.struct_type != 0:
+        elif not self.running and self.map.tiles[tile].structure_on and self.map.tiles[tile].structure_on.struct_type != 0:
 
             for starting_tile in self.starting_tile_photos:
                 self.itemconfigure(starting_tile, state='hidden')
@@ -4720,10 +4800,10 @@ class GameplayCanvas(tk.Canvas):
 
             self.tag_raise(self.ar_struct_sprites[self.drag_data['struct_id']])
 
-        cur_struct = self.map.tiles[tile].structure_on
+            cur_struct = self.map.tiles[tile].structure_on
 
-        if cur_struct:
-            self.unit_status.update_from_struct(cur_struct)
+            if cur_struct:
+                self.unit_status.update_from_struct(cur_struct)
 
         # Nothing else if not running
         if not self.running:
@@ -4749,8 +4829,29 @@ class GameplayCanvas(tk.Canvas):
         # If this movement is as a canto move and currently selecting the canto-enabled unit
         is_canto_move = self.canto == cur_hero
 
+        has_style, current_style = cur_hero.get_style_conditions(self.turn_info[0])
+
+        # Enable Pair Up Button
+        if S == PLAYER and self.all_cohorts[item_index]:
+            self.button_frame.action_button.config(text='Swap\nCohort')
+
+            if self.turn_info[1] == PLAYER and feh.can_be_on_tile(cur_hero.tile, self.all_cohorts[item_index]) and not self.swap_mode and not is_canto_move:
+                self.button_frame.action_button.config(state='normal', command=partial(self.switch_pairing, cur_hero))
+            else:
+                self.button_frame.action_button.config(state='disabled')
+
+        # Enable Style Button
+        elif S == self.turn_info[1] and has_style:
+            self.button_frame.action_button.config(text='Switch\nStyle')
+
+            if cur_hero.style_ready and len(current_style) == 1 and not self.canto and not self.swap_mode:
+                style = current_style[0]
+                self.button_frame.action_button.config(state='normal', command=partial(self.switch_style, cur_hero, self.current_units[S], self.current_units[S-1], style))
+            else:
+                self.button_frame.action_button.config(state='disabled')
+
         # Enable Duo Skill Button
-        if S == PLAYER and cur_hero.duo_skill and not self.all_cohorts[item_index]:
+        elif S == PLAYER and cur_hero.duo_skill and not self.all_cohorts[item_index]:
             if cur_hero.duo_skill.type == 'duo':
                 self.button_frame.action_button.config(text='Duo\nSkill')
             else:
@@ -4759,19 +4860,13 @@ class GameplayCanvas(tk.Canvas):
             # Move lower
             CreateToolTip(self.button_frame.action_button, cur_hero.duo_skill.desc)
 
-            duos_hindr_present = self.get_struct_by_name("Duo's Hindrance") and self.get_struct_by_name("Duo's Hindrance").level + 2 >= self.turn_info[0] and self.get_struct_by_name("Duo's Hindrance").health != 0
+            duos_hindr_present = self.get_struct_by_name("Duo's Hindrance") and self.get_struct_by_name("Duo's Hindrance").level + 2 >= self.turn_info[0] and self.get_struct_by_name(
+                "Duo's Hindrance").health != 0
             duo_on_foe_team = any(foe for foe in self.current_units[ENEMY] if foe.duo_skill and foe.HPcur != 0)
 
-            if self.turn_info[1] == PLAYER and cur_hero.duo_cooldown == 0 and feh.can_use_duo_skill(cur_hero, self.units_to_move) and not self.swap_mode and not is_canto_move and not(duos_hindr_present and duo_on_foe_team):
+            if self.turn_info[1] == PLAYER and cur_hero.duo_cooldown == 0 and feh.can_use_duo_skill(cur_hero, self.units_to_move) and not self.swap_mode and not is_canto_move and not (
+                    duos_hindr_present and duo_on_foe_team):
                 self.button_frame.action_button.config(state='normal', command=partial(self.use_duo_skill, cur_hero))
-            else:
-                self.button_frame.action_button.config(state='disabled')
-
-        # Enable Pair Up Button
-        elif S == PLAYER and self.all_cohorts[item_index]:
-            self.button_frame.action_button.config(text='Swap\nCohort')
-            if self.turn_info[1] == PLAYER and feh.can_be_on_tile(cur_hero.tile, self.all_cohorts[item_index]) and not self.swap_mode and not is_canto_move:
-                self.button_frame.action_button.config(state='normal', command=partial(self.switch_pairing, cur_hero))
             else:
                 self.button_frame.action_button.config(state='disabled')
         else:
@@ -4820,12 +4915,24 @@ class GameplayCanvas(tk.Canvas):
         unit_team = current_units[S]
         other_team = current_units[S - 1]
 
+        # If not the style unit, clear style tiles
+        if self.style_unit != cur_hero and not self.swap_mode and not self.canto:
+            for tile_sprite in self.canto_tile_imgs:
+                self.delete(tile_sprite)
+            self.canto_tile_imgs.clear()
+
+            self.style_unit = None
+            self.style_name = None
+
         if is_canto_move:
             sdd['moves'], sdd['paths'], moves_obj_array = feh.get_canto_moves(cur_hero, unit_team, other_team, self.distance, self.spaces_allowed, self.chosen_action, self.turn_info[0], self.starting_tile, self.has_unit_warped)
 
         else:
-            sdd['moves'], sdd['paths'], moves_obj_array = feh.get_regular_moves(cur_hero, unit_team, other_team)
+            sdd['moves'], sdd['paths'], moves_obj_array = feh.get_regular_moves(cur_hero, unit_team, other_team, style=self.style_name)
             self.spaces_allowed = feh.allowed_movement(cur_hero)
+
+            if self.style_name == "ASTRA-STORM" or self.style_name == "EMBLEM-LYN":
+                self.spaces_allowed = 0
 
         sdd['moves_obj_array'] = moves_obj_array
 
@@ -4839,7 +4946,7 @@ class GameplayCanvas(tk.Canvas):
         TILE_PALE_GREEN = 5
 
         # Create blue tiles for each possible movements
-        if not (self.canto is not None and cur_hero == self.canto) and not self.swap_mode:
+        if not (self.canto is not None and cur_hero == self.canto) and not self.swap_mode and self.style_unit != cur_hero:
             for move in moves_obj_array:
                 x_comp = move.destination % 6
                 y_comp = move.destination // 6
@@ -4864,7 +4971,16 @@ class GameplayCanvas(tk.Canvas):
         if cur_hero.weapon and not (self.canto is not None and self.canto == cur_hero) and not self.swap_mode:
             for move in moves_obj_array:
                 #atk_arr = get_attack_tiles(move.destination, cur_hero.weapon.range)
-                atk_arr = self.map.tiles[move.destination].tilesNSpacesAway(cur_hero.weapon.range)
+
+                if self.style_name == "ASTRA-STORM":
+                    atk_arr = list(set(self.map.tiles[move.destination].tilesWithinNSpaces(6)) & set(self.map.tiles[move.destination].tilesWithinNRowsOrCols(3, 3)))
+                elif self.style_name == "EMBLEM-LYN":
+                    atk_arr = list(set(self.map.tiles[move.destination].tilesWithinNSpaces(5)) & set(self.map.tiles[move.destination].tilesWithinNRowsOrCols(3, 3)))
+                elif self.style_name == "WIND-SWORD":
+                    atk_arr = self.map.tiles[move.destination].tilesNSpacesAway(2)
+                else:
+                    atk_arr = self.map.tiles[move.destination].tilesNSpacesAway(cur_hero.weapon.range)
+
                 for atk_tile in atk_arr:
                     if atk_tile.tileNum not in attack_range:
                         attack_range.append(atk_tile.tileNum)
@@ -4873,38 +4989,49 @@ class GameplayCanvas(tk.Canvas):
                         perimeter_attack_range.append(atk_tile.tileNum)
 
         # Draw red attack tiles within range
-        for n in perimeter_attack_range:
-            x_comp = n % 6
-            y_comp = n // 6
-            cur_pixel_offset_x = x_comp * 90
-            cur_pixel_offset_y = (7 - y_comp) * 90
+        if cur_hero != self.style_unit:
+            for n in perimeter_attack_range:
+                x_comp = n % 6
+                y_comp = n // 6
+                cur_pixel_offset_x = x_comp * 90
+                cur_pixel_offset_y = (7 - y_comp) * 90
 
-            # if enemy in range, use red tile instead of pale red tile
-            # place this after calculating valid assist positioning?
-            cur_tile_photo = self.move_tile_photos[TILE_PALE_RED]
+                # if enemy in range, use red tile instead of pale red tile
+                # place this after calculating valid assist positioning?
+                cur_tile_photo = self.move_tile_photos[TILE_PALE_RED]
 
-            # Tile holds foe
-            if self.map.tiles[n].hero_on is not None:
-                if self.map.tiles[n].hero_on.side != cur_hero.side:
+                # Tile holds foe
+                if self.map.tiles[n].hero_on is not None:
+                    if self.map.tiles[n].hero_on.side != cur_hero.side:
+                        cur_tile_photo = self.move_tile_photos[TILE_RED]
+                    if self.map.tiles[n].hero_on.side == cur_hero.side and cur_hero.assist is not None:
+                        cur_tile_photo = None
+
+                # Tile holds structure that can be destroyed
+                elif self.map.tiles[n].structure_on is not None:
+                    if self.map.tiles[n].structure_on.struct_type != S + 1 and self.map.tiles[n].structure_on.health > 0 and ("Trap" not in self.map.tiles[n].structure_on.name and "Calling" not in self.map.tiles[n].structure_on.name):
+                        cur_tile_photo = self.move_tile_photos[TILE_RED]
+
+                elif self.map.tiles[n].divine_vein == DV_ICE and self.map.tiles[n].divine_vein_turn >= 1 and self.map.tiles[n].divine_vein_side != S:
                     cur_tile_photo = self.move_tile_photos[TILE_RED]
-                if self.map.tiles[n].hero_on.side == cur_hero.side and cur_hero.assist is not None:
-                    cur_tile_photo = None
 
-            # Tile holds structure that can be destroyed
-            elif self.map.tiles[n].structure_on is not None:
-                if self.map.tiles[n].structure_on.struct_type != S + 1 and self.map.tiles[n].structure_on.health > 0 and "Trap" not in self.map.tiles[n].structure_on.name:
-                    cur_tile_photo = self.move_tile_photos[TILE_RED]
-
-            elif self.map.tiles[n].divine_vein == DV_ICE and self.map.tiles[n].divine_vein_turn >= 1 and self.map.tiles[n].divine_vein_side != S:
-                cur_tile_photo = self.move_tile_photos[TILE_RED]
-
-            curTile = self.create_image(cur_pixel_offset_x, cur_pixel_offset_y, anchor=tk.NW, image=cur_tile_photo)
-            self.tile_sprites.append(curTile)
+                curTile = self.create_image(cur_pixel_offset_x, cur_pixel_offset_y, anchor=tk.NW, image=cur_tile_photo)
+                self.tile_sprites.append(curTile)
 
         # find all points to attack all enemies from, fill canvas.drag_data['targets_and_tiles']
         if cur_hero.weapon is not None:
             for m in moves_obj_array:
-                atk_arr = self.map.tiles[m.destination].tilesNSpacesAway(cur_hero.weapon.range)
+                #atk_arr = self.map.tiles[m.destination].tilesNSpacesAway(cur_hero.weapon.range)
+
+                if self.style_name == "ASTRA-STORM":
+                    atk_arr = list(set(self.map.tiles[m.destination].tilesWithinNSpaces(6)) & set(self.map.tiles[m.destination].tilesWithinNRowsOrCols(3, 3)))
+                elif self.style_name == "EMBLEM-LYN":
+                    atk_arr = list(set(self.map.tiles[m.destination].tilesWithinNSpaces(5)) & set(self.map.tiles[m.destination].tilesWithinNRowsOrCols(3, 3)))
+                elif self.style_name == "WIND-SWORD":
+                    atk_arr = self.map.tiles[m.destination].tilesNSpacesAway(2)
+                else:
+                    atk_arr = self.map.tiles[m.destination].tilesNSpacesAway(cur_hero.weapon.range)
+
                 for atk_tile in atk_arr:
                     n = atk_tile.tileNum
 
@@ -4918,8 +5045,8 @@ class GameplayCanvas(tk.Canvas):
                             sdd['targets_and_tiles'][self.map.tiles[n].hero_on].append(m.destination)
 
                     # Destroyable structure in range
-                    elif self.map.tiles[n].structure_on is not None:
-                        if self.map.tiles[n].structure_on.health > 0 and self.map.tiles[n].structure_on.struct_type != S + 1 and "Trap" not in self.map.tiles[n].structure_on.name:
+                    elif self.map.tiles[n].structure_on is not None and (self.style_name != "ASTRA-STORM" and self.style_name != "EMBLEM-LYN"):
+                        if self.map.tiles[n].structure_on.health > 0 and self.map.tiles[n].structure_on.struct_type != S + 1 and "Trap" not in self.map.tiles[n].structure_on.name and "Calling" not in self.map.tiles[n].structure_on.name:
 
                             if self.map.tiles[n].structure_on not in sdd['targets_and_tiles']:
                                 sdd['targets_and_tiles'][self.map.tiles[n].structure_on] = [m.destination]
@@ -4928,7 +5055,7 @@ class GameplayCanvas(tk.Canvas):
                                 sdd['targets_and_tiles'][self.map.tiles[n].structure_on].append(m.destination)
 
                     # Divine Vein: Ice in range
-                    elif self.map.tiles[n].divine_vein == DV_ICE and self.map.tiles[n].divine_vein_turn >= 1 and self.map.tiles[n].divine_vein_side != S:
+                    elif self.map.tiles[n].divine_vein == DV_ICE and self.map.tiles[n].divine_vein_turn >= 1 and self.map.tiles[n].divine_vein_side != S  and (self.style_name != "ASTRA-STORM" and self.style_name != "EMBLEM-LYN"):
                         if ("ICE", self.map.tiles[n].tileNum) not in sdd['targets_and_tiles']:
                             sdd['targets_and_tiles'][("ICE", self.map.tiles[n].tileNum)] = [m.destination]
 
@@ -4939,7 +5066,7 @@ class GameplayCanvas(tk.Canvas):
         confirmed_assists = []
         unconfirmed_assists = []
 
-        if (cur_hero.assist or (self.canto == cur_hero and self.shadow_assist)) and not self.swap_mode:
+        if (cur_hero.assist or (self.canto == cur_hero and self.shadow_assist)) and not self.swap_mode and not self.style_unit:
             for m in moves_obj_array:
 
                 if not self.canto:
@@ -5024,7 +5151,7 @@ class GameplayCanvas(tk.Canvas):
                                     can_traverse_dest = feh.can_be_on_tile(self.map.tiles[final_dest], ally)
 
                                     foe_on_skip = self.map.tiles[skip_over].hero_on is not None and self.map.tiles[skip_over].hero_on.side != cur_hero.side
-                                    struct_on_skip = self.map.tiles[skip_over].structure_on and "Trap" not in self.map.tiles[skip_over].structure_on.name and self.map.tiles[skip_over].structure_on.health != 0
+                                    struct_on_skip = self.map.tiles[skip_over].structure_on and "Trap" not in self.map.tiles[skip_over].structure_on.name and "Calling" not in self.map.tiles[skip_over].structure_on.name and self.map.tiles[skip_over].structure_on.health != 0
 
                                     can_skip = self.map.tiles[skip_over].terrain != 4 and not foe_on_skip and not struct_on_skip
 
@@ -5072,9 +5199,11 @@ class GameplayCanvas(tk.Canvas):
 
                             feint_skills = ["atkFeint", "spdFeint", "defFeint", "resFeint"]
                             ruse_skills = ["atkSpdRuse", "atkDefRuse", "atkResRuse", "spdDefRuse", "spdResRuse", "defResRuse"]
+
                             self_exceptions = ["annetteRally", "annetteBoost", "hubertRuse", "shigureLink", "merlinusRally", "jolly!",
                                                "astridRally", "heiðrBoost", "goldSerpent", "niHeatherBoost", "isadoraBoost", "sling a thing",
-                                               "magicShield", "magicShieldPlus", "iceLock", "iceLockPlus", "chFRobinBoost", "suavamente"]
+                                               "magicShield", "magicShieldPlus", "iceLock", "iceLockPlus", "chFRobinBoost", "suavamente",
+                                               "wiHortensiaBoost", "iceLock", "iceLockPlus", "edainBoost", "calledToServe", "chLeoBoost"]
                             ally_exceptions = ["hubertRuse", "shigureLink", "heiðrBoost", "niHeatherBoost", "isadoraBoost", "suavamente"]
 
                             for skill in feint_skills + ruse_skills:
@@ -5084,6 +5213,10 @@ class GameplayCanvas(tk.Canvas):
                             # Other skills that enable Rally attacks (Damiel Bow, Convoy Dagger,
                             for skill in self_exceptions:
                                 if skill in cur_hero.getSkills():
+                                    valid_ally_cond = True
+
+                            for skill in ally_exceptions:
+                                if skill in ally.getSkills():
                                     valid_ally_cond = True
 
                             for skill in ["rallyUpAtk", "rallyUpSpd", "rallyUpDef", "rallyUpRes"]:
@@ -5174,14 +5307,14 @@ class GameplayCanvas(tk.Canvas):
 
         # Raise enemy team
         i = 0
-        while i < len(self.all_units[S - 1]):
+        while i < len(self.current_units[S - 1]):
             self.tag_raise(self.unit_sprites[S - 1][i])
             self.tag_raise(self.unit_sprites_gs[S - 1][i])
             self.tag_raise(self.unit_sprites_trans[S - 1][i])
             self.tag_raise(self.unit_sprites_gs_trans[S - 1][i])
             self.tag_raise(self.unit_weapon_icon_sprites[S - 1][i])
 
-            if S == ENEMY:
+            if S == ENEMY and self.cohort_sprites:
                 if self.cohort_sprites[i]: self.tag_raise(self.cohort_sprites[i])
                 if self.cohort_sprites_gs[i]: self.tag_raise(self.cohort_sprites_gs[i])
                 if self.cohort_sprites_trans[i]: self.tag_raise(self.cohort_sprites_trans[i])
@@ -5220,6 +5353,9 @@ class GameplayCanvas(tk.Canvas):
             self.tag_raise(self.unit_hp_bars_fg[S][i])
             i += 1
 
+        for x in self.all_units[S] + self.all_units[S-1]:
+            if x.HPcur != 0:
+                self.update_unit_graphics(x)
 
         sdd['arrow_path'] = []
         sdd['attack_range'] = attack_range
@@ -5242,8 +5378,6 @@ class GameplayCanvas(tk.Canvas):
                 self.tag_lower(ar_sprite, min(self.tile_sprites[0], min(self.divine_vein_sprites, default=self.tile_sprites[0] + 1)))
 
         self.refresh_divine_veins()
-
-            #self.tag_raise(self.tile_sprites[0], ar_sprite)
 
         # Raise self
         self.tag_raise(self.unit_sprites[S][item_index])
@@ -5363,7 +5497,7 @@ class GameplayCanvas(tk.Canvas):
 
                 distance = abs(target_tile % 6 - sdd["start_x_comp"]) + abs(target_tile // 6 - sdd["start_y_comp"])
 
-                aoe_disabled = feh.get_aoe_disable(cur_hero, cur_tile_Obj.hero_on)
+                aoe_disabled = feh.get_aoe_disable(cur_hero, cur_tile_Obj.hero_on) or self.style_unit
 
                 # Display AOE
                 if cur_hero.special and cur_hero.special.type == "AOE" and not aoe_disabled:
@@ -5387,8 +5521,8 @@ class GameplayCanvas(tk.Canvas):
                 savior_unit = None
 
                 for ally in feh.allies_within_n(cur_tile_Obj.hero_on, 2):
-                    far_savior_skill = "nearSavior" in ally.getSkills() and (ally.getSkills()["nearSavior"] == 2 or ally in feh.allies_within_n(cur_tile_Obj.hero_on, 1))
-                    near_savior_skill = "farSavior" in ally.getSkills() and (ally.getSkills()["farSavior"] == 2 or ally in feh.allies_within_n(cur_tile_Obj.hero_on, 1))
+                    near_savior_skill = "nearSavior" in ally.getSkills() and (ally.getSkills()["nearSavior"] == 2 or ally in feh.allies_within_n(cur_tile_Obj.hero_on, 1))
+                    far_savior_skill = "farSavior" in ally.getSkills() and (ally.getSkills()["farSavior"] == 2 or ally in feh.allies_within_n(cur_tile_Obj.hero_on, 1))
                     assign_decoy_status = Status.AssignDecoy in ally.statusPos and (cur_hero.wpnType in hero.MELEE_WEAPONS and ally.wpnType in hero.MELEE_WEAPONS or cur_hero.wpnType in hero.RANGED_WEAPONS and ally.wpnType in hero.RANGED_WEAPONS)
 
                     arg_true_sum = int(far_savior_skill) + int(near_savior_skill) + int(assign_decoy_status)
@@ -5409,14 +5543,14 @@ class GameplayCanvas(tk.Canvas):
 
                 if savior_unit is None:
 
-                    self.extras.set_forecast_banner_foe(cur_hero, cur_tile_Obj.hero_on, distance, False, self.turn_info[0], self.combat_fields, self.ar_structs, self.units_to_move)
+                    self.extras.set_forecast_banner_foe(cur_hero, cur_tile_Obj.hero_on, distance, False, self.turn_info[0], self.combat_fields, self.ar_structs, self.units_to_move, self.style_name)
                     self.unit_status.update_from_obj(cur_tile_Obj.hero_on)
                 else:
                     prev_savior_tile_Obj = savior_unit.tile
 
                     savior_unit.tile = cur_tile_Obj
 
-                    self.extras.set_forecast_banner_foe(cur_hero, savior_unit, distance, True, self.turn_info[0], self.combat_fields, self.ar_structs, self.units_to_move)
+                    self.extras.set_forecast_banner_foe(cur_hero, savior_unit, distance, True, self.turn_info[0], self.combat_fields, self.ar_structs, self.units_to_move, self.style_name)
                     self.unit_status.update_from_obj(savior_unit)
 
                     savior_unit.tile = prev_savior_tile_Obj
@@ -5457,7 +5591,8 @@ class GameplayCanvas(tk.Canvas):
 
         # If moving onto a space with a destroyable structure
         elif (cur_tile_Obj.structure_on and cur_tile_Obj.structure_on.health > 0 and cur_tile_Obj.structure_on.struct_type != S + 1
-              and cur_tile_int in self.drag_data['attack_range'] and "Trap" not in cur_tile_Obj.structure_on.name):
+              and cur_tile_int in self.drag_data['attack_range'] and "Trap" not in cur_tile_Obj.structure_on.name and "Calling" not in cur_tile_Obj.structure_on.name
+                and self.style_name != "ASTRA-STORM" and self.style_name != "EMBLEM-LYN"):
 
                 target_tile = self.drag_data['targets_and_tiles'][self.map.tiles[cur_tile_int].structure_on][0]
 
@@ -5474,7 +5609,7 @@ class GameplayCanvas(tk.Canvas):
                 self.extras.set_forecast_banner_struct(cur_hero, self.map.tiles[cur_tile_int].structure_on)
 
         # If moving onto a space with a divine vein
-        elif (cur_tile_Obj.divine_vein == DV_ICE and cur_tile_Obj.divine_vein_side != S and cur_tile_Obj.divine_vein_turn > 0) and cur_tile_int in self.drag_data['attack_range']:
+        elif (cur_tile_Obj.divine_vein == DV_ICE and cur_tile_Obj.divine_vein_side != S and cur_tile_Obj.divine_vein_turn > 0) and cur_tile_int in self.drag_data['attack_range'] and self.style_name != "ASTRA-STORM" and self.style_name != "EMBLEM-LYN":
             target_tile = self.drag_data['targets_and_tiles'][("ICE", cur_tile_int)][0]
 
             # If a different tile has been visited that allows break of ice
@@ -5730,22 +5865,83 @@ class GameplayCanvas(tk.Canvas):
             destination_tile = x_comp + y_comp * 6
             start_tile = sdd['start_tile']
 
-            if destination_tile in sdd['valid_moves'] and start_tile != destination_tile and 539 > event.x > 0 and 720 > event.y > 0:
-                # CASE 1: destination_tile has nothing on it
-                if not self.unit_drag_points[destination_tile].hero and not self.map.tiles[destination_tile].structure_on:
-                    self.unit_drag_points[destination_tile].hero = self.unit_drag_points[start_tile].hero
-                    self.unit_drag_points[start_tile].hero = None
-                elif self.unit_drag_points[destination_tile].hero:
-                    cur = self.unit_drag_points[start_tile].hero
 
-                    self.unit_drag_points[start_tile].hero = self.unit_drag_points[destination_tile].hero
-                    self.unit_drag_points[destination_tile].hero = cur
+            if destination_tile in sdd['valid_moves'] and start_tile != destination_tile and 539 > event.x > 0 and 720 > event.y > 0:
+
+                # Dragging onto a Calling Circle
+                if self.map.tiles[destination_tile].structure_on and "Calling" in self.map.tiles[destination_tile].structure_on.name:
+                    cco_tile = self.get_struct_tile_by_name("Calling Circle (O)")
+                    ccd_tile = self.get_struct_tile_by_name("Calling Circle (D)")
+
+                    # Is Calling Circle O
+                    if cco_tile and destination_tile == cco_tile.tileNum:
+
+                        # Is currently occupied
+                        if self.unit_reinf_points[-2].hero:
+                            cur = self.unit_reinf_points[-2].hero
+
+                            self.unit_reinf_points[-2].hero = self.unit_drag_points[start_tile].hero
+                            self.unit_drag_points[start_tile].hero = cur
+                        else:
+                            self.unit_reinf_points[-2].hero = self.unit_drag_points[start_tile].hero
+                            self.unit_drag_points[start_tile].hero = None
+
+                    # Is Calling Circle D
+                    elif ccd_tile and destination_tile == ccd_tile.tileNum:
+
+                        if self.unit_reinf_points[-3].hero:
+                            cur = self.unit_reinf_points[-3].hero
+
+                            self.unit_reinf_points[-3].hero = self.unit_drag_points[start_tile].hero
+                            self.unit_drag_points[start_tile].hero = cur
+                        else:
+                            self.unit_reinf_points[-3].hero = self.unit_drag_points[start_tile].hero
+                            self.unit_drag_points[start_tile].hero = None
+
+                # Dragging onto a point with no hero and no structure
+                elif not self.unit_drag_points[destination_tile].hero and not self.map.tiles[destination_tile].structure_on:
+                    cco_tile = self.get_struct_tile_by_name("Calling Circle (O)")
+                    ccd_tile = self.get_struct_tile_by_name("Calling Circle (D)")
+
+                    if cco_tile and start_tile == cco_tile.tileNum:
+                        self.unit_drag_points[destination_tile].hero = self.unit_reinf_points[-2].hero
+                        self.unit_reinf_points[-2].hero = None
+                    elif ccd_tile and start_tile == ccd_tile.tileNum:
+                        self.unit_drag_points[destination_tile].hero = self.unit_reinf_points[-3].hero
+                        self.unit_reinf_points[-3].hero = None
+                    else:
+                        self.unit_drag_points[destination_tile].hero = self.unit_drag_points[start_tile].hero
+                        self.unit_drag_points[start_tile].hero = None
+
+                # Dragging onto a point with hero
+                elif self.unit_drag_points[destination_tile].hero:
+                    cco_tile = self.get_struct_tile_by_name("Calling Circle (O)")
+                    ccd_tile = self.get_struct_tile_by_name("Calling Circle (D)")
+
+                    if cco_tile and start_tile == cco_tile.tileNum:
+                        cur = self.unit_reinf_points[-2].hero
+
+                        self.unit_reinf_points[-2].hero = self.unit_drag_points[destination_tile].hero
+                        self.unit_drag_points[destination_tile].hero = cur
+                    elif ccd_tile and start_tile == ccd_tile.tileNum:
+                        cur = self.unit_reinf_points[-3].hero
+
+                        self.unit_reinf_points[-3].hero = self.unit_drag_points[destination_tile].hero
+                        self.unit_drag_points[destination_tile].hero = cur
+                    else:
+                        cur = self.unit_drag_points[start_tile].hero
+
+                        self.unit_drag_points[start_tile].hero = self.unit_drag_points[destination_tile].hero
+                        self.unit_drag_points[destination_tile].hero = cur
+
+                # Dragging onto a structure
                 else:
                     self.unit_drag_points[destination_tile].hero = self.unit_drag_points[start_tile].hero
                     self.unit_drag_points[start_tile].hero = None
 
                     self.map.tiles[start_tile].structure_on = self.map.tiles[destination_tile].structure_on
                     self.map.tiles[destination_tile].structure_on = None
+
 
             self.refresh_units_prep()
             self.refresh_walls()
@@ -5759,7 +5955,7 @@ class GameplayCanvas(tk.Canvas):
 
             self.drag_data = None
 
-        if not self.running and sdd and 'struct_id' in sdd:
+        elif not self.running and sdd and 'struct_id' in sdd:
             x_comp = event.x // 90
             y_comp = ((720 - event.y) // 90)
             destination_tile = x_comp + y_comp * 6
@@ -5788,6 +5984,7 @@ class GameplayCanvas(tk.Canvas):
 
                     self.refresh_units_prep()
 
+            self.refresh_units_prep()
             self.refresh_walls()
 
             for tile in self.starting_tile_photos:
@@ -5855,6 +6052,12 @@ class GameplayCanvas(tk.Canvas):
         for arrow in sdd['arrow_path']:
             self.delete(arrow)
 
+        # Delete movement tiles if using a style
+        if self.style_unit:
+            for tile_sprite in self.canto_tile_imgs:
+                self.delete(tile_sprite)
+            self.canto_tile_imgs.clear()
+
         # Delete all AoE icons
         for aoe_icon in self.active_aoe_icons:
             self.delete(aoe_icon)
@@ -5905,6 +6108,9 @@ class GameplayCanvas(tk.Canvas):
             return
 
         if not successful_move:
+            self.style_unit = None
+            self.style_name = None
+
             self.drag_data = None
             return
 
@@ -6149,7 +6355,7 @@ class GameplayCanvas(tk.Canvas):
             aoe_present = 0
             num_aoe_targets = 0
 
-            aoe_disabled = feh.get_aoe_disable(player, enemy)
+            aoe_disabled = feh.get_aoe_disable(player, enemy) or self.style_unit
 
             # Will eventually need to change to account for skills that
             # Go back and revise, jump the count before the AoE goes off (Momentum, Arcane Truthfire)
@@ -6197,6 +6403,7 @@ class GameplayCanvas(tk.Canvas):
                                                 aoe_present,
                                                 self.units_to_move,
                                                 savior_triggered=True,
+                                                style=self.style_name,
                                                 ar_structs=self.ar_structs)
 
                 savior_unit.tile = prev_savior_tile_Obj
@@ -6221,6 +6428,7 @@ class GameplayCanvas(tk.Canvas):
                                                 aoe_present,
                                                 self.units_to_move,
                                                 savior_triggered=False,
+                                                style=self.style_name,
                                                 ar_structs=self.ar_structs)
 
             # Perform the combat and return the results
@@ -6229,6 +6437,10 @@ class GameplayCanvas(tk.Canvas):
             # Increment the number of combats each unit has partaken in during the turn
             player.unitCombatInitiates += 1
             initiated_enemy.unitCombatInitiates += 1
+
+            # If attacking with a style, consume it after combat
+            if self.style_name:
+                player.style_ready = False
 
             # Perform burn damage
             burn_damages = combat_result[14]
@@ -6348,6 +6560,12 @@ class GameplayCanvas(tk.Canvas):
                     break
 
                 i += 1
+
+            if player.HPcur == 0:
+                initiated_enemy.num_foes_defeated += 1
+
+            if initiated_enemy.HPcur == 0:
+                player.num_foes_defeated += 1
 
             # Finalized finish time, animation will end here
             finish_time = 500 * (i + 1) + 200 + aoe_present + burn_present + heals_present + 2 * savior_present
@@ -6533,14 +6751,14 @@ class GameplayCanvas(tk.Canvas):
             # Case 2: Movement with ally
 
             # Ensure tiles do not have any invalid terrain
-            if player_move_pos != -1 and ally_move_pos != -1 and player.HPcur != 0:
+            if player_move_pos != -1 and ally_move_pos != -1 and player.HPcur != 0 and not savior_unit:
                 if not feh.can_be_on_tile(self.map.tiles[player_move_pos], player):
                     player_move_pos = -1
                 elif not feh.can_be_on_tile(self.map.tiles[ally_move_pos], swapping_ally):
                     ally_move_pos = -1
 
             # If tiles are still valid, make moves
-            if player_move_pos != -1 and ally_move_pos != -1 and player.HPcur != 0 and not savior_unit:
+            if player_move_pos != -1 and ally_move_pos != -1 and player.HPcur != 0 and not savior_unit and not self.style_name:
                 player.tile.hero_on = None
                 swapping_ally.tile.hero_on = None
 
@@ -6678,6 +6896,11 @@ class GameplayCanvas(tk.Canvas):
                     player.nonspecial_galeforce_triggered = True
                     galeforce_triggered = True
 
+                # Pure Storm - V!Edelgard
+                elif "pureStorm" in playerSkills and len(feh.allies_within_n(player, 1)) <= 1 and not player.nonspecial_galeforce_triggered:
+                    player.nonspecial_galeforce_triggered = True
+                    galeforce_triggered = True
+
                 elif "goldUnwinding" in playerSkills and not player.nonspecial_galeforce_triggered and "disableBSkill" not in player.statusOther:
                     player.nonspecial_galeforce_triggered = True
                     galeforce_triggered = True
@@ -6714,7 +6937,7 @@ class GameplayCanvas(tk.Canvas):
                     player.special_galeforce_triggered = True
                     galeforce_triggered = True
 
-                # Calling Circle goes here...?
+
 
                 # STANDARD GALEFORCE
                 # Should trigger if:
@@ -6731,6 +6954,11 @@ class GameplayCanvas(tk.Canvas):
 
                         if player.pair_up_obj:
                             player.pair_up_obj.inflictStatus(Status.Gravity)
+
+                # CALLING CIRCLE
+                elif "callingCircle" in player.statusOther:
+                    player.statusOther.pop("callingCircle")
+                    galeforce_triggered = True
 
                 # GRANTING ANOTHER ACTION TO ALLIES
 
@@ -6882,10 +7110,7 @@ class GameplayCanvas(tk.Canvas):
                 hp_healed_ally = player.assist.effects["heal"]
                 hp_healed_self = 0
 
-                panic_factor = 1
-                if Status.Panic in player.statusNeg: panic_factor = -1
-                if Status.NullPanic in player.statusPos: panic_factor = 1
-                self_atk_stat = player.visible_stats[ATK] + player.buffs[ATK] * panic_factor + player.debuffs[ATK]
+                self_atk_stat = player.get_visible_stat(ATK)
 
                 # Reconcile
                 if "heal_self" in player.assist.effects:
@@ -6921,8 +7146,13 @@ class GameplayCanvas(tk.Canvas):
 
                     hp_healed_ally = max(self_atk_stat // 2 - 10, 7) + max(ally_hp_max - (2 * ally_hp_cur), 0)
 
+                # Several
                 if player.assist.effects["heal"] == -50:
                     hp_healed_ally = max(self_atk_stat // 2, 8)
+
+                # Ice Lock+
+                if player.assist.effects["heal"] == -40:
+                    hp_healed_ally = max(trunc(self_atk_stat * 0.40), 6)
 
                 staff_special_triggered = False
 
@@ -7283,6 +7513,17 @@ class GameplayCanvas(tk.Canvas):
                         foe.inflictStat(SPD, -5)
                         foe.inflictStat(DEF, -5)
                         foe.inflictStat(RES, -5)
+
+                # Dreamlike Night - SP!Plumeria
+                if "dreamlikeNight" in playerSkills:
+                    ally.canto_ready = True
+
+                    for foe in feh.nearest_foes_within_n(ally, 20):
+                        foe.inflictStat(ATK, -7)
+                        foe.inflictStat(DEF, -7)
+                        foe.inflictStat(RES, -7)
+                        foe.inflictStatus(Status.Frozen)
+                        foe.inflictStatus(Status.Sabotage)
 
                 # Frightful Dream - Triandra
                 if "triandraRefresh" in playerSkills:
@@ -7718,6 +7959,34 @@ class GameplayCanvas(tk.Canvas):
                             for foe in feh.foes_within_n_cardinal(ally, 3):
                                 foe.inflictStatus(Status.HushSpectrum)
 
+                    if "wiHortensiaBoost" in playerSkills:
+                        player.inflictStatus(Status.FoePenaltyDoubler)
+                        if player.assistTargetedOther == 0:
+                            player.chargeSpecial(1)
+                            self.refresh_unit_visuals_obj(player)
+
+                        for other_ally in feh.allies_within_n(unit, 3):
+                            other_ally.inflictStatus(Status.FoePenaltyDoubler)
+
+                            if player.assistTargetedOther == 0:
+                                other_ally.chargeSpecial(1)
+                                self.refresh_unit_visuals_obj(other_ally)
+
+                    if "edainBoost" in playerSkills:
+                        player.inflictStatus(Status.Empathy)
+                        player.inflictStatus(Status.Canto1)
+                        player.inflictStatus(Status.Pursual)
+
+                        ally.inflictStatus(Status.Empathy)
+                        ally.inflictStatus(Status.Canto1)
+                        ally.inflictStatus(Status.Pursual)
+
+                    if "calledToServe" in playerSkills:
+                        ally.inflictStatus(Status.NullBonuses)
+
+                        for other_ally in feh.allies_within_n(ally, 2):
+                            other_ally.inflictStatus(Status.NullBonuses)
+
                 # Link skills, or other effects that trigger after assist use
                 if player.assist.type == "Move":
                     if "atkSpdLink" in playerSkills or "atkSpdLink" in allySkills:
@@ -8091,6 +8360,9 @@ class GameplayCanvas(tk.Canvas):
                         if player.assistTargetedOther == 0:
                             galeforce_triggered = True
 
+                    if "chLeoBoost" in playerSkills and player.assistTargetedOther == 0:
+                        galeforce_triggered = True
+
                     if "annetteRally" in playerSkills and not(ally.wpnType in hero.RANGED_WEAPONS and ally.move == 1):
                         ally.inflictStatus(Status.MobilityUp)
 
@@ -8112,6 +8384,22 @@ class GameplayCanvas(tk.Canvas):
                         ally.inflictStat(ATK, 6)
                         ally.inflictStat(RES, 6)
                         ally.inflictStatus(Status.NullPenalties)
+
+                        if self.turn_info[0] >= 2 and "disableAssist" not in player.statusOther and player.assistTargetedOther == 0:
+                            galeforce_triggered = True
+                            player.inflictStatus(Status.Gravity)
+                            player.statusOther["disableAssist"] = 2
+
+                            if player.pair_up_obj:
+                                player.pair_up_obj.inflictStatus(Status.Gravity)
+
+                    if "iceLock" in playerSkills:
+                        ally.inflictStat(DEF, 4)
+                        ally.inflictStat(RES, 4)
+
+                    if "iceLockPlus" in playerSkills:
+                        ally.inflictStat(DEF, 6)
+                        ally.inflictStat(RES, 6)
 
                         if self.turn_info[0] >= 2 and "disableAssist" not in player.statusOther and player.assistTargetedOther == 0:
                             galeforce_triggered = True
@@ -8178,10 +8466,30 @@ class GameplayCanvas(tk.Canvas):
 
                 # Divine Nectar - Heiðrún
                 if Status.DivineNectar in player.statusPos:
-                    for ally in feh.allies_within_n(player, 20):
-                         if "divineNectar" in ally.getSkills() and not ally.nonspecial_galeforce_triggered:
-                            ally.nonspecial_galeforce_triggered = True
+                    for other_ally in feh.allies_within_n(player, 20):
+                         if "divineNectar" in other_ally.getSkills() and not other_ally.nonspecial_galeforce_triggered:
+                            other_ally.nonspecial_galeforce_triggered = True
                             galeforce_triggered = True
+
+                         if "nectarsMagic" in other_ally.getSkills() and not other_ally.nonspecial_galeforce_triggered:
+                            other_ally.nonspecial_galeforce_triggered = True
+                            galeforce_triggered = True
+
+                         if "newYearTreats" in other_ally.getSkills() and not other_ally.assist_galeforce_triggered:
+                            player.inflictStat(ATK, 6)
+                            player.inflictStat(RES, 6)
+                            player.inflictStatus(Status.Charge)
+                            player.chargeSpecial(1)
+
+                            other_ally.inflictStat(ATK, 6)
+                            other_ally.inflictStat(RES, 6)
+                            other_ally.inflictStatus(Status.Charge)
+                            other_ally.chargeSpecial(1)
+
+                            self.refresh_unit_visuals_obj(player)
+                            self.refresh_unit_visuals_obj(other_ally)
+
+                            other_ally.assist_galeforce_triggered = True
 
                 # Future Vision - L!Lucina
                 if ("selfAssistRefresh" in player.assist.effects or "lucinaRefresh" in player.assist.effects) and player.assistTargetedOther == 0:
@@ -8278,22 +8586,28 @@ class GameplayCanvas(tk.Canvas):
                 if "niHeatherBoost" in playerSkills and player.assistTargetedOther == 0:
                     galeforce_triggered = True
 
-                # Apply Divine Veins from assist skill usage
-                divine_veins = feh.get_after_assist_veins(player, ally)
+                # CALLING CIRCLE
+                if "callingCircle" in player.statusOther and not galeforce_triggered:
+                    player.statusOther.pop("callingCircle")
+                    galeforce_triggered = True
 
-                counter = Counter(num for arr in divine_veins.values() for num in arr)
-                divine_veins = {key: [num for num in arr if counter[num] == 1] for key, arr in divine_veins.items()}
 
-                if "ice" in divine_veins:
-                    for tile_int in divine_veins["ice"]:
-                        cur_tile_struct = self.map.tiles[tile_int].structure_on
-                        cur_tile_hero_on = self.map.tiles[tile_int].hero_on
-                        if self.map.tiles[tile_int].terrain != 4 and (not cur_tile_hero_on or (cur_tile_hero_on.side == player.side)) and (not cur_tile_struct or (cur_tile_struct and cur_tile_struct.health == 0)):
-                            self.map.tiles[tile_int].divine_vein = DV_ICE
-                            self.map.tiles[tile_int].divine_vein_side = player.side
-                            self.map.tiles[tile_int].divine_vein_turn = 1
+            # Apply Divine Veins from assist skill usage
+            divine_veins = feh.get_after_assist_veins(player, ally)
 
-                self.refresh_divine_veins()
+            counter = Counter(num for arr in divine_veins.values() for num in arr)
+            divine_veins = {key: [num for num in arr if counter[num] == 1] for key, arr in divine_veins.items()}
+
+            if "ice" in divine_veins:
+                for tile_int in divine_veins["ice"]:
+                    cur_tile_struct = self.map.tiles[tile_int].structure_on
+                    cur_tile_hero_on = self.map.tiles[tile_int].hero_on
+                    if self.map.tiles[tile_int].terrain != 4 and (not cur_tile_hero_on or (cur_tile_hero_on.side == player.side)) and (not cur_tile_struct or (cur_tile_struct and cur_tile_struct.health == 0)):
+                        self.map.tiles[tile_int].divine_vein = DV_ICE
+                        self.map.tiles[tile_int].divine_vein_side = player.side
+                        self.map.tiles[tile_int].divine_vein_turn = 1
+
+            self.refresh_divine_veins()
 
             # Trap triggered after assist skill usage
             player_struct = player.tile.structure_on
@@ -8397,12 +8711,19 @@ class GameplayCanvas(tk.Canvas):
 
             player = destination_unit
 
+            player.moveOrDestroyActions += 1
+
             if "lone_wolf" in player.getSkills() and player.assistTargetedOther == 0 and player.assistTargetedSelf == 0 and not player.assist_galeforce_triggered:
                 player.assist_galeforce_triggered = True
                 galeforce_triggered = True
                 felix_galeforce_triggered = True
 
-        # IIIIIIIIIIIIIIIICE
+            # CALLING CIRCLE
+            if "callingCircle" in player.statusOther and not galeforce_triggered:
+                player.statusOther.pop("callingCircle")
+                galeforce_triggered = True
+
+        # IIIIIIIIIIIIIIIICE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         elif is_targeting_ice and not trap_triggered:
             action = BREAK
 
@@ -8417,10 +8738,17 @@ class GameplayCanvas(tk.Canvas):
 
             player = destination_unit
 
+            player.moveOrDestroyActions += 1
+
             if "lone_wolf" in player.getSkills() and player.assistTargetedOther == 0 and player.assistTargetedSelf == 0 and not player.assist_galeforce_triggered:
                 player.assist_galeforce_triggered = True
                 galeforce_triggered = True
                 felix_galeforce_triggered = True
+
+            # CALLING CIRCLE
+            if "callingCircle" in player.statusOther and not galeforce_triggered:
+                player.statusOther.pop("callingCircle")
+                galeforce_triggered = True
 
         # DO NOTHIIIIIIIIIIIIIIING!!!!!
         else:
@@ -8429,15 +8757,41 @@ class GameplayCanvas(tk.Canvas):
 
             player = destination_unit
 
+            if not self.canto:
+                player.moveOrDestroyActions += 1
+
             if "lone_wolf" in player.getSkills() and player.assistTargetedOther == 0 and player.assistTargetedSelf == 0 and not player.assist_galeforce_triggered:
                 player.assist_galeforce_triggered = True
                 galeforce_triggered = True
                 felix_galeforce_triggered = True
 
+            # CALLING CIRCLE
+            if "callingCircle" in player.statusOther and not galeforce_triggered:
+                player.statusOther.pop("callingCircle")
+                galeforce_triggered = True
+
+        has_style, current_style = cur_unit.get_style_conditions(self.turn_info[0])
 
         # Check if any sort of button can be used after action
         if cur_unit.HPcur != 0:
-            if S == PLAYER and cur_unit.duo_skill and not self.all_cohorts[item_index]:
+            # Enable Pair Up Button
+            if S == PLAYER and self.all_cohorts[item_index]:
+                self.button_frame.action_button.config(text='Swap\nCohort')
+                if self.turn_info[1] == PLAYER and feh.can_be_on_tile(cur_unit.tile, self.all_cohorts[item_index]) and not self.swap_mode:
+                    self.after(finish_time, partial(self.button_frame.action_button.config, state='normal', command=partial(self.switch_pairing, cur_unit)))
+                else:
+                    self.after(finish_time, partial(self.button_frame.action_button.config, state='disabled'))
+
+            elif has_style:
+                self.button_frame.action_button.config(text='Switch\nStyle')
+
+                if cur_unit.style_ready and len(current_style) == 1:
+                    style = current_style[0]
+                    self.button_frame.action_button.config(state='normal', command=partial(self.switch_style, cur_unit, self.current_units[S], self.current_units[S-1], style))
+                else:
+                    self.button_frame.action_button.config(state='disabled')
+
+            elif S == PLAYER and cur_unit.duo_skill and not self.all_cohorts[item_index]:
                 if cur_unit.duo_skill.type == 'duo':
                     self.after(finish_time, partial(self.button_frame.action_button.config, text='Duo\nSkill'))
                 else:
@@ -8451,13 +8805,6 @@ class GameplayCanvas(tk.Canvas):
                 else:
                     self.after(finish_time, partial(self.button_frame.action_button.config, state='disabled'))
 
-            # Enable Pair Up Button
-            elif S == PLAYER and self.all_cohorts[item_index]:
-                self.button_frame.action_button.config(text='Swap\nCohort')
-                if self.turn_info[1] == PLAYER and feh.can_be_on_tile(cur_unit.tile, self.all_cohorts[item_index]) and not self.swap_mode:
-                    self.after(finish_time, partial(self.button_frame.action_button.config, state='normal', command=partial(self.switch_pairing, cur_unit)))
-                else:
-                    self.after(finish_time, partial(self.button_frame.action_button.config, state='disabled'))
             else:
                 self.after(finish_time, partial(self.button_frame.action_button.config, state='disabled', text='Action\nButton'))
 
@@ -8627,7 +8974,7 @@ class GameplayCanvas(tk.Canvas):
                                             can_traverse_dest = feh.can_be_on_tile(self.map.tiles[final_dest], ally)
 
                                             foe_on_skip = self.map.tiles[skip_over].hero_on is not None and self.map.tiles[skip_over].hero_on.side != cur_unit.side
-                                            struct_on_skip = self.map.tiles[skip_over].structure_on and "Trap" not in self.map.tiles[skip_over].structure_on.name and self.map.tiles[
+                                            struct_on_skip = self.map.tiles[skip_over].structure_on and "Calling" not in self.map.tiles[skip_over].structure_on.name and "Trap" not in self.map.tiles[skip_over].structure_on.name and self.map.tiles[
                                                 skip_over].structure_on.health != 0
 
                                             can_skip = self.map.tiles[skip_over].terrain != 4 and not foe_on_skip and not struct_on_skip
@@ -8687,7 +9034,6 @@ class GameplayCanvas(tk.Canvas):
                             if n not in [m.destination for m in moves_obj_array]:
                                 self.after(finish_time, create_tile, x1, y1, z1)
 
-
                 else:
                     self.canto = None
                     self.shadow_assist = None
@@ -8742,6 +9088,23 @@ class GameplayCanvas(tk.Canvas):
 
             self.after(finish_time, self.refresh_divine_veins)
 
+        # Action granted after canto
+        if not galeforce_triggered and self.canto is None and not cur_unit.canto_ready and not cur_unit.assist_galeforce_triggered and not trap_triggered:
+            if "vClaudeBoost" in cur_unit.getSkills() and cur_unit.unitCombatInitiates > 0:
+                cur_unit.assist_galeforce_triggered = True
+                cur_unit.canto_ready = True
+                galeforce_triggered = True
+
+            if "vDimitriBoost" in cur_unit.getSkills() and cur_unit.unitCombatInitiates > 0:
+                cur_unit.assist_galeforce_triggered = True
+                cur_unit.canto_ready = True
+                galeforce_triggered = True
+
+            if "vEdelgardBoost" in cur_unit.getSkills() and cur_unit.unitCombatInitiates > 0:
+                cur_unit.assist_galeforce_triggered = True
+                cur_unit.canto_ready = True
+                galeforce_triggered = True
+
         # Add current move to mapstate history
         # Handles actions once move is complete
         if successful_move and cur_hero in self.units_to_move and self.canto is None:
@@ -8782,6 +9145,9 @@ class GameplayCanvas(tk.Canvas):
 
         self.drag_data = None
 
+        self.style_unit = None
+        self.style_name = None
+
         return
 
     def on_double_click(self, event):
@@ -8790,10 +9156,25 @@ class GameplayCanvas(tk.Canvas):
         selected_tile = x_comp + 6 * y_comp
 
         if not self.running:
-            if selected_tile in self.unit_drag_points:
-                self.unit_drag_points[selected_tile].hero = None
-                self.refresh_units_prep()
 
+            cco_tile = self.get_struct_tile_by_name("Calling Circle (O)")
+            ccd_tile = self.get_struct_tile_by_name("Calling Circle (D)")
+
+            if cco_tile and selected_tile == cco_tile.tileNum:
+                self.unit_reinf_points[-2].hero = None
+
+                self.refresh_units_prep()
+                self.unit_status.clear()
+
+            elif ccd_tile and selected_tile == ccd_tile.tileNum:
+                self.unit_reinf_points[-3].hero = None
+
+                self.refresh_units_prep()
+                self.unit_status.clear()
+            elif selected_tile in self.unit_drag_points:
+                self.unit_drag_points[selected_tile].hero = None
+
+                self.refresh_units_prep()
                 self.unit_status.clear()
 
             return
@@ -8832,6 +9213,28 @@ class GameplayCanvas(tk.Canvas):
                         if cur_hero.pair_up_obj:
                             cur_hero.pair_up_obj.inflictStatus(Status.Isolation)
 
+                    # CALLING CIRCLE
+                    if "callingCircle" in cur_hero.statusOther and not galeforce_triggered:
+                        cur_hero.statusOther.pop("callingCircle")
+                        galeforce_triggered = True
+
+                    # Action granted after canto
+                    if not galeforce_triggered and self.canto is None and not cur_hero.canto_ready and not cur_hero.assist_galeforce_triggered:
+                        if "vClaudeBoost" in cur_hero.getSkills() and cur_hero.unitCombatInitiates > 0:
+                            cur_hero.assist_galeforce_triggered = True
+                            cur_hero.canto_ready = True
+                            galeforce_triggered = True
+
+                        if "vDimitriBoost" in cur_hero.getSkills() and cur_hero.unitCombatInitiates > 0:
+                            cur_hero.assist_galeforce_triggered = True
+                            cur_hero.canto_ready = True
+                            galeforce_triggered = True
+
+                        if "vEdelgardBoost" in cur_hero.getSkills() and cur_hero.unitCombatInitiates > 0:
+                            cur_hero.assist_galeforce_triggered = True
+                            cur_hero.canto_ready = True
+                            galeforce_triggered = True
+
                     if not galeforce_triggered:
                         self.units_to_move.remove(cur_hero)
 
@@ -8841,6 +9244,9 @@ class GameplayCanvas(tk.Canvas):
                         else:
                             self.itemconfig(self.unit_sprites[S][item_index], state='hidden')
                             self.itemconfig(self.unit_sprites_gs[S][item_index], state='normal')
+
+                if not self.canto:
+                    cur_hero.moveOrDestroyActions += 1
 
                 # Buffs/Debuffs given out after an action
                 feh.apply_after_action_stats(cur_hero, self.canto)
@@ -8878,6 +9284,9 @@ class GameplayCanvas(tk.Canvas):
 
                 self.refresh_divine_veins()
 
+                self.button_frame.swap_spaces_button.config(state='disabled')
+                self.button_frame.undo_button.config(state='normal')
+
                 if not self.units_to_move:
                     self.button_frame.action_button.config(state='disabled')
                     self.next_phase()
@@ -8897,6 +9306,28 @@ class GameplayCanvas(tk.Canvas):
             if selected_tile in self.unit_drag_points and self.unit_drag_points[selected_tile].hero and self.unit_drag_points[selected_tile].hero.epithet != "Generic":
                 self.hero_listing.create_edit_popup_from_unit(self.unit_drag_points[selected_tile].hero)
                 self.hero_listing.creation_make_button.config(text="Save", command=partial(self.place_unit_object, event.x, event.y))
+                self.hero_listing.creation_build_field.forget()
+                self.hero_listing.creation_make_text.forget()
+
+            if self.get_struct_tile_by_name("Calling Circle (O)") and selected_tile == self.get_struct_tile_by_name("Calling Circle (O)").tileNum:
+
+                if self.unit_reinf_points[-2].hero:
+                    self.hero_listing.create_edit_popup_from_unit(self.unit_reinf_points[-2].hero)
+                else:
+                    self.hero_listing.create_creation_popup()
+
+                self.hero_listing.creation_make_button.config(text="Save", command=partial(self.place_unit_object, -2, -2))
+                self.hero_listing.creation_build_field.forget()
+                self.hero_listing.creation_make_text.forget()
+
+            if self.get_struct_tile_by_name("Calling Circle (D)") and selected_tile == self.get_struct_tile_by_name("Calling Circle (D)").tileNum:
+
+                if self.unit_reinf_points[-3].hero:
+                    self.hero_listing.create_edit_popup_from_unit(self.unit_reinf_points[-3].hero)
+                else:
+                    self.hero_listing.create_creation_popup()
+
+                self.hero_listing.creation_make_button.config(text="Save", command=partial(self.place_unit_object, -3, -3))
                 self.hero_listing.creation_build_field.forget()
                 self.hero_listing.creation_make_text.forget()
 
@@ -8976,6 +9407,21 @@ class GameplayCanvas(tk.Canvas):
                     self.itemconfig(cur_tile, state='hidden')
 
                 self.unit_drag_points[starting_space] = _DragPoint(tile_num=starting_space, modifiable=True, side=ENEMY)
+
+        # Prepare Calling Circle for Aether Raids
+        if self.game_mode == hero.GameMode.AetherRaids:
+            turn = 3
+            amount = 1
+            target_name = None
+            target_count = -1
+
+            player_reinf_point = _ReinforcementPoint(-2, turn, amount, target_name, target_count)
+            player_reinf_point.side = PLAYER
+
+            enemy_reinf_point = _ReinforcementPoint(-3, turn, amount, target_name, target_count)
+
+            self.unit_reinf_points[-2] = player_reinf_point
+            self.unit_reinf_points[-3] = enemy_reinf_point
 
         if self.game_mode == hero.GameMode.Arena or self.game_mode == hero.GameMode.AetherRaids:
             return
@@ -9209,6 +9655,7 @@ class GameplayCanvas(tk.Canvas):
     # Update unit position graphics, when unit object has just been transferred to onto a new space
     # Unit must be alive
     def update_unit_graphics(self, unit):
+
         S = unit.side
         is_cohort = unit in self.all_cohorts
 
@@ -9231,7 +9678,7 @@ class GameplayCanvas(tk.Canvas):
             self.itemconfig(leader_weapon_sprite, state='normal')
 
             if unit.side == PLAYER:
-                if not is_cohort and self.cohort_weapon_icon_sprites[unit_index]:
+                if not is_cohort and unit not in self.reinf_point_units[PLAYER] and self.cohort_weapon_icon_sprites[unit_index]:
                     self.itemconfig(self.cohort_weapon_icon_sprites[unit_index], state='hidden')
                 elif is_cohort:
                     self.itemconfig(self.unit_weapon_icon_sprites[unit.side][unit_index], state='hidden')
@@ -9254,6 +9701,13 @@ class GameplayCanvas(tk.Canvas):
 
             self.itemconfig(self.unit_hp_bars_fg[S][unit_index], state='hidden')
             self.itemconfig(self.unit_hp_bars_bg[S][unit_index], state='hidden')
+
+            self.itemconfig(self.unit_sprites[S][unit_index], state='hidden')
+            self.itemconfig(self.unit_sprites_gs[S][unit_index], state='hidden')
+            self.itemconfig(self.unit_sprites_trans[S][unit_index], state='hidden')
+            self.itemconfig(self.unit_sprites_gs_trans[S][unit_index], state='hidden')
+
+            return
 
         # Set special count to its correct value
         if unit.specialCount != -1:
@@ -9455,9 +9909,9 @@ class GameplayCanvas(tk.Canvas):
                 visual_x = tile.x_coord * 90
                 visual_y = 630 - (90 * tile.y_coord)
 
-                vein_sprite = self.create_image(visual_x + offsets[local_vein_type][0], visual_y + offsets[local_vein_type][1], anchor='nw', image=vein_photo)
-                vein_text_shadow = self.create_text(visual_x + 45, visual_y + 45, anchor='center', text=str(tile.divine_vein_turn), font=("Helvetica", 25, 'bold'), fill="black")
-                vein_text = self.create_text(visual_x - 2 + 45, visual_y - 3 + 45, anchor='center', text=str(tile.divine_vein_turn), font=("Helvetica", 25, 'bold'), fill="LightCyan2")
+                vein_sprite = self.create_image(visual_x + offsets[local_vein_type][0], visual_y + offsets[local_vein_type][1], anchor='nw', image=vein_photo, tags="vein_sprite")
+                vein_text_shadow = self.create_text(visual_x + 45, visual_y + 45, anchor='center', text=str(tile.divine_vein_turn), font=("Helvetica", 25, 'bold'), fill="black", tags="vein_sprite")
+                vein_text = self.create_text(visual_x - 2 + 45, visual_y - 3 + 45, anchor='center', text=str(tile.divine_vein_turn), font=("Helvetica", 25, 'bold'), fill="LightCyan2", tags="vein_sprite")
 
                 # Place behind players (if any)
                 if self.unit_sprites[PLAYER] + self.unit_sprites[ENEMY]:
@@ -9474,8 +9928,8 @@ class GameplayCanvas(tk.Canvas):
                 if not self.wall_sprites + self.ar_struct_sprites:
                     self.tag_raise(vein_sprite, self.terrain_photo)
 
-                #if self.game_mode == hero.GameMode.AetherRaids:
-                #   self.tag_raise(vein_sprite, self.ar_struct_sprites[3])
+                if self.game_mode == hero.GameMode.AetherRaids:
+                   self.tag_raise(vein_sprite, "struct_sprite")
 
                 # Layer divine vein info of itself correctly
                 self.tag_raise(vein_text_shadow, vein_sprite)
@@ -9485,6 +9939,13 @@ class GameplayCanvas(tk.Canvas):
                 self.divine_vein_sprites.append(vein_sprite)
                 self.divine_vein_sprites.append(vein_text_shadow)
                 self.divine_vein_sprites.append(vein_text)
+
+                if self.divine_vein_sprites and self.canto_tile_imgs:
+                    self.tag_raise("canto_tile_sprite", "vein_sprite")
+
+    def refresh_layering(self):
+        for ar_sprite in self.ar_struct_sprites:
+            self.tag_lower(ar_sprite, "unit_sprite")
 
     # Refresh unit graphics and objects while in preparation mode
     def refresh_units_prep(self):
@@ -9606,28 +10067,38 @@ class GameplayCanvas(tk.Canvas):
 
                 # Sprites on canvas
 
+                tile_number = drag_point.tile
+                hide_reinf = drag_point in self.unit_reinf_points.values()
+
+                if drag_point.tile == -2:
+                    tile_number = self.get_struct_tile_by_name("Calling Circle (O)").tileNum
+                    hide_reinf = False
+                elif drag_point.tile == -3:
+                    tile_number = self.get_struct_tile_by_name("Calling Circle (D)").tileNum
+                    hide_reinf = False
+
                 # Player sprite
                 item_id = self.create_image(100 * i, 200, anchor='center', image=cur_photo, tags=tag)
-                if drag_point in self.unit_reinf_points.values():self.itemconfig(item_id, state='hidden')
-                self.move_to_tile(item_id, drag_point.tile)
+                if hide_reinf: self.itemconfig(item_id, state='hidden')
+                self.move_to_tile(item_id, tile_number)
                 self.unit_sprites[S].append(item_id)
 
                 # Player sprite - grayscale
                 gs_item_id = self.create_image(100 * i, 200, anchor='center', image=grayscale_photo, tags=tag)
                 self.itemconfig(gs_item_id, state='hidden')
-                self.move_to_tile(gs_item_id, drag_point.tile)
+                self.move_to_tile(gs_item_id, tile_number)
                 self.unit_sprites_gs[S].append(gs_item_id)
 
                 # Player sprite - transformed
                 item_id_tr = self.create_image(100 * i, 200, anchor='center', image=cur_photo_tr, tags=tag)
                 self.itemconfig(item_id_tr, state='hidden')
-                self.move_to_tile(item_id_tr, drag_point.tile)
+                self.move_to_tile(item_id_tr, tile_number)
                 self.unit_sprites_trans[S].append(item_id_tr)
 
                 # Player sprite - grayscale & transformed
                 gs_item_id_tr = self.create_image(100 * i, 200, anchor='center', image=grayscale_photo_tr, tags=tag)
                 self.itemconfig(gs_item_id_tr, state='hidden')
-                self.move_to_tile(gs_item_id_tr, drag_point.tile)
+                self.move_to_tile(gs_item_id_tr, tile_number)
                 self.unit_sprites_gs_trans[S].append(gs_item_id_tr)
 
                 # Weapon icon
@@ -9636,8 +10107,8 @@ class GameplayCanvas(tk.Canvas):
                 self.unit_weapon_icon_photos[S].append(wp_photo)
 
                 weapon_id = self.create_image(160, 50 * (i + 2), anchor=tk.NW, image=wp_photo, tags=tag)
-                if drag_point in self.unit_reinf_points.values(): self.itemconfig(weapon_id, state='hidden')
-                self.move_to_tile_wp(weapon_id, drag_point.tile)
+                if hide_reinf: self.itemconfig(weapon_id, state='hidden')
+                self.move_to_tile_wp(weapon_id, tile_number)
                 self.unit_weapon_icon_sprites[S].append(weapon_id)
 
                 # Special count
@@ -9647,8 +10118,8 @@ class GameplayCanvas(tk.Canvas):
                     sp_count_string = ""
 
                 special_label = self.create_text(200, 100 * (2 + i), text=sp_count_string, fill="#e300e3", font=("Helvetica", 19, 'bold'), anchor='center', tags=tag)
-                if drag_point in self.unit_reinf_points.values(): self.itemconfig(special_label, state='hidden')
-                self.move_to_tile_sp(special_label, drag_point.tile)
+                if hide_reinf: self.itemconfig(special_label, state='hidden')
+                self.move_to_tile_sp(special_label, tile_number)
                 self.unit_sp_count_labels[S].append(special_label)
 
                 if unit.side == PLAYER:
@@ -9658,18 +10129,18 @@ class GameplayCanvas(tk.Canvas):
 
                 hp_string = unit.HPcur
                 hp_label = self.create_text(200, 100 * (2 + i), text=hp_string, fill=side_color, font=("Helvetica", 16, 'bold'), anchor='center', tags=tag)
-                if drag_point in self.unit_reinf_points.values(): self.itemconfig(hp_label, state='hidden')
-                self.move_to_tile_hp(hp_label, drag_point.tile)
+                if hide_reinf: self.itemconfig(hp_label, state='hidden')
+                self.move_to_tile_hp(hp_label, tile_number)
                 self.unit_hp_count_labels[S].append(hp_label)
 
                 hp_bar_bg = self.create_rectangle((100, 200 + 15 * i, 160, 212 + 15 * i), fill='black', width=0, tags=tag)
-                if drag_point in self.unit_reinf_points.values(): self.itemconfig(hp_bar_bg, state='hidden')
-                self.move_to_tile_bar(hp_bar_bg, drag_point.tile)
+                if hide_reinf: self.itemconfig(hp_bar_bg, state='hidden')
+                self.move_to_tile_bar(hp_bar_bg, tile_number)
                 self.unit_hp_bars_bg[S].append(hp_bar_bg)
 
                 hp_bar_fg = self.create_rectangle((100, 200 + 15 * i, 160, 212 + 15 * i), fill=side_color, width=0, tags=tag)
-                if drag_point in self.unit_reinf_points.values(): self.itemconfig(hp_bar_fg, state='hidden')
-                self.move_to_tile_bar(hp_bar_fg, drag_point.tile)
+                if hide_reinf: self.itemconfig(hp_bar_fg, state='hidden')
+                self.move_to_tile_bar(hp_bar_fg, tile_number)
                 self.unit_hp_bars_fg[S].append(hp_bar_fg)
 
             if drag_point.side == PLAYER: i += 1
@@ -9837,6 +10308,93 @@ class GameplayCanvas(tk.Canvas):
 
         self.update_unit_graphics(leader)
         self.update_unit_graphics(cohort)
+
+    def switch_style(self, unit, unit_team, other_team, style):
+
+        if not self.style_unit:
+            self.style_unit = unit
+            self.style_name = style
+
+            #self.refresh_divine_veins()
+
+        else:
+            self.style_unit = None
+            self.style_name = None
+
+            for tile_sprite in self.canto_tile_imgs:
+                self.delete(tile_sprite)
+            self.canto_tile_imgs.clear()
+
+            return
+
+        move_range = []
+        attack_range = []
+
+        if self.style_name == "ASTRA-STORM":
+            move_range = feh.get_regular_moves(unit, unit_team, other_team, style=self.style_name)[2]
+        elif self.style_name == "EMBLEM-LYN":
+            move_range = feh.get_regular_moves(unit, unit_team, other_team, style=self.style_name)[2]
+        elif self.style_name == "WIND-SWORD":
+            move_range = feh.get_regular_moves(unit, unit_team, other_team, style=self.style_name)[2]
+
+        for m in move_range:
+            x_comp = m.destination % 6
+            y_comp = m.destination // 6
+            cur_pixel_offset_x = x_comp * 90
+            cur_pixel_offset_y = (7 - y_comp) * 90
+
+            if m.is_warp:
+                tile_photo = self.move_tile_photos[1]
+            else:
+                tile_photo = self.move_tile_photos[0]
+
+            curTile = self.create_image(cur_pixel_offset_x, cur_pixel_offset_y, anchor=tk.NW, image=tile_photo, tags="canto_tile_sprite")
+            self.canto_tile_imgs.append(curTile)
+            self.tag_lower(curTile, "unit_sprite")
+
+            if self.style_name == "ASTRA-STORM":
+                attack_range.extend(list(set(self.map.tiles[m.destination].tilesWithinNSpaces(6)) & set(self.map.tiles[m.destination].tilesWithinNRowsOrCols(3, 3))))
+            elif self.style_name == "EMBLEM-LYN":
+                attack_range.extend(list(set(self.map.tiles[m.destination].tilesWithinNSpaces(5)) & set(self.map.tiles[m.destination].tilesWithinNRowsOrCols(3, 3))))
+            elif self.style_name == "WIND-SWORD":
+                attack_range.extend(self.map.tiles[m.destination].tilesNSpacesAway(2))
+
+        attack_range = list(set(attack_range))
+
+        for tile in attack_range:
+            if tile.tileNum in [m.destination for m in move_range]:
+                continue
+
+            x_comp = tile.x_coord
+            y_comp = tile.y_coord
+            cur_pixel_offset_x = x_comp * 90
+            cur_pixel_offset_y = (7 - y_comp) * 90
+
+            if unit.isEnemyOf(tile.hero_on):
+                tile_photo = self.move_tile_photos[2]
+            elif tile.structure_on:
+                if tile.structure_on.struct_type != unit.side + 1 and tile.structure_on.health > 0 and ("Trap" not in tile.structure_on.name and "Calling" not in tile.structure_on.name):
+                    if self.style_name != "ASTRA-STORM" and self.style_name != "EMBLEM-LYN":
+                        tile_photo = self.move_tile_photos[2]
+                    else:
+                        tile_photo = self.move_tile_photos[3]
+                else:
+                    tile_photo = self.move_tile_photos[3]
+            elif tile.divine_vein == DV_ICE and tile.divine_vein_turn >= 1 and tile.divine_vein_side != unit.side:
+                if self.style_name != "ASTRA-STORM" and self.style_name != "EMBLEM-LYN":
+                    tile_photo = self.move_tile_photos[2]
+                else:
+                    tile_photo = self.move_tile_photos[3]
+            else:
+                tile_photo = self.move_tile_photos[3]
+
+            curTile = self.create_image(cur_pixel_offset_x, cur_pixel_offset_y, anchor=tk.NW, image=tile_photo, tags="canto_tile_sprite")
+            self.canto_tile_imgs.append(curTile)
+            self.tag_lower(curTile, "unit_sprite")
+
+        #self.refresh_divine_veins()
+        if self.divine_vein_sprites:
+            self.tag_raise("canto_tile_sprite", "vein_sprite")
 
     def use_duo_skill(self, unit):
         if self.animation: return
@@ -10040,6 +10598,11 @@ class GameplayCanvas(tk.Canvas):
                 unit.canto_ready = True
                 self.update_unit_graphics(unit)
 
+            if effect['effect'] == "galeforce_noncombat" and unit.unitCombatInitiates == 0:
+                self.units_to_move.append(unit)
+                unit.canto_ready = True
+                self.update_unit_graphics(unit)
+
             if effect['effect'] == "repo":
                 vertical_allies = list(set(feh.allies_within_n(unit, 1)) & set(unit.tile.unitsWithinNCols(1)))
                 if len(vertical_allies) == 1:
@@ -10073,7 +10636,6 @@ class GameplayCanvas(tk.Canvas):
                         self.map.tiles[ally_final_position].hero_on = ally
                         self.move_visuals_to_tile_obj(ally, ally_final_position)
 
-
             if effect['effect'] == "divine_vein_ice":
                 for tile in unit.tile.tilesWithinNSpaces(2):
                     cur_tile_struct = tile.structure_on
@@ -10081,6 +10643,30 @@ class GameplayCanvas(tk.Canvas):
 
                     if tile.terrain != 4 and (not cur_tile_hero_on or (cur_tile_hero_on.side == unit.side)) and (not cur_tile_struct or (cur_tile_struct and cur_tile_struct.health == 0)):
                         tile.divine_vein = DV_ICE
+                        tile.divine_vein_side = unit.side
+                        tile.divine_vein_turn = 2
+
+            if effect['effect'] == "divine_vein_green":
+                for tile in unit.tile.tilesWithinNRowsOrCols(3, 3):
+                    cur_tile_struct = tile.structure_on
+                    if tile.terrain != 4 and (not cur_tile_struct or (cur_tile_struct and cur_tile_struct.health != -1)):
+                        tile.divine_vein = DV_GREEN
+                        tile.divine_vein_side = unit.side
+                        tile.divine_vein_turn = 2
+
+            if effect['effect'] == "divine_vein_stone":
+                for tile in unit.tile.tilesWithinNSpaces(2):
+                    cur_tile_struct = tile.structure_on
+                    if tile.terrain != 4 and (not cur_tile_struct or (cur_tile_struct and cur_tile_struct.health != -1)):
+                        tile.divine_vein = DV_STONE
+                        tile.divine_vein_side = unit.side
+                        tile.divine_vein_turn = 2
+
+            if effect['effect'] == "divine_vein_water":
+                for tile in unit.tile.tilesWithinNSpaces(3):
+                    cur_tile_struct = tile.structure_on
+                    if tile.terrain != 4 and (not cur_tile_struct or (cur_tile_struct and cur_tile_struct.health != -1)):
+                        tile.divine_vein = DV_WATER
                         tile.divine_vein_side = unit.side
                         tile.divine_vein_turn = 2
 
@@ -10208,7 +10794,21 @@ class GameplayCanvas(tk.Canvas):
 
         unit = self.hero_listing.created_hero
 
-        if tile in self.unit_drag_points and self.unit_drag_points[tile].modifiable and not self.running and unit is not None:
+        if x == -2:
+            self.unit_reinf_points[-2].hero = unit
+            self.hero_listing.unit_creation_cancel()
+            self.refresh_units_prep()
+            unit.side = PLAYER
+            self.unit_status.update_from_obj(unit)
+
+        if x == -3:
+            self.unit_reinf_points[-3].hero = unit
+            self.hero_listing.unit_creation_cancel()
+            self.refresh_units_prep()
+            unit.side = ENEMY
+            self.unit_status.update_from_obj(unit)
+
+        elif tile in self.unit_drag_points and self.unit_drag_points[tile].modifiable and not self.running and unit is not None:
             self.unit_drag_points[tile].hero = unit
 
             self.hero_listing.unit_creation_cancel()
@@ -10225,9 +10825,24 @@ class GameplayCanvas(tk.Canvas):
 
         tile = tile_x_coord + tile_y_coord * 6
 
-        if self.map.tiles[tile].structure_on: return
+        if self.map.tiles[tile].structure_on and "Calling" not in self.map.tiles[tile].structure_on.name: return
 
-        if tile in self.unit_drag_points and self.unit_drag_points[tile].modifiable and not self.running:
+        if self.map.tiles[tile].structure_on and "Calling" in self.map.tiles[tile].structure_on.name:
+
+            if self.map.tiles[tile].structure_on.struct_type == PLAYER + 1:
+                made_hero = make_hero_from_pd_row(row_data, PLAYER)
+                self.unit_reinf_points[-2].hero = made_hero
+
+            else:
+                made_hero = make_hero_from_pd_row(row_data, ENEMY)
+                made_hero.side == ENEMY
+                self.unit_reinf_points[-3].hero = made_hero
+
+            self.refresh_units_prep()
+
+            #print("garrett the garbage man garrison")
+
+        elif tile in self.unit_drag_points and self.unit_drag_points[tile].modifiable and not self.running:
 
             made_hero = make_hero_from_pd_row(row_data, self.unit_drag_points[tile].side)
 
@@ -11135,6 +11750,19 @@ class UnitInfoDisplay(tk.Frame):
                         blessing_text += "Res+4"
 
                     blessing_text += "\n\nEnables usage of Pair Up in select modes."
+                else:
+                    blessing_text += " blessing conferred:\n\nHP+5, "
+
+                    if blessing.stat == hero.ATK:
+                        blessing_text += "Atk+3"
+                    elif blessing.stat == hero.SPD:
+                        blessing_text += "Spd+4"
+                    elif blessing.stat == hero.DEF:
+                        blessing_text += "Def+5"
+                    elif blessing.stat == hero.RES:
+                        blessing_text += "Res+5"
+
+                    blessing_text += "\n\nGrants stats to blessed allies summoned with the Calling Circle structure, and grants a stat boost in their Dragonflower ordering in increments of 2 equal to the highest number of merges by Calling Circle Mythic Heroes of that season."
 
         CreateToolTip(self.blessing_label, blessing_text)
 
@@ -11323,6 +11951,9 @@ class UnitInfoDisplay(tk.Frame):
                     statuses_str += "C Skill Disabled: " + str(unit.statusOther[status]) + '\n'
                 if status == "disableEmblem":
                     statuses_str += "Emblem Disabled: " + str(unit.statusOther[status]) + '\n'
+
+                if status == "callingCircle":
+                    statuses_str += "Raiding Calling Circle Reinf." + '\n'
 
             if sum(unit.great_talent) > 0:
                 talent_str = "Great Talent: "
@@ -11627,7 +12258,7 @@ class ExtrasFrame(tk.Frame):
         self.num_ornaments = 0
         self.num_resources = 0
 
-        not_added_yet = ["Calling Circle (O)", "Calling Circle (D)"]
+        #not_added_yet = ["Calling Circle (O)", "Calling Circle (D)"]
 
         i = 0
         for frame in self.divider_frames:
@@ -11638,7 +12269,7 @@ class ExtrasFrame(tk.Frame):
 
             for struct in struct_lists[i]:
 
-                if struct in not_added_yet: continue
+                #if struct in not_added_yet: continue
 
                 cur_struct_frame = tk.Frame(self.scrolling_frame, bg=divider_colors[i])
                 cur_struct_frame.pack(pady=3, anchor=tk.W, fill=tk.X, expand=True)
@@ -11877,10 +12508,10 @@ class ExtrasFrame(tk.Frame):
         self.num_player_units = i
         self.struct_levels = struct_levels_dict
 
-        not_added_yet = ["Duo's Indulgence", "Duo's Hindrance", "Safety Fence", "Calling Circle (O)", "Calling Circle (D)"]
+        #not_added_yet = ["Duo's Indulgence", "Duo's Hindrance", "Safety Fence", "Calling Circle (O)", "Calling Circle (D)"]
 
         for key in self.struct_levels:
-            if key in not_added_yet: continue
+            #if key in not_added_yet: continue
 
             self.struct_labels[key].config(text="Lv. " + str(self.struct_levels[key]))
 
@@ -11904,7 +12535,7 @@ class ExtrasFrame(tk.Frame):
         for label in self.labels:
             label.place_forget()
 
-    def set_forecast_banner_foe(self, attacker, defender, distance, savior_triggered, turn_num, combat_fields, ar_structs, units_to_move):
+    def set_forecast_banner_foe(self, attacker, defender, distance, savior_triggered, turn_num, combat_fields, ar_structs, units_to_move, style):
         self.clear_forecast_banner()
 
         WIDTH = 500
@@ -11916,7 +12547,7 @@ class ExtrasFrame(tk.Frame):
         aoe_damage: int = 0
         aoe_present: bool = False
 
-        aoe_disabled = feh.get_aoe_disable(attacker, defender)
+        aoe_disabled = feh.get_aoe_disable(attacker, defender) or style
 
         # Track HP of all units after being hit by AOE, for skills that track "num allies with HP >= X%"
         target_healths = {}
@@ -11949,6 +12580,7 @@ class ExtrasFrame(tk.Frame):
                                  aoe_present,
                                  units_to_move,
                                  savior_triggered,
+                                 style,
                                  ar_structs)
 
         for unit in target_healths.keys():
@@ -12188,10 +12820,7 @@ class ExtrasFrame(tk.Frame):
             hp_healed_ally = player.assist.effects["heal"]
             hp_healed_self = 0
 
-            panic_factor = 1
-            if Status.Panic in player.statusNeg: panic_factor = -1
-            if Status.NullPanic in player.statusPos: panic_factor = 1
-            self_atk_stat = player.visible_stats[ATK] + player.buffs[ATK] * panic_factor + player.debuffs[ATK]
+            self_atk_stat = player.get_visible_stat(ATK)
 
             # Reconcile
             if "heal_self" in player.assist.effects:
@@ -12230,6 +12859,10 @@ class ExtrasFrame(tk.Frame):
             # Physic+
             if player.assist.effects["heal"] == -50:
                 hp_healed_ally = max(self_atk_stat // 2, 8)
+
+            # Ice Lock+
+            if player.assist.effects["heal"] == -40:
+                hp_healed_ally = max(trunc(self_atk_stat * 0.40), 6)
 
             if player.specialCount == 0 and player.special.type == "Healing":
                 if "boost_heal" in player.special.effects:
@@ -12455,8 +13088,6 @@ class ExtrasFrame(tk.Frame):
 
         canvas.create_image(135, 6, anchor=tk.NW, image=atkr_move_icon)
         canvas.create_image(160, 4, anchor=tk.NW, image=atkr_wpn_icon)
-
-        #print("THE")
 
     def set_forecast_banner_ice(self, attacker):
         self.clear_forecast_banner()

@@ -69,7 +69,11 @@ ribbon_button_args = {
 window = tk.Tk()
 window.geometry('800x600')
 window.state('zoomed')
-window.title('RATA 2.6.0')
+window.title('RATA 2.7.0')
+
+rata_icon = tk.PhotoImage(file="CombatSprites/rata.png")
+
+window.iconphoto(True, rata_icon)
 window.minsize(width=400, height=300)
 
 # Top Ribbon

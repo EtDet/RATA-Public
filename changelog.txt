@@ -1,3 +1,38 @@
+2.7.0 (4/22/25)
+New Features:
+-Added the remaining XX heroes introduced in Year 9, meaning that all heroes are now usable!
+-Lyn and Eirika Emblem rings are now usable.
+-Calling Circle (O) and Calling Circle (D) are now usable in Aether Raids. A Mythic hero within the correct season is required for the additional stats granted, but they are fully usable without a Mythic!
+-An icon of Ratatoskr was added to the main window.
+
+Bug Fixes:
+-Draconic Rage now has the correct owners (Adrift Male/Female Corrin)
+-Emblem Sigurd's Holy War Spear can now only be equipped by him.
+-Skills which grant "deals damage = X% of foe's attack damage prior to reductions" will no longer stack.
+-A/D Spiked Wall now applies stat debuffs during combat.
+-Staff assists which rely on the unit's attack will now work properly with Great Talent applied.
+-Reversed the priority of Duo skills and Pair-Up (Duo skills will be replaced by Pair-Up if in a mode which enables it).
+-Schism now disables Pathfinder properly.
+-Fixed using the Swap/Undo action buttons when double-clicking a unit to end their turn.
+-Fixed combats when being initiated on an enemy's Divine Vein: Haze.
+-Fixed warping granted by Summer Petra's Breaker Bow.
+-Lone Wolf's AOE damage reduction now uses the owner's Spd stat instead of the foe's.
+-Legendary Male Alear's Divine One's Arts now compares unit's Res to foe's Res-5, instead of just foe's Res.
+-Spd/Def Detect's global debuff will now target foes instead of allies.
+-Dragon's Wrath skills now have the correct descriptions.
+-Arcane Giant Axe now has the correct description.
+-Fell Successor's drive scowl will now check if the ally's foe is ranged instead of the ally for the additional follow-up scowl.
+-Rearmed Sothe's Bane now works properly.
+-Sly Swift Sparrow/Mirror now work properly.
+-Attuned Micaiah's Silver of Dawn's Guidance effect now works properly.
+-Reposition Gait will now be listed in alphabetical order, instead of at the top.
+-Xander and all of his alts have had their game changed from Awakening to Fates.
+-Eitr is now selectable.
+-Savior skills are now properly shown in the combat forecast.
+-Panic Smoke 4 now debuffs all stats by 3 instead of 6.
+-Fixed stat calculation for heroes of rarity 4 star and under.
+-Summer Ephraim's Seafoam Splitter and Sunlight Bangle now work properly.
+
 2.6.0 (4/12/25)
 New Features:
 -Added all 145 heroes introduced in Year 8.
@@ -20,7 +55,7 @@ Bug Fixes:
 -Fireflood Boost 3 now gives a proper Res boost in combat, instead of visible Res.
 -Céline's Joyous Tome now heals in the correct area at start of turn.
 -FEH Math in the forecast is now once again calculated properly for effective damage, triangle advantage, and more.
--The combat forecast will now properly calculate evaluate conditions which track allies' HP when the target and those allies hit with an AOE special.
+-The combat forecast will now properly calculate evaluate conditions which track allies' HP when the target and those allies are hit with an AOE special.
 -Mirabilis' Whimsical Dream+ now inflicts its debuff on nearest foes within 5 spaces, instead of 4.
 -Fixed the condition for skills that require "specials triggered by unit's attack".
 -Rally Spectrum will no longer cause a special jump for non-offensive specials.

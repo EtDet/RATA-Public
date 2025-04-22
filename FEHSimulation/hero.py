@@ -69,6 +69,9 @@ weapons = {
     "CBeast": (23, "Colorless Beast")
 }
 
+MELEE_STYLES = ["WIND-SWORD"]
+RANGED_STYLES = ["ASTRA-STORM", "EMBLEM-LYN"]
+
 # return stat increase needed for level 1 -> 40 based on growth and rarity
 def growth_to_increase(value, rarity):
     return trunc(0.39 * (trunc(value * (0.79 + (0.07 * rarity)))))
@@ -191,6 +194,7 @@ class Hero:
         # "disableBSkill"
         # "disableCSkill"
         # "disableEmblem"
+        # "callingCircle"
 
         # specific unit skills
         self.weapon = None
@@ -278,6 +282,9 @@ class Hero:
         # Number of times this unit has entered combat in this phase
         self.unitCombatInitiates = 0
 
+        # Number of foes defeated during this turn
+        self.num_foes_defeated = 0
+
         # Number of times this unit has been targeted for assist skill usage
         self.assistTargetedSelf = 0
 
@@ -294,7 +301,13 @@ class Hero:
         self.assistTargetedOther_Move = 0
         self.assistTargetedOther_Other = 0
 
-        self.specialTriggeredThisTurn = 0
+        self.specialTriggeredThisTurn = False
+
+        # Number of times other actions have been taken (moving, destorying walls, not counting canto moves)
+        self.moveOrDestroyActions = 0
+
+        # Style ready for use
+        self.style_ready = True
 
         # If Canto can be utilized after unit's next action (attacking, breaking, or assisting, etc.)
         self.canto_ready = True
@@ -330,7 +343,7 @@ class Hero:
 
         # apply base rarity changes
         self.rarity = new_rarity
-        for i in range(0, 2 - trunc(0.5 * self.rarity)):
+        for i in range(0, 2 - trunc(0.5 * (self.rarity - 1))):
             j = 0
             while j < 5:
                 self.stats[j] -= 1
@@ -481,7 +494,7 @@ class Hero:
         self.set_dragonflowers(self.flowers)
         self.set_emblem_merges(self.emblem_merges)
 
-        print(self.rarity)
+        #print(self.rarity)
 
         for i in range(0,5):
             growth = self.growths[i] #+ 5 * cur_modifier
@@ -864,6 +877,9 @@ class Hero:
             print(self.name + "'s " + statStr + " was modified by " + str(num) + ".")
 
     def inflictGreatTalent(self, stat, num, cap):
+        num = int(num)
+        cap = int(cap)
+
         if stat == ATK: statStr = "Atk"
         elif stat == SPD: statStr = "Spd"
         elif stat == DEF: statStr = "Def"
@@ -1041,6 +1057,38 @@ class Hero:
             conditions_arr.append("AR-TRANSFORM")
 
         return conditions_arr
+
+    def get_style_conditions(self, turn):
+        present = False
+
+        styles = []
+
+        unitSkills = self.getSkills()
+
+        # Astra Storm Style
+        if "astraStorm" in unitSkills:
+            present = True
+
+            styles.append("ASTRA-STORM")
+
+        # Emblem Lyn Style
+        if "sweep across" in unitSkills:
+            present = True
+
+            if "disableEmblem" not in self.statusOther and self.wpnType in RANGED_WEAPONS and turn >= 2:
+
+                styles.append("EMBLEM-LYN")
+
+        # Wind Sword Style
+        if "eEirikaBoost" in unitSkills:
+            present = True
+
+            styles.append("WIND-SWORD")
+
+        if len(styles) > 1:
+            styles = []
+
+        return present, styles
 
     def __str__(self):
         return self.intName
@@ -1309,6 +1357,8 @@ class DuoSkill:
 # 🔵 - movement
 # 🟢 - other
 
+# Use this down the line
+# Enum(name, {member: i for i, member in enumerate(members, start=start)})
 
 class Status(Enum):
     # negative, sorted
@@ -1350,51 +1400,51 @@ class Status(Enum):
     DivinelyInspiring = 110  # 🔴 Grants Atk/Spd/Def/Res = X * 3, grants -X sp jump to self before foe's first attack, and heals X * 4 HP per hit (X = num allies with this status in 3 spaces, max 2)
     Salvage = 111  # 🔵 UPDATE WITH PROPER POSITION - Can move 2 spaces after combat with Canto. If Canto Control applied, base Canto movement is instead set to 2 for Melee units, 1 for Ranged units.
     Anathema = 112  # 🔴 Inflicts Spd/Def/Res-4 on foes within 3 spaces
-    DraconicHex = 1000 # 🔴 Inflicts Atk/Spd/Def/Res-5 on foe, and an additional Atk/Spd/Def/Res-5 minus current debuff of each stat.
-    Treachery = 113  # 🔴 Deal true damage = number of stat bonuses on unit (not including Panic + Bonus)
-    Dominance = 114  # 🔴 Deal true damage = number of stat penalties on foe (including Panic-reversed Bonus)
-    AOEReduce80Percent = 115  # 🔴 Reduces non-Røkkr AoE damage taken by 80%
-    Dodge = 116  # 🔴 If unit's spd > foe's spd, reduces combat & non-Røkkr AoE damage by X%, X = (unit's spd - foe's spd) * 4, max of 40%
-    FirstReduce40 = 117  # 🔴 If initiating combat, reduces damage from first attack received by 40%
-    FallenStar = 118  # 🔴 Reduces damage from foe's first attack by 80% in unit's first combat in player phase and first combat in enemy phase
-    DeepStar = 119  # 🔴 In unit's first combat where foe initiates combat, reduces first hit(s) by 80%
-    NullBonuses = 120  # 🔴 Neutralizes foe's bonuses in combat
-    NullPenalties = 121  # 🔴 Neutralizes unit's penalties in combat
-    EnGarde = 122  # 🔴 Neutralizes damage outside of combat, minus AoE damage
-    NullPanic = 123  # 🔴 Nullifies Panic
-    NullFollowUp = 124  # 🔴 Disables skills that guarantee foe's follow-ups or prevent unit's follow-ups
-    DamageReductionPierce50 = 125  # 🔴 Cuts foe's non-special damage reduction skill efficacy in half
-    WarpBubble = 126  # 🔵 Foes cannot warp onto spaces within 4 spaces of unit (does not affect pass skills)
-    DivineNectar = 127  # 🔴 Neutralizes Deep Wounds, restores 20HP as combat begins, and reduces damage by 10
-    EffDragons = 128  # 🔴 Gain effectiveness against dragons
-    NullEffDragons = 129  # 🔴 Gain immunity to "eff against dragons"
-    NullEffArmors = 130  # 🔴 Gain immunity to "eff against armors"
-    NullEffFliers = 131  # 🔴 Gain immunity to "eff against flyers"
-    MobilityUp = 132  # 🔵 Movement increased by 1, cancelled by Gravity
-    Gallop = 133  # 🔵 Movement increased by 2, cancelled by Gravity, does not stack with MobilityUp
-    Charge = 134  # 🔵 Unit can move to any space up to 3 spaces away in cardinal direction, terrain/skills that halt (not slow) movement still apply, treated as warp movement
-    Pathfinder = 135  # 🔵 Unit's space costs 0 to move to by allies
-    Canto1 = 136  # 🔵 Can move 1 space after combat with Canto
-    TraverseTerrain = 137  # 🔵 Ignores terrain which slows unit (bushes/trenches)
-    Orders = 138  # 🔵 Unit can move to space adjacent to ally within 2 spaces
-    TimesGate = 139  # 🔵 Allies within 4 spaces can warp to a space adjacent to unit
-    Hexblade = 140  # 🔴 Damage inflicted using lower of foe's def or res (applies to AoE skills)
-    SpecialCharge = 141  # 🔴 Special charge +1 per hit during combat
-    PreemptPulse = 142  # 🔴 Grants -1 sp jump before unit's first attack
-    Pursual = 143  # 🔴 Unit makes follow-up attack when initiating combat
-    DenyFollowUp = 144  # 🔴 Foe cannot make a follow-up attack
-    Outspeeding = 145  # Increases Spd difference needed for foe to make follow-up by 10
-    PotentFollow = 146 # 🔴 If being outsped by 20 or less, grants 80/40 Potent hit
-    Desperation = 147  # 🔴 If unit initiates combat and can make follow-up attack, makes follow-up attack before foe can counter
-    Vantage = 148  # 🔴 Unit counterattacks before foe's first attack in enemy phase
-    Paranoia = 149  # 🔴 If unit's HP >= 99%, grants Atk+5, Desperation, and if either # foe negative statuses >= 3 or foe is of same range, grants Vantage
-    Bulwark = 150  # 🔵 Foes cannot move through spaces within X spaces of unit, X = foe's range
-    AssignDecoy = 151  # 🔴 Unit is granted Savior effect for their range, fails if unit currently has savior skill
-    CancelAffinity = 152  # 🔴 Cancel Affinity 3, reverses weapon triangle to neutral if Triangle Adept-having unit/foe has advantage
-    TriangleAttack = 153  # 🔴 If within 2 spaces of 2 allies with TriAttack and initiating combat, unit attacks twice
-    DualStrike = 154  # 🔴 If unit initiates combat and is adjacent to unit with DualStrike, unit attacks twice
-    EssenceDrain = 155 # 🔴 If unit attacks, steals positive bonuses from foes within 2 spaces of target and gives to self and all allies with this status. If foe defeated, heals 10HP to self and allies with this status.
-    Bonded = 156 # 🔴 Activates different effects depending on skills present in battle
+    DraconicHex = 113 # 🔴 Inflicts Atk/Spd/Def/Res-5 on foe, and an additional Atk/Spd/Def/Res-5 minus current debuff of each stat.
+    Treachery = 114  # 🔴 Deal true damage = number of stat bonuses on unit (not including Panic + Bonus)
+    Dominance = 115  # 🔴 Deal true damage = number of stat penalties on foe (including Panic-reversed Bonus)
+    AOEReduce80Percent = 116  # 🔴 Reduces non-Røkkr AoE damage taken by 80%
+    Dodge = 117  # 🔴 If unit's spd > foe's spd, reduces combat & non-Røkkr AoE damage by X%, X = (unit's spd - foe's spd) * 4, max of 40%
+    FirstReduce40 = 118  # 🔴 If initiating combat, reduces damage from first attack received by 40%
+    FallenStar = 119  # 🔴 Reduces damage from foe's first attack by 80% in unit's first combat in player phase and first combat in enemy phase
+    DeepStar = 120  # 🔴 In unit's first combat where foe initiates combat, reduces first hit(s) by 80%
+    NullBonuses = 121  # 🔴 Neutralizes foe's bonuses in combat
+    NullPenalties = 122  # 🔴 Neutralizes unit's penalties in combat
+    EnGarde = 123  # 🔴 Neutralizes damage outside of combat, minus AoE damage
+    NullPanic = 124  # 🔴 Nullifies Panic
+    NullFollowUp = 125  # 🔴 Disables skills that guarantee foe's follow-ups or prevent unit's follow-ups
+    DamageReductionPierce50 = 126  # 🔴 Cuts foe's non-special damage reduction skill efficacy in half
+    WarpBubble = 127  # 🔵 Foes cannot warp onto spaces within 4 spaces of unit (does not affect pass skills)
+    DivineNectar = 128  # 🔴 Neutralizes Deep Wounds, restores 20HP as combat begins, and reduces damage by 10
+    EffDragons = 129  # 🔴 Gain effectiveness against dragons
+    NullEffDragons = 130  # 🔴 Gain immunity to "eff against dragons"
+    NullEffArmors = 131  # 🔴 Gain immunity to "eff against armors"
+    NullEffFliers = 132  # 🔴 Gain immunity to "eff against flyers"
+    MobilityUp = 133  # 🔵 Movement increased by 1, cancelled by Gravity
+    Gallop = 134  # 🔵 Movement increased by 2, cancelled by Gravity, does not stack with MobilityUp
+    Charge = 135  # 🔵 Unit can move to any space up to 3 spaces away in cardinal direction, terrain/skills that halt (not slow) movement still apply, treated as warp movement
+    Pathfinder = 136  # 🔵 Unit's space costs 0 to move to by allies
+    Canto1 = 137  # 🔵 Can move 1 space after combat with Canto
+    TraverseTerrain = 138  # 🔵 Ignores terrain which slows unit (bushes/trenches)
+    Orders = 139  # 🔵 Unit can move to space adjacent to ally within 2 spaces
+    TimesGate = 140  # 🔵 Allies within 4 spaces can warp to a space adjacent to unit
+    Hexblade = 141  # 🔴 Damage inflicted using lower of foe's def or res (applies to AoE skills)
+    SpecialCharge = 142  # 🔴 Special charge +1 per hit during combat
+    PreemptPulse = 143  # 🔴 Grants -1 sp jump before unit's first attack
+    Pursual = 144  # 🔴 Unit makes follow-up attack when initiating combat
+    DenyFollowUp = 145  # 🔴 Foe cannot make a follow-up attack
+    Outspeeding = 146  # Increases Spd difference needed for foe to make follow-up by 10
+    PotentFollow = 147 # 🔴 If being outsped by 20 or less, grants 80/40 Potent hit
+    Desperation = 148  # 🔴 If unit initiates combat and can make follow-up attack, makes follow-up attack before foe can counter
+    Vantage = 149  # 🔴 Unit counterattacks before foe's first attack in enemy phase
+    Paranoia = 150  # 🔴 If unit's HP >= 99%, grants Atk+5, Desperation, and if either # foe negative statuses >= 3 or foe is of same range, grants Vantage
+    Bulwark = 151  # 🔵 Foes cannot move through spaces within X spaces of unit, X = foe's range
+    AssignDecoy = 152  # 🔴 Unit is granted Savior effect for their range, fails if unit currently has savior skill
+    CancelAffinity = 153  # 🔴 Cancel Affinity 3, reverses weapon triangle to neutral if Triangle Adept-having unit/foe has advantage
+    TriangleAttack = 154  # 🔴 If within 2 spaces of 2 allies with TriAttack and initiating combat, unit attacks twice
+    DualStrike = 155  # 🔴 If unit initiates combat and is adjacent to unit with DualStrike, unit attacks twice
+    EssenceDrain = 156 # 🔴 If unit attacks, steals positive bonuses from foes within 2 spaces of target and gives to self and all allies with this status. If foe defeated, heals 10HP to self and allies with this status.
+    Bonded = 157 # 🔴 Activates different effects depending on skills present in battle
 
 
 class GameMode(Enum):
@@ -1661,315 +1711,7 @@ def makeDuoSkill(name):
 
 #a = makeHero("Dimitri")
 
-# Heroes added so far
-implemented_heroes = ["Abel", "Alfonse", "Anna", "F!Arthur", "Azama", "Azura", "Barst", "Bartre", "Beruka", "Caeda",
-                          "Cain", "Camilla", "Catria", "Cecilia", "Cherche", "Chrom", "Clarine", "Cordelia", "M!Corrin", "F!Corrin",
-                          "Donnel", "Draug", "Effie", "Elise", "Eliwood", "Est", "Fae", "Felicia", "Fir", "Florina",
-                          "Frederick", "Gaius", "Gordin", "Gunter", "Gwendolyn", "Hana", "Hawkeye", "Hector", "Henry", "Hinata",
-                          "Hinoka", "Jagen", "Jakob", "Jeorge", "Kagero", "Laslow", "Leo", "Lilina", "Linde", "Lissa",
-                          "Lon'qu", "Lucina", "Lyn", "Maria", "Marth", "Matthew", "Merric", "Minerva", "Niles", "Nino",
-                          "Nowi", "Oboro", "Odin", "Ogma", "Olivia", "Palla", "Raigh", "Raven", "Peri", "M!Robin",
-                          "Roy", "Ryoma", "Saizo", "Sakura", "F!Selena", "Serra", "Setsuna", "Shanna", "Sharena", "Sheena",
-                          "Sophia", "Stahl", "Subaki", "Sully", "Takumi", "Tharja", "Y!Tiki", "A!Tiki", "Virion", "Wrys",
-
-                          "Narcian", "F!Robin", "Ursula", "Michalis", "Navarre", "Zephiel", "Xander", "Lloyd", "Camus",
-                          "Bruno", "Veronica",
-
-                          "Eirika", "Ephraim", "Seliph", "Julia",
-                          "Eldigan", "Klein", "Lachesis", "Reinhardt", "Olwen", "Sanaki",
-                          "Jaffar", "Karel", "Lucius", "Ninian", "Priscilla", "Rebecca",
-                          "SP!Chrom", "SP!Lucina", "SP!Xander", "SP!Camilla",
-                          "Alm", "Lukas", "Clair", "Faye",
-                          "Ike", "Mist", "Soren", "Titania",
-                          "Celica", "Mae", "Boey", "Genny",
-                          "BR!Caeda", "BR!Charlotte", "BR!Lyn", "BR!Cordelia",
-                          "!Marth",
-                          "Athena", "Katarina", "Luke", "Roderick", "Legion", "Clarisse",
-                          "SU!F!Robin", "SU!Gaius", "SU!Frederick", "SU!A!Tiki",
-                          "Tobin", "Delthea", "Mathilda", "Gray", "Saber", "Sonya", "Leon", "Berkut", "Clive",
-                          "SU!F!Corrin", "SU!Elise", "SU!Leo", "SU!Xander",
-                          "Amelia", "Innes", "Seth", "Tana", "Valter",
-                          "B!Ike", "B!Lyn", "B!Lucina", "B!Roy",
-                          "Elincia", "Nephenee", "Oscar", "Black Knight",
-                          "DA!Olivia", "DA!Inigo", "DA!Azura", "DA!Shigure",
-                          "Sigurd", "Deirdre", "Tailtiu", "Arvis", "Ayra", "Arden",
-                          "H!Henry", "H!Jakob", "H!Sakura", "H!Nowi",
-                          "Dorcus", "Lute", "Mia", "Joshua",
-
-                          "Fjorm",
-                          "Rhajat", "Siegbert", "Shiro", "Soleil",
-                          "WI!Chrom", "WI!Lissa", "WI!M!Robin", "WI!Tharja",
-                          "Gunnthrá",
-                          "NY!Azura", "NY!M!Corrin", "NY!Camilla", "NY!Takumi",
-                          "Micaiah", "Sothe", "Zelgius", "Oliver",
-                          "P!Eirika", "L'Arachel", "Myrrh", "Lyon", "Marisa",
-                          "L!Ike",
-                          "V!Hector", "V!Eliwood", "V!Lilina", "V!Lyn", "V!Roy",
-                          "FA!Celica", "FA!Hardin", "M!Grima", "FA!Takumi",
-                          "L!Ephraim",
-                          "P!Chrom", "F!Morgan", "M!Morgan", "Gerome",
-                          "SP!Alfonse", "SP!Sharena", "SP!Catria", "SP!Kagero",
-                          "F!Grima",
-                          "Leif", "Nanna", "P!Reinhardt", "P!Olwen", "Saias", "Finn",
-                          "P!Hinoka", "Shigure", "F!Kana", "Kaze", "M!Kana",
-                          "L!Lyn",
-                          "Ares", "Lene", "Ishtar", "Julius",
-                          "BR!Ninian", "BR!Sanaki", "BR!Tharja", "GR!Marth",
-                          "L!Ryoma",
-                          "Karla", "Legault", "P!Nino", "Linus", "Canas",
-                          "SU!Cordelia", "SU!Noire", "SU!Tana", "SU!Innes",
-                          "L!Hector",
-                          "SU!Linde", "SU!Y!Tiki", "SU!Takumi", "SU!Camilla",
-                          "Libra", "Maribelle", "Sumia", "P!Olivia", "Walhart",
-                          "L!Lucina",
-                          "SF!Elincia", "SF!Micaiah", "SF!Ryoma", "SF!Xander",
-                          "B!Hector", "B!Celica", "B!Ephraim", "B!Veronica",
-                          "L!Marth",
-                          "Jamke", "Lewyn", "Quan", "Silvia", "Ethlyn",
-                          "Flora", "Nina", "Ophelia", "Silas", "Garon",
-                          "Helbindi", "Laegjarn", "Laevatein",
-                          "L!Y!Tiki",
-                          "H!Kagero", "H!Niles", "H!Mia", "H!Myrrh", "H!Dorcas",
-                          "Kliff", "Aversa", "Owain", "P!Loki",
-                          "L!Eirika",
-                          "P!M!Corrin", "P!F!Corrin", "Mikoto", "P!Camilla", "P!Azura",
-                          "Surtr", "Ylgr", "Gharnef",
-                          "Hríd",
-
-                          "Eir",
-                          "WI!Eirika", "WI!Ephraim", "WI!Fae", "WI!Cecilia",
-                          "L!Azura",
-                          "NY!Fjorm", "NY!Gunnthrá", "NY!Hríd", "NY!Laegjarn", "NY!Laevatein",
-                          "Leanne", "Tibarn", "Reyson", "Nailah", "Naesala",
-                          "HS!Elise", "HS!Hinoka", "HS!Sakura", "HS!Ryoma", "HS!Camilla",
-                          "Duma",
-                          "V!Ike", "V!Mist", "V!Soren", "V!Titania", "V!Greil",
-                          "Keaton", "Velouria", "Kaden", "Selkie", "Panne",
-                          "L!Roy",
-                          "Idunn", "Lugh", "Sue", "Thea", "Rutger",
-                          "SP!Palla", "SP!Marisa", "SP!Bruno", "SP!Veronica", "SP!Loki",
-                          "Yune",
-                          "Ranulf", "Lethe", "Mordecai", "Caineghis", "Haar"
-                          "SP!Felicia", "SP!Flora", "SP!Genny", "SP!Lukas", "SP!Leo",
-                          "L!Alm",
-                          "FA!Berkut", "FA!F!Corrin", "FA!Mareeta", "FA!Y!Tiki", "FA!Delthea",
-                          "BR!Fjorm", "BR!Sigrun", "BR!Tanith", "GR!Pent", "B!Louise",
-                          "Naga",
-                          "Brady", "Kjelle", "Nah", "Yarne", "Cynthia",
-                          "SU!Gunnthrá", "SU!Helbindi", "SU!Laegjarn", "SU!Laevatein", "SU!Ylgr",
-                          "L!Eliwood",
-                          "SU!Lilina", "SU!Lyn", "SU!Ursula", "SU!Wolt", "SU!Fiora",
-                          "M!Byleth", "F!Byleth", "Edelgard", "Dimitri", "Claude", "Kronya",
-                          "Sothis",
-                          "TH!Hilda", "Hubert", "Mercedes", "Petra", "Death Knight",
-                          "B!Alm", "B!Camilla", "B!Eliwood", "B!Micaiah", "Sigrun",
-                          "L!Julia",
-                          "DA!Berkut", "DA!Ishtar", "DA!Nephenee", "DA!Reinhardt", "DA!Rinea",
-                          "Bantu", "Nagi", "Phina", "Sirius", "Astram",
-                          "Thrasir",
-                          "H!Dozla", "H!Ilyana", "H!L'Arachel", "H!Rolf", "H!Hector",
-                          "P!Catria", "Forsyth", "Python", "Silque", "Valdar", "Conrad",
-                          "L!Leif",
-                          "P!Ephraim", "Ewan", "Gerik", "Tethys", "Ross", "Cormag",
-                          "Echidna", "Igrene", "Larum", "Perceval", "Chad", "Brunnya",
-                          "Altina",
-
-                          "Peony",
-                          "Eyvel", "Mareeta", "Osian", "Tanya", "Kempf",
-                          "WI!Nino", "WI!Sothis", "WI!Zephiel", "WI!Marth", "WI!Jaffar",
-                          "L!Celica",
-                          "NY!Anna", "NY!Lethe", "NY!Selkie", "NY!Alfonse", "NY!Eir",
-                          "Altena", "Ced", "Larcei", "Shannan", "Travant",
-                          "Eleonora", "Kiria", "Mamori", "Tsubasa", "Itsuki",
-                          "Líf",
-                          "V!Alm", "V!Conrad", "V!Faye", "V!Rudolf", "V!Silque",
-                          "Fiona", "Nils", "Leila", "Rath", "Heath",
-                          "L!Chrom",
-                          "Annette", "Bernadetta", "Ferdinand", "Lysithea", "Flame Emperor",
-                          "SP!Est", "SP!Narcian", "SP!Fir", "SP!Idunn", "SP!Bartre",
-                          "Bramimond",
-                          "Forrest", "Midori", "Rinkah", "Lilith", "Iago",
-                          "CH!Marth", "CH!Caeda", "CH!Palla", "CH!Minerva", "CH!Merric",
-                          "L!Edelgard",
-                          "FA!M!Corrin", "FA!Lyon", "FA!Julia", "FA!Ike", "Ashnard",
-                          "BR!Micaiah", "BR!Nailah", "BR!Oboro", "GR!Rafielf", "GR!Hinata",
-                          "Mila",
-                          "P!Anna", "Emmeryn", "Mustafa", "Say'ri", "Gangrel",
-                          "Mirabilis",
-                          "SU!Joshua", "SU!Lute", "SU!SS!Selena", "SU!Mia", "SU!Rhys",
-                          "L!Seliph",
-                          "SU!Ingrid", "SU!Sylvain", "SU!Dorothea", "SU!F!Byleth", "SU!Lorenz",
-                          "Julian", "Lena", "M!Kris", "F!Kris", "Eremiya",
-                          "Hel",
-                          "PI!Brigid", "PI!Geese", "PI!Tibarn", "PI!Veronica", "PI!Darros",
-                          "B!Edelgard", "B!Dimitri", "B!Claude", "B!Lysithea", "Jorge",
-                          "L!F!Corrin",
-                          "DA!Eldigan", "DA!Ethlyn", "DA!Lachesis", "DA!Quan", "DA!Sigurd",
-                          "Gatrie", "Ilyana", "Jill", "Shinon", "Petrine",
-                          "Plumeria",
-                          "H!Dheginsea", "H!F!Grima", "H!Y!Tiki", "H!Xane", "H!Ena",
-                          "Catherine", "Shamir", "Flayn", "Seteth", "Nemesis",
-                          "L!Dimitri",
-                          "NI!Laevatein", "NI!Navarre", "NI!Hana", "NI!Zihark", "NI!Lyn",
-                          "Dieck", "Guinivere", "Melady", "Merlinus", "Galle",
-                          "Triandra", "Freyja",
-
-                          "Reginn",
-                          "Duessel", "Knoll", "Natasha", "SS!Selena", "Caellach",
-                          "WI!Altina", "WI!Bernadetta", "WI!TH!Hilda", "WI!Sephiran", "WI!Felix",
-                          "L!Lilina",
-                          "NY!Kaden", "NY!Keaton", "NY!Velouria", "NY!Peony", "NY!Plumeria",
-                          "Asbel", "Miranda", "Ronan", "Sara", "Veld",
-                          "DE!Dorothea", "DE!Katarina", "DE!Tharja", "DE!Raphael", "DE!M!Kris",
-                          "Seiros",
-                          "V!Alfonse", "V!Gustav", "V!Henriette", "V!Líf", "V!Veronica",
-                          "Annand", "Azelle", "Erinys", "Lex", "Díthorba",
-                          "L!Claude",
-                          "Dedue", "Ingrid", "Linhardt", "Marianne", "Solon",
-                          "SP!Inigo", "SP!Minerva", "SP!Severa", "SP!Myrrh", "SP!Saleh",
-                          "Dagr",
-                          "Erk", "Farina", "Louise", "Pent", "Sonia",
-                          "CH!Eirika", "CH!Lyon", "CH!Tana", "CH!L'Arachel", "CH!Innes",
-                          "L!Sigurd",
-                          "FA!Dimitri", "FA!Edelgard", "FA!M!Morgan", "FA!F!Morgan", "FA!Orson",
-                          "BR!Catria", "BR!Juno", "BR!Saul", "BR!Shanna", "GR!Zelot",
-                          "Ashera",
-                          "Luthier", "Palla", "Tatiana", "Zeke", "Fernand", "Nótt",
-                          "SU!Ashe", "SU!Caspar", "SU!TH!Hilda", "SU!Mercedes", "SU!Leonie",
-                          "L!M!Byleth",
-                          "SU!Freyja", "SU!Feryr", "SU!Ogma", "SU!Caeda", "SU!Norne",
-                          "Benny", "Charlotte", "Nyx", "Orochi", "Arete", "Nifl",
-                          "Ullr",
-                          "PI!Hinoka", "PI!Naesala", "PI!Surtr", "PI!Vika", "PI!Lifis",
-                          "B!Eirika", "B!Marth", "B!Marianne", "Gatekeeper", "Pelleas",
-                          "L!Micaiah",
-                          "CF!Leif", "CF!Julia", "CF!Larcei", "CF!Nanna", "CF!Lewyn",
-                          "Yuri", "Balthus", "Constance", "Hapi", "Aelfric", "Múspell",
-                          "Ótr",
-                          "H!Kurthnaga", "H!Rhea", "H!M!Grima", "H!Sothis", "H!Sophia",
-                          "Malice", "Roshea", "Vyland", "Wolf", "Sedgar", "A!Fjorm",
-                          "L!Fae",
-                          "NI!M!Corrin", "NI!F!Corrin", "NI!Igrene", "NI!NI!Shamir", "NI!Shinon",
-                          "Astrid", "Marcia", "Tanith", "Volke", "Bertram", "A!Laegjarn",
-                          "Eitri", "Thórr"
-
-                          "Ash",
-                          "Priam", "Flavia", "Basilio", "Miriel", "Yen'fay",
-                          "WI!Artur", "WI!Ignatz", "WI!Manuela", "WI!Lysithea", "WI!Mirabilis",
-                          "L!F!Byleth",
-                          "NY!Reginn", "NY!Fáfnir", "NY!Lyre", "NY!Kyza", "NY!Dagr",
-                          "Colm", "Neimi", "Rennac", "A!Joshua", "Riev",
-                          "DE!Azura", "DE!Karla", "DE!Nailah", "DE!Xane", "DE!Deen",
-                          "Elimine",
-                          "V!Chrom", "V!Lissa", "V!Owain", "V!F!Robin", "F!Lucina",
-                          "Cath", "Hugh", "A!Idunn", "Niime", "Gonzalez",
-                          "L!Caeda",
-                          "SP!Delthea", "SP!Henry", "SP!Luthier", "SP!Sonya", "SP!Maria",
-                          "August", "Galzus", "Karin", "Mareeta", "Salem",
-                          "L!Nanna",
-                          "CH!Ike", "CH!Inyana", "CH!Boyd", "CH!Mia", "CH!Soren",
-                          "A!Ishtar", "Scáthach", "Tine", "G!Arthur", "G!Hilda",
-                          "Medeus",
-                          "FA!Gustav", "FA!Lilith", "FA!Ninian", "FA!Rhea", "FA!Muarim",
-                          "BR!Cecilia", "BR!Larum", "BR!Lilina", "GR!Roy", "BR!Sophia",
-                          "L!Myrrh",
-                          "A!Florina", "Guy", "Kent", "Sain", "Limstella", "Letizia",
-                          "SU!Edelgard", "SU!Dimitri", "SU!Claude", "SU!Micaiah", "SU!Elincia",
-                          "L!Xander",
-                          "SU!Eirika", "SU!Lyon", "SU!Nifl", "SU!Seth", "SU!Thórr",
-                          "A!Celica", "Atlas", "P!Est", "Kamui", "Brigand Boss", "Ymir",
-                          "Askr",
-                          "TH!Leila", "TH!Nina", "TH!Rickard", "TH!Sothe", "TH!Cath",
-                          "B!F!Byleth", "B!Chrom", "B!Seliph", "B!A!Tiki", "Jeralt",
-                          "L!Deirdre",
-                          "FF!Lyn", "FF!Mordecai", "FF!Múspell", "FF!Rinkah", "FF!Tana",
-                          "A!Hilda", "Monica", "M!Shez", "F!Shez", "R!Líf", "Holst",
-                          "L!Ninian",
-                          "H!M!Corrin", "H!F!Corrin", "H!Duma", "H!Naga", "H!Nils",
-                          "A!Eir", "Gregor", "Phila", "Ricken", "R!F!Grima", "Cervantes",
-                          "Arval",
-                          "NI!Camilla", "NI!Cherche", "NI!Haar", "NI!Heath", "NI!Laegjarn",
-                          "Elice", "Hardin", "Nyna", "A!Y!Tiki", "Matthis", "Ganglöt",
-                          "Embla", "L!Veronica",
-
-                          "Seiðr",
-                          "Dwyer", "Caeldori", "Kiragi", "R!Ophelia", "Hans",
-                          "WI!Annette", "WI!Black Knight", "WI!Cordelia", "WI!Dorothea", "WI!Bruno",
-                          "L!F!Shez",
-                          "NY!Ash", "NY!Askr", "NY!Elm", "NY!Panne", "NY!Yarne",
-                          "DE!M!Byleth", "DE!Nino", "DE!Ursula", "DE!Linde", "DE!Soren",
-                          "F!Alear", "Alfred", "Chloé", "Céline", "Etie", "Lumera",
-                          "Fomortiis", "Gotoh",
-                          "V!Elise", "V!Hana", "V!Effie", "V!Takumi", "V!Effie",
-                          "Bastian", "Geoffrey", "Lucia", "A!Elincia", "Ludveck",
-                          "L!M!Robin",
-                          "SP!Ashe", "SP!Bernadetta", "SP!Karla", "SP!Triandra", "SP!Michalis",
-                          "Gilliam", "Syrene", "Vanessa", "R!Tana", "Vigarde",
-                          "L!Yuri",
-                          "CH!Eliwood", "CH!Hector", "CH!Lucius", "CH!Mark", "CH!Rebecca",
-                          "Felix", "Rhea", "Sylvain", "R!Ingrid", "Cornelia",
-                          "Nerþuz",
-                          "FA!Anankos", "FA!F!Byleth", "FA!Chrom", "FA!Maria", "FA!Linus",
-                          "BR!Anna", "BR!Flavia", "BR!Say'ri", "BR!A!Tiki", "GR!M!Robin",
-                          "L!Hinoka",
-                          "Dorothy", "A!Fir", "Noah", "Saul", "Murdock", "Heiðr",
-                          "SU!Ephraim", "SU!L'Arachel", "SU!Shamir", "SU!F!Shez", "SU!M!Shez",
-                          "L!Guinivere",
-                          "SU!Donnel", "SU!Fjorm", "SU!Tharja", "SU!Ymir", "SU!Ivy",
-                          "Alcryst", "M!Alear", "Citrinne", "Diamant", "Lapis", "Zephia" "Eitr",
-                          "Freyr",
-                          "T!Ayra", "T!Ferdinand", "T!Lysithea", "T!Sigurd", "T!Tailtiu",
-                          "B!F!Corrin", "B!M!Robin", "B!Gullveig", "B!Soren", "Cyril",
-                          "L!F!Alear",
-                          "FF!Dagr", "FF!Kagero", "FF!Claude", "FF!Catria", "Fuga",
-                          "A!Ced", "Febail", "Fee", "Patty", "Arion", "R!Plumeria",
-                          "L!Elincia",
-                          "H!E!Anna", "H!Flayn", "H!Kellam", "H!Seadall", "H!Timerra",
-                          "Mycen", "R!Sonya", "Marla", "Hestia", "X!Peony", "X!Triandra",
-                          "Veyle",
-                          "NI!Saizo", "NI!Reina", "NI!Sanaki", "NI!Zelgius", "NI!Heather",
-                          "Harken", "Isadora", "X!Nino", "Wil", "Fargus", "Ginnungagap",
-                          "Gullveig", "Kvasir",
-
-                          "Ratatoskr",
-                          "Inigo", "Laurent", "R!Lucina", "Severa", "Validar",
-                          "WI!M!Byleth", "WI!Claude", "WI!Dimitri", "WI!Edelgard", "WI!Yunaka",
-                          "L!Camilla",
-                          "NY!M!Kana", "NY!F!Kana", "NY!Nerþuz", "NY!Seiðr", "NY!Kvasir",
-                          "Lara", "Tina", "Safy", "R!Reinhardt", "Perne",
-                          "DE!Altina", "DE!Igrene", "DE!Juno", "DE!Tormod", "DE!Hawkeye",
-                          "MY!Lumera", "E!Marth",
-                          "V!Ephraim", "V!Lyon", "V!Myrrh", "V!SS!Selena", "V!Vigarde",
-                          "Ivy", "Hortensia", "Kagetsu", "Rosado", "Mauvier",
-                          "L!M!Alear",
-                          "SP!Chloé", "SP!Framme", "SP!Linhardt", "SP!Mirabilis", "SP!Sylvain",
-                          "X!Caeda", "A!Merric", "Yuliya", "Arlen", "Castor",
-                          "E!Ike",
-                          "CH!Emmeryn", "CH!Frederick", "CH!Lissa", "CH!M!Robin", "CH!F!Robin",
-                          "X!Azura", "Hayato", "Mozu", "Yukimura", "Candace",
-                          "Loki",
-                          "FA!Lumera", "FA!Veyle", "FA!Ursula", "FA!Lloyd", "Nergal",
-                          "GR!Alcryst", "BR!Embla", "BR!Lapis", "BR!Nel", "BR!Sharena",
-                          "L!M!Corrin",
-                          "Edward", "Leonardo", "X!Micaiah", "R!Sothe", "Jarod",
-                          "SU!Gullveig", "SU!Nerþuz", "SU!Olivia", "SU!Vaike", "SU!Hríd",
-                          "E!Celica",
-                          "SU!F!Alear", "SU!Clanne", "SU!Dedue", "SU!Goldmary", "SU!Petra",
-                          "A!Amelia", "X!Eirika", "Forde", "Kyle", "Glen", "Niðavellir",
-                          "Eikþyrnir", "Heiðrún",
-                          "SF!Leo", "SF!Mia", "SF!Nephenee", "SF!Takumi", "SF!Lucia",
-                          "B!Alfonse", "B!Bernadetta", "B!Felix", "B!F!Robin", "Panette",
-                          "L!M!Shez",
-                          "FF!Fjorm", "FF!Felicia", "FF!Flora", "FF!Nils", "FF!Thea",
-                          "Fogado", "Merrin", "Pandreo", "Timerra", "Marni", "AI!Reginn",
-                          "E!Sigurd",
-                          "H!Askr", "H!Lethe", "H!Nagi", "H!Nah", "H!Yarne",
-                          "Ashe", "Caspar", "Dorothea", "R!Marianne", "Metodey", "AI!Dagr",
-                          "Hræsvelgr",
-                          "NI!Céline", "NI!Diamant", "NI!Noire", "NI!Tharja", "NI!Lucina",
-                          "Bors", "Elffin", "R!Lilina", "Ogier", "Zeiss", "Þjazi",
-                          "Níðhöggr", "Læraðr"
-                    ]
+aided_heroes = ["AI!Reginn", "AI!Dagr", "Yunaka"]
 
 # Generics
 generics = ["Sword Fighter", "Lance Fighter", "Axe Fighter",
@@ -1989,7 +1731,7 @@ emblem_descriptions = {
 For each foe within 5 spaces of unit, unit can move to the nearest spaces that are within unit's range from that foe (unless space is impassable terrain).''',
     "Sigurd": '''Boosts Special damage by number of spaces from start position to end position of whoever initiated combat (max 4) × 2.
 
-Enables【Canto (X)】.
+Enables [Canto (X)].
 If unit's Range = 1, X = 3; otherwise, X = 2.
 
 At start of turn, grants "unit can move 1 extra space" to unit for 1 turn (does not stack; excludes cavalry with Range = 2).''',
