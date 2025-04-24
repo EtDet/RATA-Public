@@ -1,6 +1,16 @@
+2.7.1 (4/XX/25)
+New Features:
+-New Mythic Hero Anri/Sombron/Váli/Fáfnir was added
+-Resplendent Outfit can now be used for Lyon.
+-All Sacred Seals are now available to use.
+
+Bug Fixes:
+-S/D Rein Snap can no longer be equipped by ranged fliers.
+-Stall Ploy now properly gives out [Stall] instead of [Ploy].
+
 2.7.0 (4/22/25)
 New Features:
--Added the remaining XX heroes introduced in Year 9, meaning that all heroes are now usable!
+-Added the remaining 61 heroes introduced in Year 9, meaning that all heroes are now usable!
 -Lyn and Eirika Emblem rings are now usable.
 -Calling Circle (O) and Calling Circle (D) are now usable in Aether Raids. A Mythic hero within the correct season is required for the additional stats granted, but they are fully usable without a Mythic!
 -An icon of Ratatoskr was added to the main window.

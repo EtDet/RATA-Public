@@ -466,12 +466,15 @@ def _get_valid_seals(cur_hero):
         if restr_wpn[i] == "NotMagic" and cur_hero.wpnType not in hero.TOME_WEAPONS: add_cond = False
         if restr_wpn[i] == "NotBow" and cur_hero.wpnType not in hero.BOW_WEAPONS: add_cond = False
         if restr_wpn[i] == "NotBeast" and cur_hero.wpnType not in hero.BEAST_WEAPONS: add_cond = False
-        if restr_wpn[i] == "NotSword" and cur_hero.wpnType != "Sword": add_cond = True
-        if restr_wpn[i] == "NotLance" and cur_hero.wpnType != "Lance": add_cond = True
-        if restr_wpn[i] == "NotAxe" and cur_hero.wpnType != "Axe": add_cond = True
-        if restr_wpn[i] == "NotRTome" and cur_hero.wpnType != "RTome": add_cond = True
-        if restr_wpn[i] == "NotBTome" and cur_hero.wpnType != "BTome": add_cond = True
-        if restr_wpn[i] == "NotGTome" and cur_hero.wpnType != "GTome": add_cond = True
+        if restr_wpn[i] == "NotSwordLanceAxe" and cur_hero.wpnType not in ["Sword", "Lance", "Axe"]: add_cond = False
+        if restr_wpn[i] == "NotDragonBeast" and cur_hero.wpnType not in hero.DRAGON_WEAPONS + hero.BEAST_WEAPONS: add_cond = False
+        if restr_wpn[i] == "NotSword" and cur_hero.wpnType != "Sword": add_cond = False
+        if restr_wpn[i] == "NotLance" and cur_hero.wpnType != "Lance": add_cond = False
+        if restr_wpn[i] == "NotAxe" and cur_hero.wpnType != "Axe": add_cond = False
+        if restr_wpn[i] == "NotRTome" and cur_hero.wpnType != "RTome": add_cond = False
+        if restr_wpn[i] == "NotBTome" and cur_hero.wpnType != "BTome": add_cond = False
+        if restr_wpn[i] == "NotGTome" and cur_hero.wpnType != "GTome": add_cond = False
+
 
         if "Dragon" in restr_wpn[i] and restr_wpn[i] != "NotDragon" and cur_hero.wpnType in hero.DRAGON_WEAPONS: add_cond = False
         elif "Beast" in restr_wpn[i] and restr_wpn[i] != "NotBeast" and cur_hero.wpnType in hero.BEAST_WEAPONS:  add_cond = False
@@ -5197,7 +5200,7 @@ class GameplayCanvas(tk.Canvas):
                                     valid_ally_cond = True
                                 i += 1
 
-                            feint_skills = ["atkFeint", "spdFeint", "defFeint", "resFeint"]
+                            feint_skills = ["atkFeint", "spdFeint", "defFeint", "resFeint", "atkFeintSe", "spdFeintSe", "defFeintSe", "resFeintSe"]
                             ruse_skills = ["atkSpdRuse", "atkDefRuse", "atkResRuse", "spdDefRuse", "spdResRuse", "defResRuse"]
 
                             self_exceptions = ["annetteRally", "annetteBoost", "hubertRuse", "shigureLink", "merlinusRally", "jolly!",
@@ -5210,7 +5213,7 @@ class GameplayCanvas(tk.Canvas):
                                 if skill in cur_hero.getSkills() or skill in ally.getSkills():
                                     valid_ally_cond = True
 
-                            # Other skills that enable Rally attacks (Damiel Bow, Convoy Dagger,
+                            # Other skills that enable Rally attacks (Damiel Bow, Convoy Dagger)
                             for skill in self_exceptions:
                                 if skill in cur_hero.getSkills():
                                     valid_ally_cond = True
@@ -7184,6 +7187,10 @@ class GameplayCanvas(tk.Canvas):
                     percentage = 0.25 + 0.25 * player.bskill.effects["live_to_serve"]
                     hp_healed_self += trunc(hp_healed_ally * percentage)
 
+                if player.sSeal and "live_to_serveSe" in player.sSeal.effects:
+                    percentage = 0.25 + 0.25 * player.sSeal.effects["live_to_serveSe"]
+                    hp_healed_self += trunc(hp_healed_ally * percentage)
+
                 # Deep Wounds
                 if Status.DeepWounds in player.statusNeg: hp_healed_self = 0
                 if Status.DeepWounds in ally.statusNeg: hp_healed_ally = 0
@@ -7326,6 +7333,11 @@ class GameplayCanvas(tk.Canvas):
                 if "spdRefresh" in playerSkills: ally.inflictStat(SPD, playerSkills["spdRefresh"])
                 if "defRefresh" in playerSkills: ally.inflictStat(DEF, playerSkills["defRefresh"])
                 if "resRefresh" in playerSkills: ally.inflictStat(RES, playerSkills["resRefresh"])
+
+                if "atkRefreshSe" in playerSkills: ally.inflictStat(ATK, playerSkills["atkRefreshSe"])
+                if "spdRefreshSe" in playerSkills: ally.inflictStat(SPD, playerSkills["spdRefreshSe"])
+                if "defRefreshSe" in playerSkills: ally.inflictStat(DEF, playerSkills["defRefreshSe"])
+                if "resRefreshSe" in playerSkills: ally.inflictStat(RES, playerSkills["resRefreshSe"])
 
                 if "firestormDance" in playerSkills: ally.inflictStatus(Status.Desperation)
                 if "rockslideDance" in playerSkills: ally.inflictStatus(Status.Dodge)
@@ -8058,6 +8070,12 @@ class GameplayCanvas(tk.Canvas):
                                 foe.inflictStat(ATK, -stat_penalty)
                                 foe.inflictStat(SPD, -stat_penalty)
 
+                            if "atkSpdSnagSe" in playerSkills or "atkSpdSnagSe" in allySkills:
+                                stat_penalty = max(playerSkills.get("atkSpdSnagSe", 0), allySkills.get("atkSpdSnagSe", 0))
+
+                                foe.inflictStat(ATK, -stat_penalty)
+                                foe.inflictStat(SPD, -stat_penalty)
+
                             if "atkDefSnag" in playerSkills or "atkDefSnag" in allySkills:
                                 stat_penalty = max(playerSkills.get("atkDefSnag", 0), allySkills.get("atkDefSnag", 0))
 
@@ -8106,6 +8124,12 @@ class GameplayCanvas(tk.Canvas):
 
                             if "defResSnag" in playerSkills or "defResSnag" in allySkills:
                                 stat_penalty = max(playerSkills.get("defResSnag", 0), allySkills.get("defResSnag", 0))
+
+                                foe.inflictStat(DEF, -stat_penalty)
+                                foe.inflictStat(RES, -stat_penalty)
+
+                            if "defResSnagSe" in playerSkills or "defResSnagSe" in allySkills:
+                                stat_penalty = max(playerSkills.get("defResSnagSe", 0), allySkills.get("defResSnagSe", 0))
 
                                 foe.inflictStat(DEF, -stat_penalty)
                                 foe.inflictStat(RES, -stat_penalty)
@@ -8298,8 +8322,20 @@ class GameplayCanvas(tk.Canvas):
                         for foe in valid_foes:
                             foe.inflictStat(ATK, -stat_debuff)
 
+                    if "atkFeintSe" in playerSkills or "atkFeintSe" in allySkills:
+                        stat_debuff = max(playerSkills.get("atkFeintSe", 0), allySkills.get("atkFeintSe", 0))
+
+                        for foe in valid_foes:
+                            foe.inflictStat(ATK, -stat_debuff)
+
                     if "spdFeint" in playerSkills or "spdFeint" in allySkills:
                         stat_debuff = max(playerSkills.get("spdFeint", 0), allySkills.get("spdFeint", 0))
+
+                        for foe in valid_foes:
+                            foe.inflictStat(SPD, -stat_debuff)
+
+                    if "spdFeintSe" in playerSkills or "spdFeintSe" in allySkills:
+                        stat_debuff = max(playerSkills.get("spdFeintSe", 0), allySkills.get("spdFeintSe", 0))
 
                         for foe in valid_foes:
                             foe.inflictStat(SPD, -stat_debuff)
@@ -8310,8 +8346,20 @@ class GameplayCanvas(tk.Canvas):
                         for foe in valid_foes:
                             foe.inflictStat(DEF, -stat_debuff)
 
+                    if "defFeintSe" in playerSkills or "defFeintSe" in allySkills:
+                        stat_debuff = max(playerSkills.get("defFeintSe", 0), allySkills.get("defFeintSe", 0))
+
+                        for foe in valid_foes:
+                            foe.inflictStat(DEF, -stat_debuff)
+
                     if "resFeint" in playerSkills or "resFeint" in allySkills:
                         stat_debuff = max(playerSkills.get("resFeint", 0), allySkills.get("resFeint", 0))
+
+                        for foe in valid_foes:
+                            foe.inflictStat(RES, -stat_debuff)
+
+                    if "resFeintSe" in playerSkills or "resFeintSe" in allySkills:
+                        stat_debuff = max(playerSkills.get("resFeintSe", 0), allySkills.get("resFeintSe", 0))
 
                         for foe in valid_foes:
                             foe.inflictStat(RES, -stat_debuff)
@@ -12873,6 +12921,10 @@ class ExtrasFrame(tk.Frame):
 
             if player.bskill and "live_to_serve" in player.bskill.effects:
                 percentage = 0.25 + 0.25 * player.bskill.effects["live_to_serve"]
+                hp_healed_self += trunc(hp_healed_ally * percentage)
+
+            if player.sSeal and "live_to_serveSe" in player.sSeal.effects:
+                percentage = 0.25 + 0.25 * player.sSeal.effects["live_to_serveSe"]
                 hp_healed_self += trunc(hp_healed_ally * percentage)
 
             # Deep Wounds

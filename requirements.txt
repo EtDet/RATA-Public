@@ -5,3 +5,4 @@ ttkbootstrap~=1.10.1
 tkmacosx~=1.0.5
 natsort~=8.4.0
 customtkinter~=5.2.2
+GitPython~=3.1.44

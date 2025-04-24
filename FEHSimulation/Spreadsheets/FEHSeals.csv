@@ -75,34 +75,34 @@ Swift Strike 1,"If unit initiates combat, grants Spd/Res+2 during combat.",2,A,2
 Swift Strike 2,"If unit initiates combat, grants Spd/Res+4 during combat.",3,A,29,TRUE,spdBlow,4,resBlow,4,,,,,,,Any,Staff
 Bracing Blow 1,"If unit initiates combat, grants Def/Res+2 during combat.",2,A,30,TRUE,defBlow,2,resBlow,2,,,,,,,Any,Staff
 Bracing Blow 2,"If unit initiates combat, grants Def/Res+4 during combat.",3,A,30,TRUE,defBlow,4,resBlow,4,,,,,,,Any,Staff
-Fierce Stance 1,"If foe initiates combat, grants Atk+2 during combat.",1,A,31,FALSE,,,,,,,,,,,Any,Any
-Fierce Stance 2,"If foe initiates combat, grants Atk+4 during combat.",2,A,31,FALSE,,,,,,,,,,,Any,Any
-Fierce Stance 3,"If foe initiates combat, grants Atk+6 during combat.",3,A,31,FALSE,,,,,,,,,,,Any,Any
-Darting Stance 1,"If foe initiates combat, grants Spd+2 during combat.",1,A,32,FALSE,,,,,,,,,,,Any,Any
-Darting Stance 2,"If foe initiates combat, grants Spd+4 during combat.",2,A,32,FALSE,,,,,,,,,,,Any,Any
-Darting Stance 3,"If foe initiates combat, grants Spd+6 during combat.",3,A,32,FALSE,,,,,,,,,,,Any,Any
-Steady Stance 1,"If foe initiates combat, grants Def+2 during combat.",1,A,33,FALSE,,,,,,,,,,,Any,Any
-Steady Stance 2,"If foe initiates combat, grants Def+4 during combat.",2,A,33,FALSE,,,,,,,,,,,Any,Any
-Steady Stance 3,"If foe initiates combat, grants Def+6 during combat.",3,A,33,FALSE,,,,,,,,,,,Any,Any
-Warding Stance 1,"If foe initiates combat, grants Res+2 during combat.",1,A,34,FALSE,,,,,,,,,,,Any,Any
-Warding Stance 2,"If foe initiates combat, grants Res+4 during combat.",2,A,34,FALSE,,,,,,,,,,,Any,Any
-Warding Stance 3,"If foe initiates combat, grants Res+6 during combat.",3,A,34,FALSE,,,,,,,,,,,Any,Any
-Kestral Stance 1,"If foe initiates combat, grants Atk/Spd+2 during combat.",1,A,35,FALSE,,,,,,,,,,,Any,Any
-Kestral Stance 2,"If foe initiates combat, grants Atk/Spd+4 during combat.",2,A,35,FALSE,,,,,,,,,,,Any,Any
-Sturdy Stance 1,"If foe initiates combat, grants Atk/Def+2 during combat.",1,A,36,FALSE,,,,,,,,,,,Any,Any
-Sturdy Stance 2,"If foe initiates combat, grants Atk/Def+4 during combat.",2,A,36,FALSE,,,,,,,,,,,Any,Any
-Mirror Stance 1,Grants Atk/Res+2 during combat if foe initiates combat.,1,A,37,FALSE,,,,,,,,,,,Any,Any
-Mirror Stance 2,Grants Atk/Res+4 during combat if foe initiates combat.,2,A,37,FALSE,,,,,,,,,,,Any,Any
-Steady Posture 1,"If foe initiates combat, grants Spd/Def+2 during combat.",1,A,38,FALSE,,,,,,,,,,,Any,Any
-Steady Posture 2,"If foe initiates combat, grants Spd/Def+4 during combat.",2,A,38,FALSE,,,,,,,,,,,Any,Any
-Swift Stance 1,"If foe initiates combat, grants Spd/Res+2 during combat.",1,A,39,FALSE,,,,,,,,,,,Any,Any
-Swift Stance 2,"If foe initiates combat, grants Spd/Res+4 during combat.",2,A,39,FALSE,,,,,,,,,,,Any,Any
-Bracing Stance 1,"If foe initiates combat, grants Def/Res+2 during combat.",1,A,40,FALSE,,,,,,,,,,,Any,Any
-Bracing Stance 2,"If foe initiates combat, grants Def/Res+4 during combat.",2,A,40,FALSE,,,,,,,,,,,Any,Any
-Fierce Breath,"If foe initiates combat, grants Atk +4 during combat and Special cooldown charge +1 per attack. (Only highest value applies. Does not stack.)",1,A,41,FALSE,,,,,,,,,,,Any,Any
-Darting Breath,"If foe initiates combat, grants Spd +4 during combat and Special cooldown charge +1 per attack. (Only highest value applied. Does not stack).",1,A,42,FALSE,,,,,,,,,,,Any,Any
-Steady Breath,"If foe initiates combat, grants Def+4 during combat and Special cooldown charge +1 per attack. (Only highest value applied. Does not stack.)",1,A,43,FALSE,,,,,,,,,,,Any,Any
-Warding Breath,"If foe initiates combat, grants Res+4 during combat and Special cooldown charge +1 per attack. (Only highest value applied. Does not stack.)",1,A,44,FALSE,,,,,,,,,,,Any,Any
+Fierce Stance 1,"If foe initiates combat, grants Atk+2 during combat.",1,A,31,TRUE,atkStance,2,,,,,,,,,Any,Any
+Fierce Stance 2,"If foe initiates combat, grants Atk+4 during combat.",2,A,31,TRUE,atkStance,4,,,,,,,,,Any,Any
+Fierce Stance 3,"If foe initiates combat, grants Atk+6 during combat.",3,A,31,TRUE,atkStance,6,,,,,,,,,Any,Any
+Darting Stance 1,"If foe initiates combat, grants Spd+2 during combat.",1,A,32,TRUE,spdStance,2,,,,,,,,,Any,Any
+Darting Stance 2,"If foe initiates combat, grants Spd+4 during combat.",2,A,32,TRUE,spdStance,4,,,,,,,,,Any,Any
+Darting Stance 3,"If foe initiates combat, grants Spd+6 during combat.",3,A,32,TRUE,spdStance,6,,,,,,,,,Any,Any
+Steady Stance 1,"If foe initiates combat, grants Def+2 during combat.",1,A,33,TRUE,defStance,2,,,,,,,,,Any,Any
+Steady Stance 2,"If foe initiates combat, grants Def+4 during combat.",2,A,33,TRUE,defStance,4,,,,,,,,,Any,Any
+Steady Stance 3,"If foe initiates combat, grants Def+6 during combat.",3,A,33,TRUE,defStance,6,,,,,,,,,Any,Any
+Warding Stance 1,"If foe initiates combat, grants Res+2 during combat.",1,A,34,TRUE,resStance,2,,,,,,,,,Any,Any
+Warding Stance 2,"If foe initiates combat, grants Res+4 during combat.",2,A,34,TRUE,resStance,4,,,,,,,,,Any,Any
+Warding Stance 3,"If foe initiates combat, grants Res+6 during combat.",3,A,34,TRUE,resStance,6,,,,,,,,,Any,Any
+Kestral Stance 1,"If foe initiates combat, grants Atk/Spd+2 during combat.",1,A,35,TRUE,atkStance,2,spdStance,2,,,,,,,Any,Any
+Kestral Stance 2,"If foe initiates combat, grants Atk/Spd+4 during combat.",2,A,35,TRUE,atkStance,4,spdStance,4,,,,,,,Any,Any
+Sturdy Stance 1,"If foe initiates combat, grants Atk/Def+2 during combat.",1,A,36,TRUE,atkStance,2,defStance,2,,,,,,,Any,Any
+Sturdy Stance 2,"If foe initiates combat, grants Atk/Def+4 during combat.",2,A,36,TRUE,atkStance,4,defStance,4,,,,,,,Any,Any
+Mirror Stance 1,Grants Atk/Res+2 during combat if foe initiates combat.,1,A,37,TRUE,atkStance,2,resStance,2,,,,,,,Any,Any
+Mirror Stance 2,Grants Atk/Res+4 during combat if foe initiates combat.,2,A,37,TRUE,atkStance,4,resStance,4,,,,,,,Any,Any
+Steady Posture 1,"If foe initiates combat, grants Spd/Def+2 during combat.",1,A,38,TRUE,spdStance,2,defStance,2,,,,,,,Any,Any
+Steady Posture 2,"If foe initiates combat, grants Spd/Def+4 during combat.",2,A,38,TRUE,spdStance,4,defStance,4,,,,,,,Any,Any
+Swift Stance 1,"If foe initiates combat, grants Spd/Res+2 during combat.",1,A,39,TRUE,spdStance,2,resStance,2,,,,,,,Any,Any
+Swift Stance 2,"If foe initiates combat, grants Spd/Res+4 during combat.",2,A,39,TRUE,spdStance,4,resStance,4,,,,,,,Any,Any
+Bracing Stance 1,"If foe initiates combat, grants Def/Res+2 during combat.",1,A,40,TRUE,defStance,2,resStance,2,,,,,,,Any,Any
+Bracing Stance 2,"If foe initiates combat, grants Def/Res+4 during combat.",2,A,40,TRUE,defStance,4,resStance,4,,,,,,,Any,Any
+Fierce Breath,"If foe initiates combat, grants Atk +4 during combat and Special cooldown charge +1 per attack. (Only highest value applies. Does not stack.)",1,A,41,TRUE,atkStance,4,breathCharge,1,,,,,,,Cav-Fly,Ranged
+Darting Breath,"If foe initiates combat, grants Spd +4 during combat and Special cooldown charge +1 per attack. (Only highest value applied. Does not stack).",1,A,42,TRUE,spdStance,4,breathCharge,2,,,,,,,Cav-Fly,Ranged
+Steady Breath,"If foe initiates combat, grants Def+4 during combat and Special cooldown charge +1 per attack. (Only highest value applied. Does not stack.)",1,A,43,TRUE,defStance,4,breathCharge,3,,,,,,,Cav-Fly,Ranged
+Warding Breath,"If foe initiates combat, grants Res+4 during combat and Special cooldown charge +1 per attack. (Only highest value applied. Does not stack.)",1,A,44,TRUE,resStance,4,breathCharge,4,,,,,,,Cav-Fly,Ranged
 Defiant Atk 1,Grants Atk+3 at start of turn if unit’s HP ≤ 50%,1,A,45,TRUE,defiantAtkSe,1,,,,,,,,,Any,Any
 Defiant Atk 2,Grants Atk+5 at start of turn if unit’s HP ≤ 50%,2,A,45,TRUE,defiantAtkSe,2,,,,,,,,,Any,Any
 Defiant Atk 3,Grants Atk+7 at start of turn if unit’s HP ≤ 50%,3,A,45,TRUE,defiantAtkSe,3,,,,,,,,,Any,Any
@@ -115,24 +115,24 @@ Defiant Def 3,Grants Def+7 at start of turn if unit’s HP ≤ 50%,3,A,47,TRUE,d
 Defiant Res 1,Grants Res+3 at start of turn if unit’s HP ≤ 50%,1,A,48,TRUE,defiantResSe,1,,,,,,,,,Any,Any
 Defiant Res 2,Grants Res+5 at start of turn if unit’s HP ≤ 50%,2,A,48,TRUE,defiantResSe,2,,,,,,,,,Any,Any
 Defiant Res 3,Grants Res+7 at start of turn if unit’s HP ≤ 50%,3,A,48,TRUE,defiantResSe,3,,,,,,,,,Any,Any
-Brazen Atk/Spd 1,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+3 during combat.",1,A,49,FALSE,brazenAtk,3,brazenSpd,3,,,,,,,Any,Any
-Brazen Atk/Spd 2,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+5 during combat.",2,A,49,FALSE,brazenAtk,5,brazenSpd,5,,,,,,,Any,Any
-Brazen Atk/Spd 3,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+7 during combat.",3,A,49,FALSE,brazenAtk,7,brazenSpd,7,,,,,,,Any,Any
-Brazen Atk/Def 1,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+3 during combat.",1,A,50,FALSE,brazenAtk,3,brazenDef,3,,,,,,,Any,Any
-Brazen Atk/Def 2,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+5 during combat.",2,A,50,FALSE,brazenAtk,5,brazenDef,5,,,,,,,Any,Any
-Brazen Atk/Def 3,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+7 during combat.",3,A,50,FALSE,brazenAtk,7,brazenDef,7,,,,,,,Any,Any
-Brazen Atk/Res 1,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+3 during combat.",1,A,51,FALSE,brazenAtk,3,brazenRes,3,,,,,,,Any,Any
-Brazen Atk/Res 2,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+5 during combat.",2,A,51,FALSE,brazenAtk,5,brazenRes,5,,,,,,,Any,Any
-Brazen Atk/Res 3,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+7 during combat.",3,A,51,FALSE,brazenAtk,7,brazenRes,7,,,,,,,Any,Any
-Brazen Spd/Def 1,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+3 during combat.",1,A,52,FALSE,brazenSpd,3,brazenDef,3,,,,,,,Any,Any
-Brazen Spd/Def 2,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+5 during combat.",2,A,52,FALSE,brazenSpd,5,brazenDef,5,,,,,,,Any,Any
-Brazen Spd/Def 3,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+7 during combat.",3,A,52,FALSE,brazenSpd,7,brazenDef,7,,,,,,,Any,Any
-Brazen Spd/Res 1,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+3 during combat.",1,A,53,FALSE,brazenSpd,3,brazenRes,3,,,,,,,Any,Any
-Brazen Spd/Res 2,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+5 during combat.",2,A,53,FALSE,brazenSpd,5,brazenRes,5,,,,,,,Any,Any
-Brazen Spd/Res 3,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+7 during combat.",3,A,53,FALSE,brazenSpd,7,brazenRes,7,,,,,,,Any,Any
-Brazen Def/Res 1,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+3 during combat.",1,A,54,FALSE,brazenDef,3,brazenRes,3,,,,,,,Any,Any
-Brazen Def/Res 2,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+5 during combat.",2,A,54,FALSE,brazenDef,5,brazenRes,5,,,,,,,Any,Any
-Brazen Def/Res 3,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+7 during combat.",3,A,54,FALSE,brazenDef,7,brazenRes,7,,,,,,,Any,Any
+Brazen Atk/Spd 1,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+3 during combat.",1,A,49,TRUE,brazenAtk,3,brazenSpd,3,,,,,,,Any,Any
+Brazen Atk/Spd 2,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+5 during combat.",2,A,49,TRUE,brazenAtk,5,brazenSpd,5,,,,,,,Any,Any
+Brazen Atk/Spd 3,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+7 during combat.",3,A,49,TRUE,brazenAtk,7,brazenSpd,7,,,,,,,Any,Any
+Brazen Atk/Def 1,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+3 during combat.",1,A,50,TRUE,brazenAtk,3,brazenDef,3,,,,,,,Any,Any
+Brazen Atk/Def 2,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+5 during combat.",2,A,50,TRUE,brazenAtk,5,brazenDef,5,,,,,,,Any,Any
+Brazen Atk/Def 3,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+7 during combat.",3,A,50,TRUE,brazenAtk,7,brazenDef,7,,,,,,,Any,Any
+Brazen Atk/Res 1,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+3 during combat.",1,A,51,TRUE,brazenAtk,3,brazenRes,3,,,,,,,Any,Any
+Brazen Atk/Res 2,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+5 during combat.",2,A,51,TRUE,brazenAtk,5,brazenRes,5,,,,,,,Any,Any
+Brazen Atk/Res 3,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+7 during combat.",3,A,51,TRUE,brazenAtk,7,brazenRes,7,,,,,,,Any,Any
+Brazen Spd/Def 1,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+3 during combat.",1,A,52,TRUE,brazenSpd,3,brazenDef,3,,,,,,,Any,Any
+Brazen Spd/Def 2,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+5 during combat.",2,A,52,TRUE,brazenSpd,5,brazenDef,5,,,,,,,Any,Any
+Brazen Spd/Def 3,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+7 during combat.",3,A,52,TRUE,brazenSpd,7,brazenDef,7,,,,,,,Any,Any
+Brazen Spd/Res 1,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+3 during combat.",1,A,53,TRUE,brazenSpd,3,brazenRes,3,,,,,,,Any,Any
+Brazen Spd/Res 2,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+5 during combat.",2,A,53,TRUE,brazenSpd,5,brazenRes,5,,,,,,,Any,Any
+Brazen Spd/Res 3,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+7 during combat.",3,A,53,TRUE,brazenSpd,7,brazenRes,7,,,,,,,Any,Any
+Brazen Def/Res 1,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+3 during combat.",1,A,54,TRUE,brazenDef,3,brazenRes,3,,,,,,,Any,Any
+Brazen Def/Res 2,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+5 during combat.",2,A,54,TRUE,brazenDef,5,brazenRes,5,,,,,,,Any,Any
+Brazen Def/Res 3,"At start of combat, if unit's HP ≤ 80%, grants Atk/Spd+7 during combat.",3,A,54,TRUE,brazenDef,7,brazenRes,7,,,,,,,Any,Any
 Close Def 1,"If foe initiates combat and uses bow, dagger, magic, or staff, grants Def/Res+2 during combat.",1,A,55,TRUE,closeDef,1,,,,,,,,,Any,Any
 Close Def 2,"If foe initiates combat and uses bow, dagger, magic, or staff, grants Def/Res+4 during combat.",2,A,55,TRUE,closeDef,2,,,,,,,,,Any,Any
 Close Def 3,"If foe initiates combat and uses bow, dagger, magic, or staff, grants Def/Res+6 during combat.",3,A,55,TRUE,closeDef,3,,,,,,,,,Any,Any
@@ -158,141 +158,141 @@ Earth Boost 3,"At start of combat, if unit's HP ≥ foe's HP+3, grants Def+6 dur
 Water Boost 1,"At start of combat, if unit's HP ≥ foe's HP+3, grants Res+2 during combat.",1,A,63,TRUE,waterBoost,1,,,,,,,,,Any,Any
 Water Boost 2,"At start of combat, if unit's HP ≥ foe's HP+3, grants Res+4 during combat.",2,A,63,TRUE,waterBoost,2,,,,,,,,,Any,Any
 Water Boost 3,"At start of combat, if unit's HP ≥ foe's HP+3, grants Res+6 during combat.",3,A,63,TRUE,waterBoost,3,,,,,,,,,Any,Any
-Atk/Spd Bond 1,"If unit is adjacent to an ally, grants Atk/Spd+3 during combat.",1,A,64,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Bond 2,"If unit is adjacent to an ally, grants Atk/Spd+4 during combat.",2,A,64,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Bond 3,"If unit is adjacent to an ally, grants Atk/Spd+5 during combat.",3,A,64,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Bond 1,"If unit is adjacent to an ally, grants Atk/Def+3 during combat.",1,A,65,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Bond 2,"If unit is adjacent to an ally, grants Atk/Def+4 during combat.",2,A,65,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Bond 3," If unit is adjacent to an ally, grants Atk/Def+5 during combat.",3,A,65,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Bond 1,Grants Atk/Res+3 to this unit during combat if unit is adjacent to an ally.,1,A,66,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Bond 2,Grants Atk/Res+4 to this unit during combat if unit is adjacent to an ally.,2,A,66,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Bond 3,Grants Atk/Res+5 to this unit during combat if unit is adjacent to an ally.,3,A,66,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Bond 1,Grants Spd/Def+3 to unit during combat if adjacent to an ally.,1,A,67,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Bond 2,Grants Spd/Def+4 to unit during combat if adjacent to an ally.,2,A,67,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Bond 3,Grants Spd/Def+5 to unit during combat if adjacent to an ally.,3,A,67,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Bond 1,Grants Spd/Res+3 to unit during combat if adjacent to an ally.,1,A,68,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Bond 2,Grants Spd/Res+4 to unit during combat if adjacent to an ally.,2,A,68,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Bond 3,Grants Spd/Res+5 to unit during combat if adjacent to an ally.,3,A,68,FALSE,,,,,,,,,,,Any,Any
-Def/Res Bond 1,"If unit is adjacent to an ally, grants Def/Res+3 during combat.",1,A,69,FALSE,,,,,,,,,,,Any,Any
-Def/Res Bond 2,"If unit is adjacent to an ally, grants Def/Res+4 during combat.",2,A,69,FALSE,,,,,,,,,,,Any,Any
-Def/Res Bond 3,"If unit is adjacent to an ally, grants Def/Res+5 during combat.",3,A,69,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Push 1,"At start of combat, if unit's HP = 100%, grants Atk/Spd+3, but if unit attacked, deals 1 damage to unit after combat.",1,A,70,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Push 2,"At start of combat, if unit's HP = 100%, grants Atk/Spd+4, but if unit attacked, deals 1 damage to unit after combat.",2,A,70,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Push 3,"At start of combat, if unit's HP = 100%, grants Atk/Spd+5, but if unit attacked, deals 1 damage to unit after combat.",3,A,70,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Push 1,"At start of combat, if unit's HP = 100%, grants Atk/Def+3, but if unit attacked, deals 1 damage to unit after combat.",1,A,71,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Push 2,"At start of combat, if unit's HP = 100%, grants Atk/Def+4, but if unit attacked, deals 1 damage to unit after combat.",2,A,71,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Push 3,"At start of combat, if unit's HP = 100%, grants Atk/Def+5, but if unit attacked, deals 1 damage to unit after combat.",3,A,71,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Push 1,"At start of combat, if unit's HP = 100%, grants Atk/Res+3, but if unit attacked, deals 1 damage to unit after combat.",1,A,72,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Push 2,"At start of combat, if unit's HP = 100%, grants Atk/Res+4, but if unit attacked, deals 1 damage to unit after combat.",2,A,72,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Push 3,"At start of combat, if unit's HP = 100%, grants Atk/Res+5, but if unit attacked, deals 1 damage to unit after combat.",3,A,72,FALSE,,,,,,,,,,,Any,Any
-Sorcery Blade 1,"At start of combat, if unit’s HP = 100% and unit is adjacent to a magic ally, calculates damage using the lower of foe’s Def or Res.",1,A,73,FALSE,,,,,,,,,,,Any,Any
-Sorcery Blade 2,"At start of combat, if unit’s HP ≥ 50% and unit is adjacent to a magic ally, calculates damage using the lower of foe’s Def or Res.",2,A,73,FALSE,,,,,,,,,,,Any,Any
-Sorcery Blade 3,"At start of combat, if unit is adjacent to a magic ally, calculates damage using the lower of foe’s Def or Res.",3,A,73,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Solo 1,"If unit is not adjacent to an ally, grants Atk/Spd+2 during combat.",1,A,74,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Solo 2,"If unit is not adjacent to an ally, grants Atk/Spd+4 during combat.",2,A,74,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Solo 3,"If unit is not adjacent to an ally, grants Atk/Spd+6 during combat.",3,A,74,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Solo 1,"If unit is not adjacent to an ally, grants Atk/Def+2 during combat.",1,A,75,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Solo 2,"If unit is not adjacent to an ally, grants Atk/Def+4 during combat.",2,A,75,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Solo 3,"If unit is not adjacent to an ally, grants Atk/Def+6 during combat.",3,A,75,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Solo 1,"If unit is not adjacent to an ally, grants Atk/Res+2 during combat.",1,A,76,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Solo 2,"If unit is not adjacent to an ally, grants Atk/Res+4 during combat.",2,A,76,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Solo 3,"If unit is not adjacent to an ally, grants Atk/Res+6 during combat.",3,A,76,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Solo 1,"If unit is not adjacent to an ally, grants Spd/Def+2 during combat.",1,A,77,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Solo 2,"If unit is not adjacent to an ally, grants Spd/Def+4 during combat.",2,A,77,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Solo 3,"If unit is not adjacent to an ally, grants Spd/Def+6 during combat.",3,A,77,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Solo 1,"If unit is not adjacent to an ally, grants Spd/Res+2 during combat.",1,A,78,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Solo 2,"If unit is not adjacent to an ally, grants Spd/Res+4 during combat.",2,A,78,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Solo 3,"If unit is not adjacent to an ally, grants Spd/Res+6 during combat.",3,A,78,FALSE,,,,,,,,,,,Any,Any
-Def/Res Solo 1,"If unit is not adjacent to an ally, grants Def/Res+2 during combat.",1,A,79,FALSE,,,,,,,,,,,Any,Any
-Def/Res Solo 2,"If unit is not adjacent to an ally, grants Def/Res+4 during combat.",2,A,79,FALSE,,,,,,,,,,,Any,Any
-Def/Res Solo 3,"If unit is not adjacent to an ally, grants Def/Res+6 during combat.",3,A,79,FALSE,,,,,,,,,,,Any,Any
-Bonus Doubler 1,Grants bonus to Atk/Spd/Def/Res during combat = 50% of current bonus on each of unit’s stats. Calculates each stat bonus independently.,1,A,80,FALSE,,,,,,,,,,,Any,Any
-Bonus Doubler 2,Grants bonus to Atk/Spd/Def/Res during combat = 75% of current bonus on each of unit’s stats. Calculates each stat bonus independently.,2,A,80,FALSE,,,,,,,,,,,Any,Any
-Bonus Doubler 3,Grants bonus to Atk/Spd/Def/Res during combat = current bonus on each of unit’s stats. Calculates each stat bonus independently.,3,A,80,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Form 1,"If unit is within 2 spaces of an ally, grants Atk/Spd+X to unit during combat (X = number of allies within 2 spaces; max 3).",1,A,81,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Form 2,"If unit is within 2 spaces of an ally, grants Atk/Spd+X to unit during combat (X = number of allies within 2 spaces + 2; max 5).",2,A,81,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Form 3,"If unit is within 2 spaces of an ally, grants Atk/Spd+X to unit during combat (X = 2 × number of allies within 2 spaces, + 1; max 7).",3,A,81,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Form 1,"If unit is within 2 spaces of an ally, grants Atk/Def+X to unit during combat. (X = number of allies within 2 spaces; max 3.)",1,A,82,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Form 2,"If unit is within 2 spaces of an ally, grants Atk/Def+X to unit during combat. (X = number of allies within 2 spaces + 2; max 5.)",2,A,82,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Form 3,"If unit is within 2 spaces of an ally, grants Atk/Def+X to unit during combat. (X = 2 × number of allies within 2 spaces, + 1; max 7.)",3,A,82,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Form 1,"If unit is within 2 spaces of an ally, grants Atk/Res+X to unit during combat. (X = 2 x number of allies within 2 spaces + 1; max 3.)",1,A,83,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Form 2,"If unit is within 2 spaces of an ally, grants Atk/Res+X to unit during combat. (X = 2 x number of allies within 2 spaces + 1; max 5.)",2,A,83,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Form 3,"If unit is within 2 spaces of an ally, grants Atk/Res+X to unit during combat. (X = 2 x number of allies within 2 spaces + 1; max 7.)",3,A,83,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Form 1,"If unit is within 2 spaces of an ally, grants Spd/Def+X to unit during combat. (X = number of allies within 2 spaces; max 3.)",1,A,84,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Form 2,"If unit is within 2 spaces of an ally, grants Spd/Def+X to unit during combat. (X = number of allies within 2 spaces + 2; max 5.)",2,A,84,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Form 3,"If unit is within 2 spaces of an ally, grants Spd/Def+X to unit during combat. (X = 2 × number of allies within 2 spaces, + 1; max 7.)",3,A,84,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Form 1,"If unit is within 2 spaces of an ally, grants Spd/Res+X to unit during combat. (X = number of allies within 2 spaces; max 3.)",1,A,85,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Form 2,"If unit is within 2 spaces of an ally, grants Spd/Res+X to unit during combat. (X = number of allies within 2 spaces + 2; max 5.)",2,A,85,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Form 3,"If unit is within 2 spaces of an ally, grants Spd/Res+X to unit during combat. (X = 2 × number of allies within 2 spaces, + 1; max 7.)",3,A,85,FALSE,,,,,,,,,,,Any,Any
-Def/Res Form 1,"If unit is within 2 spaces of an ally, grants Def/Res+X to unit during combat. (X = 2 x number of allies within 2 spaces + 1; max 3.)",1,A,86,FALSE,,,,,,,,,,,Any,Any
-Def/Res Form 2,"If unit is within 2 spaces of an ally, grants Def/Res+X to unit during combat. (X = 2 x number of allies within 2 spaces + 1; max 5.)",2,A,86,FALSE,,,,,,,,,,,Any,Any
-Def/Res Form 3,"If unit is within 2 spaces of an ally, grants Def/Res+X to unit during combat. (X = 2 x number of allies within 2 spaces + 1; max 7.)",3,A,86,FALSE,,,,,,,,,,,Any,Any
-Blade Session 1,"If unit initiates combat, grants bonus to unit's Atk/Spd during combat = 1 + number of allies who have already acted (max value of 3).",1,A,87,FALSE,,,,,,,,,,,Any,Any
-Blade Session 2,"If unit initiates combat, grants bonus to unit's Atk/Spd during combat = 2 + number of allies who have already acted × 2 (max value of 6).",2,A,87,FALSE,,,,,,,,,,,Any,Any
-Blade Session 3,"If unit initiates combat, grants bonus to unit’s Atk/Spd during combat = 3 + number of allies who have already acted × 3 (min value of 3).",3,A,87,FALSE,,,,,,,,,,,Any,Any
-Shield Session 1,"If foe initiates combat, grants bonus to unit's Def/Res during combat = 3 - number of foes who have already acted (min value of 1).",1,A,88,FALSE,,,,,,,,,,,Any,Any
-Shield Session 2,"If foe initiates combat, grants bonus to unit's Def/Res during combat = 6 - number of foes who have already acted × 2 (min value of 2).",2,A,88,FALSE,,,,,,,,,,,Any,Any
-Shield Session 3,"If foe initiates combat, grants bonus to unit’s Def/Res during combat = 9 - number of foes who have already acted × 3 (min value of 3).",3,A,88,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Catch 1,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Spd+3 to unit during combat.",1,A,89,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Catch 2,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Spd+4 to unit during combat.",2,A,89,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Catch 3,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Spd+5 to unit during combat.",3,A,89,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Catch 1,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Def+3 to unit during combat.",1,A,80,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Catch 2,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Def+5 to unit during combat.",2,A,80,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Catch 3,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Def+4 to unit during combat.",3,A,80,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Catch 1,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Res+3 to unit during combat.",1,A,81,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Catch 2,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Res+4 to unit during combat.",2,A,81,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Catch 3,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Res+5 to unit during combat.",3,A,81,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Catch 1,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Spd/Def+3 to unit during combat.",1,A,82,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Catch 2,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Spd/Def+4 to unit during combat.",2,A,82,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Catch 3,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Spd/Def+5 to unit during combat.",3,A,82,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Catch 1,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Spd/Res+3 to unit during combat.",1,A,83,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Catch 2,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Spd/Res+4 to unit during combat.",2,A,83,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Catch 3,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Spd/Res+5 to unit during combat.",3,A,83,FALSE,,,,,,,,,,,Any,Any
-Def/Res Catch 1,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Def/Res+3 to unit during combat.",1,A,84,FALSE,,,,,,,,,,,Any,Any
-Def/Res Catch 2,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Def/Res+4 to unit during combat.",2,A,84,FALSE,,,,,,,,,,,Any,Any
-Def/Res Catch 3,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Def/Res+5 to unit during combat.",3,A,84,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Ideal 1,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Spd+3 to unit during combat.",1,A,85,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Ideal 2,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Spd+4 to unit during combat.",2,A,85,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Ideal 3,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Spd+5 to unit during combat.",3,A,85,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Ideal 1,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Def+3 to unit during combat.",1,A,86,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Ideal 2,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Def+4 to unit during combat.",2,A,86,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Ideal 3,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Def+5 to unit during combat.",3,A,86,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Ideal 1,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Res+3 to unit during combat.",1,A,87,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Ideal 2,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Res+4 to unit during combat.",2,A,87,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Ideal 3,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Res+5 to unit during combat.",3,A,87,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Ideal 1,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Spd/Def+3 to unit during combat.",1,A,88,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Ideal 2,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Spd/Def+4 to unit during combat.",2,A,88,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Ideal 3,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Spd/Def+5 to unit during combat.",3,A,88,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Ideal 1,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Spd/Res+3 to unit during combat.",1,A,89,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Ideal 2,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Spd/Res+4 to unit during combat.",2,A,89,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Ideal 3,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Spd/Res+5 to unit during combat.",3,A,89,FALSE,,,,,,,,,,,Any,Any
-Def/Res Ideal 1,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Def/Res+3 to unit during combat.",1,A,90,FALSE,,,,,,,,,,,Any,Any
-Def/Res Ideal 2,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Def/Res+4 to unit during combat.",2,A,90,FALSE,,,,,,,,,,,Any,Any
-Def/Res Ideal 3,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Def/Res+5 to unit during combat.",3,A,90,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Clash 1,"If unit or foe initiates combat after moving to a different space, grants bonus to unit's Atk/Spd during combat = X + 1. (X = number of spaces moved by whoever initiated combat; max 1.)",1,A,91,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Clash 2,"If unit or foe initiates combat after moving to a different space, grants bonus to unit's Atk/Spd during combat = X + 3. (X = number of spaces moved by whoever initiated combat; max 2.)",2,A,91,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Clash 3,"If unit or foe initiates combat after moving to a different space, grants bonus to unit's Atk/Spd during combat = X + 5. (X = number of spaces moved by whoever initiated combat; max 3.)",3,A,91,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Clash 1,"If unit or foe initiates combat after moving to a different space, grants bonus to unit's Atk/Def during combat = X + 1. (X = number of spaces moved by whoever initiated combat; max 1.)",1,A,92,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Clash 2,"If unit or foe initiates combat after moving to a different space, grants bonus to unit's Atk/Def during combat = X + 3. (X = number of spaces moved by whoever initiated combat; max 2.)",2,A,92,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Clash 3,"If unit or foe initiates combat after moving to a different space, grants bonus to unit's Atk/Def during combat = X + 5. (X = number of spaces moved by whoever initiated combat; max 3.)",3,A,92,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Finish 1,sample,1,A,239,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Finish 2,sample,2,A,239,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Finish 3,sample,3,A,239,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Finish 1,"If unit is within 3 spaces of an ally, grants Atk/Def+2 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +1 damage during combat. (Except when dealing damage with area-of-effect Specials.)",1,A,93,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Finish 2,"If unit is within 3 spaces of an ally, grants Atk/Def+4 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +3 damage during combat. (Except when dealing damage with area-of-effect Specials.)",2,A,93,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Finish 3,"If unit is within 3 spaces of an ally, grants Atk/Def+6 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +5 damage during combat. (Except when dealing damage with area-of-effect Specials.)",3,A,93,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Finish 1,"If unit is within 3 spaces of an ally, grants Atk/Res+2 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +1 damage during combat. (Except when dealing damage with area-of-effect Specials.)",1,A,235,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Finish 2,"If unit is within 3 spaces of an ally, grants Atk/Res+4 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +3 damage during combat. (Except when dealing damage with area-of-effect Specials.)",2,A,235,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Finish 3,"If unit is within 3 spaces of an ally, grants Atk/Res+6 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +5 damage during combat. (Except when dealing damage with area-of-effect Specials.)",3,A,235,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Finish 1,"If unit is within 3 spaces of an ally, grants Spd/Res+2 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +1 damage during combat. (Except when dealing damage with area-of-effect Specials.)",1,A,94,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Finish 2,"If unit is within 3 spaces of an ally, grants Spd/Res+4 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +3 damage during combat. (Except when dealing damage with area-of-effect Specials.)",2,A,94,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Finish 3,"If unit is within 3 spaces of an ally, grants Spd/Res+6 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +5 damage during combat. (Except when dealing damage with area-of-effect Specials.)",3,A,94,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Prime 1,"If [Bonus] is active on unit, grants Atk/Spd+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 3).",1,A,237,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Prime 2,"If [Bonus] is active on unit, grants Atk/Spd+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 5).",2,A,237,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Prime 3,"If [Bonus] is active on unit, grants Atk/Spd+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 7).",3,A,237,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Prime 1,"If [Bonus] is active on unit, grants Atk/Def+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 3).",1,A,231,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Prime 2,"If [Bonus] is active on unit, grants Atk/Def+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 5).",2,A,231,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Prime 3,"If [Bonus] is active on unit, grants Atk/Def+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 7).",3,A,231,FALSE,,,,,,,,,,,Any,Any
+Atk/Spd Bond 1,"If unit is adjacent to an ally, grants Atk/Spd+3 during combat.",1,A,64,TRUE,atkBond,3,spdBond,3,,,,,,,Any,Any
+Atk/Spd Bond 2,"If unit is adjacent to an ally, grants Atk/Spd+4 during combat.",2,A,64,TRUE,atkBond,4,spdBond,4,,,,,,,Any,Any
+Atk/Spd Bond 3,"If unit is adjacent to an ally, grants Atk/Spd+5 during combat.",3,A,64,TRUE,atkBond,5,spdBond,5,,,,,,,Any,Any
+Atk/Def Bond 1,"If unit is adjacent to an ally, grants Atk/Def+3 during combat.",1,A,65,TRUE,atkBond,3,defBond,3,,,,,,,Any,Any
+Atk/Def Bond 2,"If unit is adjacent to an ally, grants Atk/Def+4 during combat.",2,A,65,TRUE,atkBond,4,defBond,4,,,,,,,Any,Any
+Atk/Def Bond 3," If unit is adjacent to an ally, grants Atk/Def+5 during combat.",3,A,65,TRUE,atkBond,5,defBond,5,,,,,,,Any,Any
+Atk/Res Bond 1,Grants Atk/Res+3 to this unit during combat if unit is adjacent to an ally.,1,A,66,TRUE,atkBond,3,resBond,3,,,,,,,Any,Any
+Atk/Res Bond 2,Grants Atk/Res+4 to this unit during combat if unit is adjacent to an ally.,2,A,66,TRUE,atkBond,4,resBond,4,,,,,,,Any,Any
+Atk/Res Bond 3,Grants Atk/Res+5 to this unit during combat if unit is adjacent to an ally.,3,A,66,TRUE,atkBond,5,resBond,5,,,,,,,Any,Any
+Spd/Def Bond 1,Grants Spd/Def+3 to unit during combat if adjacent to an ally.,1,A,67,TRUE,spdBond,3,defBond,3,,,,,,,Any,Any
+Spd/Def Bond 2,Grants Spd/Def+4 to unit during combat if adjacent to an ally.,2,A,67,TRUE,spdBond,4,defBond,4,,,,,,,Any,Any
+Spd/Def Bond 3,Grants Spd/Def+5 to unit during combat if adjacent to an ally.,3,A,67,TRUE,spdBond,5,defBond,5,,,,,,,Any,Any
+Spd/Res Bond 1,Grants Spd/Res+3 to unit during combat if adjacent to an ally.,1,A,68,TRUE,spdBond,3,resBond,3,,,,,,,Any,Any
+Spd/Res Bond 2,Grants Spd/Res+4 to unit during combat if adjacent to an ally.,2,A,68,TRUE,spdBond,4,resBond,4,,,,,,,Any,Any
+Spd/Res Bond 3,Grants Spd/Res+5 to unit during combat if adjacent to an ally.,3,A,68,TRUE,spdBond,5,resBond,5,,,,,,,Any,Any
+Def/Res Bond 1,"If unit is adjacent to an ally, grants Def/Res+3 during combat.",1,A,69,TRUE,defBond,3,resBond,3,,,,,,,Any,Any
+Def/Res Bond 2,"If unit is adjacent to an ally, grants Def/Res+4 during combat.",2,A,69,TRUE,defBond,4,resBond,4,,,,,,,Any,Any
+Def/Res Bond 3,"If unit is adjacent to an ally, grants Def/Res+5 during combat.",3,A,69,TRUE,defBond,5,resBond,5,,,,,,,Any,Any
+Atk/Spd Push 1,"At start of combat, if unit's HP = 100%, grants Atk/Spd+3, but if unit attacked, deals 1 damage to unit after combat.",1,A,70,TRUE,atkPush,3,spdPush,3,pushDmg,1,,,,,Any,Any
+Atk/Spd Push 2,"At start of combat, if unit's HP = 100%, grants Atk/Spd+4, but if unit attacked, deals 1 damage to unit after combat.",2,A,70,TRUE,atkPush,4,spdPush,4,pushDmg,1,,,,,Any,Any
+Atk/Spd Push 3,"At start of combat, if unit's HP = 100%, grants Atk/Spd+5, but if unit attacked, deals 1 damage to unit after combat.",3,A,70,TRUE,atkPush,5,spdPush,5,pushDmg,1,,,,,Any,Any
+Atk/Def Push 1,"At start of combat, if unit's HP = 100%, grants Atk/Def+3, but if unit attacked, deals 1 damage to unit after combat.",1,A,71,TRUE,atkPush,3,defPush,3,pushDmg,1,,,,,Any,Any
+Atk/Def Push 2,"At start of combat, if unit's HP = 100%, grants Atk/Def+4, but if unit attacked, deals 1 damage to unit after combat.",2,A,71,TRUE,atkPush,4,defPush,4,pushDmg,1,,,,,Any,Any
+Atk/Def Push 3,"At start of combat, if unit's HP = 100%, grants Atk/Def+5, but if unit attacked, deals 1 damage to unit after combat.",3,A,71,TRUE,atkPush,5,defPush,5,pushDmg,1,,,,,Any,Any
+Atk/Res Push 1,"At start of combat, if unit's HP = 100%, grants Atk/Res+3, but if unit attacked, deals 1 damage to unit after combat.",1,A,72,TRUE,atkPush,3,resPush,3,pushDmg,1,,,,,Any,Any
+Atk/Res Push 2,"At start of combat, if unit's HP = 100%, grants Atk/Res+4, but if unit attacked, deals 1 damage to unit after combat.",2,A,72,TRUE,atkPush,4,resPush,4,pushDmg,1,,,,,Any,Any
+Atk/Res Push 3,"At start of combat, if unit's HP = 100%, grants Atk/Res+5, but if unit attacked, deals 1 damage to unit after combat.",3,A,72,TRUE,atkPush,5,resPush,5,pushDmg,1,,,,,Any,Any
+Sorcery Blade 1,"At start of combat, if unit’s HP = 100% and unit is adjacent to a magic ally, calculates damage using the lower of foe’s Def or Res.",1,A,73,TRUE,sorceryBladeSe,1,,,,,,,,,Arm-Cav-Fly,Magic-Dragon-Beast-Staff
+Sorcery Blade 2,"At start of combat, if unit’s HP ≥ 50% and unit is adjacent to a magic ally, calculates damage using the lower of foe’s Def or Res.",2,A,73,TRUE,sorceryBladeSe,2,,,,,,,,,Arm-Cav-Fly,Magic-Dragon-Beast-Staff
+Sorcery Blade 3,"At start of combat, if unit is adjacent to a magic ally, calculates damage using the lower of foe’s Def or Res.",3,A,73,TRUE,sorceryBladeSe,3,,,,,,,,,Arm-Cav-Fly,Magic-Dragon-Beast-Staff
+Atk/Spd Solo 1,"If unit is not adjacent to an ally, grants Atk/Spd+2 during combat.",1,A,74,TRUE,atkSolo,2,spdSolo,2,,,,,,,Any,Any
+Atk/Spd Solo 2,"If unit is not adjacent to an ally, grants Atk/Spd+4 during combat.",2,A,74,TRUE,atkSolo,4,spdSolo,4,,,,,,,Any,Any
+Atk/Spd Solo 3,"If unit is not adjacent to an ally, grants Atk/Spd+6 during combat.",3,A,74,TRUE,atkSolo,6,spdSolo,6,,,,,,,Any,Any
+Atk/Def Solo 1,"If unit is not adjacent to an ally, grants Atk/Def+2 during combat.",1,A,75,TRUE,atkSolo,2,defSolo,2,,,,,,,Any,Any
+Atk/Def Solo 2,"If unit is not adjacent to an ally, grants Atk/Def+4 during combat.",2,A,75,TRUE,atkSolo,4,defSolo,4,,,,,,,Any,Any
+Atk/Def Solo 3,"If unit is not adjacent to an ally, grants Atk/Def+6 during combat.",3,A,75,TRUE,atkSolo,6,defSolo,6,,,,,,,Any,Any
+Atk/Res Solo 1,"If unit is not adjacent to an ally, grants Atk/Res+2 during combat.",1,A,76,TRUE,atkSolo,2,resSolo,2,,,,,,,Any,Any
+Atk/Res Solo 2,"If unit is not adjacent to an ally, grants Atk/Res+4 during combat.",2,A,76,TRUE,atkSolo,4,resSolo,4,,,,,,,Any,Any
+Atk/Res Solo 3,"If unit is not adjacent to an ally, grants Atk/Res+6 during combat.",3,A,76,TRUE,atkSolo,6,resSolo,6,,,,,,,Any,Any
+Spd/Def Solo 1,"If unit is not adjacent to an ally, grants Spd/Def+2 during combat.",1,A,77,TRUE,spdSolo,2,defSolo,2,,,,,,,Any,Any
+Spd/Def Solo 2,"If unit is not adjacent to an ally, grants Spd/Def+4 during combat.",2,A,77,TRUE,spdSolo,4,defSolo,4,,,,,,,Any,Any
+Spd/Def Solo 3,"If unit is not adjacent to an ally, grants Spd/Def+6 during combat.",3,A,77,TRUE,spdSolo,6,defSolo,6,,,,,,,Any,Any
+Spd/Res Solo 1,"If unit is not adjacent to an ally, grants Spd/Res+2 during combat.",1,A,78,TRUE,spdSolo,2,resSolo,2,,,,,,,Any,Any
+Spd/Res Solo 2,"If unit is not adjacent to an ally, grants Spd/Res+4 during combat.",2,A,78,TRUE,spdSolo,4,resSolo,4,,,,,,,Any,Any
+Spd/Res Solo 3,"If unit is not adjacent to an ally, grants Spd/Res+6 during combat.",3,A,78,TRUE,spdSolo,6,resSolo,6,,,,,,,Any,Any
+Def/Res Solo 1,"If unit is not adjacent to an ally, grants Def/Res+2 during combat.",1,A,79,TRUE,defSolo,2,resSolo,2,,,,,,,Any,Any
+Def/Res Solo 2,"If unit is not adjacent to an ally, grants Def/Res+4 during combat.",2,A,79,TRUE,defSolo,4,resSolo,4,,,,,,,Any,Any
+Def/Res Solo 3,"If unit is not adjacent to an ally, grants Def/Res+6 during combat.",3,A,79,TRUE,defSolo,6,resSolo,6,,,,,,,Any,Any
+Bonus Doubler 1,Grants bonus to Atk/Spd/Def/Res during combat = 50% of current bonus on each of unit’s stats. Calculates each stat bonus independently.,1,A,80,TRUE,bonusDoublerSe,1,,,,,,,,,Arm-Cav-Fly,Any
+Bonus Doubler 2,Grants bonus to Atk/Spd/Def/Res during combat = 75% of current bonus on each of unit’s stats. Calculates each stat bonus independently.,2,A,80,TRUE,bonusDoublerSe,2,,,,,,,,,Arm-Cav-Fly,Any
+Bonus Doubler 3,Grants bonus to Atk/Spd/Def/Res during combat = current bonus on each of unit’s stats. Calculates each stat bonus independently.,3,A,80,TRUE,bonusDoublerSe,3,,,,,,,,,Arm-Cav-Fly,Any
+Atk/Spd Form 1,"If unit is within 2 spaces of an ally, grants Atk/Spd+X to unit during combat (X = number of allies within 2 spaces; max 3).",1,A,81,TRUE,atkFormSe,1,spdFormSe,1,,,,,,,Any,Any
+Atk/Spd Form 2,"If unit is within 2 spaces of an ally, grants Atk/Spd+X to unit during combat (X = number of allies within 2 spaces + 2; max 5).",2,A,81,TRUE,atkFormSe,2,spdFormSe,2,,,,,,,Any,Any
+Atk/Spd Form 3,"If unit is within 2 spaces of an ally, grants Atk/Spd+X to unit during combat (X = 2 × number of allies within 2 spaces, + 1; max 7).",3,A,81,TRUE,atkFormSe,3,spdFormSe,3,,,,,,,Any,Any
+Atk/Def Form 1,"If unit is within 2 spaces of an ally, grants Atk/Def+X to unit during combat. (X = number of allies within 2 spaces; max 3.)",1,A,82,TRUE,atkFormSe,1,defFormSe,1,,,,,,,Any,Any
+Atk/Def Form 2,"If unit is within 2 spaces of an ally, grants Atk/Def+X to unit during combat. (X = number of allies within 2 spaces + 2; max 5.)",2,A,82,TRUE,atkFormSe,2,defFormSe,2,,,,,,,Any,Any
+Atk/Def Form 3,"If unit is within 2 spaces of an ally, grants Atk/Def+X to unit during combat. (X = 2 × number of allies within 2 spaces, + 1; max 7.)",3,A,82,TRUE,atkFormSe,3,defFormSe,3,,,,,,,Any,Any
+Atk/Res Form 1,"If unit is within 2 spaces of an ally, grants Atk/Res+X to unit during combat. (X = 2 x number of allies within 2 spaces + 1; max 3.)",1,A,83,TRUE,atkFormSe,1,resFormSe,1,,,,,,,Any,Any
+Atk/Res Form 2,"If unit is within 2 spaces of an ally, grants Atk/Res+X to unit during combat. (X = 2 x number of allies within 2 spaces + 1; max 5.)",2,A,83,TRUE,atkFormSe,2,resFormSe,2,,,,,,,Any,Any
+Atk/Res Form 3,"If unit is within 2 spaces of an ally, grants Atk/Res+X to unit during combat. (X = 2 x number of allies within 2 spaces + 1; max 7.)",3,A,83,TRUE,atkFormSe,3,resFormSe,3,,,,,,,Any,Any
+Spd/Def Form 1,"If unit is within 2 spaces of an ally, grants Spd/Def+X to unit during combat. (X = number of allies within 2 spaces; max 3.)",1,A,84,TRUE,spdFormSe,1,defFormSe,1,,,,,,,Any,Any
+Spd/Def Form 2,"If unit is within 2 spaces of an ally, grants Spd/Def+X to unit during combat. (X = number of allies within 2 spaces + 2; max 5.)",2,A,84,TRUE,spdFormSe,2,defFormSe,2,,,,,,,Any,Any
+Spd/Def Form 3,"If unit is within 2 spaces of an ally, grants Spd/Def+X to unit during combat. (X = 2 × number of allies within 2 spaces, + 1; max 7.)",3,A,84,TRUE,spdFormSe,3,defFormSe,3,,,,,,,Any,Any
+Spd/Res Form 1,"If unit is within 2 spaces of an ally, grants Spd/Res+X to unit during combat. (X = number of allies within 2 spaces; max 3.)",1,A,85,TRUE,spdFormSe,1,resFormSe,1,,,,,,,Any,Any
+Spd/Res Form 2,"If unit is within 2 spaces of an ally, grants Spd/Res+X to unit during combat. (X = number of allies within 2 spaces + 2; max 5.)",2,A,85,TRUE,spdFormSe,2,resFormSe,2,,,,,,,Any,Any
+Spd/Res Form 3,"If unit is within 2 spaces of an ally, grants Spd/Res+X to unit during combat. (X = 2 × number of allies within 2 spaces, + 1; max 7.)",3,A,85,TRUE,spdFormSe,3,resFormSe,3,,,,,,,Any,Any
+Def/Res Form 1,"If unit is within 2 spaces of an ally, grants Def/Res+X to unit during combat. (X = 2 x number of allies within 2 spaces + 1; max 3.)",1,A,86,TRUE,defFormSe,1,resFormSe,1,,,,,,,Any,Any
+Def/Res Form 2,"If unit is within 2 spaces of an ally, grants Def/Res+X to unit during combat. (X = 2 x number of allies within 2 spaces + 1; max 5.)",2,A,86,TRUE,defFormSe,2,resFormSe,2,,,,,,,Any,Any
+Def/Res Form 3,"If unit is within 2 spaces of an ally, grants Def/Res+X to unit during combat. (X = 2 x number of allies within 2 spaces + 1; max 7.)",3,A,86,TRUE,defFormSe,3,resFormSe,3,,,,,,,Any,Any
+Blade Session 1,"If unit initiates combat, grants bonus to unit's Atk/Spd during combat = 1 + number of allies who have already acted (max value of 3).",1,A,87,TRUE,sessionBlowSe,1,,,,,,,,,Any,Any
+Blade Session 2,"If unit initiates combat, grants bonus to unit's Atk/Spd during combat = 2 + number of allies who have already acted × 2 (max value of 6).",2,A,87,TRUE,sessionBlowSe,2,,,,,,,,,Any,Any
+Blade Session 3,"If unit initiates combat, grants bonus to unit’s Atk/Spd during combat = 3 + number of allies who have already acted × 3 (min value of 3).",3,A,87,TRUE,sessionBlowSe,3,,,,,,,,,Any,Any
+Shield Session 1,"If foe initiates combat, grants bonus to unit's Def/Res during combat = 3 - number of foes who have already acted (min value of 1).",1,A,88,TRUE,sessionStanceSe,1,,,,,,,,,Any,Any
+Shield Session 2,"If foe initiates combat, grants bonus to unit's Def/Res during combat = 6 - number of foes who have already acted × 2 (min value of 2).",2,A,88,TRUE,sessionStanceSe,2,,,,,,,,,Any,Any
+Shield Session 3,"If foe initiates combat, grants bonus to unit’s Def/Res during combat = 9 - number of foes who have already acted × 3 (min value of 3).",3,A,88,TRUE,sessionStanceSe,3,,,,,,,,,Any,Any
+Atk/Spd Catch 1,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Spd+3 to unit during combat.",1,A,89,TRUE,atkCatch,3,spdCatch,3,,,,,,,Inf-Armor,Any
+Atk/Spd Catch 2,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Spd+4 to unit during combat.",2,A,89,TRUE,atkCatch,4,spdCatch,4,,,,,,,Inf-Armor,Any
+Atk/Spd Catch 3,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Spd+5 to unit during combat.",3,A,89,TRUE,atkCatch,5,spdCatch,5,,,,,,,Inf-Armor,Any
+Atk/Def Catch 1,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Def+3 to unit during combat.",1,A,80,TRUE,atkCatch,3,defCatch,3,,,,,,,Inf-Armor,Any
+Atk/Def Catch 2,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Def+5 to unit during combat.",2,A,80,TRUE,atkCatch,4,defCatch,4,,,,,,,Inf-Armor,Any
+Atk/Def Catch 3,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Def+4 to unit during combat.",3,A,80,TRUE,atkCatch,5,defCatch,5,,,,,,,Inf-Armor,Any
+Atk/Res Catch 1,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Res+3 to unit during combat.",1,A,81,TRUE,atkCatch,3,resCatch,3,,,,,,,Inf-Armor,Any
+Atk/Res Catch 2,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Res+4 to unit during combat.",2,A,81,TRUE,atkCatch,4,resCatch,4,,,,,,,Inf-Armor,Any
+Atk/Res Catch 3,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Atk/Res+5 to unit during combat.",3,A,81,TRUE,atkCatch,5,resCatch,5,,,,,,,Inf-Armor,Any
+Spd/Def Catch 1,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Spd/Def+3 to unit during combat.",1,A,82,TRUE,spdCatch,3,defCatch,3,,,,,,,Inf-Armor,Any
+Spd/Def Catch 2,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Spd/Def+4 to unit during combat.",2,A,82,TRUE,spdCatch,4,defCatch,4,,,,,,,Inf-Armor,Any
+Spd/Def Catch 3,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Spd/Def+5 to unit during combat.",3,A,82,TRUE,spdCatch,5,defCatch,5,,,,,,,Inf-Armor,Any
+Spd/Res Catch 1,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Spd/Res+3 to unit during combat.",1,A,83,TRUE,spdCatch,3,resCatch,3,,,,,,,Inf-Armor,Any
+Spd/Res Catch 2,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Spd/Res+4 to unit during combat.",2,A,83,TRUE,spdCatch,4,resCatch,4,,,,,,,Inf-Armor,Any
+Spd/Res Catch 3,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Spd/Res+5 to unit during combat.",3,A,83,TRUE,spdCatch,5,resCatch,5,,,,,,,Inf-Armor,Any
+Def/Res Catch 1,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Def/Res+3 to unit during combat.",1,A,84,TRUE,defCatch,3,resCatch,3,,,,,,,Inf-Armor,Any
+Def/Res Catch 2,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Def/Res+4 to unit during combat.",2,A,84,TRUE,defCatch,4,resCatch,4,,,,,,,Inf-Armor,Any
+Def/Res Catch 3,"At start of combat, if foe's HP = 100% or if [Penalty] is active on foe, grants Def/Res+5 to unit during combat.",3,A,84,TRUE,defCatch,5,resCatch,5,,,,,,,Inf-Armor,Any
+Atk/Spd Ideal 1,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Spd+3 to unit during combat.",1,A,85,TRUE,atkIdeal,3,spdIdeal,3,,,,,,,Cav-Fly,Any
+Atk/Spd Ideal 2,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Spd+4 to unit during combat.",2,A,85,TRUE,atkIdeal,4,spdIdeal,4,,,,,,,Cav-Fly,Any
+Atk/Spd Ideal 3,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Spd+5 to unit during combat.",3,A,85,TRUE,atkIdeal,5,spdIdeal,5,,,,,,,Cav-Fly,Any
+Atk/Def Ideal 1,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Def+3 to unit during combat.",1,A,86,TRUE,atkIdeal,3,defIdeal,3,,,,,,,Cav-Fly,Any
+Atk/Def Ideal 2,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Def+4 to unit during combat.",2,A,86,TRUE,atkIdeal,4,defIdeal,4,,,,,,,Cav-Fly,Any
+Atk/Def Ideal 3,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Def+5 to unit during combat.",3,A,86,TRUE,atkIdeal,5,defIdeal,5,,,,,,,Cav-Fly,Any
+Atk/Res Ideal 1,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Res+3 to unit during combat.",1,A,87,TRUE,atkIdeal,3,resIdeal,3,,,,,,,Cav-Fly,Any
+Atk/Res Ideal 2,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Res+4 to unit during combat.",2,A,87,TRUE,atkIdeal,4,resIdeal,4,,,,,,,Cav-Fly,Any
+Atk/Res Ideal 3,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Atk/Res+5 to unit during combat.",3,A,87,TRUE,atkIdeal,5,resIdeal,5,,,,,,,Cav-Fly,Any
+Spd/Def Ideal 1,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Spd/Def+3 to unit during combat.",1,A,88,TRUE,spdIdeal,3,defIdeal,3,,,,,,,Cav-Fly,Any
+Spd/Def Ideal 2,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Spd/Def+4 to unit during combat.",2,A,88,TRUE,spdIdeal,4,defIdeal,4,,,,,,,Cav-Fly,Any
+Spd/Def Ideal 3,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Spd/Def+5 to unit during combat.",3,A,88,TRUE,spdIdeal,5,defIdeal,5,,,,,,,Cav-Fly,Any
+Spd/Res Ideal 1,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Spd/Res+3 to unit during combat.",1,A,89,TRUE,spdIdeal,3,resIdeal,3,,,,,,,Cav-Fly,Any
+Spd/Res Ideal 2,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Spd/Res+4 to unit during combat.",2,A,89,TRUE,spdIdeal,4,resIdeal,4,,,,,,,Cav-Fly,Any
+Spd/Res Ideal 3,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Spd/Res+5 to unit during combat.",3,A,89,TRUE,spdIdeal,5,resIdeal,5,,,,,,,Cav-Fly,Any
+Def/Res Ideal 1,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Def/Res+3 to unit during combat.",1,A,90,TRUE,defIdeal,3,resIdeal,3,,,,,,,Cav-Fly,Any
+Def/Res Ideal 2,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Def/Res+4 to unit during combat.",2,A,90,TRUE,defIdeal,4,resIdeal,4,,,,,,,Cav-Fly,Any
+Def/Res Ideal 3,"At start of combat, if unit's HP = 100% or if [Bonus] is active on unit, grants Def/Res+5 to unit during combat.",3,A,90,TRUE,defIdeal,5,resIdeal,5,,,,,,,Cav-Fly,Any
+Atk/Spd Clash 1,"If unit or foe initiates combat after moving to a different space, grants bonus to unit's Atk/Spd during combat = X + 1. (X = number of spaces moved by whoever initiated combat; max 1.)",1,A,91,TRUE,atkClashSe,1,spdClashSe,1,,,,,,,Armor,Ranged
+Atk/Spd Clash 2,"If unit or foe initiates combat after moving to a different space, grants bonus to unit's Atk/Spd during combat = X + 3. (X = number of spaces moved by whoever initiated combat; max 2.)",2,A,91,TRUE,atkClashSe,2,spdClashSe,2,,,,,,,Armor,Ranged
+Atk/Spd Clash 3,"If unit or foe initiates combat after moving to a different space, grants bonus to unit's Atk/Spd during combat = X + 5. (X = number of spaces moved by whoever initiated combat; max 3.)",3,A,91,TRUE,atkClashSe,3,spdClashSe,3,,,,,,,Armor,Ranged
+Atk/Def Clash 1,"If unit or foe initiates combat after moving to a different space, grants bonus to unit's Atk/Def during combat = X + 1. (X = number of spaces moved by whoever initiated combat; max 1.)",1,A,92,TRUE,atkClashSe,1,defClashSe,1,,,,,,,Armor,Ranged
+Atk/Def Clash 2,"If unit or foe initiates combat after moving to a different space, grants bonus to unit's Atk/Def during combat = X + 3. (X = number of spaces moved by whoever initiated combat; max 2.)",2,A,92,TRUE,atkClashSe,2,defClashSe,2,,,,,,,Armor,Ranged
+Atk/Def Clash 3,"If unit or foe initiates combat after moving to a different space, grants bonus to unit's Atk/Def during combat = X + 5. (X = number of spaces moved by whoever initiated combat; max 3.)",3,A,92,TRUE,atkClashSe,3,defClashSe,3,,,,,,,Armor,Ranged
+Atk/Spd Finish 1,"If unit is within 3 spaces of an ally, grants Atk/Spd+2 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +1 damage during combat. (Except when dealing damage with area-of-effect Specials.)",1,A,239,TRUE,atkFinishSe,1,spdFinishSe,1,finishDmg,1,,,,,Armor-Cav-Fly,Any
+Atk/Spd Finish 2,"If unit is within 3 spaces of an ally, grants Atk/Spd+4 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +3 damage during combat. (Except when dealing damage with area-of-effect Specials.)",2,A,239,TRUE,atkFinishSe,2,spdFinishSe,2,finishDmg,3,,,,,Armor-Cav-Fly,Any
+Atk/Spd Finish 3,"If unit is within 3 spaces of an ally, grants Atk/Spd+6 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +5 damage during combat. (Except when dealing damage with area-of-effect Specials.)",3,A,239,TRUE,atkFinishSe,3,spdFinishSe,3,finishDmg,5,,,,,Armor-Cav-Fly,Any
+Atk/Def Finish 1,"If unit is within 3 spaces of an ally, grants Atk/Def+2 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +1 damage during combat. (Except when dealing damage with area-of-effect Specials.)",1,A,93,TRUE,atkFinishSe,1,defFinishSe,1,finishDmg,1,,,,,Armor-Cav-Fly,Any
+Atk/Def Finish 2,"If unit is within 3 spaces of an ally, grants Atk/Def+4 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +3 damage during combat. (Except when dealing damage with area-of-effect Specials.)",2,A,93,TRUE,atkFinishSe,2,defFinishSe,2,finishDmg,3,,,,,Armor-Cav-Fly,Any
+Atk/Def Finish 3,"If unit is within 3 spaces of an ally, grants Atk/Def+6 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +5 damage during combat. (Except when dealing damage with area-of-effect Specials.)",3,A,93,TRUE,atkFinishSe,3,defFinishSe,3,finishDmg,5,,,,,Armor-Cav-Fly,Any
+Atk/Res Finish 1,"If unit is within 3 spaces of an ally, grants Atk/Res+2 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +1 damage during combat. (Except when dealing damage with area-of-effect Specials.)",1,A,235,TRUE,atkFinishSe,1,resFinishSe,1,finishDmg,1,,,,,Armor-Cav-Fly,Any
+Atk/Res Finish 2,"If unit is within 3 spaces of an ally, grants Atk/Res+4 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +3 damage during combat. (Except when dealing damage with area-of-effect Specials.)",2,A,235,TRUE,atkFinishSe,2,resFinishSe,2,finishDmg,3,,,,,Armor-Cav-Fly,Any
+Atk/Res Finish 3,"If unit is within 3 spaces of an ally, grants Atk/Res+6 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +5 damage during combat. (Except when dealing damage with area-of-effect Specials.)",3,A,235,TRUE,atkFinishSe,3,resFinishSe,3,finishDmg,5,,,,,Armor-Cav-Fly,Any
+Spd/Res Finish 1,"If unit is within 3 spaces of an ally, grants Spd/Res+2 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +1 damage during combat. (Except when dealing damage with area-of-effect Specials.)",1,A,94,TRUE,spdFinishSe,1,resFinishSe,1,finishDmg,1,,,,,Armor-Cav-Fly,Any
+Spd/Res Finish 2,"If unit is within 3 spaces of an ally, grants Spd/Res+4 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +3 damage during combat. (Except when dealing damage with area-of-effect Specials.)",2,A,94,TRUE,spdFinishSe,2,resFinishSe,2,finishDmg,3,,,,,Armor-Cav-Fly,Any
+Spd/Res Finish 3,"If unit is within 3 spaces of an ally, grants Spd/Res+6 to unit during combat, and also, if unit's Special is ready or unit's Special triggered before or during this combat, deals +5 damage during combat. (Except when dealing damage with area-of-effect Specials.)",3,A,94,TRUE,spdFinishSe,3,resFinishSe,3,finishDmg,5,,,,,Armor-Cav-Fly,Any
+Atk/Spd Prime 1,"If [Bonus] is active on unit, grants Atk/Spd+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 3).",1,A,237,TRUE,atkPrimeSe,1,spdPrimeSe,1,,,,,,,Any,Magical
+Atk/Spd Prime 2,"If [Bonus] is active on unit, grants Atk/Spd+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 5).",2,A,237,TRUE,atkPrimeSe,2,spdPrimeSe,2,,,,,,,Any,Magical
+Atk/Spd Prime 3,"If [Bonus] is active on unit, grants Atk/Spd+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 7).",3,A,237,TRUE,atkPrimeSe,3,spdPrimeSe,3,,,,,,,Any,Magical
+Atk/Def Prime 1,"If [Bonus] is active on unit, grants Atk/Def+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 3).",1,A,231,TRUE,atkPrimeSe,1,defPrimeSe,1,,,,,,,Any,Magical
+Atk/Def Prime 2,"If [Bonus] is active on unit, grants Atk/Def+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 5).",2,A,231,TRUE,atkPrimeSe,2,defPrimeSe,2,,,,,,,Any,Magical
+Atk/Def Prime 3,"If [Bonus] is active on unit, grants Atk/Def+X to unit during combat (X = number of [Bonus] effects active on unit, excluding stat bonuses, × 2, + 1; max 7).",3,A,231,TRUE,atkPrimeSe,3,defPrimeSe,3,,,,,,,Any,Magical
 Obstruct 1,"If unit's HP ≥ 90%, foes cannot move through spaces adjacent to unit. (Does not affect foes with Pass skills.)",1,B,95,TRUE,obstructSe,1,,,,,,,,,Any,Any
 Obstruct 2,"If unit's HP ≥ 70%, foes cannot move through spaces adjacent to unit. (Does not affect foes with Pass skills.)",2,B,95,TRUE,obstructSe,2,,,,,,,,,Any,Any
 Obstruct 3,"If unit's HP ≥ 50%, foes cannot move through spaces adjacent to unit. (Does not affect foes with Pass skills.)",3,B,95,TRUE,obstructSe,3,,,,,,,,,Any,Any
@@ -305,27 +305,30 @@ Brash Assault 3,"If unit initiates combat against a foe that can counter and uni
 Quick Riposte 1,"If unit's HP ≥ 90% and foe initiates combat, unit makes a guaranteed follow-up attack.",1,B,98,TRUE,QRSe,1,,,,,,,,,Any,Any
 Quick Riposte 2,"If unit's HP ≥ 80% and foe initiates combat, unit makes a guaranteed follow-up attack.",2,B,98,TRUE,QRSe,2,,,,,,,,,Any,Any
 Quick Riposte 3,"If unit's HP ≥ 70% and foe initiates combat, unit makes a guaranteed follow-up attack.",3,B,98,TRUE,QRSe,3,,,,,,,,,Any,Any
-Bold Fighter 1,"If unit's HP = 100% and unit initiates combat, grants Special cooldown charge +1 per unit's attack, and unit makes a guaranteed follow-up attack. (Does not stack.)",1,B,99,FALSE,,,,,,,,,,,Any,Any
-Bold Fighter 2,"If unit's HP ≥ 50% and unit initiates combat, grants Special cooldown charge +1 per unit's attack, and unit makes a guaranteed follow-up attack. (Does not stack.)",2,B,99,FALSE,,,,,,,,,,,Any,Any
-Bold Fighter 3,"If unit initiates combat, grants Special cooldown charge +1 per unit's attack, and unit makes a guaranteed follow-up attack. (Does not stack.)",3,B,99,FALSE,,,,,,,,,,,Any,Any
-Special Fighter 1,"At start of combat, if unit's HP ≥ 90%, grants Special cooldown charge +1 to unit and inflicts Special cooldown charge -1 on foe per attack. (Only highest value applied. Does not stack.)",1,B,100,FALSE,,,,,,,,,,,Any,Any
-Special Fighter 2,"At start of combat, if unit's HP ≥ 70%, grants Special cooldown charge +1 to unit and inflicts Special cooldown charge -1 on foe per attack. (Only highest value applied. Does not stack.)",2,B,100,FALSE,,,,,,,,,,,Any,Any
-Special Fighter 3,"At start of combat, if unit's HP ≥ 50%, grants Special cooldown charge +1 to unit and inflicts Special cooldown charge -1 on foe per attack. (Only highest value applied. Does not stack.)",3,B,100,FALSE,,,,,,,,,,,Any,Any
-Wily Fighter 1,"If unit's HP ≥ 75% and foe initiates combat, neutralizes bonuses (from skills like Fortify, Rally, etc.) on foe during combat and unit makes a guaranteed follow-up attack.",1,B,101,FALSE,,,,,,,,,,,Any,Any
-Wily Fighter 2,"If unit's HP ≥ 50% and foe initiates combat, neutralizes bonuses (from skills like Fortify, Rally, etc.) on foe during combat and unit makes a guaranteed follow-up attack.",2,B,101,FALSE,,,,,,,,,,,Any,Any
-Wily Fighter 3,"If unit's HP ≥ 25% and foe initiates combat, neutralizes bonuses (from skills like Fortify, Rally, etc.) on foe during combat and unit makes a guaranteed follow-up attack.",3,B,101,FALSE,,,,,,,,,,,Any,Any
+Bold Fighter 1,"If unit's HP = 100% and unit initiates combat, grants Special cooldown charge +1 per unit's attack, and unit makes a guaranteed follow-up attack. (Does not stack.)",1,B,99,TRUE,bold_fighterSe,1,,,,,,,,,Inf-Cav-Fly,Any
+Bold Fighter 2,"If unit's HP ≥ 50% and unit initiates combat, grants Special cooldown charge +1 per unit's attack, and unit makes a guaranteed follow-up attack. (Does not stack.)",2,B,99,TRUE,bold_fighterSe,2,,,,,,,,,Inf-Cav-Fly,Any
+Bold Fighter 3,"If unit initiates combat, grants Special cooldown charge +1 per unit's attack, and unit makes a guaranteed follow-up attack. (Does not stack.)",3,B,99,TRUE,bold_fighterSe,3,,,,,,,,,Inf-Cav-Fly,Any
+Special Fighter 1,"At start of combat, if unit's HP ≥ 90%, grants Special cooldown charge +1 to unit and inflicts Special cooldown charge -1 on foe per attack. (Only highest value applied. Does not stack.)",1,B,100,TRUE,special_fighterSe,1,,,,,,,,,Inf-Cav-Fly,Any
+Special Fighter 2,"At start of combat, if unit's HP ≥ 70%, grants Special cooldown charge +1 to unit and inflicts Special cooldown charge -1 on foe per attack. (Only highest value applied. Does not stack.)",2,B,100,TRUE,special_fighterSe,2,,,,,,,,,Inf-Cav-Fly,Any
+Special Fighter 3,"At start of combat, if unit's HP ≥ 50%, grants Special cooldown charge +1 to unit and inflicts Special cooldown charge -1 on foe per attack. (Only highest value applied. Does not stack.)",3,B,100,TRUE,special_fighterSe,3,,,,,,,,,Inf-Cav-Fly,Any
+Wily Fighter 1,"If unit's HP ≥ 75% and foe initiates combat, neutralizes bonuses (from skills like Fortify, Rally, etc.) on foe during combat and unit makes a guaranteed follow-up attack.",1,B,101,TRUE,wily_fighterSe,1,,,,,,,,,Inf-Cav-Fly,Any
+Wily Fighter 2,"If unit's HP ≥ 50% and foe initiates combat, neutralizes bonuses (from skills like Fortify, Rally, etc.) on foe during combat and unit makes a guaranteed follow-up attack.",2,B,101,TRUE,wily_fighterSe,2,,,,,,,,,Inf-Cav-Fly,Any
+Wily Fighter 3,"If unit's HP ≥ 25% and foe initiates combat, neutralizes bonuses (from skills like Fortify, Rally, etc.) on foe during combat and unit makes a guaranteed follow-up attack.",3,B,101,TRUE,wily_fighterSe,3,,,,,,,,,Inf-Cav-Fly,Any
+Slick Fighter 1,"If unit's HP ≥ 75% and foe initiates combat, neutralizes penalties on unit during combat and unit makes a guaranteed follow-up attack.",1,B,241,TRUE,slick_fighterSe,1,,,,,,,,,Inf-Cav-Fly,Any
+Slick Fighter 2,"If unit's HP ≥ 50% and foe initiates combat, neutralizes penalties on unit during combat and unit makes a guaranteed follow-up attack.",2,B,241,TRUE,slick_fighterSe,2,,,,,,,,,Inf-Cav-Fly,Any
+Slick Fighter 3,"If unit's HP ≥ 25% and foe initiates combat, neutralizes penalties on unit during combat and unit makes a guaranteed follow-up attack.",3,B,241,TRUE,slick_fighterSe,3,,,,,,,,,Inf-Cav-Fly,Any
 Poison Strike 1,"If unit initiates combat, deals 4 damage to foe after combat.",1,B,102,TRUE,poisonStrike,4,,,,,,,,,Any,Any
 Poison Strike 2,"If unit initiates combat, deals 7 damage to foe after combat.",2,B,102,TRUE,poisonStrike,7,,,,,,,,,Any,Any
 Poision Strike 3,"If unit initiates combat, deals 10 damage to foe after combat.",3,B,102,TRUE,poisonStrike,10,,,,,,,,,Any,Any
 Renewal 1,"At the start of every fourth turn, restores 10 HP.",1,B,103,TRUE,recoverSe,1,,,,,,,,,Any,Any
 Renewal 2,"At the start of every third turn, restores 10 HP.",2,B,103,TRUE,recoverSe,2,,,,,,,,,Any,Any
 Renewal 3,"At start of odd-numbered turns, restores 10 HP.",3,B,103,TRUE,recoverSe,3,,,,,,,,,Any,Any
-Live to Serve 1,"When healing an ally with a staff, restores HP to unit = 50% of HP restored to target.",1,B,104,FALSE,,,,,,,,,,,Any,NotStaff
-Live to Serve 2,"When healing an ally with a staff, restores HP to unit = 75% of HP restored to target.",2,B,104,FALSE,,,,,,,,,,,Any,NotStaff
-Live to Serve 3,"When healing an ally with a staff, restores HP to unit = HP restored to target.",3,B,104,FALSE,,,,,,,,,,,Any,NotStaff
-Wrathful Staff 1,"At start of combat, if unit's HP = 100%, calculates damage from staff like other weapons.",1,B,232,FALSE,,,,,,,,,,,Any,NotStaff
-Wrathful Staff 2,"At start of combat, if unit's HP ≥ 50%, calculates damage from staff like other weapons.",2,B,232,FALSE,,,,,,,,,,,Any,NotStaff
-Wrathful Staff 3,Calculates damage from staff like other weapons.,3,B,232,FALSE,,,,,,,,,,,Any,NotStaff
+Live to Serve 1,"When healing an ally with a staff, restores HP to unit = 50% of HP restored to target.",1,B,104,TRUE,live_to_serveSe,1,,,,,,,,,Any,NotStaff
+Live to Serve 2,"When healing an ally with a staff, restores HP to unit = 75% of HP restored to target.",2,B,104,TRUE,live_to_serveSe,2,,,,,,,,,Any,NotStaff
+Live to Serve 3,"When healing an ally with a staff, restores HP to unit = HP restored to target.",3,B,104,TRUE,live_to_serveSe,3,,,,,,,,,Any,NotStaff
+Wrathful Staff 1,"At start of combat, if unit's HP = 100%, calculates damage from staff like other weapons.",1,B,232,TRUE,wrathfulSe,1,,,,,,,,,Any,NotStaff
+Wrathful Staff 2,"At start of combat, if unit's HP ≥ 50%, calculates damage from staff like other weapons.",2,B,232,TRUE,wrathfulSe,2,,,,,,,,,Any,NotStaff
+Wrathful Staff 3,Calculates damage from staff like other weapons.,3,B,232,TRUE,wrathfulSe,3,,,,,,,,,Any,NotStaff
 Seal Atk 1,Inflicts Atk-3 on foe through its next action after combat.,1,B,105,TRUE,sealAtkSe,3,,,,,,,,,Any,Staff
 Seal Atk 2,Inflicts Atk-5 on foe through its next action after combat.,2,B,105,TRUE,sealAtkSe,5,,,,,,,,,Any,Staff
 Seal Atk 3,Inflicts Atk-7 on foe through its next action after combat.,3,B,105,TRUE,sealAtkSe,7,,,,,,,,,Any,Staff
@@ -338,90 +341,93 @@ Seal Def 3,Inflicts Def-7 on foe through its next action after combat.,3,B,107,T
 Seal Res 1,Inflicts Res-3 on foe through its next action after combat.,1,B,108,TRUE,sealResSe,3,,,,,,,,,Any,Staff
 Seal Res 2,Inflicts Res-5 on foe through its next action after combat.,2,B,108,TRUE,sealSpdSe,5,,,,,,,,,Any,Staff
 Seal Res 3,Inflicts Res-7 on foe through its next action after combat.,3,B,108,TRUE,sealSpdSe,7,,,,,,,,,Any,Staff
-Chill Atk 1,"At start of turn, inflicts Atk-3 on foe on the enemy team with the highest Atk through its next action.",1,B,109,FALSE,,,,,,,,,,,Any,Any
-Chill Atk 2,"At start of turn, inflicts Atk-5 on foe on the enemy team with the highest Atk through its next action.",2,B,109,FALSE,,,,,,,,,,,Any,Any
-Chill Atk 3,"At start of turn, inflicts Atk-7 on foe on the enemy team with the highest Atk through its next action.",3,B,109,FALSE,,,,,,,,,,,Any,Any
-Chill Spd 1,"At start of turn, inflicts Spd-3 on foe on the enemy team with the highest Spd through its next action.",1,B,110,FALSE,,,,,,,,,,,Any,Any
-Chill Spd 2,"At start of turn, inflicts Spd-5 on foe on the enemy team with the highest Spd through its next action.",2,B,110,FALSE,,,,,,,,,,,Any,Any
-Chill Spd 3,"At start of turn, inflicts Spd-7 on foe on the enemy team with the highest Spd through its next action.",3,B,110,FALSE,,,,,,,,,,,Any,Any
-Chill Def 1,"At start of turn, inflicts Def-3 on foe on the enemy team with the highest Def through its next action.",1,B,111,FALSE,,,,,,,,,,,Any,Any
-Chill Def 2,"At start of turn, inflicts Def-5 on foe on the enemy team with the highest Def through its next action.",2,B,111,FALSE,,,,,,,,,,,Any,Any
-Chill Def 3,"At start of turn, inflicts Def-7 on foe on the enemy team with the highest Def through its next action.",3,B,111,FALSE,,,,,,,,,,,Any,Any
-Chill Res 1,"At start of turn, inflicts Res-3 on foe on the enemy team with the highest Res through its next action.",1,B,112,FALSE,,,,,,,,,,,Any,Any
-Chill Res 2,"At start of turn, inflicts Res-5 on foe on the enemy team with the highest Res through its next action.",2,B,112,FALSE,,,,,,,,,,,Any,Any
-Chill Res 3,"At start of turn, inflicts Res-7 on foe on the enemy team with the highest Res through its next action.",3,B,112,FALSE,,,,,,,,,,,Any,Any
-Chill Atk/Spd 1,"At start of turn, inflicts Atk/Spd-3 on foe on the enemy team with the highest Atk+Spd total through its next action.",1,B,113,FALSE,,,,,,,,,,,Any,Any
-Chill Atk/Spd 2,"At start of turn, inflicts Atk/Spd-5 on foe on the enemy team with the highest Atk+Spd total through its next action.",2,B,113,FALSE,,,,,,,,,,,Any,Any
-Chill Atk/Def 1,"At start of turn, inflicts Atk/Def-3 on foe on the enemy team with the highest Atk+Def total through its next action.",1,B,114,FALSE,,,,,,,,,,,Any,Any
-Chill Atk/Def 2,"At start of turn, inflicts Atk/Def-5 on foe on the enemy team with the highest Atk+Def total through its next action.",2,B,114,FALSE,,,,,,,,,,,Any,Any
-Chill Atk/Res 1,"At start of turn, inflicts Atk/Res-3 on foe on the enemy team with the highest Atk+Res total through its next action.",1,B,115,FALSE,,,,,,,,,,,Any,Any
-Chill Atk/Res 2,"At start of turn, inflicts Atk/Res-5 on foe on the enemy team with the highest Atk+Res total through its next action.",2,B,115,FALSE,,,,,,,,,,,Any,Any
-Chill Spd/Def 1,"At start of turn, inflicts Spd/Def-3 on foe on the enemy team with the highest Spd+Def total through its next action.",1,B,116,FALSE,,,,,,,,,,,Any,Any
-Chill Spd/Def 2,"At start of turn, inflicts Spd/Def-5 on foe on the enemy team with the highest Spd+Def total through its next action.",2,B,116,FALSE,,,,,,,,,,,Any,Any
-Chill Spd/Res 1,"At start of turn, inflicts Spd/Res-3 on foe on the enemy team with the highest Spd+Res total through its next action.",1,B,117,FALSE,,,,,,,,,,,Any,Any
-Chill Spd/Res 2,"At start of turn, inflicts Spd/Res-5 on foe on the enemy team with the highest Spd+Res total through its next action.",2,B,117,FALSE,,,,,,,,,,,Any,Any
-Chill Def/Res 1,"At start of turn, inflicts Def/Res-3 on foe on the enemy team with the highest Def+Res total through its next action.",1,B,118,FALSE,,,,,,,,,,,Any,Any
-Chill Def/Res 2,"At start of turn, inflicts Def/Res-5 on foe on the enemy team with the highest Def+Res total through its next action.",2,B,118,FALSE,,,,,,,,,,,Any,Any
-Guard 1,"At start of combat, if unit's HP = 100%, inflicts Special cooldown charge -1 on foe per attack. (Only highest value applied. Does not stack.)",1,B,119,FALSE,,,,,,,,,,,Any,Any
-Guard 2,"At start of combat, if unit's HP ≥ 90%, inflicts Special cooldown charge -1 on foe per attack. (Only highest value applied. Does not stack.)",2,B,119,FALSE,,,,,,,,,,,Any,Any
-Guard 3,"At start of combat, if unit's HP ≥ 80%, inflicts Special cooldown charge -1 on foe per attack. (Only highest value applied. Does not stack.)",3,B,119,FALSE,,,,,,,,,,,Any,Any
-Flier Formation 1,"If unit's HP = 100%, unit can move to a space adjacent to a flying ally within 2 spaces.",1,B,120,FALSE,,,,,,,,,,,Any,Any
-Flier Formation 2,"If unit's HP ≥ 50%, unit can move to a space adjacent to a flying ally within 2 spaces.",2,B,120,FALSE,,,,,,,,,,,Any,Any
-Flier Formation 3,Unit can move to a space adjacent to a flying ally within 2 spaces.,3,B,120,FALSE,,,,,,,,,,,Any,Any
-Aerobatics 1,"If unit's HP = 100%, unit can move to a space adjacent to any infantry, armored, or cavalry ally within 2 spaces.",1,B,121,FALSE,,,,,,,,,,,Any,Any
-Aerobatics 2,"If unit's HP ≥ 50%, unit can move to a space adjacent to any infantry, armored, or cavalry ally within 2 spaces.",2,B,121,FALSE,,,,,,,,,,,Any,Any
-Aerobatics 3,"Unit can move to a space adjacent to any infantry, armored, or cavalry ally within 2 spaces.",3,B,121,FALSE,,,,,,,,,,,Any,Any
-Pegasus Flight 1,"At start of combat, if unit's Spd ≥ foe's Spd-7, inflicts penalty on foe's Atk/Def during combat = 30% of difference between Res stats (unit’s Res minus foe’s Res) before combat. (Maximum penalty of -3.)",1,B,122,FALSE,,,,,,,,,,,Any,Any
-Pegasus Flight 2,"At start of combat, if unit's Spd ≥ foe's Spd-7, inflicts penalty on foe's Atk/Def during combat = 40% of difference between Res stats (unit’s Res minus foe’s Res) before combat. (Maximum penalty of -5.)",2,B,122,FALSE,,,,,,,,,,,Any,Any
-Pegasus Flight 3,"At start of combat, if unit's Spd ≥ foe's Spd-7, inflicts penalty on foe's Atk/Def during combat = 50% of difference between Res stats (unit’s Res minus foe’s Res) before combat. (Maximum penalty of -7.)",3,B,122,FALSE,,,,,,,,,,,Any,Any
-Blaze Dance 1,"If Sing or Dance is used, grants Atk+2 to target.",1,B,123,FALSE,,,,,,,,,,,Any,Any
-Blaze Dance 2,"If Sing or Dance is used, grants Atk+3 to target.",2,B,123,FALSE,,,,,,,,,,,Any,Any
-Blaze Dance 3,"If Sing or Dance is used, grants Atk+4 to target.",3,B,123,FALSE,,,,,,,,,,,Any,Any
-Gale Dance 1,"If Sing or Dance is used, grants Spd+2 to target.",1,B,124,FALSE,,,,,,,,,,,Any,Any
-Gale Dance 2,"If Sing or Dance is used, grants Spd+3 to target.",2,B,124,FALSE,,,,,,,,,,,Any,Any
-Gale Dance 3,"If Sing or Dance is used, grants Spd+4 to target.",3,B,124,FALSE,,,,,,,,,,,Any,Any
-Earth Dance 1,"If Sing or Dance is used, grants Def+3 to target.","If Sing or Dance is used, grants Def+3 to target.",B,125,FALSE,,,,,,,,,,,Any,Any
-Earth Dance 2,"If Sing or Dance is used, grants Def+4 to target.",2,B,125,FALSE,,,,,,,,,,,Any,Any
-Earth Dance 3,"If Sing or Dance is used, grants Def+5 to target.",3,B,125,FALSE,,,,,,,,,,,Any,Any
-Torrent Dance 1,"If Sing or Dance is used, grants Res+3 to target.",1,B,126,FALSE,,,,,,,,,,,Any,Any
-Torrent Dance 2,"If Sing or Dance is used, grants Res+4 to target.",2,B,126,FALSE,,,,,,,,,,,Any,Any
-Torrent Dance 3,"If Sing or Dance is used, grants Res+5 to target",3,B,126,FALSE,,,,,,,,,,,Any,Any
-Def/Res Snag 1,"If a movement Assist skill (like Reposition, Shove, Pivot, etc.) is used by unit or targets unit, inflicts Def/Res-2 on nearest foes within 4 spaces of both unit and target through their next actions.",1,B,127,FALSE,,,,,,,,,,,Any,Any
-Def/Res Snag 2,"If a movement Assist skill (like Reposition, Shove, Pivot, etc.) is used by unit or targets unit, inflicts Def/Res-4 on nearest foes within 4 spaces of both unit and target through their next actions.",2,B,127,FALSE,,,,,,,,,,,Any,Any
-Def/Res Snag 3,"If a movement Assist skill (like Reposition, Shove, Pivot, etc.) is used by unit or targets unit, inflicts Def/Res-6 on nearest foes within 4 spaces of both unit and target through their next actions.",3,B,127,FALSE,,,,,,,,,,,Any,Any
-Atk Feint 1,"If a Rally Assist skill is used by unit or targets unit, inflicts Atk-3 on foes in cardinal directions of unit through their next actions.",1,B,128,FALSE,,,,,,,,,,,Any,Any
-Atk Feint 2,"If a Rally Assist skill is used by unit or targets unit, inflicts Atk-5 on foes in cardinal directions of unit through their next actions.",2,B,128,FALSE,,,,,,,,,,,Any,Any
-Atk Feint 3,"If a Rally Assist skill is used by unit or targets unit, inflicts Atk-7 on foes in cardinal directions of unit through their next actions.",3,B,128,FALSE,,,,,,,,,,,Any,Any
-Spd Feint 1,"If a Rally Assist skill is used by unit or targets unit, inflicts Spd-3 on foes in cardinal directions of unit through their next actions.",1,B,129,FALSE,,,,,,,,,,,Any,Any
-Spd Feint 2,"If a Rally Assist skill is used by unit or targets unit, inflicts Spd-5 on foes in cardinal directions of unit through their next actions.",2,B,129,FALSE,,,,,,,,,,,Any,Any
-Spd Feint 3,"If a Rally Assist skill is used by unit or targets unit, inflicts Spd-7 on foes in cardinal directions of unit through their next actions.",3,B,129,FALSE,,,,,,,,,,,Any,Any
-Def Feint 1,"If a Rally Assist skill is used by unit or targets unit, inflicts Def-3 on foes in cardinal directions of unit through their next actions.",1,B,130,FALSE,,,,,,,,,,,Any,Any
-Def Feint 2,"If a Rally Assist skill is used by unit or targets unit, inflicts Def-5 on foes in cardinal directions of unit through their next actions.",2,B,130,FALSE,,,,,,,,,,,Any,Any
-Def Feint 3,"If a Rally Assist skill is used by unit or targets unit, inflicts Def-7 on foes in cardinal directions of unit through their next actions.",3,B,130,FALSE,,,,,,,,,,,Any,Any
-Res Feint 1,"If a Rally Assist skill is used by unit or targets unit, inflicts Res-3 on foes in cardinal directions of unit through their next actions.",1,B,131,FALSE,,,,,,,,,,,Any,Any
-Res Feint 2,"If a Rally Assist skill is used by unit or targets unit, inflicts Res-5 on foes in cardinal directions of unit through their next actions.",2,B,131,FALSE,,,,,,,,,,,Any,Any
-Res Feint 3,"If a Rally Assist skill is used by unit or targets unit, inflicts Res-7 on foes in cardinal directions of unit through their next actions.",3,B,131,FALSE,,,,,,,,,,,Any,Any
-Null Follow-Up 1,"At start of combat, if unit's HP = 100%, neutralizes effects that guarantee foe's follow-up attacks and effects that prevent unit's follow-up attacks during combat.",1,B,132,FALSE,,,,,,,,,,,Any,Any
-Null Follow-Up 2,"At start of combat, if unit's HP ≥ 50%, neutralizes effects that guarantee foe's follow-up attacks and effects that prevent unit's follow-up attacks during combat.",2,B,132,FALSE,,,,,,,,,,,Any,Any
-Null Follow-Up 3,Neutralizes effects that guarantee foe's follow-up attacks and effects that prevent unit's follow-up attacks during combat.,3,B,132,FALSE,,,,,,,,,,,Any,Any
-Mystic Boost 1,"Disables foe's skills that ""calculate damage using the lower of foe's Def or Res"" and ""calculate damage from staff like other weapons."" Restores 2 HP after combat.",1,B,133,FALSE,,,,,,,,,,,Any,Any
-Mystic Boost 2,"Disables foe's skills that ""calculate damage using the lower of foe's Def or Res"" and ""calculate damage from staff like other weapons."" Restores 4 HP after combat.",2,B,133,FALSE,,,,,,,,,,,Any,Any
-Mystic Boost 3,"Disables foe's skills that ""calculate damage using the lower of foe's Def or Res"" and ""calculate damage from staff like other weapons."" Restores 6 HP after combat.",3,B,133,FALSE,,,,,,,,,,,Any,Any
-Dragon's Wrath 1,"If foe initiates combat, reduces damage from foe's first attack by 10% during combat, and also, if unit's Atk > foe's Res, unit's first attack deals damage = 10% of unit's Atk minus foe's Res during combat.",1,B,134,FALSE,,,,,,,,,,,Any,Any
-Dragon's Wrath 2,"If foe initiates combat, reduces damage from foe's first attack by 15% during combat, and also, if unit's Atk > foe's Res, unit's first attack deals damage = 15% of unit's Atk minus foe's Res during combat.",2,B,134,FALSE,,,,,,,,,,,Any,Any
-Dragon's Wrath 3,"If foe initiates combat, reduces damage from foe's first attack by 20% during combat, and also, if unit's Atk > foe's Res, unit's first attack deals damage = 20% of unit's Atk minus foe's Res during combat.",3,B,134,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Tempo 1,"Inflicts Spd/Def-1 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",1,B,135,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Tempo 2,"Inflicts Spd/Def-2 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",2,B,135,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Tempo 3,"Inflicts Spd/Def-3 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",3,B,135,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Tempo 1,"Inflicts Spd/Res-1 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",1,B,233,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Tempo 2,"Inflicts Spd/Res-2 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",2,B,233,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Tempo 3,"Inflicts Spd/Res-3 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",3,B,233,FALSE,,,,,,,,,,,Any,Any
+Chill Atk 1,"At start of turn, inflicts Atk-3 on foe on the enemy team with the highest Atk through its next action.",1,B,109,TRUE,chillAtkSe,1,,,,,,,,,Any,Any
+Chill Atk 2,"At start of turn, inflicts Atk-5 on foe on the enemy team with the highest Atk through its next action.",2,B,109,TRUE,chillAtkSe,2,,,,,,,,,Any,Any
+Chill Atk 3,"At start of turn, inflicts Atk-7 on foe on the enemy team with the highest Atk through its next action.",3,B,109,TRUE,chillAtkSe,3,,,,,,,,,Any,Any
+Chill Spd 1,"At start of turn, inflicts Spd-3 on foe on the enemy team with the highest Spd through its next action.",1,B,110,TRUE,chillSpdSe,1,,,,,,,,,Any,Any
+Chill Spd 2,"At start of turn, inflicts Spd-5 on foe on the enemy team with the highest Spd through its next action.",2,B,110,TRUE,chillSpdSe,2,,,,,,,,,Any,Any
+Chill Spd 3,"At start of turn, inflicts Spd-7 on foe on the enemy team with the highest Spd through its next action.",3,B,110,TRUE,chillSpdSe,3,,,,,,,,,Any,Any
+Chill Def 1,"At start of turn, inflicts Def-3 on foe on the enemy team with the highest Def through its next action.",1,B,111,TRUE,chillDefSe,1,,,,,,,,,Any,Any
+Chill Def 2,"At start of turn, inflicts Def-5 on foe on the enemy team with the highest Def through its next action.",2,B,111,TRUE,chillDefSe,2,,,,,,,,,Any,Any
+Chill Def 3,"At start of turn, inflicts Def-7 on foe on the enemy team with the highest Def through its next action.",3,B,111,TRUE,chillDefSe,3,,,,,,,,,Any,Any
+Chill Res 1,"At start of turn, inflicts Res-3 on foe on the enemy team with the highest Res through its next action.",1,B,112,TRUE,chillResSe,1,,,,,,,,,Any,Any
+Chill Res 2,"At start of turn, inflicts Res-5 on foe on the enemy team with the highest Res through its next action.",2,B,112,TRUE,chillResSe,2,,,,,,,,,Any,Any
+Chill Res 3,"At start of turn, inflicts Res-7 on foe on the enemy team with the highest Res through its next action.",3,B,112,TRUE,chillResSe,3,,,,,,,,,Any,Any
+Chill Atk/Spd 1,"At start of turn, inflicts Atk/Spd-3 on foe on the enemy team with the highest Atk+Spd total through its next action.",1,B,113,TRUE,chillAtkSpdSe,3,,,,,,,,,Any,Any
+Chill Atk/Spd 2,"At start of turn, inflicts Atk/Spd-5 on foe on the enemy team with the highest Atk+Spd total through its next action.",2,B,113,TRUE,chillAtkSpdSe,5,,,,,,,,,Any,Any
+Chill Atk/Def 1,"At start of turn, inflicts Atk/Def-3 on foe on the enemy team with the highest Atk+Def total through its next action.",1,B,114,TRUE,chillAtkDefSe,3,,,,,,,,,Any,Any
+Chill Atk/Def 2,"At start of turn, inflicts Atk/Def-5 on foe on the enemy team with the highest Atk+Def total through its next action.",2,B,114,TRUE,chillAtkDefSe,5,,,,,,,,,Any,Any
+Chill Atk/Res 1,"At start of turn, inflicts Atk/Res-3 on foe on the enemy team with the highest Atk+Res total through its next action.",1,B,115,TRUE,chillAtkResSe,3,,,,,,,,,Any,Any
+Chill Atk/Res 2,"At start of turn, inflicts Atk/Res-5 on foe on the enemy team with the highest Atk+Res total through its next action.",2,B,115,TRUE,chillAtkResSe,5,,,,,,,,,Any,Any
+Chill Spd/Def 1,"At start of turn, inflicts Spd/Def-3 on foe on the enemy team with the highest Spd+Def total through its next action.",1,B,116,TRUE,chillSpdDefSe,3,,,,,,,,,Any,Any
+Chill Spd/Def 2,"At start of turn, inflicts Spd/Def-5 on foe on the enemy team with the highest Spd+Def total through its next action.",2,B,116,TRUE,chillSpdDefSe,5,,,,,,,,,Any,Any
+Chill Spd/Res 1,"At start of turn, inflicts Spd/Res-3 on foe on the enemy team with the highest Spd+Res total through its next action.",1,B,117,TRUE,chillSpdRes,3,,,,,,,,,Any,Any
+Chill Spd/Res 2,"At start of turn, inflicts Spd/Res-5 on foe on the enemy team with the highest Spd+Res total through its next action.",2,B,117,TRUE,chillSpdRes,5,,,,,,,,,Any,Any
+Chill Def/Res 1,"At start of turn, inflicts Def/Res-3 on foe on the enemy team with the highest Def+Res total through its next action.",1,B,118,TRUE,chillDefResSe,3,,,,,,,,,Any,Any
+Chill Def/Res 2,"At start of turn, inflicts Def/Res-5 on foe on the enemy team with the highest Def+Res total through its next action.",2,B,118,TRUE,chillDefResSe,5,,,,,,,,,Any,Any
+Guard 1,"At start of combat, if unit's HP = 100%, inflicts Special cooldown charge -1 on foe per attack. (Only highest value applied. Does not stack.)",1,B,119,TRUE,guardSe,10,,,,,,,,,Any,Any
+Guard 2,"At start of combat, if unit's HP ≥ 90%, inflicts Special cooldown charge -1 on foe per attack. (Only highest value applied. Does not stack.)",2,B,119,TRUE,guardSe,9,,,,,,,,,Any,Any
+Guard 3,"At start of combat, if unit's HP ≥ 80%, inflicts Special cooldown charge -1 on foe per attack. (Only highest value applied. Does not stack.)",3,B,119,TRUE,guardSe,8,,,,,,,,,Any,Any
+Flier Formation 1,"If unit's HP = 100%, unit can move to a space adjacent to a flying ally within 2 spaces.",1,B,120,TRUE,flierFormationSe,1,,,,,,,,,Inf-Armor-Cav,Any
+Flier Formation 2,"If unit's HP ≥ 50%, unit can move to a space adjacent to a flying ally within 2 spaces.",2,B,120,TRUE,flierFormationSe,2,,,,,,,,,Inf-Armor-Cav,Any
+Flier Formation 3,Unit can move to a space adjacent to a flying ally within 2 spaces.,3,B,120,TRUE,flierFormationSe,3,,,,,,,,,Inf-Armor-Cav,Any
+Aerobatics 1,"If unit's HP = 100%, unit can move to a space adjacent to any infantry, armored, or cavalry ally within 2 spaces.",1,B,121,TRUE,aerobaticsSe,1,,,,,,,,,Inf-Armor-Cav,Any
+Aerobatics 2,"If unit's HP ≥ 50%, unit can move to a space adjacent to any infantry, armored, or cavalry ally within 2 spaces.",2,B,121,TRUE,aerobaticsSe,2,,,,,,,,,Inf-Armor-Cav,Any
+Aerobatics 3,"Unit can move to a space adjacent to any infantry, armored, or cavalry ally within 2 spaces.",3,B,121,TRUE,aerobaticsSe,3,,,,,,,,,Inf-Armor-Cav,Any
+Pegasus Flight 1,"At start of combat, if unit's Spd ≥ foe's Spd-7, inflicts penalty on foe's Atk/Def during combat = 30% of difference between Res stats (unit’s Res minus foe’s Res) before combat. (Maximum penalty of -3.)",1,B,122,TRUE,pegasus_flightSe,1,,,,,,,,,Inf-Armor-Cav,NotSwordLanceAxe
+Pegasus Flight 2,"At start of combat, if unit's Spd ≥ foe's Spd-7, inflicts penalty on foe's Atk/Def during combat = 40% of difference between Res stats (unit’s Res minus foe’s Res) before combat. (Maximum penalty of -5.)",2,B,122,TRUE,pegasus_flightSe,2,,,,,,,,,Inf-Armor-Cav,NotSwordLanceAxe
+Pegasus Flight 3,"At start of combat, if unit's Spd ≥ foe's Spd-7, inflicts penalty on foe's Atk/Def during combat = 50% of difference between Res stats (unit’s Res minus foe’s Res) before combat. (Maximum penalty of -7.)",3,B,122,TRUE,pegasus_flightSe,3,,,,,,,,,Inf-Armor-Cav,NotSwordLanceAxe
+Blaze Dance 1,"If Sing or Dance is used, grants Atk+2 to target.",1,B,123,TRUE,atkRefreshSe,2,,,,,,,,,Any,Staff
+Blaze Dance 2,"If Sing or Dance is used, grants Atk+3 to target.",2,B,123,TRUE,atkRefreshSe,3,,,,,,,,,Any,Staff
+Blaze Dance 3,"If Sing or Dance is used, grants Atk+4 to target.",3,B,123,TRUE,atkRefreshSe,4,,,,,,,,,Any,Staff
+Gale Dance 1,"If Sing or Dance is used, grants Spd+2 to target.",1,B,124,TRUE,spdRefreshSe,2,,,,,,,,,Any,Staff
+Gale Dance 2,"If Sing or Dance is used, grants Spd+3 to target.",2,B,124,TRUE,spdRefreshSe,3,,,,,,,,,Any,Staff
+Gale Dance 3,"If Sing or Dance is used, grants Spd+4 to target.",3,B,124,TRUE,spdRefreshSe,4,,,,,,,,,Any,Staff
+Earth Dance 1,"If Sing or Dance is used, grants Def+3 to target.",1,B,125,TRUE,defRefreshSe,3,,,,,,,,,Any,Staff
+Earth Dance 2,"If Sing or Dance is used, grants Def+4 to target.",2,B,125,TRUE,defRefreshSe,4,,,,,,,,,Any,Staff
+Earth Dance 3,"If Sing or Dance is used, grants Def+5 to target.",3,B,125,TRUE,defRefreshSe,5,,,,,,,,,Any,Staff
+Torrent Dance 1,"If Sing or Dance is used, grants Res+3 to target.",1,B,126,TRUE,resRefreshSe,3,,,,,,,,,Any,Staff
+Torrent Dance 2,"If Sing or Dance is used, grants Res+4 to target.",2,B,126,TRUE,resRefreshSe,4,,,,,,,,,Any,Staff
+Torrent Dance 3,"If Sing or Dance is used, grants Res+5 to target",3,B,126,TRUE,resRefreshSe,5,,,,,,,,,Any,Staff
+Atk/Spd Snag 1,"If a movement Assist skill (like Reposition, Shove, Pivot, etc.) is used by unit or targets unit, inflicts Atk/Spd-2 on nearest foes within 4 spaces of both unit and target through their next actions.",1,B,240,TRUE,atkSpdSnagSe,2,,,,,,,,,Inf-Armor,Staff
+Atk/Spd Snag 2,"If a movement Assist skill (like Reposition, Shove, Pivot, etc.) is used by unit or targets unit, inflicts Atk/Spd-4 on nearest foes within 4 spaces of both unit and target through their next actions.",2,B,240,TRUE,atkSpdSnagSe,4,,,,,,,,,Inf-Armor,Staff
+Atk/Spd Snag 3,"If a movement Assist skill (like Reposition, Shove, Pivot, etc.) is used by unit or targets unit, inflicts Atk/Spd-6 on nearest foes within 4 spaces of both unit and target through their next actions.",3,B,240,TRUE,atkSpdSnagSe,6,,,,,,,,,Inf-Armor,Staff
+Def/Res Snag 1,"If a movement Assist skill (like Reposition, Shove, Pivot, etc.) is used by unit or targets unit, inflicts Def/Res-2 on nearest foes within 4 spaces of both unit and target through their next actions.",1,B,127,TRUE,defResSnagSe,2,,,,,,,,,Inf-Armor,Staff
+Def/Res Snag 2,"If a movement Assist skill (like Reposition, Shove, Pivot, etc.) is used by unit or targets unit, inflicts Def/Res-4 on nearest foes within 4 spaces of both unit and target through their next actions.",2,B,127,TRUE,defResSnagSe,4,,,,,,,,,Inf-Armor,Staff
+Def/Res Snag 3,"If a movement Assist skill (like Reposition, Shove, Pivot, etc.) is used by unit or targets unit, inflicts Def/Res-6 on nearest foes within 4 spaces of both unit and target through their next actions.",3,B,127,TRUE,defResSnagSe,6,,,,,,,,,Inf-Armor,Staff
+Atk Feint 1,"If a Rally Assist skill is used by unit or targets unit, inflicts Atk-3 on foes in cardinal directions of unit through their next actions.",1,B,128,TRUE,atkFeintSe,3,,,,,,,,,Any,Staff
+Atk Feint 2,"If a Rally Assist skill is used by unit or targets unit, inflicts Atk-5 on foes in cardinal directions of unit through their next actions.",2,B,128,TRUE,atkFeintSe,5,,,,,,,,,Any,Staff
+Atk Feint 3,"If a Rally Assist skill is used by unit or targets unit, inflicts Atk-7 on foes in cardinal directions of unit through their next actions.",3,B,128,TRUE,atkFeintSe,7,,,,,,,,,Any,Staff
+Spd Feint 1,"If a Rally Assist skill is used by unit or targets unit, inflicts Spd-3 on foes in cardinal directions of unit through their next actions.",1,B,129,TRUE,spdFeintSe,3,,,,,,,,,Any,Staff
+Spd Feint 2,"If a Rally Assist skill is used by unit or targets unit, inflicts Spd-5 on foes in cardinal directions of unit through their next actions.",2,B,129,TRUE,spdFeintSe,5,,,,,,,,,Any,Staff
+Spd Feint 3,"If a Rally Assist skill is used by unit or targets unit, inflicts Spd-7 on foes in cardinal directions of unit through their next actions.",3,B,129,TRUE,spdFeintSe,7,,,,,,,,,Any,Staff
+Def Feint 1,"If a Rally Assist skill is used by unit or targets unit, inflicts Def-3 on foes in cardinal directions of unit through their next actions.",1,B,130,TRUE,defFeintSe,3,,,,,,,,,Any,Staff
+Def Feint 2,"If a Rally Assist skill is used by unit or targets unit, inflicts Def-5 on foes in cardinal directions of unit through their next actions.",2,B,130,TRUE,defFeintSe,5,,,,,,,,,Any,Staff
+Def Feint 3,"If a Rally Assist skill is used by unit or targets unit, inflicts Def-7 on foes in cardinal directions of unit through their next actions.",3,B,130,TRUE,defFeintSe,7,,,,,,,,,Any,Staff
+Res Feint 1,"If a Rally Assist skill is used by unit or targets unit, inflicts Res-3 on foes in cardinal directions of unit through their next actions.",1,B,131,TRUE,resFeintSe,3,,,,,,,,,Any,Staff
+Res Feint 2,"If a Rally Assist skill is used by unit or targets unit, inflicts Res-5 on foes in cardinal directions of unit through their next actions.",2,B,131,TRUE,resFeintSe,5,,,,,,,,,Any,Staff
+Res Feint 3,"If a Rally Assist skill is used by unit or targets unit, inflicts Res-7 on foes in cardinal directions of unit through their next actions.",3,B,131,TRUE,resFeintSe,7,,,,,,,,,Any,Staff
+Null Follow-Up 1,"At start of combat, if unit's HP = 100%, neutralizes effects that guarantee foe's follow-up attacks and effects that prevent unit's follow-up attacks during combat.",1,B,132,TRUE,NFUSe,1,,,,,,,,,Cav-Fly-Armor,Any
+Null Follow-Up 2,"At start of combat, if unit's HP ≥ 50%, neutralizes effects that guarantee foe's follow-up attacks and effects that prevent unit's follow-up attacks during combat.",2,B,132,TRUE,NFUSe,2,,,,,,,,,Cav-Fly-Armor,Any
+Null Follow-Up 3,Neutralizes effects that guarantee foe's follow-up attacks and effects that prevent unit's follow-up attacks during combat.,3,B,132,TRUE,NFUSe,3,,,,,,,,,Cav-Fly-Armor,Any
+Mystic Boost 1,"Disables foe's skills that ""calculate damage using the lower of foe's Def or Res"" and ""calculate damage from staff like other weapons."" Restores 2 HP after combat.",1,B,133,TRUE,mysticBoostSe,1,,,,,,,,,Any,Any
+Mystic Boost 2,"Disables foe's skills that ""calculate damage using the lower of foe's Def or Res"" and ""calculate damage from staff like other weapons."" Restores 4 HP after combat.",2,B,133,TRUE,mysticBoostSe,2,,,,,,,,,Any,Any
+Mystic Boost 3,"Disables foe's skills that ""calculate damage using the lower of foe's Def or Res"" and ""calculate damage from staff like other weapons."" Restores 6 HP after combat.",3,B,133,TRUE,mysticBoostSe,3,,,,,,,,,Any,Any
+Dragon's Wrath 1,"If foe initiates combat, reduces damage from foe's first attack by 10% during combat, and also, if unit's Atk > foe's Res, unit's first attack deals damage = 10% of unit's Atk minus foe's Res during combat.",1,B,134,TRUE,dragonsWrathSe,10,,,,,,,,,Any,NotDragon
+Dragon's Wrath 2,"If foe initiates combat, reduces damage from foe's first attack by 15% during combat, and also, if unit's Atk > foe's Res, unit's first attack deals damage = 15% of unit's Atk minus foe's Res during combat.",2,B,134,TRUE,dragonsWrathSe,15,,,,,,,,,Any,NotDragon
+Dragon's Wrath 3,"If foe initiates combat, reduces damage from foe's first attack by 20% during combat, and also, if unit's Atk > foe's Res, unit's first attack deals damage = 20% of unit's Atk minus foe's Res during combat.",3,B,134,TRUE,dragonsWrathSe,20,,,,,,,,,Any,NotDragon
+Spd/Def Tempo 1,"Inflicts Spd/Def-1 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",1,B,135,TRUE,tempo,0,spdCombatPenalty,1,defCombatPenalty,1,,,,,Cav-Fly-Armor,Any
+Spd/Def Tempo 2,"Inflicts Spd/Def-2 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",2,B,135,TRUE,tempo,0,spdCombatPenalty,2,defCombatPenalty,2,,,,,Cav-Fly-Armor,Any
+Spd/Def Tempo 3,"Inflicts Spd/Def-3 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",3,B,135,TRUE,tempo,0,spdCombatPenalty,3,defCombatPenalty,3,,,,,Cav-Fly-Armor,Any
+Spd/Res Tempo 1,"Inflicts Spd/Res-1 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",1,B,233,TRUE,tempo,0,spdCombatPenalty,1,resCombatPenalty,1,,,,,Cav-Fly-Armor,Any
+Spd/Res Tempo 2,"Inflicts Spd/Res-2 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",2,B,233,TRUE,tempo,0,spdCombatPenalty,2,resCombatPenalty,2,,,,,Cav-Fly-Armor,Any
+Spd/Res Tempo 3,"Inflicts Spd/Res-3 on foe and neutralizes effects that grant ""Special cooldown charge +X"" to foe or inflict ""Special cooldown charge -X"" on unit during combat.",3,B,233,TRUE,tempo,0,spdCombatPenalty,3,resCombatPenalty,3,,,,,Cav-Fly-Armor,Any
 Breath of Life 1,"If unit initiates combat, restores 3 HP to adjacent allies after combat.",1,C,136,TRUE,breath_of_life,3,,,,,,,,,Any,Any
 Breath of Life 2,"If unit initiates combat, restores 5 HP to adjacent allies after combat.",2,C,136,TRUE,breath_of_life,5,,,,,,,,,Any,Any
 Breath of Life 3,"If unit initiates combat, restores 7 HP to adjacent allies after combat.",3,C,136,TRUE,breath_of_life,7,,,,,,,,,Any,Any
-Savage Blow 1,"If unit initiates combat, deals 3 damage to foes within 2 spaces of target after combat.",1,C,137,FALSE,,,,,,,,,,,Any,Any
-Savage Blow 2,"If unit initiates combat, deals 5 damage to foes within 2 spaces of target after combat.",2,C,137,FALSE,,,,,,,,,,,Any,Any
-Savage Blow 3,"If unit initiates combat, deals 7 damage to foes within 2 spaces of target after combat.",3,C,137,FALSE,,,,,,,,,,,Any,Any
+Savage Blow 1,"If unit initiates combat, deals 3 damage to foes within 2 spaces of target after combat.",1,C,137,TRUE,savageBlow,3,,,,,,,,,Any,Any
+Savage Blow 2,"If unit initiates combat, deals 5 damage to foes within 2 spaces of target after combat.",2,C,137,TRUE,savageBlow,5,,,,,,,,,Any,Any
+Savage Blow 3,"If unit initiates combat, deals 7 damage to foes within 2 spaces of target after combat.",3,C,137,TRUE,savageBlow,7,,,,,,,,,Any,Any
 Spur Atk 1,Grants Atk+2 to adjacent allies during combat.,1,C,138,TRUE,spurAtk,2,,,,,,,,,Any,Any
 Spur Atk 2,Grants Atk+3 to adjacent allies during combat.,2,C,138,TRUE,spurAtk,3,,,,,,,,,Any,Any
 Spur Atk 3,Grants Atk+4 to adjacent allies during combat.,3,C,138,TRUE,spurAtk,4,,,,,,,,,Any,Any
@@ -446,206 +452,206 @@ Spur Spd/Res 1,Grants Spd/Res+2 to adjacent allies during combat.,2,C,146,TRUE,s
 Spur Spd/Res 2,Grants Spd/Res+3 to adjacent allies during combat.,3,C,146,TRUE,spurSpd,3,spurRes,3,,,,,,,Any,Any
 Spur Def/Res 1,Grants Def/Res+2 to adjacent allies during combat.,2,C,147,TRUE,spurDef,2,spurRes,2,,,,,,,Any,Any
 Spur Def/Res 2,Grants Def/Res+3 to adjacent allies during combat.,3,C,147,TRUE,spurDef,3,spurRes,3,,,,,,,Any,Any
-Drive Atk 1,Grants Atk+2 to allies within 2 spaces during combat.,2,C,148,FALSE,,,,,,,,,,,Any,Any
-Drive Atk 2,Grants Atk+3 to allies within 2 spaces during combat.,3,C,148,FALSE,,,,,,,,,,,Any,Any
-Drive Spd 1,Grants Spd+2 to allies within 2 spaces during combat.,2,C,149,FALSE,,,,,,,,,,,Any,Any
-Drive Spd 2,Grants Spd+3 to allies within 2 spaces during combat.,3,C,149,FALSE,,,,,,,,,,,Any,Any
-Drive Def 1,Grants Def+2 to allies within 2 spaces during combat.,2,C,150,FALSE,,,,,,,,,,,Any,Any
-Drive Def 2,Grants Def+3 to allies within 2 spaces during combat.,3,C,150,FALSE,,,,,,,,,,,Any,Any
-Drive Res 1,Grants Res+2 to allies within 2 spaces during combat.,2,C,151,FALSE,,,,,,,,,,,Any,Any
-Drive Res 2,Grants Res+3 to allies within 2 spaces during combat.,3,C,151,FALSE,,,,,,,,,,,Any,Any
-Close Guard 1,"Allies within 2 spaces gain: ""If foe uses sword, lance, axe, dragonstone, or beast damage, grants Def/Res+2 during combat.""",1,C,152,FALSE,,,,,,,,,,,Any,Any
-Close Guard 2,"Allies within 2 spaces gain: ""If foe uses sword, lance, axe, dragonstone, or beast damage, grants Def/Res+3 during combat.""",2,C,152,FALSE,,,,,,,,,,,Any,Any
-Close Guard 3,"Allies within 2 spaces gain: ""If foe uses sword, lance, axe, dragonstone, or beast damage, grants Def/Res+4 during combat.""",3,C,152,FALSE,,,,,,,,,,,Any,Any
-Distant Guard 1,"Allies within 2 spaces gain: ""If foe uses bow, dagger, magic, or staff, grants Def/Res+2 during combat.""",1,C,153,FALSE,,,,,,,,,,,Any,Any
-Distant Guard 2,"Allies within 2 spaces gain: ""If foe uses bow, dagger, magic, or staff, grants Def/Res+3 during combat.""",2,C,153,FALSE,,,,,,,,,,,Any,Any
-Distant Guard 3,"Allies within 2 spaces gain: ""If foe uses bow, dagger, magic, or staff, grants Def/Res+4 during combat.""",3,C,153,FALSE,,,,,,,,,,,Any,Any
-Goad Dragons,Grants Atk/Spd+4 to dragon allies within 2 spaces during combat.,1,C,154,FALSE,,,,,,,,,,,Any,Any
-Goad Beasts,Grants Atk/Spd+4 to beast allies within 2 spaces during combat.,1,C,155,FALSE,,,,,,,,,,,Any,Any
-Ward Dragons,Grants Def/Res+4 to dragon allies within 2 spaces during combat.,1,C,156,FALSE,,,,,,,,,,,Any,Any
-Ward Beasts,Grants Def/Res+4 to beast allies within 2 spaces during combat.,1,C,157,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Rein 1,Inflicts Atk/Spd-2 on foes within 2 spaces during combat.,1,C,158,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Rein 2,Inflicts Atk/Spd-3 on foes within 2 spaces during combat.,2,C,158,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Rein 3,Inflicts Atk/Spd-4 on foes within 2 spaces during combat.,3,C,158,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Rein 1,Inflicts Atk/Res-2 on foes within 2 spaces during combat.,1,C,159,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Rein 2,Inflicts Atk/Res-3 on foes within 2 spaces during combat.,2,C,159,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Rein 3,Inflicts Atk/Res-4 on foes within 2 spaces during combat.,3,C,159,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Rein 1,Inflicts Spd/Res-2 on foes within 2 spaces during combat.,1,C,160,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Rein 2,Inflicts Spd/Res-3 on foes within 2 spaces during combat.,2,C,160,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Rein 3,Inflicts Spd/Res-4 on foes within 2 spaces during combat.,3,C,160,FALSE,,,,,,,,,,,Any,Any
-Hone Atk 1,"At start of turn, grants Atk+2 to adjacent allies for 1 turn.",1,C,161,FALSE,,,,,,,,,,,Any,Any
-Hone Atk 2,"At start of turn, grants Atk+3 to adjacent allies for 1 turn.",2,C,161,FALSE,,,,,,,,,,,Any,Any
-Hone Atk 3,"At start of turn, grants Atk+4 to adjacent allies for 1 turn.",3,C,161,FALSE,,,,,,,,,,,Any,Any
-Hone Spd 1,"At start of turn, grants Spd+2 to adjacent allies for 1 turn.",1,C,162,FALSE,,,,,,,,,,,Any,Any
-Hone Spd 2,"At start of turn, grants Spd+3 to adjacent allies for 1 turn.",2,C,162,FALSE,,,,,,,,,,,Any,Any
-Hone Spd 3,"At start of turn, grants Spd+4 to adjacent allies for 1 turn.",3,C,162,FALSE,,,,,,,,,,,Any,Any
-Fortify Def 1,"At start of turn, grants Def+2 to adjacent allies for 1 turn.",1,C,163,FALSE,,,,,,,,,,,Any,Any
-Fortify Def 2,"At start of turn, grants Def+3 to adjacent allies for 1 turn.",2,C,163,FALSE,,,,,,,,,,,Any,Any
-Fortify Def 3,"At start of turn, grants Def+4 to adjacent allies for 1 turn.",3,C,163,FALSE,,,,,,,,,,,Any,Any
-Fortify Res 1,"At start of turn, grants Res+2 to adjacent allies for 1 turn.",1,C,164,FALSE,,,,,,,,,,,Any,Any
-Fortify Res 2,"At start of turn, grants Res+3 to adjacent allies for 1 turn.",2,C,164,FALSE,,,,,,,,,,,Any,Any
-Fortify Res 3,"At start of turn, grants Res+4 to adjacent allies for 1 turn.",3,C,164,FALSE,,,,,,,,,,,Any,Any
-Hone Dragons,"At start of turn, grants Atk/Spd+6 to adjacent dragon allies for 1 turn.",1,C,165,FALSE,,,,,,,,,,,Any,Any
-Fortify Dragons,"At start of turn, grants Def/Res+6 to adjacent dragon allies for 1 turn.",1,C,166,FALSE,,,,,,,,,,,Any,Any
-Hone Beasts,"At start of turn, grants Atk/Spd+6 to adjacent beast allies for 1 turn.",1,C,167,FALSE,,,,,,,,,,,Any,Any
-Fortify Beasts,"At start of turn, grants Def/Res+6 to adjacent beast allies for 1 turn.",1,C,168,FALSE,,,,,,,,,,,Any,Any
-Atk Tactic 1,"At start of turn, grants Atk+2 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",1,C,169,FALSE,,,,,,,,,,,Any,Any
-Atk Tactic 2,"At start of turn, grants Atk+4 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",2,C,169,FALSE,,,,,,,,,,,Any,Any
-Atk Tactic 3,"At start of turn, grants Atk+6 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",3,C,169,FALSE,,,,,,,,,,,Any,Any
-Spd Tactic 1,"At start of turn, grants Spd+2 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",1,C,170,FALSE,,,,,,,,,,,Any,Any
-Spd Tactic 2,"At start of turn, grants Spd+4 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",2,C,170,FALSE,,,,,,,,,,,Any,Any
-Spd Tactic 3,"At start of turn, grants Spd+6 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",3,C,170,FALSE,,,,,,,,,,,Any,Any
-Def Tactic 1,"At start of turn, grants Def+2 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",1,C,171,FALSE,,,,,,,,,,,Any,Any
-Def Tactic 2,"At start of turn, grants Def+4 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",2,C,171,FALSE,,,,,,,,,,,Any,Any
-Def Tactic 3,"At start of turn, grants Def+6 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",3,C,171,FALSE,,,,,,,,,,,Any,Any
-Res Tactic 1,"At start of turn, grants Res+2 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",1,C,172,FALSE,,,,,,,,,,,Any,Any
-Res Tactic 2,"At start of turn, grants Res+4 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",2,C,172,FALSE,,,,,,,,,,,Any,Any
-Res Tactic 3,"At start of turn, grants Res+6 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",3,C,172,FALSE,,,,,,,,,,,Any,Any
-Infantry Rush 1,"Infantry allies within 2 spaces gain: ""If unit's Atk ≥ foe's Atk+5, grants Special cooldown charge +1 per unit's attack. (Only highest value applied. Does not stack.)""",1,C,173,FALSE,,,,,,,,,,,Any,Any
-Infantry Rush 2,"Infantry allies within 2 spaces gain: ""If unit's Atk ≥ foe's Atk+3, grants Special cooldown charge +1 per unit's attack. (Only highest value applied. Does not stack.)""",2,C,173,FALSE,,,,,,,,,,,Any,Any
-Infantry Rush 3,"Infantry allies within 2 spaces gain: ""If unit's Atk > foe's Atk, grants Special cooldown charge +1 per unit's attack. (Only highest value applied. Does not stack.)""",3,C,173,FALSE,,,,,,,,,,,Any,Any
-Time's Pulse 1,,1,C,238,FALSE,,,,,,,,,,,Any,Any
-Time's Pulse 2,,2,C,238,FALSE,,,,,,,,,,,Any,Any
-Time's Pulse 3,,3,C,238,FALSE,,,,,,,,,,,Any,Any
-Inf. Hexblade 1,"If adjacent infantry allies use sword, lance, axe, bow, or dagger, calculates their damage using the lower of foe's Def or Res during combat. (Does not affect damage dealt by Specials that trigger before combat.)",1,C,174,FALSE,,,,,,,,,,,Any,Any
-Inf. Hexblade 2,"If adjacent infantry allies use sword, lance, axe, bow, or dagger, grants Atk/Spd+1 to those allies and calculates their damage using the lower of foe's Def or Res during combat. (Does not affect damage dealt by Specials that trigger before combat.)",2,C,174,FALSE,,,,,,,,,,,Any,Any
-Inf. Hexblade 3,"If adjacent infantry allies use sword, lance, axe, bow, or dagger, grants Atk/Spd+2 to those allies and calculates their damage using the lower of foe's Def or Res during combat. (Does not affect damage dealt by Specials that trigger before combat.)",3,C,174,FALSE,,,,,,,,,,,Any,Any
-Threaten Atk 1,"At start of turn, inflicts Atk-3 on foes within 2 spaces through their next actions.",1,C,175,FALSE,,,,,,,,,,,Any,Any
-Threaten Atk 2,"At start of turn, inflicts Atk-4 on foes within 2 spaces through their next actions.",2,C,175,FALSE,,,,,,,,,,,Any,Any
-Threaten Atk 3,"At start of turn, inflicts Atk-5 on foes within 2 spaces through their next actions.",3,C,175,FALSE,,,,,,,,,,,Any,Any
-Threaten Spd 1,"At start of turn, inflicts Spd-3 on foes within 2 spaces through their next actions.",1,C,176,FALSE,,,,,,,,,,,Any,Any
-Threaten Spd 2,"At start of turn, inflicts Spd-4 on foes within 2 spaces through their next actions.",2,C,176,FALSE,,,,,,,,,,,Any,Any
-Threaten Spd 3,"At start of turn, inflicts Spd-5 on foes within 2 spaces through their next actions.",3,C,176,FALSE,,,,,,,,,,,Any,Any
-Threaten Def 1,"At start of turn, inflicts Def-3 on foes within 2 spaces through their next actions.",1,C,177,FALSE,,,,,,,,,,,Any,Any
-Threaten Def 2,"At start of turn, inflicts Def-4 on foes within 2 spaces through their next actions.",2,C,177,FALSE,,,,,,,,,,,Any,Any
-Threaten Def 3,"At start of turn, inflicts Def-5 on foes within 2 spaces through their next actions.",3,C,177,FALSE,,,,,,,,,,,Any,Any
-Threaten Res 1,"At start of turn, inflicts Res-3 on foes within 2 spaces through their next actions.",1,C,178,FALSE,,,,,,,,,,,Any,Any
-Threaten Res 2,"At start of turn, inflicts Res-4 on foes within 2 spaces through their next actions.",2,C,178,FALSE,,,,,,,,,,,Any,Any
-Threaten Res 3,"At start of turn, inflicts Res-5 on foes within 2 spaces through their next actions.",3,C,178,FALSE,,,,,,,,,,,Any,Any
-Threat. Atk/Def 1,"At start of turn, inflicts Atk/Def-3 on foes within 2 spaces through their next actions.",2,C,179,FALSE,,,,,,,,,,,Any,Any
-Threat. Atk/Def 2,"At start of turn, inflicts Atk/Def-4 on foes within 2 spaces through their next actions.",3,C,179,FALSE,,,,,,,,,,,Any,Any
-Threat. Spd/Def 1,"At start of turn, inflicts Spd/Def-3 on foes within 2 spaces through their next actions.",2,C,180,FALSE,,,,,,,,,,,Any,Any
-Threat. Spd/Def 2,"At start of turn, inflicts Spd/Def-4 on foes within 2 spaces through their next actions.",3,C,180,FALSE,,,,,,,,,,,Any,Any
-Threat. Spd/Res 1,"At start of turn, inflicts Spd/Res-3 on foes within 2 spaces through their next actions.",2,C,181,FALSE,,,,,,,,,,,Any,Any
-Threat. Spd/Res 2,"At start of turn, inflicts Spd/Res-4 on foes within 2 spaces through their next actions.",3,C,181,FALSE,,,,,,,,,,,Any,Any
-Threat. Atk/Res 1,"At start of turn, inflicts Atk/Res-3 on foes within 2 spaces through their next actions.",2,C,182,FALSE,,,,,,,,,,,Any,Any
-Threat. Atk/Res 2,"At start of turn, inflicts Atk/Res-4 on foes within 2 spaces through their next actions.",3,C,182,FALSE,,,,,,,,,,,Any,Any
-Threat. Def/Res 1,"At start of turn, inflicts Def/Res-3 on foes within 2 spaces of unit through their next actions.",2,C,236,FALSE,,,,,,,,,,,Any,Any
-Threat. Def/Res 2,"At start of turn, inflicts Def/Res-4 on foes within 2 spaces of unit through their next actions.",3,C,236,FALSE,,,,,,,,,,,Any,Any
-Atk Ploy 1,"At start of turn, inflicts Atk-3 on foes in cardinal directions with Res < unit's Res through their next actions.",1,C,183,TRUE,atkPloyS,,,,,,,,,,Any,Any
-Atk Ploy 2,"At start of turn, inflicts Atk-4 on foes in cardinal directions with Res < unit's Res through their next actions.",2,C,183,TRUE,atkPloyS,,,,,,,,,,Any,Any
-Atk Ploy 3,"At start of turn, inflicts Atk-5 on foes in cardinal directions with Res < unit's Res through their next actions.",3,C,183,TRUE,atkPloyS,,,,,,,,,,Any,Any
-Spd Ploy 1,"At start of turn, inflicts Spd-3 on foes in cardinal directions with Res < unit's Res through their next actions.",1,C,184,FALSE,,,,,,,,,,,Any,Any
-Spd Ploy 2,"At start of turn, inflicts Spd-4 on foes in cardinal directions with Res < unit's Res through their next actions.",2,C,184,FALSE,,,,,,,,,,,Any,Any
-Spd Ploy 3,"At start of turn, inflicts Spd-5 on foes in cardinal directions with Res < unit's Res through their next actions.",3,C,184,FALSE,,,,,,,,,,,Any,Any
-Def Ploy 1,"At start of turn, inflicts Def-3 on foes in cardinal directions with Res < unit's Res through their next actions.",1,C,185,FALSE,,,,,,,,,,,Any,Any
-Def Ploy 2,"At start of turn, inflicts Def-4 on foes in cardinal directions with Res < unit's Res through their next actions.",2,C,185,FALSE,,,,,,,,,,,Any,Any
-Def Ploy 3,"At start of turn, inflicts Def-5 on foes in cardinal directions with Res < unit's Res through their next actions.",3,C,185,FALSE,,,,,,,,,,,Any,Any
-Res Ploy 1,"At start of turn, inflicts Res-3 on foes in cardinal directions with Res < unit's Res through their next actions.",1,C,186,FALSE,,,,,,,,,,,Any,Any
-Res Ploy 2,"At start of turn, inflicts Res-4 on foes in cardinal directions with Res < unit's Res through their next actions.",2,C,186,FALSE,,,,,,,,,,,Any,Any
-Res Ploy 3,"At start of turn, inflicts Res-5 on foes in cardinal directions with Res < unit's Res through their next actions.",3,C,186,FALSE,,,,,,,,,,,Any,Any
-Panic Ploy 1,"At start of turn, converts bonuses on foes in cardinal directions with HP ≤ unit's HP-5 into penalties through their next actions.",1,C,187,FALSE,,,,,,,,,,,Any,Any
-Panic Ploy 2,"At start of turn, converts bonuses on foes in cardinal directions with HP ≤ unit's HP-3 into penalties through their next actions.",2,C,187,FALSE,,,,,,,,,,,Any,Any
-Panic Ploy 3,"At start of turn, converts bonuses on foes in cardinal directions with HP < unit's HP into penalties through their next actions.",3,C,187,FALSE,,,,,,,,,,,Any,Any
-Atk Smoke 1,Inflicts Atk-3 on foes within 2 spaces of target through their next actions after combat.,1,C,188,FALSE,,,,,,,,,,,Any,Any
-Atk Smoke 2,Inflicts Atk-5 on foes within 2 spaces of target through their next actions after combat.,2,C,188,FALSE,,,,,,,,,,,Any,Any
-Atk Smoke 3,Inflicts Atk-7 on foes within 2 spaces of target through their next actions after combat.,3,C,188,FALSE,,,,,,,,,,,Any,Any
-Spd Smoke 1,Inflicts Spd-3 on foes within 2 spaces of target through their next actions after combat.,1,C,189,FALSE,,,,,,,,,,,Any,Any
-Spd Smoke 2,Inflicts Spd-5 on foes within 2 spaces of target through their next actions after combat.,2,C,189,FALSE,,,,,,,,,,,Any,Any
-Spd Smoke 3,Inflicts Spd-7 on foes within 2 spaces of target through their next actions after combat.,3,C,189,FALSE,,,,,,,,,,,Any,Any
-Def Smoke 1,Inflicts Def-3 on foes within 2 spaces of target through their next actions after combat.,1,C,190,FALSE,,,,,,,,,,,Any,Any
-Def Smoke 2,Inflicts Def-5 on foes within 2 spaces of target through their next actions after combat.,2,C,190,FALSE,,,,,,,,,,,Any,Any
-Def Smoke 3,Inflicts Def-7 on foes within 2 spaces of target through their next actions after combat.,3,C,190,FALSE,,,,,,,,,,,Any,Any
-Res Smoke 1,Inflicts Res-3 on foes within 2 spaces of target through their next actions after combat.,1,C,191,FALSE,,,,,,,,,,,Any,Any
-Res Smoke 2,Inflicts Res-5 on foes within 2 spaces of target through their next actions after combat.,2,C,191,FALSE,,,,,,,,,,,Any,Any
-Res Smoke 3,Inflicts Res-7 on foes within 2 spaces of target through their next actions after combat.,3,C,191,FALSE,,,,,,,,,,,Any,Any
-Armor March 1,"At start of turn, if unit's HP = 100% and unit is adjacent to an armored ally, unit and adjacent armored allies can move 1 extra space. (That turn only. Does not stack.)",1,C,192,FALSE,,,,,,,,,,,Any,Any
-Armor March 2,"At start of turn, if unit's HP ≥ 50% and unit is adjacent to an armored ally, unit and adjacent armored allies can move 1 extra space. (That turn only. Does not stack.)",2,C,192,FALSE,,,,,,,,,,,Any,Any
-Armor March 3,"At start of turn, if unit is adjacent to an armored ally, unit and adjacent armored allies can move 1 extra space. (That turn only. Does not stack.)",3,C,192,FALSE,,,,,,,,,,,Any,Any
-Assault Troop 1,"At start of turn, if any foe is in cardinal directions of unit, grants [Charge] to unit for 1 turn.",1,C,234,FALSE,,,,,,,,,,,Any,Any
-Assault Troop 2,"At start of turn, if any foe is within 3 columns or 3 rows centered on unit, grants [Charge] to unit for 1 turn.",2,C,234,FALSE,,,,,,,,,,,Any,Any
-Assault Troop 3,"At start of turn, if unit's HP = 100% or any foe is within 3 columns or 3 rows centered on unit, grants [Charge] to unit for 1 turn.",3,C,234,FALSE,,,,,,,,,,,Any,Any
-Guidance 1,"If unit's HP = 100%, infantry and armored allies within 2 spaces can move to a space adjacent to unit.",1,C,193,FALSE,,,,,,,,,,,Any,Any
-Guidance 2,"If unit's HP ≥ 50%, infantry and armored allies within 2 spaces can move to a space adjacent to unit.",2,C,193,FALSE,,,,,,,,,,,Any,Any
-Guidance 3,Infantry and armored allies within 2 spaces can move to a space adjacent to unit.,3,C,193,FALSE,,,,,,,,,,,Any,Any
-Flier Guidance 1,"If unit's HP = 100%, flying allies within 2 spaces can move to a space adjacent to unit.",1,C,194,FALSE,,,,,,,,,,,Any,Any
-Flier Guidance 2,"If unit's HP ≥ 50%, flying allies within 2 spaces can move to a space adjacent to unit.",2,C,194,FALSE,,,,,,,,,,,Any,Any
-Flier Guidance 3,Flying allies within 2 spaces can move to a space adjacent to unit.,3,C,194,FALSE,,,,,,,,,,,Any,Any
-Ground Orders 1,"At start of turn, if unit's HP = 100%, grants the following status to adjacent infantry, armored, and cavalry allies for 1 turn: ""Unit can move to a space adjacent to any ally within 2 spaces.""",1,C,195,FALSE,,,,,,,,,,,Any,Any
-Ground Orders 2,"At start of turn, if unit's HP ≥ 50%, grants the following status to adjacent infantry, armored, and cavalry allies for 1 turn: ""Unit can move to a space adjacent to any ally within 2 spaces.""",2,C,195,FALSE,,,,,,,,,,,Any,Any
-Ground Orders 3,"At start of turn, grants the following status to adjacent infantry, armored, and cavalry allies for 1 turn: ""Unit can move to a space adjacent to any ally within 2 spaces.""",3,C,195,FALSE,,,,,,,,,,,Any,Any
-Air Orders 1,"At start of turn, if unit's HP = 100%, grants the following status to adjacent flying allies for 1 turn: ""Unit can move to a space adjacent to any ally within 2 spaces.""",1,C,196,FALSE,,,,,,,,,,,Any,Any
-Air Orders 2,"At start of turn, if unit's HP ≥ 50%, grants the following status to adjacent flying allies for 1 turn: ""Unit can move to a space adjacent to any ally within 2 spaces.""",2,C,196,FALSE,,,,,,,,,,,Any,Any
-Air Orders 3,"At start of turn, grants the following status to adjacent flying allies for 1 turn: ""Unit can move to a space adjacent to any ally within 2 spaces.""",3,C,196,FALSE,,,,,,,,,,,Any,Any
-Odd Atk Wave 1,"At start of odd-numbered turns, grants Atk+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,197,FALSE,,,,,,,,,,,Any,Any
-Odd Atk Wave 2,"At start of odd-numbered turns, grants Atk+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,197,FALSE,,,,,,,,,,,Any,Any
-Odd Atk Wave 3,"At start of odd-numbered turns, grants Atk+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,197,FALSE,,,,,,,,,,,Any,Any
-Even Atk Wave 1,"At start of even-numbered turns, grants Atk+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,198,FALSE,,,,,,,,,,,Any,Any
-Even Atk Wave 2,"At start of even-numbered turns, grants Atk+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,198,FALSE,,,,,,,,,,,Any,Any
-Even Atk Wave 3,"At start of even-numbered turns, grants Atk+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,198,FALSE,,,,,,,,,,,Any,Any
-Odd Spd Wave 1,"At start of odd-numbered turns, grants Spd+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,199,FALSE,,,,,,,,,,,Any,Any
-Odd Spd Wave 2,"At start of odd-numbered turns, grants Spd+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,199,FALSE,,,,,,,,,,,Any,Any
-Odd Spd Wave 3,"At start of odd-numbered turns, grants Spd+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,199,FALSE,,,,,,,,,,,Any,Any
-Even Spd Wave 1,"At start of even-numbered turns, grants Spd+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,200,FALSE,,,,,,,,,,,Any,Any
-Even Spd Wave 2,"At start of even-numbered turns, grants Spd+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,200,FALSE,,,,,,,,,,,Any,Any
-Even Spd Wave 3,"At start of even-numbered turns, grants Spd+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,200,FALSE,,,,,,,,,,,Any,Any
-Odd Def Wave 1,"At start of odd-numbered turns, grants Def+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,201,FALSE,,,,,,,,,,,Any,Any
-Odd Def Wave 2,"At start of odd-numbered turns, grants Def+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,201,FALSE,,,,,,,,,,,Any,Any
-Odd Def Wave 3,"At start of odd-numbered turns, grants Def+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,201,FALSE,,,,,,,,,,,Any,Any
-Even Def Wave 1,"At start of even-numbered turns, grants Def+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,202,FALSE,,,,,,,,,,,Any,Any
-Even Def Wave 2,"At start of even-numbered turns, grants Def+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,202,FALSE,,,,,,,,,,,Any,Any
-Even Def Wave 3,"At start of even-numbered turns, grants Def+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,202,FALSE,,,,,,,,,,,Any,Any
-Odd Res Wave 1,"At start of odd-numbered turns, grants Res+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,203,FALSE,,,,,,,,,,,Any,Any
-Odd Res Wave 2,"At start of odd-numbered turns, grants Res+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,203,FALSE,,,,,,,,,,,Any,Any
-Odd Res Wave 3,"At start of odd-numbered turns, grants Res+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,203,FALSE,,,,,,,,,,,Any,Any
-Even Res Wave 1,"At start of even-numbered turns, grants Res+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,204,FALSE,,,,,,,,,,,Any,Any
-Even Res Wave 2,"At start of even-numbered turns, grants Res+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,204,FALSE,,,,,,,,,,,Any,Any
-Even Res Wave 3,"At start of even-numbered turns, grants Res+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,204,FALSE,,,,,,,,,,,Any,Any
-Atk Opening 1,"At start of turn, grants Atk+2 to ally with the highest Atk for 1 turn. (Excludes unit.)",1,C,205,FALSE,,,,,,,,,,,Any,Any
-Atk Opening 2,"At start of turn, grants Atk+4 to ally with the highest Atk for 1 turn. (Excludes unit.)",2,C,205,FALSE,,,,,,,,,,,Any,Any
-Atk Opening 3,"At start of turn, grants Atk+6 to ally with the highest Atk for 1 turn. (Excludes unit.)",3,C,205,FALSE,,,,,,,,,,,Any,Any
-Spd Opening 1,"At start of turn, grants Spd+2 to ally with the highest Atk for 1 turn. (Excludes unit.)",1,C,206,FALSE,,,,,,,,,,,Any,Any
-Spd Opening 2,"At start of turn, grants Spd+4 to ally with the highest Atk for 1 turn. (Excludes unit.)",2,C,206,FALSE,,,,,,,,,,,Any,Any
-Spd Opening 3,"At start of turn, grants Spd+6 to ally with the highest Atk for 1 turn. (Excludes unit.)",3,C,206,FALSE,,,,,,,,,,,Any,Any
-Def Opening 1,"At start of turn, grants Def+2 to ally with the highest Atk for 1 turn. (Excludes unit.)",1,C,207,FALSE,,,,,,,,,,,Any,Any
-Def Opening 2,"At start of turn, grants Def+4 to ally with the highest Atk for 1 turn. (Excludes unit.)",2,C,207,FALSE,,,,,,,,,,,Any,Any
-Def Opening 3,"At start of turn, grants Def+6 to ally with the highest Atk for 1 turn. (Excludes unit.)",3,C,207,FALSE,,,,,,,,,,,Any,Any
-Res Opening 1,"At start of turn, grants Res+2 to ally with the highest Atk for 1 turn. (Excludes unit.)",1,C,208,FALSE,,,,,,,,,,,Any,Any
-Res Opening 2,"At start of turn, grants Res+4 to ally with the highest Atk for 1 turn. (Excludes unit.)",2,C,208,FALSE,,,,,,,,,,,Any,Any
-Res Opening 3,"At start of turn, grants Res+6 to ally with the highest Atk for 1 turn. (Excludes unit.)",3,C,208,FALSE,,,,,,,,,,,Any,Any
-Rouse Atk/Spd 1,"At start of turn, if unit is not adjacent to an ally, grants Atk/Spd+2 to unit for 1 turn.",1,C,230,FALSE,,,,,,,,,,,Any,Any
-Rouse Atk/Spd 2,"At start of turn, if unit is not adjacent to an ally, grants Atk/Spd+4 to unit for 1 turn.",2,C,230,FALSE,,,,,,,,,,,Any,Any
-Rouse Atk/Spd 3,"At start of turn, if unit is not adjacent to an ally, grants Atk/Spd+6 to unit for 1 turn.",3,C,230,FALSE,,,,,,,,,,,Any,Any
-Rouse Atk/Def 1,"At start of turn, if unit is not adjacent to an ally, grants Atk/Def+2 to unit for 1 turn.",1,C,209,FALSE,,,,,,,,,,,Any,Any
-Rouse Atk/Def 2,"At start of turn, if unit is not adjacent to an ally, grants Atk/Def+4 to unit for 1 turn.",2,C,209,FALSE,,,,,,,,,,,Any,Any
-Rouse Atk/Def 3,"At start of turn, if unit is not adjacent to an ally, grants Atk/Def+6 to unit for 1 turn.",3,C,209,FALSE,,,,,,,,,,,Any,Any
-Rouse Spd/Def 1,"At start of turn, if unit is not adjacent to an ally, grants Spd/Def+2 to unit for 1 turn.",1,C,210,FALSE,,,,,,,,,,,Any,Any
-Rouse Spd/Def 2,"At start of turn, if unit is not adjacent to an ally, grants Spd/Def+4 to unit for 1 turn.",2,C,210,FALSE,,,,,,,,,,,Any,Any
-Rouse Spd/Res 3,"At start of turn, if unit is not adjacent to an ally, grants Spd/Def+6 to unit for 1 turn.",3,C,210,FALSE,,,,,,,,,,,Any,Any
-Rouse Def/Res 1,"At start of turn, if unit is not adjacent to an ally, grants Def/Res+2 to unit for 1 turn.",1,C,211,FALSE,,,,,,,,,,,Any,Any
-Rouse Def/Res 2,"At start of turn, if unit is not adjacent to an ally, grants Def/Res+4 to unit for 1 turn.",2,C,211,FALSE,,,,,,,,,,,Any,Any
-Rouse Def/Res 3,"At start of turn, if unit is not adjacent to an ally, grants Def/Res+6 to unit for 1 turn.",3,C,211,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Oath 1,"At start of turn, if unit is adjacent to an ally, grants Atk/Spd+3 to unit for 1 turn.",1,C,212,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Oath 2,"At start of turn, if unit is adjacent to an ally, grants Atk/Spd+4 to unit for 1 turn.",2,C,212,FALSE,,,,,,,,,,,Any,Any
-Atk/Spd Oath 3,"At start of turn, if unit is adjacent to an ally, grants Atk/Spd+5 to unit for 1 turn.",3,C,212,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Oath 1,"At start of turn, if unit is adjacent to an ally, grants Atk/Def+3 to unit for 1 turn.",1,C,213,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Oath 2,"At start of turn, if unit is adjacent to an ally, grants Atk/Def+4 to unit for 1 turn.",2,C,213,FALSE,,,,,,,,,,,Any,Any
-Atk/Def Oath 3,"At start of turn, if unit is adjacent to an ally, grants Atk/Def+5 to unit for 1 turn.",3,C,213,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Oath 1,"At start of turn, if unit is adjacent to an ally, grants Atk/Res+3 to unit for 1 turn.",1,C,214,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Oath 2,"At start of turn, if unit is adjacent to an ally, grants Atk/Res+4 to unit for 1 turn.",2,C,214,FALSE,,,,,,,,,,,Any,Any
-Atk/Res Oath 3,"At start of turn, if unit is adjacent to an ally, grants Atk/Res+5 to unit for 1 turn.",3,C,214,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Oath 1,"At start of turn, if unit is adjacent to an ally, grants Spd/Def+3 to unit for 1 turn.",1,C,229,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Oath 2,"At start of turn, if unit is adjacent to an ally, grants Spd/Def+4 to unit for 1 turn.",2,C,229,FALSE,,,,,,,,,,,Any,Any
-Spd/Def Oath 3,"At start of turn, if unit is adjacent to an ally, grants Spd/Def+5 to unit for 1 turn.",3,C,229,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Oath 1,"At start of turn, if unit is adjacent to an ally, grants Spd/Res+3 to unit for 1 turn.",1,C,215,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Oath 2,"At start of turn, if unit is adjacent to an ally, grants Spd/Res+4 to unit for 1 turn.",2,C,215,FALSE,,,,,,,,,,,Any,Any
-Spd/Res Oath 3,"At start of turn, if unit is adjacent to an ally, grants Spd/Res+5 to unit for 1 turn.",3,C,215,FALSE,,,,,,,,,,,Any,Any
-Odd Tempest 1,"At start of odd-numbered turns, if unit's HP = 100%, unit can move 1 extra space. (That turn only. Does not stack.)",1,C,216,FALSE,,,,,,,,,,,Any,Any
-Odd Tempest 2,"At start of odd-numbered turns, if unit's HP ≥ 50%, unit can move 1 extra space. (That turn only. Does not stack.)",2,C,216,FALSE,,,,,,,,,,,Any,Any
-Odd Tempest 3,"At start of odd-numbered turns, unit can move 1 extra space. (That turn only. Does not stack.)",3,C,216,FALSE,,,,,,,,,,,Any,Any
-Even Tempest 1,"At start of even-numbered turns, if unit's HP = 100%, unit can move 1 extra space. (That turn only. Does not stack.)",1,C,217,FALSE,,,,,,,,,,,Any,Any
-Even Tempest 2,"At start of even-numbered turns, if unit's HP ≥ 50%, unit can move 1 extra space. (That turn only. Does not stack.)",2,C,217,FALSE,,,,,,,,,,,Any,Any
-Even Tempest 3,"At start of even-numbered turns, unit can move 1 extra space. (That turn only. Does not stack.)",3,C,217,FALSE,,,,,,,,,,,Any,Any
+Drive Atk 1,Grants Atk+2 to allies within 2 spaces during combat.,2,C,148,TRUE,driveAtk,2,,,,,,,,,Any,Any
+Drive Atk 2,Grants Atk+3 to allies within 2 spaces during combat.,3,C,148,TRUE,driveAtk,3,,,,,,,,,Any,Any
+Drive Spd 1,Grants Spd+2 to allies within 2 spaces during combat.,2,C,149,TRUE,driveSpd,2,,,,,,,,,Any,Any
+Drive Spd 2,Grants Spd+3 to allies within 2 spaces during combat.,3,C,149,TRUE,driveSpd,3,,,,,,,,,Any,Any
+Drive Def 1,Grants Def+2 to allies within 2 spaces during combat.,2,C,150,TRUE,driveDef,2,,,,,,,,,Any,Any
+Drive Def 2,Grants Def+3 to allies within 2 spaces during combat.,3,C,150,TRUE,driveDef,3,,,,,,,,,Any,Any
+Drive Res 1,Grants Res+2 to allies within 2 spaces during combat.,2,C,151,TRUE,driveRes,2,,,,,,,,,Any,Any
+Drive Res 2,Grants Res+3 to allies within 2 spaces during combat.,3,C,151,TRUE,driveRes,3,,,,,,,,,Any,Any
+Close Guard 1,"Allies within 2 spaces gain: ""If foe uses sword, lance, axe, dragonstone, or beast damage, grants Def/Res+2 during combat.""",1,C,152,TRUE,closeGuard,2,,,,,,,,,Any,Any
+Close Guard 2,"Allies within 2 spaces gain: ""If foe uses sword, lance, axe, dragonstone, or beast damage, grants Def/Res+3 during combat.""",2,C,152,TRUE,closeGuard,3,,,,,,,,,Any,Any
+Close Guard 3,"Allies within 2 spaces gain: ""If foe uses sword, lance, axe, dragonstone, or beast damage, grants Def/Res+4 during combat.""",3,C,152,TRUE,closeGuard,4,,,,,,,,,Any,Any
+Distant Guard 1,"Allies within 2 spaces gain: ""If foe uses bow, dagger, magic, or staff, grants Def/Res+2 during combat.""",1,C,153,TRUE,distGuard,2,,,,,,,,,Any,Any
+Distant Guard 2,"Allies within 2 spaces gain: ""If foe uses bow, dagger, magic, or staff, grants Def/Res+3 during combat.""",2,C,153,TRUE,distGuard,3,,,,,,,,,Any,Any
+Distant Guard 3,"Allies within 2 spaces gain: ""If foe uses bow, dagger, magic, or staff, grants Def/Res+4 during combat.""",3,C,153,TRUE,distGuard,4,,,,,,,,,Any,Any
+Goad Dragons,Grants Atk/Spd+4 to dragon allies within 2 spaces during combat.,1,C,154,TRUE,goadDragon,4,,,,,,,,,Any,NotDragon
+Goad Beasts,Grants Atk/Spd+4 to beast allies within 2 spaces during combat.,1,C,155,TRUE,goadBeast,4,,,,,,,,,Any,NotBeast
+Ward Dragons,Grants Def/Res+4 to dragon allies within 2 spaces during combat.,1,C,156,TRUE,wardDragon,4,,,,,,,,,Any,NotDragon
+Ward Beasts,Grants Def/Res+4 to beast allies within 2 spaces during combat.,1,C,157,TRUE,wardBeast,4,,,,,,,,,Any,NotBeast
+Atk/Spd Rein 1,Inflicts Atk/Spd-2 on foes within 2 spaces during combat.,1,C,158,TRUE,atkRein,2,spdRein,2,,,,,,,Inf-Armor-Cav,Any
+Atk/Spd Rein 2,Inflicts Atk/Spd-3 on foes within 2 spaces during combat.,2,C,158,TRUE,atkRein,3,spdRein,3,,,,,,,Inf-Armor-Cav,Any
+Atk/Spd Rein 3,Inflicts Atk/Spd-4 on foes within 2 spaces during combat.,3,C,158,TRUE,atkRein,4,spdRein,4,,,,,,,Inf-Armor-Cav,Any
+Atk/Res Rein 1,Inflicts Atk/Res-2 on foes within 2 spaces during combat.,1,C,159,TRUE,atkRein,2,resRein,2,,,,,,,Inf-Armor-Cav,Any
+Atk/Res Rein 2,Inflicts Atk/Res-3 on foes within 2 spaces during combat.,2,C,159,TRUE,atkRein,3,resRein,3,,,,,,,Inf-Armor-Cav,Any
+Atk/Res Rein 3,Inflicts Atk/Res-4 on foes within 2 spaces during combat.,3,C,159,TRUE,atkRein,4,resRein,4,,,,,,,Inf-Armor-Cav,Any
+Spd/Def Rein 1,Inflicts Spd/Res-2 on foes within 2 spaces during combat.,1,C,160,TRUE,spdRein,2,defRein,2,,,,,,,Inf-Armor-Cav,Any
+Spd/Def Rein 2,Inflicts Spd/Res-3 on foes within 2 spaces during combat.,2,C,160,TRUE,spdRein,3,defRein,3,,,,,,,Inf-Armor-Cav,Any
+Spd/Def Rein 3,Inflicts Spd/Res-4 on foes within 2 spaces during combat.,3,C,160,TRUE,spdRein,4,defRein,4,,,,,,,Inf-Armor-Cav,Any
+Hone Atk 1,"At start of turn, grants Atk+2 to adjacent allies for 1 turn.",1,C,161,TRUE,honeAtkSe,2,,,,,,,,,Any,Any
+Hone Atk 2,"At start of turn, grants Atk+3 to adjacent allies for 1 turn.",2,C,161,TRUE,honeAtkSe,3,,,,,,,,,Any,Any
+Hone Atk 3,"At start of turn, grants Atk+4 to adjacent allies for 1 turn.",3,C,161,TRUE,honeAtkSe,4,,,,,,,,,Any,Any
+Hone Spd 1,"At start of turn, grants Spd+2 to adjacent allies for 1 turn.",1,C,162,TRUE,honeSpdSe,2,,,,,,,,,Any,Any
+Hone Spd 2,"At start of turn, grants Spd+3 to adjacent allies for 1 turn.",2,C,162,TRUE,honeSpdSe,3,,,,,,,,,Any,Any
+Hone Spd 3,"At start of turn, grants Spd+4 to adjacent allies for 1 turn.",3,C,162,TRUE,honeSpdSe,4,,,,,,,,,Any,Any
+Fortify Def 1,"At start of turn, grants Def+2 to adjacent allies for 1 turn.",1,C,163,TRUE,fortifyDefSe,2,,,,,,,,,Any,Any
+Fortify Def 2,"At start of turn, grants Def+3 to adjacent allies for 1 turn.",2,C,163,TRUE,fortifyDefSe,3,,,,,,,,,Any,Any
+Fortify Def 3,"At start of turn, grants Def+4 to adjacent allies for 1 turn.",3,C,163,TRUE,fortifyDefSe,4,,,,,,,,,Any,Any
+Fortify Res 1,"At start of turn, grants Res+2 to adjacent allies for 1 turn.",1,C,164,TRUE,fortifyResSe,2,,,,,,,,,Any,Any
+Fortify Res 2,"At start of turn, grants Res+3 to adjacent allies for 1 turn.",2,C,164,TRUE,fortifyResSe,3,,,,,,,,,Any,Any
+Fortify Res 3,"At start of turn, grants Res+4 to adjacent allies for 1 turn.",3,C,164,TRUE,fortifyResSe,4,,,,,,,,,Any,Any
+Hone Dragons,"At start of turn, grants Atk/Spd+6 to adjacent dragon allies for 1 turn.",1,C,165,TRUE,honedragon,6,,,,,,,,,Any,NotDragon
+Fortify Dragons,"At start of turn, grants Def/Res+6 to adjacent dragon allies for 1 turn.",1,C,166,TRUE,fortidragon,6,,,,,,,,,Any,NotDragon
+Hone Beasts,"At start of turn, grants Atk/Spd+6 to adjacent beast allies for 1 turn.",1,C,167,TRUE,honebeast,6,,,,,,,,,Any,NotBeast
+Fortify Beasts,"At start of turn, grants Def/Res+6 to adjacent beast allies for 1 turn.",1,C,168,TRUE,fortibeast,6,,,,,,,,,Any,NotBeast
+Atk Tactic 1,"At start of turn, grants Atk+2 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",1,C,169,TRUE,atkTacticSe,1,,,,,,,,,Any,Any
+Atk Tactic 2,"At start of turn, grants Atk+4 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",2,C,169,TRUE,atkTacticSe,2,,,,,,,,,Any,Any
+Atk Tactic 3,"At start of turn, grants Atk+6 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",3,C,169,TRUE,atkTacticSe,3,,,,,,,,,Any,Any
+Spd Tactic 1,"At start of turn, grants Spd+2 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",1,C,170,TRUE,spdTacticSe,1,,,,,,,,,Any,Any
+Spd Tactic 2,"At start of turn, grants Spd+4 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",2,C,170,TRUE,spdTacticSe,2,,,,,,,,,Any,Any
+Spd Tactic 3,"At start of turn, grants Spd+6 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",3,C,170,TRUE,spdTacticSe,3,,,,,,,,,Any,Any
+Def Tactic 1,"At start of turn, grants Def+2 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",1,C,171,TRUE,defTacticSe,1,,,,,,,,,Any,Any
+Def Tactic 2,"At start of turn, grants Def+4 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",2,C,171,TRUE,defTacticSe,2,,,,,,,,,Any,Any
+Def Tactic 3,"At start of turn, grants Def+6 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",3,C,171,TRUE,defTacticSe,3,,,,,,,,,Any,Any
+Res Tactic 1,"At start of turn, grants Res+2 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",1,C,172,TRUE,resTacticSe,1,,,,,,,,,Any,Any
+Res Tactic 2,"At start of turn, grants Res+4 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",2,C,172,TRUE,resTacticSe,2,,,,,,,,,Any,Any
+Res Tactic 3,"At start of turn, grants Res+6 to allies within 2 spaces for 1 turn. Granted only if number of that ally's movement type on current team ≤ 2.",3,C,172,TRUE,resTacticSe,3,,,,,,,,,Any,Any
+Infantry Rush 1,"Infantry allies within 2 spaces gain: ""If unit's Atk ≥ foe's Atk+5, grants Special cooldown charge +1 per unit's attack. (Only highest value applied. Does not stack.)""",1,C,173,TRUE,infantryRushSe,1,,,,,,,,,Fly-Cav-Armor,Any
+Infantry Rush 2,"Infantry allies within 2 spaces gain: ""If unit's Atk ≥ foe's Atk+3, grants Special cooldown charge +1 per unit's attack. (Only highest value applied. Does not stack.)""",2,C,173,TRUE,infantryRushSe,2,,,,,,,,,Fly-Cav-Armor,Any
+Infantry Rush 3,"Infantry allies within 2 spaces gain: ""If unit's Atk > foe's Atk, grants Special cooldown charge +1 per unit's attack. (Only highest value applied. Does not stack.)""",3,C,173,TRUE,infantryRushSe,3,,,,,,,,,Fly-Cav-Armor,Any
+Time's Pulse 1,"At the start of every third turn, if Special cooldown count is at its maximum value, grants Special cooldown count-1.",1,C,238,TRUE,timesPulseSe,1,,,,,,,,,Fly-Cav-Armor,Any
+Time's Pulse 2,"At start of odd-numbered turns, if Special cooldown count is at its maximum value, grants Special cooldown count-1.",2,C,238,TRUE,timesPulseSe,2,,,,,,,,,Fly-Cav-Armor,Any
+Time's Pulse 3,"At start of turn, if Special cooldown count is at its maximum value, grants Special cooldown count-1.",3,C,238,TRUE,timesPulseSe,3,,,,,,,,,Fly-Cav-Armor,Any
+Inf. Hexblade 1,"If adjacent infantry allies use sword, lance, axe, bow, or dagger, calculates their damage using the lower of foe's Def or Res during combat. (Does not affect damage dealt by Specials that trigger before combat.)",1,C,174,TRUE,infHexblade,0,,,,,,,,,Armor-Cav-Fly,NotMagic
+Inf. Hexblade 2,"If adjacent infantry allies use sword, lance, axe, bow, or dagger, grants Atk/Spd+1 to those allies and calculates their damage using the lower of foe's Def or Res during combat. (Does not affect damage dealt by Specials that trigger before combat.)",2,C,174,TRUE,infHexblade,1,,,,,,,,,Armor-Cav-Fly,NotMagic
+Inf. Hexblade 3,"If adjacent infantry allies use sword, lance, axe, bow, or dagger, grants Atk/Spd+2 to those allies and calculates their damage using the lower of foe's Def or Res during combat. (Does not affect damage dealt by Specials that trigger before combat.)",3,C,174,TRUE,infHexblade,2,,,,,,,,,Armor-Cav-Fly,NotMagic
+Threaten Atk 1,"At start of turn, inflicts Atk-3 on foes within 2 spaces through their next actions.",1,C,175,TRUE,threatenAtkSe,3,,,,,,,,,Any,Any
+Threaten Atk 2,"At start of turn, inflicts Atk-4 on foes within 2 spaces through their next actions.",2,C,175,TRUE,threatenAtkSe,4,,,,,,,,,Any,Any
+Threaten Atk 3,"At start of turn, inflicts Atk-5 on foes within 2 spaces through their next actions.",3,C,175,TRUE,threatenAtkSe,5,,,,,,,,,Any,Any
+Threaten Spd 1,"At start of turn, inflicts Spd-3 on foes within 2 spaces through their next actions.",1,C,176,TRUE,threatenSpdSe,3,,,,,,,,,Any,Any
+Threaten Spd 2,"At start of turn, inflicts Spd-4 on foes within 2 spaces through their next actions.",2,C,176,TRUE,threatenSpdSe,4,,,,,,,,,Any,Any
+Threaten Spd 3,"At start of turn, inflicts Spd-5 on foes within 2 spaces through their next actions.",3,C,176,TRUE,threatenSpdSe,5,,,,,,,,,Any,Any
+Threaten Def 1,"At start of turn, inflicts Def-3 on foes within 2 spaces through their next actions.",1,C,177,TRUE,threatenDefSe,3,,,,,,,,,Any,Any
+Threaten Def 2,"At start of turn, inflicts Def-4 on foes within 2 spaces through their next actions.",2,C,177,TRUE,threatenDefSe,4,,,,,,,,,Any,Any
+Threaten Def 3,"At start of turn, inflicts Def-5 on foes within 2 spaces through their next actions.",3,C,177,TRUE,threatenDefSe,5,,,,,,,,,Any,Any
+Threaten Res 1,"At start of turn, inflicts Res-3 on foes within 2 spaces through their next actions.",1,C,178,TRUE,threatenResSe,3,,,,,,,,,Any,Any
+Threaten Res 2,"At start of turn, inflicts Res-4 on foes within 2 spaces through their next actions.",2,C,178,TRUE,threatenResSe,4,,,,,,,,,Any,Any
+Threaten Res 3,"At start of turn, inflicts Res-5 on foes within 2 spaces through their next actions.",3,C,178,TRUE,threatenResSe,5,,,,,,,,,Any,Any
+Threat. Atk/Def 1,"At start of turn, inflicts Atk/Def-3 on foes within 2 spaces through their next actions.",2,C,179,TRUE,threatenAtkSe,3,threatenDefSe,3,,,,,,,Any,Any
+Threat. Atk/Def 2,"At start of turn, inflicts Atk/Def-4 on foes within 2 spaces through their next actions.",3,C,179,TRUE,threatenAtkSe,4,threatenDefSe,4,,,,,,,Any,Any
+Threat. Spd/Def 1,"At start of turn, inflicts Spd/Def-3 on foes within 2 spaces through their next actions.",2,C,180,TRUE,threatenSpdSe,3,threatenDefSe,3,,,,,,,Any,Any
+Threat. Spd/Def 2,"At start of turn, inflicts Spd/Def-4 on foes within 2 spaces through their next actions.",3,C,180,TRUE,threatenSpdSe,4,threatenDefSe,4,,,,,,,Any,Any
+Threat. Spd/Res 1,"At start of turn, inflicts Spd/Res-3 on foes within 2 spaces through their next actions.",2,C,181,TRUE,threatenSpdSe,3,threatenResSe,3,,,,,,,Any,Any
+Threat. Spd/Res 2,"At start of turn, inflicts Spd/Res-4 on foes within 2 spaces through their next actions.",3,C,181,TRUE,threatenSpdSe,4,threatenResSe,4,,,,,,,Any,Any
+Threat. Atk/Res 1,"At start of turn, inflicts Atk/Res-3 on foes within 2 spaces through their next actions.",2,C,182,TRUE,threatenAtkSe,3,threatenResSe,3,,,,,,,Any,Any
+Threat. Atk/Res 2,"At start of turn, inflicts Atk/Res-4 on foes within 2 spaces through their next actions.",3,C,182,TRUE,threatenAtkSe,4,threatenResSe,4,,,,,,,Any,Any
+Threat. Def/Res 1,"At start of turn, inflicts Def/Res-3 on foes within 2 spaces of unit through their next actions.",2,C,236,TRUE,threatenDefSe,3,threatenResSe,3,,,,,,,Any,Any
+Threat. Def/Res 2,"At start of turn, inflicts Def/Res-4 on foes within 2 spaces of unit through their next actions.",3,C,236,TRUE,threatenDefSe,4,threatenResSe,4,,,,,,,Any,Any
+Atk Ploy 1,"At start of turn, inflicts Atk-3 on foes in cardinal directions with Res < unit's Res through their next actions.",1,C,183,TRUE,atkPloyS,3,,,,,,,,,Any,Any
+Atk Ploy 2,"At start of turn, inflicts Atk-4 on foes in cardinal directions with Res < unit's Res through their next actions.",2,C,183,TRUE,atkPloyS,4,,,,,,,,,Any,Any
+Atk Ploy 3,"At start of turn, inflicts Atk-5 on foes in cardinal directions with Res < unit's Res through their next actions.",3,C,183,TRUE,atkPloyS,5,,,,,,,,,Any,Any
+Spd Ploy 1,"At start of turn, inflicts Spd-3 on foes in cardinal directions with Res < unit's Res through their next actions.",1,C,184,TRUE,spdPloyS,3,,,,,,,,,Any,Any
+Spd Ploy 2,"At start of turn, inflicts Spd-4 on foes in cardinal directions with Res < unit's Res through their next actions.",2,C,184,TRUE,spdPloyS,4,,,,,,,,,Any,Any
+Spd Ploy 3,"At start of turn, inflicts Spd-5 on foes in cardinal directions with Res < unit's Res through their next actions.",3,C,184,TRUE,spdPloyS,5,,,,,,,,,Any,Any
+Def Ploy 1,"At start of turn, inflicts Def-3 on foes in cardinal directions with Res < unit's Res through their next actions.",1,C,185,TRUE,defPloyS,3,,,,,,,,,Any,Any
+Def Ploy 2,"At start of turn, inflicts Def-4 on foes in cardinal directions with Res < unit's Res through their next actions.",2,C,185,TRUE,defPloyS,4,,,,,,,,,Any,Any
+Def Ploy 3,"At start of turn, inflicts Def-5 on foes in cardinal directions with Res < unit's Res through their next actions.",3,C,185,TRUE,defPloyS,5,,,,,,,,,Any,Any
+Res Ploy 1,"At start of turn, inflicts Res-3 on foes in cardinal directions with Res < unit's Res through their next actions.",1,C,186,TRUE,resPloyS,3,,,,,,,,,Any,Any
+Res Ploy 2,"At start of turn, inflicts Res-4 on foes in cardinal directions with Res < unit's Res through their next actions.",2,C,186,TRUE,resPloyS,4,,,,,,,,,Any,Any
+Res Ploy 3,"At start of turn, inflicts Res-5 on foes in cardinal directions with Res < unit's Res through their next actions.",3,C,186,TRUE,resPloyS,5,,,,,,,,,Any,Any
+Panic Ploy 1,"At start of turn, converts bonuses on foes in cardinal directions with HP ≤ unit's HP-5 into penalties through their next actions.",1,C,187,TRUE,panicPloySe,1,,,,,,,,,Any,Any
+Panic Ploy 2,"At start of turn, converts bonuses on foes in cardinal directions with HP ≤ unit's HP-3 into penalties through their next actions.",2,C,187,TRUE,panicPloySe,2,,,,,,,,,Any,Any
+Panic Ploy 3,"At start of turn, converts bonuses on foes in cardinal directions with HP < unit's HP into penalties through their next actions.",3,C,187,TRUE,panicPloySe,3,,,,,,,,,Any,Any
+Atk Smoke 1,Inflicts Atk-3 on foes within 2 spaces of target through their next actions after combat.,1,C,188,TRUE,atkSmokeSe,3,,,,,,,,,Any,Staff
+Atk Smoke 2,Inflicts Atk-5 on foes within 2 spaces of target through their next actions after combat.,2,C,188,TRUE,atkSmokeSe,5,,,,,,,,,Any,Staff
+Atk Smoke 3,Inflicts Atk-7 on foes within 2 spaces of target through their next actions after combat.,3,C,188,TRUE,atkSmokeSe,7,,,,,,,,,Any,Staff
+Spd Smoke 1,Inflicts Spd-3 on foes within 2 spaces of target through their next actions after combat.,1,C,189,TRUE,spdSmokeSe,3,,,,,,,,,Any,Staff
+Spd Smoke 2,Inflicts Spd-5 on foes within 2 spaces of target through their next actions after combat.,2,C,189,TRUE,spdSmokeSe,5,,,,,,,,,Any,Staff
+Spd Smoke 3,Inflicts Spd-7 on foes within 2 spaces of target through their next actions after combat.,3,C,189,TRUE,spdSmokeSe,7,,,,,,,,,Any,Staff
+Def Smoke 1,Inflicts Def-3 on foes within 2 spaces of target through their next actions after combat.,1,C,190,TRUE,defSmokeSe,3,,,,,,,,,Any,Staff
+Def Smoke 2,Inflicts Def-5 on foes within 2 spaces of target through their next actions after combat.,2,C,190,TRUE,defSmokeSe,5,,,,,,,,,Any,Staff
+Def Smoke 3,Inflicts Def-7 on foes within 2 spaces of target through their next actions after combat.,3,C,190,TRUE,defSmokeSe,7,,,,,,,,,Any,Staff
+Res Smoke 1,Inflicts Res-3 on foes within 2 spaces of target through their next actions after combat.,1,C,191,TRUE,resSmokeSe,3,,,,,,,,,Any,Staff
+Res Smoke 2,Inflicts Res-5 on foes within 2 spaces of target through their next actions after combat.,2,C,191,TRUE,resSmokeSe,5,,,,,,,,,Any,Staff
+Res Smoke 3,Inflicts Res-7 on foes within 2 spaces of target through their next actions after combat.,3,C,191,TRUE,resSmokeSe,7,,,,,,,,,Any,Staff
+Armor March 1,"At start of turn, if unit's HP = 100% and unit is adjacent to an armored ally, unit and adjacent armored allies can move 1 extra space. (That turn only. Does not stack.)",1,C,192,TRUE,armorMarchSe,1,,,,,,,,,Fly-Inf-Cav,Any
+Armor March 2,"At start of turn, if unit's HP ≥ 50% and unit is adjacent to an armored ally, unit and adjacent armored allies can move 1 extra space. (That turn only. Does not stack.)",2,C,192,TRUE,armorMarchSe,2,,,,,,,,,Fly-Inf-Cav,Any
+Armor March 3,"At start of turn, if unit is adjacent to an armored ally, unit and adjacent armored allies can move 1 extra space. (That turn only. Does not stack.)",3,C,192,TRUE,armorMarchSe,3,,,,,,,,,Fly-Inf-Cav,Any
+Assault Troop 1,"At start of turn, if any foe is in cardinal directions of unit, grants [Charge] to unit for 1 turn.",1,C,234,TRUE,assaultTroopSe,1,,,,,,,,,Any,NotSwordLanceAxe
+Assault Troop 2,"At start of turn, if any foe is within 3 columns or 3 rows centered on unit, grants [Charge] to unit for 1 turn.",2,C,234,TRUE,assaultTroopSe,2,,,,,,,,,Any,NotSwordLanceAxe
+Assault Troop 3,"At start of turn, if unit's HP = 100% or any foe is within 3 columns or 3 rows centered on unit, grants [Charge] to unit for 1 turn.",3,C,234,TRUE,assaultTroopSe,3,,,,,,,,,Any,NotSwordLanceAxe
+Guidance 1,"If unit's HP = 100%, infantry and armored allies within 2 spaces can move to a space adjacent to unit.",1,C,193,TRUE,guidanceSe,1,,,,,,,,,Inf-Cav-Armor,Any
+Guidance 2,"If unit's HP ≥ 50%, infantry and armored allies within 2 spaces can move to a space adjacent to unit.",2,C,193,TRUE,guidanceSe,2,,,,,,,,,Inf-Cav-Armor,Any
+Guidance 3,Infantry and armored allies within 2 spaces can move to a space adjacent to unit.,3,C,193,TRUE,guidanceSe,3,,,,,,,,,Inf-Cav-Armor,Any
+Flier Guidance 1,"If unit's HP = 100%, flying allies within 2 spaces can move to a space adjacent to unit.",1,C,194,TRUE,flier_guidanceSe,1,,,,,,,,,Inf-Cav-Armor,Any
+Flier Guidance 2,"If unit's HP ≥ 50%, flying allies within 2 spaces can move to a space adjacent to unit.",2,C,194,TRUE,flier_guidanceSe,2,,,,,,,,,Inf-Cav-Armor,Any
+Flier Guidance 3,Flying allies within 2 spaces can move to a space adjacent to unit.,3,C,194,TRUE,flier_guidanceSe,3,,,,,,,,,Inf-Cav-Armor,Any
+Ground Orders 1,"At start of turn, if unit's HP = 100%, grants the following status to adjacent infantry, armored, and cavalry allies for 1 turn: ""Unit can move to a space adjacent to any ally within 2 spaces.""",1,C,195,TRUE,ground_ordersSe,1,,,,,,,,,Inf-Cav-Armor,Any
+Ground Orders 2,"At start of turn, if unit's HP ≥ 50%, grants the following status to adjacent infantry, armored, and cavalry allies for 1 turn: ""Unit can move to a space adjacent to any ally within 2 spaces.""",2,C,195,TRUE,ground_ordersSe,2,,,,,,,,,Inf-Cav-Armor,Any
+Ground Orders 3,"At start of turn, grants the following status to adjacent infantry, armored, and cavalry allies for 1 turn: ""Unit can move to a space adjacent to any ally within 2 spaces.""",3,C,195,TRUE,ground_ordersSe,3,,,,,,,,,Inf-Cav-Armor,Any
+Air Orders 1,"At start of turn, if unit's HP = 100%, grants the following status to adjacent flying allies for 1 turn: ""Unit can move to a space adjacent to any ally within 2 spaces.""",1,C,196,TRUE,air_ordersSe,1,,,,,,,,,Inf-Cav-Armor,Any
+Air Orders 2,"At start of turn, if unit's HP ≥ 50%, grants the following status to adjacent flying allies for 1 turn: ""Unit can move to a space adjacent to any ally within 2 spaces.""",2,C,196,TRUE,air_ordersSe,2,,,,,,,,,Inf-Cav-Armor,Any
+Air Orders 3,"At start of turn, grants the following status to adjacent flying allies for 1 turn: ""Unit can move to a space adjacent to any ally within 2 spaces.""",3,C,196,TRUE,air_ordersSe,3,,,,,,,,,Inf-Cav-Armor,Any
+Odd Atk Wave 1,"At start of odd-numbered turns, grants Atk+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,197,TRUE,oddAtkWaveSe,2,,,,,,,,,Any,Any
+Odd Atk Wave 2,"At start of odd-numbered turns, grants Atk+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,197,TRUE,oddAtkWaveSe,4,,,,,,,,,Any,Any
+Odd Atk Wave 3,"At start of odd-numbered turns, grants Atk+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,197,TRUE,oddAtkWaveSe,6,,,,,,,,,Any,Any
+Even Atk Wave 1,"At start of even-numbered turns, grants Atk+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,198,TRUE,evenAtkWaveSe,2,,,,,,,,,Any,Any
+Even Atk Wave 2,"At start of even-numbered turns, grants Atk+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,198,TRUE,evenAtkWaveSe,4,,,,,,,,,Any,Any
+Even Atk Wave 3,"At start of even-numbered turns, grants Atk+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,198,TRUE,evenAtkWaveSe,6,,,,,,,,,Any,Any
+Odd Spd Wave 1,"At start of odd-numbered turns, grants Spd+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,199,TRUE,oddSpdWaveSe,2,,,,,,,,,Any,Any
+Odd Spd Wave 2,"At start of odd-numbered turns, grants Spd+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,199,TRUE,oddSpdWaveSe,4,,,,,,,,,Any,Any
+Odd Spd Wave 3,"At start of odd-numbered turns, grants Spd+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,199,TRUE,oddSpdWaveSe,6,,,,,,,,,Any,Any
+Even Spd Wave 1,"At start of even-numbered turns, grants Spd+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,200,TRUE,evenSpdWaveSe,2,,,,,,,,,Any,Any
+Even Spd Wave 2,"At start of even-numbered turns, grants Spd+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,200,TRUE,evenSpdWaveSe,4,,,,,,,,,Any,Any
+Even Spd Wave 3,"At start of even-numbered turns, grants Spd+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,200,TRUE,evenSpdWaveSe,6,,,,,,,,,Any,Any
+Odd Def Wave 1,"At start of odd-numbered turns, grants Def+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,201,TRUE,oddDefWaveSe,2,,,,,,,,,Any,Any
+Odd Def Wave 2,"At start of odd-numbered turns, grants Def+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,201,TRUE,oddDefWaveSe,4,,,,,,,,,Any,Any
+Odd Def Wave 3,"At start of odd-numbered turns, grants Def+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,201,TRUE,oddDefWaveSe,6,,,,,,,,,Any,Any
+Even Def Wave 1,"At start of even-numbered turns, grants Def+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,202,TRUE,evenDefWaveSe,2,,,,,,,,,Any,Any
+Even Def Wave 2,"At start of even-numbered turns, grants Def+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,202,TRUE,evenDefWaveSe,4,,,,,,,,,Any,Any
+Even Def Wave 3,"At start of even-numbered turns, grants Def+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,202,TRUE,evenDefWaveSe,6,,,,,,,,,Any,Any
+Odd Res Wave 1,"At start of odd-numbered turns, grants Res+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,203,TRUE,oddResWaveSe,2,,,,,,,,,Any,Any
+Odd Res Wave 2,"At start of odd-numbered turns, grants Res+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,203,TRUE,oddResWaveSe,4,,,,,,,,,Any,Any
+Odd Res Wave 3,"At start of odd-numbered turns, grants Res+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,203,TRUE,oddResWaveSe,6,,,,,,,,,Any,Any
+Even Res Wave 1,"At start of even-numbered turns, grants Res+2 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",1,C,204,TRUE,evenResWaveSe,2,,,,,,,,,Any,Any
+Even Res Wave 2,"At start of even-numbered turns, grants Res+4 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",2,C,204,TRUE,evenResWaveSe,4,,,,,,,,,Any,Any
+Even Res Wave 3,"At start of even-numbered turns, grants Res+6 to unit and adjacent allies for 1 turn. (Bonus granted to unit even if no allies are adjacent.)",3,C,204,TRUE,evenResWaveSe,6,,,,,,,,,Any,Any
+Atk Opening 1,"At start of turn, grants Atk+2 to ally with the highest Atk for 1 turn. (Excludes unit.)",1,C,205,TRUE,atkOpeningSe,2,,,,,,,,,Any,Any
+Atk Opening 2,"At start of turn, grants Atk+4 to ally with the highest Atk for 1 turn. (Excludes unit.)",2,C,205,TRUE,atkOpeningSe,4,,,,,,,,,Any,Any
+Atk Opening 3,"At start of turn, grants Atk+6 to ally with the highest Atk for 1 turn. (Excludes unit.)",3,C,205,TRUE,atkOpeningSe,6,,,,,,,,,Any,Any
+Spd Opening 1,"At start of turn, grants Spd+2 to ally with the highest Atk for 1 turn. (Excludes unit.)",1,C,206,TRUE,spdOpeningSe,2,,,,,,,,,Any,Any
+Spd Opening 2,"At start of turn, grants Spd+4 to ally with the highest Atk for 1 turn. (Excludes unit.)",2,C,206,TRUE,spdOpeningSe,4,,,,,,,,,Any,Any
+Spd Opening 3,"At start of turn, grants Spd+6 to ally with the highest Atk for 1 turn. (Excludes unit.)",3,C,206,TRUE,spdOpeningSe,6,,,,,,,,,Any,Any
+Def Opening 1,"At start of turn, grants Def+2 to ally with the highest Atk for 1 turn. (Excludes unit.)",1,C,207,TRUE,defOpeningSe,2,,,,,,,,,Any,Any
+Def Opening 2,"At start of turn, grants Def+4 to ally with the highest Atk for 1 turn. (Excludes unit.)",2,C,207,TRUE,defOpeningSe,4,,,,,,,,,Any,Any
+Def Opening 3,"At start of turn, grants Def+6 to ally with the highest Atk for 1 turn. (Excludes unit.)",3,C,207,TRUE,defOpeningSe,6,,,,,,,,,Any,Any
+Res Opening 1,"At start of turn, grants Res+2 to ally with the highest Atk for 1 turn. (Excludes unit.)",1,C,208,TRUE,resOpeningSe,2,,,,,,,,,Any,Any
+Res Opening 2,"At start of turn, grants Res+4 to ally with the highest Atk for 1 turn. (Excludes unit.)",2,C,208,TRUE,resOpeningSe,4,,,,,,,,,Any,Any
+Res Opening 3,"At start of turn, grants Res+6 to ally with the highest Atk for 1 turn. (Excludes unit.)",3,C,208,TRUE,resOpeningSe,6,,,,,,,,,Any,Any
+Rouse Atk/Spd 1,"At start of turn, if unit is not adjacent to an ally, grants Atk/Spd+2 to unit for 1 turn.",1,C,230,TRUE,atkRouseSe,2,spdRouseSe,2,,,,,,,Armor-Fly,Any
+Rouse Atk/Spd 2,"At start of turn, if unit is not adjacent to an ally, grants Atk/Spd+4 to unit for 1 turn.",2,C,230,TRUE,atkRouseSe,4,spdRouseSe,4,,,,,,,Armor-Fly,Any
+Rouse Atk/Spd 3,"At start of turn, if unit is not adjacent to an ally, grants Atk/Spd+6 to unit for 1 turn.",3,C,230,TRUE,atkRouseSe,6,spdRouseSe,6,,,,,,,Armor-Fly,Any
+Rouse Atk/Def 1,"At start of turn, if unit is not adjacent to an ally, grants Atk/Def+2 to unit for 1 turn.",1,C,209,TRUE,atkRouseSe,2,defRouseSe,2,,,,,,,Armor-Fly,Any
+Rouse Atk/Def 2,"At start of turn, if unit is not adjacent to an ally, grants Atk/Def+4 to unit for 1 turn.",2,C,209,TRUE,atkRouseSe,4,defRouseSe,4,,,,,,,Armor-Fly,Any
+Rouse Atk/Def 3,"At start of turn, if unit is not adjacent to an ally, grants Atk/Def+6 to unit for 1 turn.",3,C,209,TRUE,atkRouseSe,6,defRouseSe,6,,,,,,,Armor-Fly,Any
+Rouse Spd/Def 1,"At start of turn, if unit is not adjacent to an ally, grants Spd/Def+2 to unit for 1 turn.",1,C,210,TRUE,spdRouseSe,2,defRouseSe,2,,,,,,,Armor-Fly,Any
+Rouse Spd/Def 2,"At start of turn, if unit is not adjacent to an ally, grants Spd/Def+4 to unit for 1 turn.",2,C,210,TRUE,spdRouseSe,4,defRouseSe,4,,,,,,,Armor-Fly,Any
+Rouse Spd/Res 3,"At start of turn, if unit is not adjacent to an ally, grants Spd/Def+6 to unit for 1 turn.",3,C,210,TRUE,spdRouseSe,6,defRouseSe,6,,,,,,,Armor-Fly,Any
+Rouse Def/Res 1,"At start of turn, if unit is not adjacent to an ally, grants Def/Res+2 to unit for 1 turn.",1,C,211,TRUE,defRouseSe,2,resRouseSe,2,,,,,,,Armor-Fly,Any
+Rouse Def/Res 2,"At start of turn, if unit is not adjacent to an ally, grants Def/Res+4 to unit for 1 turn.",2,C,211,TRUE,defRouseSe,4,resRouseSe,4,,,,,,,Armor-Fly,Any
+Rouse Def/Res 3,"At start of turn, if unit is not adjacent to an ally, grants Def/Res+6 to unit for 1 turn.",3,C,211,TRUE,defRouseSe,6,resRouseSe,6,,,,,,,Armor-Fly,Any
+Atk/Spd Oath 1,"At start of turn, if unit is adjacent to an ally, grants Atk/Spd+3 to unit for 1 turn.",1,C,212,TRUE,atkOathSe,3,spdOathSe,3,,,,,,,Armor-Cav,Any
+Atk/Spd Oath 2,"At start of turn, if unit is adjacent to an ally, grants Atk/Spd+4 to unit for 1 turn.",2,C,212,TRUE,atkOathSe,4,spdOathSe,4,,,,,,,Armor-Cav,Any
+Atk/Spd Oath 3,"At start of turn, if unit is adjacent to an ally, grants Atk/Spd+5 to unit for 1 turn.",3,C,212,TRUE,atkOathSe,5,spdOathSe,5,,,,,,,Armor-Cav,Any
+Atk/Def Oath 1,"At start of turn, if unit is adjacent to an ally, grants Atk/Def+3 to unit for 1 turn.",1,C,213,TRUE,atkOathSe,3,defOathSe,3,,,,,,,Armor-Cav,Any
+Atk/Def Oath 2,"At start of turn, if unit is adjacent to an ally, grants Atk/Def+4 to unit for 1 turn.",2,C,213,TRUE,atkOathSe,4,defOathSe,4,,,,,,,Armor-Cav,Any
+Atk/Def Oath 3,"At start of turn, if unit is adjacent to an ally, grants Atk/Def+5 to unit for 1 turn.",3,C,213,TRUE,atkOathSe,5,defOathSe,5,,,,,,,Armor-Cav,Any
+Atk/Res Oath 1,"At start of turn, if unit is adjacent to an ally, grants Atk/Res+3 to unit for 1 turn.",1,C,214,TRUE,atkOathSe,3,resOathSe,3,,,,,,,Armor-Cav,Any
+Atk/Res Oath 2,"At start of turn, if unit is adjacent to an ally, grants Atk/Res+4 to unit for 1 turn.",2,C,214,TRUE,atkOathSe,4,resOathSe,4,,,,,,,Armor-Cav,Any
+Atk/Res Oath 3,"At start of turn, if unit is adjacent to an ally, grants Atk/Res+5 to unit for 1 turn.",3,C,214,TRUE,atkOathSe,5,resOathSe,5,,,,,,,Armor-Cav,Any
+Spd/Def Oath 1,"At start of turn, if unit is adjacent to an ally, grants Spd/Def+3 to unit for 1 turn.",1,C,229,TRUE,spdOathSe,3,defOathSe,3,,,,,,,Armor-Cav,Any
+Spd/Def Oath 2,"At start of turn, if unit is adjacent to an ally, grants Spd/Def+4 to unit for 1 turn.",2,C,229,TRUE,spdOathSe,4,defOathSe,4,,,,,,,Armor-Cav,Any
+Spd/Def Oath 3,"At start of turn, if unit is adjacent to an ally, grants Spd/Def+5 to unit for 1 turn.",3,C,229,TRUE,spdOathSe,5,defOathSe,5,,,,,,,Armor-Cav-Fly,Any
+Spd/Res Oath 1,"At start of turn, if unit is adjacent to an ally, grants Spd/Res+3 to unit for 1 turn.",1,C,215,TRUE,spdOathSe,3,resOathSe,3,,,,,,,Armor-Cav,Any
+Spd/Res Oath 2,"At start of turn, if unit is adjacent to an ally, grants Spd/Res+4 to unit for 1 turn.",2,C,215,TRUE,spdOathSe,4,resOathSe,4,,,,,,,Armor-Cav,Any
+Spd/Res Oath 3,"At start of turn, if unit is adjacent to an ally, grants Spd/Res+5 to unit for 1 turn.",3,C,215,TRUE,spdOathSe,5,resOathSe,5,,,,,,,Armor-Cav,Any
+Odd Tempest 1,"At start of odd-numbered turns, if unit's HP = 100%, unit can move 1 extra space. (That turn only. Does not stack.)",1,C,216,TRUE,odd_tempestSe,1,,,,,,,,,Cav-Armor,Ranged
+Odd Tempest 2,"At start of odd-numbered turns, if unit's HP ≥ 50%, unit can move 1 extra space. (That turn only. Does not stack.)",2,C,216,TRUE,odd_tempestSe,2,,,,,,,,,Cav-Armor,Ranged
+Odd Tempest 3,"At start of odd-numbered turns, unit can move 1 extra space. (That turn only. Does not stack.)",3,C,216,TRUE,odd_tempestSe,3,,,,,,,,,Cav-Armor,Ranged
+Even Tempest 1,"At start of even-numbered turns, if unit's HP = 100%, unit can move 1 extra space. (That turn only. Does not stack.)",1,C,217,TRUE,even_tempestSe,1,,,,,,,,,Cav-Armor,Ranged
+Even Tempest 2,"At start of even-numbered turns, if unit's HP ≥ 50%, unit can move 1 extra space. (That turn only. Does not stack.)",2,C,217,TRUE,even_tempestSe,2,,,,,,,,,Cav-Armor,Ranged
+Even Tempest 3,"At start of even-numbered turns, unit can move 1 extra space. (That turn only. Does not stack.)",3,C,217,TRUE,even_tempestSe,3,,,,,,,,,Cav-Armor,Ranged
 Quickened Pulse,"At the start of turn 1, grants Special cooldown count-1.",1,S,218,TRUE,turn1Pulse,1,,,,,,,,,Any,Any
 Phantom Spd 1,"If a skill compares unit's Spd to a foe's or ally's Spd, treats unit's Spd as if granted +5.",1,S,219,TRUE,phantomSpd,5,,,,,,,,,Any,Any
 Phantom Spd 2,"If a skill compares unit's Spd to a foe's or ally's Spd, treats unit's Spd as if granted +8.",2,S,219,TRUE,phantomSpd,8,,,,,,,,,Any,Any
@@ -656,21 +662,21 @@ Phantom Res 3,"If a skill compares unit's Res to a foe's or ally's Res, treats u
 Hardy Bearing 1,"Disables unit's skills that change attack priority. At start of combat, if unit's HP = 100%, disables foe's skills that change attack priority.",1,S,221,TRUE,hardyBearing,1,,,,,,,,,Any,Any
 Hardy Bearing 2,"Disables unit's skills that change attack priority. At start of combat, if unit's HP ≥ 50%, disables foe's skills that change attack priority.",2,S,221,TRUE,hardyBearing,2,,,,,,,,,Any,Any
 Hardy Bearing 3,Disables unit's and foe's skills that change attack priority.,3,S,221,TRUE,hardyBearing,3,,,,,,,,,Any,Any
-Deflect Melee 1,"If unit receives consecutive attacks and foe uses a sword, lance, or axe, reduces damage from foe's second attack onward by 30%.",1,S,222,FALSE,,,,,,,,,,,Any,Any
-Deflect Melee 2,"If unit receives consecutive attacks and foe uses a sword, lance, or axe, reduces damage from foe's second attack onward by 50%.",2,S,222,FALSE,,,,,,,,,,,Any,Any
-Deflect Melee 3,"If unit receives consecutive attacks and foe uses a sword, lance, or axe, reduces damage from foe's second attack onward by 80%.",3,S,222,FALSE,,,,,,,,,,,Any,Any
-Deflect Missile 1,"If unit receives consecutive attacks and foe uses bow or dagger, reduces damage from foe's second attack onward by 30%.",1,S,223,FALSE,,,,,,,,,,,Any,Any
-Deflect Missile 2,"If unit receives consecutive attacks and foe uses bow or dagger, reduces damage from foe's second attack onward by 50%.",2,S,223,FALSE,,,,,,,,,,,Any,Any
-Deflect Missile 3,"If unit receives consecutive attacks and foe uses bow or dagger, reduces damage from foe's second attack onward by 80%.",3,S,223,FALSE,,,,,,,,,,,Any,Any
-Deflect Magic 1,"If unit receives consecutive attacks and foe uses magic, reduces damage from foe's second attack onward by 30%.",1,S,224,FALSE,,,,,,,,,,,Any,Any
-Deflect Magic 2,"If unit receives consecutive attacks and foe uses magic, reduces damage from foe's second attack onward by 50%.",2,S,224,FALSE,,,,,,,,,,,Any,Any
-Deflect Magic 3,"If unit receives consecutive attacks and foe uses magic, reduces damage from foe's second attack onward by 80%.",3,S,224,FALSE,,,,,,,,,,,Any,Any
-Armored Boots,"At start of turn, if unit's HP = 100%, unit can move 1 extra space. (That turn only. Does not stack.)",1,S,225,FALSE,,,,,,,,,,,Any,Any
-Dist. Counter (D),Unit can counterattack regardless of foe's range.,1,S,226,FALSE,,,,,,,,,,,Any,Any
-Dist. Counter (M),Unit can counterattack regardless of foe's range.,1,S,227,FALSE,,,,,,,,,,,Any,Any
-Beast,Removes the condition to transform.,1,S,228,FALSE,,,,,,,,,,,Any,Any
+Deflect Melee 1,"If unit receives consecutive attacks and foe uses a sword, lance, or axe, reduces damage from foe's second attack onward by 30%.",1,S,222,TRUE,deflectMelee,30,,,,,,,,,Any,Ranged
+Deflect Melee 2,"If unit receives consecutive attacks and foe uses a sword, lance, or axe, reduces damage from foe's second attack onward by 50%.",2,S,222,TRUE,deflectMelee,50,,,,,,,,,Any,Ranged
+Deflect Melee 3,"If unit receives consecutive attacks and foe uses a sword, lance, or axe, reduces damage from foe's second attack onward by 80%.",3,S,222,TRUE,deflectMelee,80,,,,,,,,,Any,Ranged
+Deflect Missile 1,"If unit receives consecutive attacks and foe uses bow or dagger, reduces damage from foe's second attack onward by 30%.",1,S,223,TRUE,deflectMissile,30,,,,,,,,,Any,Any
+Deflect Missile 2,"If unit receives consecutive attacks and foe uses bow or dagger, reduces damage from foe's second attack onward by 50%.",2,S,223,TRUE,deflectMissile,50,,,,,,,,,Any,Any
+Deflect Missile 3,"If unit receives consecutive attacks and foe uses bow or dagger, reduces damage from foe's second attack onward by 80%.",3,S,223,TRUE,deflectMissile,80,,,,,,,,,Any,Any
+Deflect Magic 1,"If unit receives consecutive attacks and foe uses magic, reduces damage from foe's second attack onward by 30%.",1,S,224,TRUE,deflectMagic,30,,,,,,,,,Any,Any
+Deflect Magic 2,"If unit receives consecutive attacks and foe uses magic, reduces damage from foe's second attack onward by 50%.",2,S,224,TRUE,deflectMagic,50,,,,,,,,,Any,Any
+Deflect Magic 3,"If unit receives consecutive attacks and foe uses magic, reduces damage from foe's second attack onward by 80%.",3,S,224,TRUE,deflectMagic,80,,,,,,,,,Any,Any
+Armored Boots,"At start of turn, if unit's HP = 100%, unit can move 1 extra space. (That turn only. Does not stack.)",1,S,225,TRUE,armoredBoots,0,,,,,,,,,Inf-Cav-Fly,Any
+Dist. Counter (D),Unit can counterattack regardless of foe's range.,1,S,226,TRUE,dCounter,0,,,,,,,,,Any,NotDragon
+Dist. Counter (M),Unit can counterattack regardless of foe's range.,1,S,227,TRUE,dCounter,0,,,,,,,,,Any,NotSwordLanceAxe
+Beast,Removes the condition to transform.,1,S,228,TRUE,uncondBeast,0,,,,,,,,,Any,NotBeast
 Askr's Protection,Reduces damage dealt to unit to 0.,0,S,10000,FALSE,invincible,1,,,,,,,,,Any,Any
-Embla's Ward,Reduces damage dealt to unit to 0.,0,S,10001,FALSE,invincible,1,,,,,,,,,Any,Any
+Embla's Ward,Reduces damage dealt to unit to 0.,0,S,10001,TRUE,invincible,1,,,,,,,,,Any,Any
 Niflfrost,Reduces damage dealt to unit to 0.,0,S,10002,FALSE,invincible,2,,,,,,,,,Any,Any
 Múspellflame,Reduces damage dealt to unit to 0.,0,S,10003,FALSE,invincible,2,,,,,,,,,Any,Any
 Life Overflowing,Reduces damage dealt to unit to 0.,0,S,10004,FALSE,invincible,3,,,,,,,,,Any,Any
@@ -678,11 +684,11 @@ Hel's Persistance,Reduces damage dealt to unit to 0.,0,S,10005,FALSE,invincible,
 Unending Dream,Reduces damage dealt to unit to 0.,0,S,10006,FALSE,invincible,4,,,,,,,,,Any,Any
 Eternal Nightmare,Reduces damage dealt to unit to 0.,0,S,10007,FALSE,invincible,4,,,,,,,,,Any,Any
 Niðavellir Axiom,Reduces damage dealt to unit to 0.,0,S,10008,FALSE,invincible,5,,,,,,,,,Any,Any
-Jötunheimr Apex,Reduces damage dealt to unit to 0.,0,S,10009,FALSE,invincible,5,,,,,,,,,Any,Any
+Jötun Apex,Reduces damage dealt to unit to 0.,0,S,10009,FALSE,invincible,5,,,,,,,,,Any,Any
 Gold Perfection,Reduces damage dealt to unit to 0.,0,S,10010,FALSE,invincible,7,,,,,,,,,Any,Any
-Aegis of Yggdrasil,Reduces damage dealt to unit to 0.,0,S,10011,FALSE,invincible,8,,,,,,,,,Any,Any
+Yggdrasill's Vitality,Reduces damage dealt to unit to 0.,0,S,10011,FALSE,invincible,8,,,,,,,,,Any,Any
 Nine-Realm Pact,Reduces damage dealt to unit to 0.,0,S,10012,FALSE,invincible,9,,,,,,,,,Any,Any
-Gullinbursti,Enables [Canto (Rem.)].,0,S,10013,FALSE,,,,,,,,,,,Any,Any
+Gullinbursti,Enables [Canto (Rem.)].,0,S,10013,FALSE,cantoRem,0,,,,,,,,,Any,Any
 Røkkr,"Neutralizes damage outside of combat (from skills like Poison Strike, etc.) except damage dealt by Specials that trigger before combat. Unit's HP can be reduced to 0 only by an attack from allied armies. Unit cannot restore its own HP.",0,S,10014,FALSE,,,,,,,,,,,Any,Any
 Guardian Seal,"Units on the opposing team with Range = 2 cannot move through a space adjacent to the holder of this seal. (Does not affect units with Pass.) When foe with this seal is defeated, restores 10 HP to unit that defeated foe and inflicts Special cooldown count+1 on that unit after combat.",0,S,10015,FALSE,,,,,,,,,,,Any,Any
 Blade Seal,"When the holder of this seal is defeated, restores 10 HP to unit that defeats holder, inflicts Special cooldown count+1 on that unit after combat, and a [Special Blade] drops.",0,S,10016,FALSE,,,,,,,,,,,Any,Any
@@ -706,33 +712,83 @@ G Time Traveler,"Against a foe equipped with this Sacred Seal, grants player's u
 C Time Traveler,"Against a foe equipped with this Sacred Seal, grants player's unit one of the following advantages or inflicts one of the following disadvantages based on that unit's color:
    - If red, blue, or green, grants advantage: unit deals damage = 20% of unit's Atk during combat (excluding area-of-effect Specials).
    - If colorless, inflicts extreme disadvantage: foe deals damage = 40% of foe's Atk and reduces damage from attacks by 40% of unit's Atk during combat (excluding area-of-effect Specials), and reduces damage from unit's area-of-effect Specials by 80%.",0,S,10025,FALSE,,,,,,,,,,,Any,Any
-Initiate Seal HP 1,Grants +3 to max HP.,1,S,5000,FALSE,,,,,,,,,,,Any,Any
-Initiate Seal HP 2,Grants +4 to max HP.,2,S,5000,FALSE,,,,,,,,,,,Any,Any
-Initiate Seal HP 3,Grants +5 to max HP.,3,S,5000,FALSE,,,,,,,,,,,Any,Any
-Initiate Seal Atk 1,Grants Atk+1.,1,S,5001,FALSE,,,,,,,,,,,Any,Any
-Initiate Seal Atk 2,Grants Atk+2.,2,S,5001,FALSE,,,,,,,,,,,Any,Any
-Initiate Seal Atk 3,Grants Atk+3.,3,S,5001,FALSE,,,,,,,,,,,Any,Any
-Initiate Seal Spd 1,Grants Spd+1.,1,S,5002,FALSE,,,,,,,,,,,Any,Any
-Initiate Seal Spd 2,Grants Spd+2.,2,S,5002,FALSE,,,,,,,,,,,Any,Any
-Initiate Seal Spd 3,Grants Spd+3.,3,S,5002,FALSE,,,,,,,,,,,Any,Any
-Initiate Seal Def 1,Grants Def+1.,1,S,5003,FALSE,,,,,,,,,,,Any,Any
-Initiate Seal Def 2,Grants Def+2.,2,S,5003,FALSE,,,,,,,,,,,Any,Any
-Initiate Seal Def 3,Grants Def+3.,3,S,5003,FALSE,,,,,,,,,,,Any,Any
-Initiate Seal Res 1,Grants Res+1.,1,S,5004,FALSE,,,,,,,,,,,Any,Any
-Initiate Seal Res 2,Grants Res+2.,2,S,5004,FALSE,,,,,,,,,,,Any,Any
-Initiate Seal Res 3,Grants Res+3.,3,S,5004,FALSE,,,,,,,,,,,Any,Any
-Squad Ace A 1,Grants +3 to max HP.,1,S,1001,FALSE,,,,,,,,,,,Any,Any
-Squad Ace A 2,Grants +4 to max HP.,2,S,1001,FALSE,,,,,,,,,,,Any,Any
-Squad Ace A 3,Grants +5 to max HP.,3,S,1001,FALSE,,,,,,,,,,,Any,Any
-Squad Ace B 1,Grants Atk+1.,1,S,1002,FALSE,,,,,,,,,,,Any,Any
-Squad Ace B 2,Grants Atk+2.,2,S,1002,FALSE,,,,,,,,,,,Any,Any
-Squad Ace B 3,Grants Atk+3.,3,S,1002,FALSE,,,,,,,,,,,Any,Any
-Squad Ace C 1,Grants Spd+1.,1,S,1003,FALSE,,,,,,,,,,,Any,Any
-Squad Ace C 2,Grants Spd+2.,2,S,1003,FALSE,,,,,,,,,,,Any,Any
-Squad Ace C 3,Grants Spd+3.,3,S,1003,FALSE,,,,,,,,,,,Any,Any
-Squad Ace D 1,Grants Def+1.,1,S,1004,FALSE,,,,,,,,,,,Any,Any
-Squad Ace D 2,Grants Def+2.,2,S,1004,FALSE,,,,,,,,,,,Any,Any
-Squad Ace D 3,Grants Def+3.,3,S,1004,FALSE,,,,,,,,,,,Any,Any
-Squad Ace E 1,Grants Res+1.,1,S,1005,FALSE,,,,,,,,,,,Any,Any
-Squad Ace E 2,Grants Res+2.,2,S,1005,FALSE,,,,,,,,,,,Any,Any
-Squad Ace E 3,Grants Res+3.,3,S,1005,FALSE,,,,,,,,,,,Any,Any
+Initiate Seal HP 1,Grants +3 to max HP.,1,S,5000,TRUE,HPBoost,3,,,,,,,,,Any,Any
+Initiate Seal HP 2,Grants +4 to max HP.,2,S,5000,TRUE,HPBoost,4,,,,,,,,,Any,Any
+Initiate Seal HP 3,Grants +5 to max HP.,3,S,5000,TRUE,HPBoost,5,,,,,,,,,Any,Any
+Initiate Seal Atk 1,Grants Atk+1.,1,S,5001,TRUE,atkBoost,1,,,,,,,,,Any,Any
+Initiate Seal Atk 2,Grants Atk+2.,2,S,5001,TRUE,atkBoost,2,,,,,,,,,Any,Any
+Initiate Seal Atk 3,Grants Atk+3.,3,S,5001,TRUE,atkBoost,3,,,,,,,,,Any,Any
+Initiate Seal Spd 1,Grants Spd+1.,1,S,5002,TRUE,spdBoost,1,,,,,,,,,Any,Any
+Initiate Seal Spd 2,Grants Spd+2.,2,S,5002,TRUE,spdBoost,2,,,,,,,,,Any,Any
+Initiate Seal Spd 3,Grants Spd+3.,3,S,5002,TRUE,spdBoost,3,,,,,,,,,Any,Any
+Initiate Seal Def 1,Grants Def+1.,1,S,5003,TRUE,defBoost,1,,,,,,,,,Any,Any
+Initiate Seal Def 2,Grants Def+2.,2,S,5003,TRUE,defBoost,2,,,,,,,,,Any,Any
+Initiate Seal Def 3,Grants Def+3.,3,S,5003,TRUE,defBoost,3,,,,,,,,,Any,Any
+Initiate Seal Res 1,Grants Res+1.,1,S,5004,TRUE,resBoost,1,,,,,,,,,Any,Any
+Initiate Seal Res 2,Grants Res+2.,2,S,5004,TRUE,resBoost,2,,,,,,,,,Any,Any
+Initiate Seal Res 3,Grants Res+3.,3,S,5004,TRUE,resBoost,3,,,,,,,,,Any,Any
+Squad Ace HP 1,Grants +3 to max HP.,1,S,1001,TRUE,HPBoost,3,,,,,,,,,Any,Any
+Squad Ace HP 2,Grants +4 to max HP.,2,S,1001,TRUE,HPBoost,4,,,,,,,,,Any,Any
+Squad Ace HP 3,Grants +5 to max HP.,3,S,1001,TRUE,HPBoost,5,,,,,,,,,Any,Any
+Squad Ace Atk 1,Grants Atk+1.,1,S,1002,TRUE,atkBoost,1,,,,,,,,,Any,Any
+Squad Ace Atk 2,Grants Atk+2.,2,S,1002,TRUE,atkBoost,2,,,,,,,,,Any,Any
+Squad Ace Atk 3,Grants Atk+3.,3,S,1002,TRUE,atkBoost,3,,,,,,,,,Any,Any
+Squad Ace Spd 1,Grants Spd+1.,1,S,1003,TRUE,spdBoost,1,,,,,,,,,Any,Any
+Squad Ace Spd 2,Grants Spd+2.,2,S,1003,TRUE,spdBoost,2,,,,,,,,,Any,Any
+Squad Ace Spd 3,Grants Spd+3.,3,S,1003,TRUE,spdBoost,3,,,,,,,,,Any,Any
+Squad Ace Def 1,Grants Def+1.,1,S,1004,TRUE,defBoost,1,,,,,,,,,Any,Any
+Squad Ace Def 2,Grants Def+2.,2,S,1004,TRUE,defBoost,2,,,,,,,,,Any,Any
+Squad Ace Def 3,Grants Def+3.,3,S,1004,TRUE,defBoost,3,,,,,,,,,Any,Any
+Squad Ace Res 1,Grants Res+1.,1,S,1005,TRUE,resBoost,1,,,,,,,,,Any,Any
+Squad Ace Res 2,Grants Res+2.,2,S,1005,TRUE,resBoost,2,,,,,,,,,Any,Any
+Squad Ace Res 3,Grants Res+3.,3,S,1005,TRUE,resBoost,3,,,,,,,,,Any,Any
+S. Ace HP/Atk 1,"Grants HP+3, Atk+1.",1,S,1006,TRUE,HPBoost,3,atkBoost,1,,,,,,,Any,Any
+S. Ace HP/Atk 2,"Grants HP+4, Atk+2.",2,S,1006,TRUE,HPBoost,4,atkBoost,2,,,,,,,Any,Any
+S. Ace HP/Spd 1,"Grants HP+3, Spd+1.",1,S,1007,TRUE,HPBoost,3,spdBoost,1,,,,,,,Any,Any
+S. Ace HP/Spd 2,"Grants HP+4, Spd+2.",2,S,1007,TRUE,HPBoost,4,spdBoost,2,,,,,,,Any,Any
+S. Ace HP/Def 1,"Grants HP+3, Def+1.",1,S,1008,TRUE,HPBoost,3,defBoost,1,,,,,,,Any,Any
+S. Ace HP/Def 2,"Grants HP+4, Def+2.",2,S,1008,TRUE,HPBoost,4,defBoost,2,,,,,,,Any,Any
+S. Ace HP/Res 1,"Grants HP+3, Res+1.",1,S,1009,TRUE,HPBoost,3,resBoost,1,,,,,,,Any,Any
+S. Ace HP/Res 2,"Grants HP+4, Res+2.",2,S,1009,TRUE,HPBoost,4,resBoost,2,,,,,,,Any,Any
+S. Ace Atk/Spd 1,Grants Atk/Spd+1.,1,S,1010,TRUE,atkBoost,1,spdBoost,1,,,,,,,Any,Any
+S. Ace Atk/Spd 2,Grants Atk/Spd+2.,2,S,1010,TRUE,atkBoost,2,spdBoost,2,,,,,,,Any,Any
+S. Ace Atk/Def 1,Grants Atk/Def+1.,1,S,1011,TRUE,atkBoost,1,defBoost,1,,,,,,,Any,Any
+S. Ace Atk/Def 2,Grants Atk/Def+2.,2,S,1011,TRUE,atkBoost,2,defBoost,2,,,,,,,Any,Any
+S. Ace Atk/Res 1,Grants Atk/Res+1.,1,S,1012,TRUE,atkBoost,1,resBoost,1,,,,,,,Any,Any
+S. Ace Atk/Res 2,Grants Atk/Res+2.,2,S,1012,TRUE,atkBoost,2,resBoost,2,,,,,,,Any,Any
+S. Ace Spd/Def 1,Grants Spd/Def+1,1,S,1013,TRUE,spdBoost,1,defBoost,1,,,,,,,Any,Any
+S. Ace Spd/Def 2,Grants Spd/Def+2,2,S,1013,TRUE,spdBoost,2,defBoost,2,,,,,,,Any,Any
+S. Ace Spd/Res 1,Grants Spd/Res+1,1,S,1014,TRUE,spdBoost,1,resBoost,1,,,,,,,Any,Any
+S. Ace Spd/Res 2,Grants Spd/Res+2,2,S,1014,TRUE,spdBoost,2,resBoost,2,,,,,,,Any,Any
+S. Ace Def/Res 1,Grants Def/Res+1.,1,S,1015,TRUE,defBoost,1,resBoost,1,,,,,,,Any,Any
+S. Ace Def/Res 2,Grants Def/Res+2.,2,S,1015,TRUE,defBoost,2,resBoost,2,,,,,,,Any,Any
+S. Ace HP/Atk/Spd 1,"Grants HP+3, Atk/Spd+1.",1,S,1016,TRUE,HPBoost,3,atkBoost,1,spdBoost,1,,,,,Any,Any
+S. Ace HP/Atk/Spd 2,"Grants HP+4, Atk/Spd+2.",2,S,1016,TRUE,HPBoost,4,atkBoost,2,spdBoost,2,,,,,Any,Any
+S. Ace HP/Atk/Spd 3,"Grants HP+5, Atk/Spd+3.",3,S,1016,TRUE,HPBoost,5,atkBoost,3,spdBoost,3,,,,,Any,Any
+S. Ace HP/Atk/Def 1,"Grants HP+3, Atk/Def+1.",1,S,1017,TRUE,HPBoost,3,atkBoost,1,defBoost,1,,,,,Any,Any
+S. Ace HP/Atk/Def 2,"Grants HP+4, Atk/Def+2.",2,S,1017,TRUE,HPBoost,4,atkBoost,2,defBoost,2,,,,,Any,Any
+S. Ace HP/Atk/Def 3,"Grants HP+5, Atk/Def+3.",3,S,1017,TRUE,HPBoost,5,atkBoost,3,defBoost,3,,,,,Any,Any
+S. Ace HP/Atk/Res 1,"Grants HP+3, Atk/Res+1.",1,S,1018,TRUE,HPBoost,3,atkBoost,1,resBoost,1,,,,,Any,Any
+S. Ace HP/Atk/Res 2,"Grants HP+4, Atk/Res+2.",2,S,1018,TRUE,HPBoost,4,atkBoost,2,resBoost,2,,,,,Any,Any
+S. Ace HP/Atk/Res 3,"Grants HP+5, Atk/Res+3.",3,S,1018,TRUE,HPBoost,5,atkBoost,3,resBoost,3,,,,,Any,Any
+S. Ace HP/Spd/Def 1,"Grants HP+3, Spd/Def+1.",1,S,1019,TRUE,HPBoost,3,spdBoost,1,defBoost,1,,,,,Any,Any
+S. Ace HP/Spd/Def 2,"Grants HP+4, Spd/Def+2.",2,S,1019,TRUE,HPBoost,4,spdBoost,2,defBoost,2,,,,,Any,Any
+S. Ace HP/Spd/Def 3,"Grants HP+5, Spd/Def+3.",3,S,1019,TRUE,HPBoost,5,spdBoost,3,defBoost,3,,,,,Any,Any
+S. Ace HP/Spd/Res 1,"Grants HP+3, Spd/Res+1.",1,S,1020,TRUE,HPBoost,3,spdBoost,1,resBoost,1,,,,,Any,Any
+S. Ace HP/Spd/Res 2,"Grants HP+4, Spd/Res+2.",2,S,1020,TRUE,HPBoost,4,spdBoost,2,resBoost,2,,,,,Any,Any
+S. Ace HP/Spd/Res 3,"Grants HP+5, Spd/Res+3.",3,S,1020,TRUE,HPBoost,5,spdBoost,3,resBoost,3,,,,,Any,Any
+S. Ace HP/Def/Res 1,"Grants HP+3, Def/Res+1.",1,S,1021,TRUE,HPBoost,3,defBoost,1,resBoost,1,,,,,Any,Any
+S. Ace HP/Def/Res 2,"Grants HP+4, Def/Res+2.",2,S,1021,TRUE,HPBoost,4,defBoost,2,resBoost,2,,,,,Any,Any
+S. Ace HP/Def/Res 3,"Grants HP+5, Def/Res+3.",3,S,1021,TRUE,HPBoost,5,defBoost,3,resBoost,3,,,,,Any,Any
+S. Ace Atk/Spd/Def 1,Grants Atk/Spd/Def+1.,1,S,1022,TRUE,atkBoost,1,spdBoost,1,resBoost,1,,,,,Any,Any
+S. Ace Atk/Spd/Def 2,Grants Atk/Spd/Def+2.,2,S,1022,TRUE,atkBoost,2,spdBoost,2,resBoost,2,,,,,Any,Any
+S. Ace Atk/Spd/Def 3,Grants Atk/Spd/Def+3.,3,S,1022,TRUE,atkBoost,3,spdBoost,3,resBoost,3,,,,,Any,Any
+S. Ace Atk/Spd/Res 1,Grants Atk/Spd/Res+1.,1,S,1023,TRUE,atkBoost,1,spdBoost,1,resBoost,1,,,,,Any,Any
+S. Ace Atk/Spd/Res 2,Grants Atk/Spd/Res+2.,2,S,1023,TRUE,atkBoost,2,spdBoost,2,resBoost,2,,,,,Any,Any
+S. Ace Atk/Spd/Res 3,Grants Atk/Spd/Res+3.,3,S,1023,TRUE,atkBoost,3,spdBoost,3,resBoost,3,,,,,Any,Any
+S. Ace Atk/Def/Res 1,Grants Atk/Def/Res+1.,1,S,1024,TRUE,atkBoost,1,defBoost,1,resBoost,1,,,,,Any,Any
+S. Ace Atk/Def/Res 2,Grants Atk/Def/Res+2.,2,S,1024,TRUE,atkBoost,2,defBoost,2,resBoost,2,,,,,Any,Any
+S. Ace Atk/Def/Res 3,Grants Atk/Def/Res+3.,3,S,1024,TRUE,atkBoost,3,defBoost,3,resBoost,3,,,,,Any,Any
+S. Ace Spd/Def/Res 1,Grants Spd/Def/Res+1.,1,S,1025,TRUE,spdBoost,1,defBoost,1,resBoost,1,,,,,Any,Any
+S. Ace Spd/Def/Res 2,Grants Spd/Def/Res+2.,2,S,1025,TRUE,spdBoost,2,defBoost,2,resBoost,2,,,,,Any,Any
+S. Ace Spd/Def/Res 3,Grants Spd/Def/Res+3.,3,S,1025,TRUE,spdBoost,3,defBoost,3,resBoost,3,,,,,Any,Any

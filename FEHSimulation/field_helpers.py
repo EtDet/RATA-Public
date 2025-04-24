@@ -396,6 +396,21 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
+        if "infantryRushSe" in unitSkills:
+            range = within_2_space
+            condition = lambda s: lambda o: o.move == 0
+            affect_same_side = True
+
+            if unitSkills["infantryRushSe"] == 1:
+                effects = {"iRush1": 0}
+            elif unitSkills["infantryRushSe"] == 2:
+                effects = {"iRush2": 0}
+            else:
+                effects = {"iRush3": 0}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
         if "infantryFlash" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: o.move == 0
@@ -2237,25 +2252,33 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 allies.append(hero)
 
         # HONE/FORTIFY
-        if "honeAtk" in unitSkills:
+        if "honeAtk" in unitSkills or "honeAtkSe" in unitSkills:
+            buff = max(unitSkills.get("honeAtk", 0), unitSkills.get("honeAtkSe", 0))
+
             for ally in allies_within_n_spaces[1]:
-                add_buff(ally, ATK, unitSkills["honeAtk"])
+                add_buff(ally, ATK, unitSkills[buff])
 
         if "honeAtkW" in unitSkills:
             for ally in allies_within_n_spaces[1]:
                 add_buff(ally, ATK, unitSkills["honeAtkW"])
 
-        if "honeSpd" in unitSkills:
-            for ally in allies_within_n_spaces[1]:
-                add_buff(ally, SPD, unitSkills["honeSpd"])
+        if "honeSpd" in unitSkills or "honeSpdSe" in unitSkills:
+            buff = max(unitSkills.get("honeSpd", 0), unitSkills.get("honeSpdSe", 0))
 
-        if "fortifyDef" in unitSkills:
             for ally in allies_within_n_spaces[1]:
-                add_buff(ally, DEF, unitSkills["fortifyDef"])
+                add_buff(ally, SPD, unitSkills[buff])
 
-        if "fortifyRes" in unitSkills:
+        if "fortifyDef" in unitSkills or "fortifyDefSe" in unitSkills:
+            buff = max(unitSkills.get("fortifyDef", 0), unitSkills.get("fortifyDefSe", 0))
+
             for ally in allies_within_n_spaces[1]:
-                add_buff(ally, RES, unitSkills["fortifyRes"])
+                add_buff(ally, DEF, unitSkills[buff])
+
+        if "fortifyRes" in unitSkills or "fortifyResSe" in unitSkills:
+            buff = max(unitSkills.get("fortifyRes", 0), unitSkills.get("fortifyResSe", 0))
+
+            for ally in allies_within_n_spaces[1]:
+                add_buff(ally, RES, unitSkills[buff])
 
         if "honecav" in unitSkills:
             for ally in allies_within_n_spaces[2]:
@@ -2364,33 +2387,41 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_status(ally, Status.Incited)
 
         # THREATEN
-        if "threatenAtk" in unitSkills:
+        if "threatenAtk" in unitSkills or "threatenAtkSe" in unitSkills:
+            debuff = max(unitSkills.get("threatenAtk", 0), unitSkills.get("threatenAtkSe", 0))
+
             for foe in foes_within_n_spaces[2]:
-                add_debuff(foe, ATK, -unitSkills["threatenAtk"])
+                add_debuff(foe, ATK, -debuff)
 
         if "threatenAtkW" in unitSkills:
             for foe in foes_within_n_spaces[2]:
                 add_debuff(foe, ATK, -unitSkills["threatenAtkW"])
 
-        if "threatenSpd" in unitSkills:
+        if "threatenSpd" in unitSkills or "threatenSpdSe" in unitSkills:
+            debuff = max(unitSkills.get("threatenSpd", 0), unitSkills.get("threatenSpdSe", 0))
+
             for foe in foes_within_n_spaces[2]:
-                add_debuff(foe, SPD, -unitSkills["threatenSpd"])
+                add_debuff(foe, SPD, -debuff)
 
         if "threatenSpdW" in unitSkills:
             for foe in foes_within_n_spaces[2]:
                 add_debuff(foe, SPD, -unitSkills["threatenSpdW"])
 
-        if "threatenDef" in unitSkills:
+        if "threatenDef" in unitSkills or "threatenDefSe" in unitSkills:
+            debuff = max(unitSkills.get("threatenDef", 0), unitSkills.get("threatenDefSe", 0))
+
             for foe in foes_within_n_spaces[2]:
-                add_debuff(foe, DEF, -unitSkills["threatenDef"])
+                add_debuff(foe, DEF, -debuff)
 
         if "threatenDefW" in unitSkills:
             for foe in foes_within_n_spaces[2]:
                 add_debuff(foe, DEF, -unitSkills["threatenDefW"])
 
-        if "threatenRes" in unitSkills:
+        if "threatenRes" in unitSkills or "threatenResSe" in unitSkills:
+            debuff = max(unitSkills.get("threatenRes", 0), unitSkills.get("threatenResSe", 0))
+
             for foe in foes_within_n_spaces[2]:
-                add_debuff(foe, RES, -unitSkills["threatenRes"])
+                add_debuff(foe, RES, -debuff)
 
         if "threatenResW" in unitSkills:
             for foe in foes_within_n_spaces[2]:
@@ -2606,24 +2637,31 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
 
         if "panicPloy" in unitSkills:
             diff = 7 - unitSkills["panicPloy"] * 2
-            for tile in tiles_within_1_row_or_column:
-                if unit.isEnemyOf(tile.hero_on):
-                    if tile.hero_on.HPcur <= unit.HPcur - diff:
-                        add_status(tile.hero_on, Status.Panic)
+
+            for foe in foes_within_n_cardinal(unit, 1):
+                if foe.HPcur <= unit.HPcur - diff:
+                    add_status(foe, Status.Panic)
 
         if "panicPloyW" in unitSkills:
             diff = 7 - unitSkills["panicPloyW"] * 2
-            for tile in tiles_within_1_row_or_column:
-                if unit.isEnemyOf(tile.hero_on):
-                    if tile.hero_on.HPcur <= unit.HPcur - diff:
-                        add_status(tile.hero_on, Status.Panic)
+
+            for foe in foes_within_n_cardinal(unit, 1):
+                if foe.HPcur <= unit.HPcur - diff:
+                    add_status(foe, Status.Panic)
+
+        if "panicPloySe" in unitSkills:
+            diff = 7 - unitSkills["panicPloySe"] * 2
+
+            for foe in foes_within_n_cardinal(unit, 1):
+                if foe.HPcur <= unit.HPcur - diff:
+                    add_status(foe, Status.Panic)
 
         if "stallPloy" in unitSkills:
             diff = 7 - unitSkills["stallPloy"] * 2
-            for tile in tiles_within_1_row_or_column:
-                if unit.isEnemyOf(tile.hero_on):
-                    if tile.hero_on.HPcur <= unit.HPcur - diff:
-                        add_status(tile.hero_on, Status.Ploy)
+
+            for foe in foes_within_n_cardinal(unit, 1):
+                if foe.HPcur <= unit.HPcur - diff:
+                    add_status(foe, Status.Stall)
 
         # TACTIC SKILLS
         move_arrs = [[], [], [], []]
@@ -2637,25 +2675,33 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 for ally in arr:
                     tactic_allies.append(ally)
 
-        if "atkTactic" in unitSkills:
-            for ally in tactic_allies:
-                if ally in allies_within_n_spaces[2] and ally != unit:
-                    add_buff(ally, ATK, 2 * unitSkills["atkTactic"])
+        if "atkTactic" in unitSkills or "atkTacticSe" in unitSkills:
+            skill_lvl = max(unitSkills.get("atkTactic", 0), unitSkills.get("atkTacticSe", 0))
 
-        if "spdTactic" in unitSkills:
             for ally in tactic_allies:
                 if ally in allies_within_n_spaces[2] and ally != unit:
-                    add_buff(ally, SPD, 2 * unitSkills["spdTactic"])
+                    add_buff(ally, ATK, 2 * skill_lvl)
 
-        if "defTactic" in unitSkills:
-            for ally in tactic_allies:
-                if ally in allies_within_n_spaces[2] and ally != unit:
-                    add_buff(ally, DEF, 2 * unitSkills["defTactic"])
+        if "spdTactic" in unitSkills or "spdTacticSe" in unitSkills:
+            skill_lvl = max(unitSkills.get("spdTactic", 0), unitSkills.get("spdTacticSe", 0))
 
-        if "resTactic" in unitSkills:
             for ally in tactic_allies:
                 if ally in allies_within_n_spaces[2] and ally != unit:
-                    add_buff(ally, RES, 2 * unitSkills["resTactic"])
+                    add_buff(ally, SPD, 2 * skill_lvl)
+
+        if "defTactic" in unitSkills or "defTacticSe" in unitSkills:
+            skill_lvl = max(unitSkills.get("defTactic", 0), unitSkills.get("defTacticSe", 0))
+
+            for ally in tactic_allies:
+                if ally in allies_within_n_spaces[2] and ally != unit:
+                    add_buff(ally, DEF, 2 * skill_lvl)
+
+        if "resTactic" in unitSkills or "resTacticSe" in unitSkills:
+            skill_lvl = max(unitSkills.get("resTactic", 0), unitSkills.get("resTacticSe", 0))
+
+            for ally in tactic_allies:
+                if ally in allies_within_n_spaces[2] and ally != unit:
+                    add_buff(ally, RES, 2 * skill_lvl)
 
         if "spdTacticW" in unitSkills:
             for ally in tactic_allies:
@@ -2678,102 +2724,105 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_buff(ally, RES, 6)
 
         # CHILL SKILLS
-        if "chillAtk" in unitSkills:
-            highest_atk = units_with_extreme_stat(waiting_team, ATK, find_max=True)
+        if "chillAtk" in unitSkills or "chillAtkSe" in unitSkills:
+            level = max(unitSkills.get("chillAtk", 0), unitSkills.get("chillAtkSe", 0))
 
-            debuff = -1 - 2 * unitSkills["chillAtk"]
-
-            for foe in highest_atk:
-                add_debuff(foe, ATK, debuff)
+            for foe in units_with_extreme_stat(waiting_team, ATK):
+                add_debuff(foe, ATK, -1 - 2 * level)
 
         if "chillAtkW" in unitSkills:
-            highest_atk = units_with_extreme_stat(waiting_team, ATK, find_max=True)
-
-            for foe in highest_atk:
+            for foe in units_with_extreme_stat(waiting_team, ATK):
                 add_debuff(foe, ATK, -7)
 
-        if "chillSpd" in unitSkills:
-            highest_spd = units_with_extreme_stat(waiting_team, SPD, find_max=True)
+        if "chillSpd" in unitSkills or "chillSpdSe" in unitSkills:
+            level = max(unitSkills.get("chillSpd", 0), unitSkills.get("chillSpdSe", 0))
 
-            debuff = -1 - 2 * unitSkills["chillSpd"]
-
-            for foe in highest_spd:
-                add_debuff(foe, SPD, debuff)
+            for foe in units_with_extreme_stat(waiting_team, SPD):
+                add_debuff(foe, SPD, -1 - 2 * level)
 
         if "chillSpdW" in unitSkills:
             highest_spd = units_with_extreme_stat(waiting_team, SPD, find_max=True)
             for foe in highest_spd:
                 add_debuff(foe, SPD, -7)
 
-        if "chillDef" in unitSkills:
-            highest_def = units_with_extreme_stat(waiting_team, DEF, find_max=True)
+        if "chillDef" in unitSkills or "chillDefSe" in unitSkills:
+            level = max(unitSkills.get("chillDef", 0), unitSkills.get("chillDefSe", 0))
 
-            debuff = -1 - 2 * unitSkills["chillDef"]
-
-            for foe in highest_def:
-                add_debuff(foe, DEF, debuff)
+            for foe in units_with_extreme_stat(waiting_team, DEF):
+                add_debuff(foe, DEF, -1 - 2 * level)
 
         if "chillDefW" in unitSkills:
             highest_def = units_with_extreme_stat(waiting_team, DEF, find_max=True)
             for foe in highest_def:
                 add_debuff(foe, DEF, -7)
 
-        if "chillRes" in unitSkills:
-            highest_res = units_with_extreme_stat(waiting_team, RES, find_max=True)
-            debuff = -1 - 2 * unitSkills["chillRes"]
+        if "chillRes" in unitSkills or "chillResSe" in unitSkills:
+            level = max(unitSkills.get("chillRes", 0), unitSkills.get("chillResSe", 0))
 
-            for foe in highest_res:
-                add_debuff(foe, RES, debuff)
+            for foe in units_with_extreme_stat(waiting_team, RES):
+                add_debuff(foe, RES, -1 - 2 * level)
 
         if "chillResW" in unitSkills:
             highest_res = units_with_extreme_stat(waiting_team, RES, find_max=True)
             for foe in highest_res:
                 add_debuff(foe, RES, -7)
 
-        if "chillAtkSpd" in unitSkills:
+        if "chillAtkSpd" in unitSkills or "chillAtkSpdSe" in unitSkills:
+            debuff = max(unitSkills.get("chillAtkSpd", 0), unitSkills.get("chillAtkSpdSe", 0))
+
             for foe in units_with_extreme_stat_pairing_sum(waiting_team, ATK, SPD):
-                add_debuff(foe, ATK, -unitSkills["chillAtkSpd"])
-                add_debuff(foe, SPD, -unitSkills["chillAtkSpd"])
+                add_debuff(foe, ATK, -debuff)
+                add_debuff(foe, SPD, -debuff)
 
-        if "chillAtkDef" in unitSkills:
+        if "chillAtkDef" in unitSkills or "chillAtkDefSe" in unitSkills:
+            debuff = max(unitSkills.get("chillAtkDef", 0), unitSkills.get("chillAtkDefSe", 0))
+
             for foe in units_with_extreme_stat_pairing_sum(waiting_team, ATK, DEF):
-                add_debuff(foe, ATK, -unitSkills["chillAtkDef"])
-                add_debuff(foe, DEF, -unitSkills["chillAtkDef"])
+                add_debuff(foe, ATK, -debuff)
+                add_debuff(foe, DEF, -debuff)
 
-        if "chillAtkRes" in unitSkills:
+        if "chillAtkRes" in unitSkills or "chillAtkResSe" in unitSkills:
+            debuff = max(unitSkills.get("chillAtkRes", 0), unitSkills.get("chillAtkResSe", 0))
+
             for foe in units_with_extreme_stat_pairing_sum(waiting_team, ATK, RES):
-                add_debuff(foe, ATK, -unitSkills["chillAtkRes"])
-                add_debuff(foe, RES, -unitSkills["chillAtkRes"])
+                add_debuff(foe, ATK, -debuff)
+                add_debuff(foe, RES, -debuff)
 
-                if unitSkills["chillAtkRes"] == 6:
+                if debuff == 6:
                     for ally in allies_within_n(foe, 2):
-                        add_debuff(ally, ATK, -unitSkills["chillAtkRes"])
-                        add_debuff(ally, RES, -unitSkills["chillAtkRes"])
+                        add_debuff(ally, ATK, -debuff)
+                        add_debuff(ally, RES, -debuff)
 
-        if "chillSpdDef" in unitSkills:
+        if "chillSpdDef" in unitSkills or "chillSpdDefSe" in unitSkills:
+            debuff = max(unitSkills.get("chillSpdDef", 0), unitSkills.get("chillSpdDefSe", 0))
+
             for foe in units_with_extreme_stat_pairing_sum(waiting_team, SPD, DEF):
-                add_debuff(foe, SPD, -unitSkills["chillSpdDef"])
-                add_debuff(foe, DEF, -unitSkills["chillSpdDef"])
+                add_debuff(foe, SPD, -debuff)
+                add_debuff(foe, DEF, -debuff)
 
-        if "chillSpdRes" in unitSkills:
+        if "chillSpdRes" in unitSkills or "chillSpdResSe" in unitSkills:
+            debuff = max(unitSkills.get("chillSpdRes", 0), unitSkills.get("chillSpdResSe", 0))
+
             for foe in units_with_extreme_stat_pairing_sum(waiting_team, SPD, RES):
-                add_debuff(foe, SPD, -unitSkills["chillSpdRes"])
-                add_debuff(foe, RES, -unitSkills["chillSpdRes"])
+                add_debuff(foe, SPD, -debuff)
+                add_debuff(foe, RES, -debuff)
 
-                if unitSkills["chillSpdRes"] == 6:
+                if debuff == 6:
                     for ally in allies_within_n(foe, 2):
-                        add_debuff(ally, SPD, -unitSkills["chillSpdRes"])
-                        add_debuff(ally, RES, -unitSkills["chillSpdRes"])
+                        add_debuff(ally, SPD, -debuff)
+                        add_debuff(ally, RES, -debuff)
 
-        if "chillDefRes" in unitSkills:
+        if "chillDefRes" in unitSkills or "chillDefResSe" in unitSkills:
+            debuff = max(unitSkills.get("chillDefRes", 0), unitSkills.get("chillDefResSe", 0))
+
             for foe in units_with_extreme_stat_pairing_sum(waiting_team, DEF, RES):
-                add_debuff(foe, DEF, -unitSkills["chillDefRes"])
-                add_debuff(foe, RES, -unitSkills["chillDefRes"])
+                add_debuff(foe, DEF, -debuff)
+                add_debuff(foe, RES, -debuff)
 
-                if unitSkills["chillDefRes"] == 6:
+                if debuff == 6:
                     for ally in allies_within_n(foe, 2):
-                        add_debuff(ally, DEF, -unitSkills["chillDefRes"])
-                        add_debuff(ally, RES, -unitSkills["chillDefRes"])
+                        add_debuff(ally, DEF, -debuff)
+                        add_debuff(ally, RES, -debuff)
 
         if "gunterChill" in unitSkills:
             lowest_spd = units_with_extreme_stat(waiting_team, SPD, find_max=False)
@@ -2885,6 +2934,9 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
         if "timesPulseSk" in unitSkills and (turn-1) % (4 - unitSkills["timesPulseSk"]) == 0 and unit.specialCount == unit.specialMax:
             sp_charges[unit] += 1
 
+        if "timesPulseSe" in unitSkills and (turn-1) % (4 - unitSkills["timesPulseSe"]) == 0 and unit.specialCount == unit.specialMax:
+            sp_charges[unit] += 1
+
         if "timePulseEcho" in unitSkills and unit.specialCount == unit.specialMax:
             sp_charges[unit] += 1
 
@@ -2982,46 +3034,87 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             for ally in allies_within_n_spaces[1]:
                 add_buff(ally, ATK, unitSkills["oddAtkWave"])
 
+        if "oddAtkWaveSe" in unitSkills and turn % 2 == 1:
+            add_buff(unit, ATK, unitSkills["oddAtkWaveSe"])
+            for ally in allies_within_n_spaces[1]:
+                add_buff(ally, ATK, unitSkills["oddAtkWaveSe"])
+
         if "evenAtkWave" in unitSkills and turn % 2 == 0:
             add_buff(unit, ATK, unitSkills["evenAtkWave"])
             for ally in allies_within_n_spaces[1]:
                 add_buff(ally, ATK, unitSkills["evenAtkWave"])
+
+        if "evenAtkWaveSe" in unitSkills and turn % 2 == 0:
+            add_buff(unit, ATK, unitSkills["evenAtkWaveSe"])
+            for ally in allies_within_n_spaces[1]:
+                add_buff(ally, ATK, unitSkills["evenAtkWaveSe"])
 
         if "oddSpdWave" in unitSkills and turn % 2 == 1:
             add_buff(unit, SPD, unitSkills["oddSpdWave"])
             for ally in allies_within_n_spaces[1]:
                 add_buff(ally, SPD, unitSkills["oddSpdWave"])
 
+        if "oddSpdWaveSe" in unitSkills and turn % 2 == 1:
+            add_buff(unit, SPD, unitSkills["oddSpdWaveSe"])
+            for ally in allies_within_n_spaces[1]:
+                add_buff(ally, SPD, unitSkills["oddSpdWaveSe"])
+
         if "evenSpdWave" in unitSkills and turn % 2 == 0:
             add_buff(unit, SPD, unitSkills["evenSpdWave"])
             for ally in allies_within_n_spaces[1]:
                 add_buff(ally, SPD, unitSkills["evenSpdWave"])
+
+        if "evenSpdWaveSe" in unitSkills and turn % 2 == 0:
+            add_buff(unit, SPD, unitSkills["evenSpdWaveSe"])
+            for ally in allies_within_n_spaces[1]:
+                add_buff(ally, SPD, unitSkills["evenSpdWaveSe"])
 
         if "oddDefWave" in unitSkills and turn % 2 == 1:
             add_buff(unit, DEF, unitSkills["oddDefWave"])
             for ally in allies_within_n_spaces[1]:
                 add_buff(ally, DEF, unitSkills["oddDefWave"])
 
+        if "oddDefWaveSe" in unitSkills and turn % 2 == 1:
+            add_buff(unit, DEF, unitSkills["oddDefWaveSe"])
+            for ally in allies_within_n_spaces[1]:
+                add_buff(ally, DEF, unitSkills["oddDefWaveSe"])
+
         if "evenDefWave" in unitSkills and turn % 2 == 0:
             add_buff(unit, DEF, unitSkills["evenDefWave"])
             for ally in allies_within_n_spaces[1]:
                 add_buff(ally, DEF, unitSkills["evenDefWave"])
+
+        if "evenDefWaveSe" in unitSkills and turn % 2 == 0:
+            add_buff(unit, DEF, unitSkills["evenDefWaveSe"])
+            for ally in allies_within_n_spaces[1]:
+                add_buff(ally, DEF, unitSkills["evenDefWaveSe"])
 
         if "oddResWave" in unitSkills and turn % 2 == 0:
             add_buff(unit, RES, unitSkills["oddResWave"])
             for ally in allies_within_n_spaces[1]:
                 add_buff(ally, RES, unitSkills["oddResWave"])
 
+        if "oddResWaveSe" in unitSkills and turn % 2 == 0:
+            add_buff(unit, RES, unitSkills["oddResWaveSe"])
+            for ally in allies_within_n_spaces[1]:
+                add_buff(ally, RES, unitSkills["oddResWaveSe"])
+
         if "evenResWave" in unitSkills and turn % 2 == 0:
             add_buff(unit, RES, unitSkills["evenResWave"])
             for ally in allies_within_n_spaces[1]:
                 add_buff(ally, RES, unitSkills["evenResWave"])
+
+        if "evenResWaveSe" in unitSkills and turn % 2 == 0:
+            add_buff(unit, RES, unitSkills["evenResWaveSe"])
+            for ally in allies_within_n_spaces[1]:
+                add_buff(ally, RES, unitSkills["evenResWaveSe"])
 
         if "evenAtkWaveW" in unitSkills and turn % 2 == 0:
             add_buff(unit, ATK, unitSkills["evenAtkWaveW"])
             for ally in allies_within_n_spaces[1]:
                 add_buff(ally, ATK, unitSkills["evenAtkWaveW"])
 
+        # Tier 4 Wave Skills
         if "premiumAtkWave" in unitSkills:
             add_buff(unit, ATK, 6)
             for ally in allies_within_n_spaces[2]:
@@ -3267,17 +3360,33 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             for ally in units_with_extreme_stat(starting_team, ATK, exclude=unit):
                 add_buff(ally, ATK, unitSkills["atkOpening"])
 
+        if "atkOpeningSe" in unitSkills:
+            for ally in units_with_extreme_stat(starting_team, ATK, exclude=unit):
+                add_buff(ally, ATK, unitSkills["atkOpeningSe"])
+
         if "spdOpening" in unitSkills:
             for ally in units_with_extreme_stat(starting_team, SPD, exclude=unit):
                 add_buff(ally, SPD, unitSkills["spdOpening"])
+
+        if "spdOpeningSe" in unitSkills:
+            for ally in units_with_extreme_stat(starting_team, SPD, exclude=unit):
+                add_buff(ally, SPD, unitSkills["spdOpeningSe"])
 
         if "defOpening" in unitSkills:
             for ally in units_with_extreme_stat(starting_team, DEF, exclude=unit):
                 add_buff(ally, DEF, unitSkills["defOpening"])
 
+        if "defOpeningSe" in unitSkills:
+            for ally in units_with_extreme_stat(starting_team, DEF, exclude=unit):
+                add_buff(ally, DEF, unitSkills["defOpeningSe"])
+
         if "resOpening" in unitSkills:
             for ally in units_with_extreme_stat(starting_team, RES, exclude=unit):
                 add_buff(ally, RES, unitSkills["resOpening"])
+
+        if "resOpeningSe" in unitSkills:
+            for ally in units_with_extreme_stat(starting_team, RES, exclude=unit):
+                add_buff(ally, RES, unitSkills["resOpeningSe"])
 
         # GAP SKILLS
         if "atkSpdGap" in unitSkills:
@@ -3319,6 +3428,15 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             add_buff(unit, DEF, unitSkills["defOath"])
         if "resOath" in unitSkills and allies_within_n_spaces[1]:
             add_buff(unit, RES, unitSkills["resOath"])
+
+        if "atkOathSe" in unitSkills and allies_within_n_spaces[1]:
+            add_buff(unit, ATK, unitSkills["atkOathSe"])
+        if "spdOathSe" in unitSkills and allies_within_n_spaces[1]:
+            add_buff(unit, SPD, unitSkills["spdOathSe"])
+        if "defOathSe" in unitSkills and allies_within_n_spaces[1]:
+            add_buff(unit, DEF, unitSkills["defOathSe"])
+        if "resOathSe" in unitSkills and allies_within_n_spaces[1]:
+            add_buff(unit, RES, unitSkills["resOathSe"])
 
         if "atkSpdOath" in unitSkills and allies_within_n_spaces[2]:
             add_buff(unit, ATK, 6)
@@ -3363,6 +3481,15 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             add_buff(unit, DEF, unitSkills["defRouse"])
         if "resRouse" in unitSkills and not allies_within_n_spaces[1]:
             add_buff(unit, RES, unitSkills["resRouse"])
+
+        if "atkRouseSe" in unitSkills and not allies_within_n_spaces[1]:
+            add_buff(unit, ATK, unitSkills["atkRouseSe"])
+        if "spdRouseSe" in unitSkills and not allies_within_n_spaces[1]:
+            add_buff(unit, SPD, unitSkills["spdRouseSe"])
+        if "defRouseSe" in unitSkills and not allies_within_n_spaces[1]:
+            add_buff(unit, DEF, unitSkills["defRouseSe"])
+        if "resRouseSe" in unitSkills and not allies_within_n_spaces[1]:
+            add_buff(unit, RES, unitSkills["resRouseSe"])
 
         if "nullPanicRouse" in unitSkills and not allies_within_n_spaces[1]:
             add_status(unit, Status.NullPanic)
@@ -3425,24 +3552,36 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 clear_penalty_stats.append(ally)
 
         # STATUSES
-        if "armorMarch" in unitSkills and unit.HPcur / unit.visible_stats[HP] >= 1.5 - 0.5 * unitSkills["armorMarch"]:
-            ally_cond = False
-            for ally in allies_within_n_spaces[1]:
-                if ally.move == 3:
+        if "armorMarch" in unitSkills or "armorMarchSe" in unitSkills:
+            skill_lvl = max(unitSkills.get("armorMarch", 0), unitSkills.get("armorMarchSe", 0))
 
-                    add_status(ally, Status.MobilityUp)
-                    ally_cond = True
+            if unit.HPcur / unit.visible_stats[HP] >= 1.5 - 0.5 * skill_lvl:
+                ally_cond = False
 
-            if ally_cond:
-                add_status(unit, Status.MobilityUp)
+                for ally in allies_within_n_spaces[1]:
+                    if ally.move == 3:
+                        add_status(ally, Status.MobilityUp)
+                        ally_cond = True
+
+                if ally_cond:
+                    add_status(unit, Status.MobilityUp)
 
         if "armorStride" in unitSkills and unit.HPcur / unit.visible_stats[HP] >= 1.5 - 0.5 * unitSkills["armorStride"] and not allies_within_n_spaces[1]:
+            add_status(unit, Status.MobilityUp)
+
+        if "armoredBoots" in unitSkills and unit.HPcur == unit.visible_stats[HP]:
             add_status(unit, Status.MobilityUp)
 
         if "odd_tempest" in unitSkills and unit.HPcur / unit.visible_stats[HP] >= 1.5 - 0.5 * unitSkills["odd_tempest"] and turn % 2 == 1:
             add_status(unit, Status.MobilityUp)
 
+        if "odd_tempestSe" in unitSkills and unit.HPcur / unit.visible_stats[HP] >= 1.5 - 0.5 * unitSkills["odd_tempestSe"] and turn % 2 == 1:
+            add_status(unit, Status.MobilityUp)
+
         if "even_tempest" in unitSkills and unit.HPcur / unit.visible_stats[HP] >= 1.5 - 0.5 * unitSkills["even_tempest"] and turn % 2 == 0:
+            add_status(unit, Status.MobilityUp)
+
+        if "even_tempestSe" in unitSkills and unit.HPcur / unit.visible_stats[HP] >= 1.5 - 0.5 * unitSkills["even_tempestSe"] and turn % 2 == 0:
             add_status(unit, Status.MobilityUp)
 
         if "endlessTempest" in unitSkills:
@@ -3452,6 +3591,11 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             add_status(unit, Status.MobilityUp)
 
         if "air_orders" in unitSkills and unit.HPcur / unit.visible_stats[HP] >= 1.5 - 0.5 * unitSkills["air_orders"]:
+            for ally in allies_within_n_spaces[1]:
+                if ally.move == 2:
+                    add_status(ally, Status.Orders)
+
+        if "air_ordersSe" in unitSkills and unit.HPcur / unit.visible_stats[HP] >= 1.5 - 0.5 * unitSkills["air_ordersSe"]:
             for ally in allies_within_n_spaces[1]:
                 if ally.move == 2:
                     add_status(ally, Status.Orders)
@@ -3474,6 +3618,11 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 if ally.move != 2:
                     add_status(ally, Status.Orders)
 
+        if "ground_ordersSe" in unitSkills and unit.HPcur / unit.visible_stats[HP] >= 1.5 - 0.5 * unitSkills["ground_ordersSe"]:
+            for ally in allies_within_n_spaces[1]:
+                if ally.move != 2:
+                    add_status(ally, Status.Orders)
+
         if "hexbladeSkill" in unitSkills:
             magic_cond = False
 
@@ -3488,13 +3637,15 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
         if "flierBeastA" in unitSkills and unit.transformed:
             add_status(unit, Status.MobilityUp)
 
-        if "assaultTroop" in unitSkills:
-            if unitSkills["assaultTroop"] == 1:
+        if "assaultTroop" in unitSkills or "assaultTroopSe" in unitSkills:
+            skill_lvl = max(unitSkills.get("assaultTroop", 0), unitSkills.get("assaultTroopSe", 0))
+
+            if skill_lvl == 1:
                 cond = foes_within_n_cardinal(unit, 1)
-            elif unitSkills["assaultTroop"] == 2:
+            elif skill_lvl == 2:
                 cond = foes_within_n_cardinal(unit, 3)
-            elif unitSkills["assaultTroop"] == 3:
-                cond = foes_within_n_cardinal(unit, 3) or unitHPEqual100Percent
+            elif skill_lvl == 3:
+                cond = bool(foes_within_n_cardinal(unit, 3) or unitHPEqual100Percent)
             else:
                 cond = False
 
@@ -8797,22 +8948,24 @@ def get_warp_moves(unit, unit_team, other_team):
 
     # Flier Formation
     # Warp to adj. spaces to flying ally within 2 spaces
-    if "flierFormation" in unitSkills:
-        if unit.HPcur/unitStats[HP] >= 1.5 - 0.5 * unitSkills["flierFormation"]:
+    if "flierFormation" in unitSkills or "flierFormationSe" in unitSkills:
+        skill_lvl = max(unitSkills.get("flierFormation", 0), unitSkills.get("flierFormationSe", 0))
+
+        if unit.HPcur/unitStats[HP] >= 1.5 - 0.5 * skill_lvl:
             for ally in unit.tile.unitsWithinNSpaces(2):
                 if ally.isAllyOf(unit) and ally.move == 2:
-                    adj_ally_spaces = ally.tile.tilesWithinNSpaces(1)
-                    for adj_tile in adj_ally_spaces:
+                    for adj_tile in ally.tile.tilesWithinNSpaces(1):
                         warp_moves.append(adj_tile)
 
     # Aerobatics
     # Ward to adj. spaces to non-flying ally within 2 spaces
-    if "aerobatics" in unitSkills:
-        if unit.HPcur/unitStats[HP] >= 1.5 - 0.5 * unitSkills["aerobatics"]:
+    if "aerobatics" in unitSkills or "aerobaticsSe" in unitSkills:
+        skill_lvl = max(unitSkills.get("aerobatics", 0), unitSkills.get("aerobaticsSe", 0))
+
+        if unit.HPcur/unitStats[HP] >= 1.5 - 0.5 * skill_lvl:
             for ally in unit.tile.unitsWithinNSpaces(2):
                 if ally.isAllyOf(unit) and ally.move != 2:
-                    adj_ally_spaces = ally.tile.tilesWithinNSpaces(1)
-                    for adj_tile in adj_ally_spaces:
+                    for adj_tile in ally.tile.tilesWithinNSpaces(1):
                         warp_moves.append(adj_tile)
 
     # Aerial Maneuvers
@@ -9214,11 +9367,14 @@ def get_warp_moves(unit, unit_team, other_team):
         # Inf and Armor allies can move to a space adj. to flier w/ skill
         if "guidance" in allySkills and ally.HPcur / allyStats[HP] >= 1.5 - 0.5 * allySkills["guidance"]:
             if unit.move == 0 or unit.move == 3:
-                units_within_2 = allies_within_n(ally, 2)
-                if unit in units_within_2:
+                if unit in allies_within_n(ally, 2):
+                    for tile in ally.tile.tilesWithinNSpaces(1):
+                        warp_moves.append(tile)
 
-                    local_spaces = ally.tile.tilesWithinNSpaces(1)
-                    for tile in local_spaces:
+        if "guidanceSe" in allySkills and ally.HPcur / allyStats[HP] >= 1.5 - 0.5 * allySkills["guidanceSe"]:
+            if unit.move == 0 or unit.move == 3:
+                if unit in allies_within_n(ally, 2):
+                    for tile in ally.tile.tilesWithinNSpaces(1):
                         warp_moves.append(tile)
 
         # Guidance 4
@@ -9290,11 +9446,14 @@ def get_warp_moves(unit, unit_team, other_team):
         # Flier allies can move to a space adj. to flier w/ skill
         if "flier_guidance" in allySkills and ally.HPcur / allyStats[HP] >= 1.5 - 0.5 * allySkills["flier_guidance"]:
             if unit.move == 2:
-                units_within_2 = allies_within_n(ally, 2)
-                if unit in units_within_2:
+                if unit in allies_within_n(ally, 2):
+                    for tile in ally.tile.tilesWithinNSpaces(1):
+                        warp_moves.append(tile)
 
-                    local_spaces = ally.tile.tilesWithinNSpaces(1)
-                    for tile in local_spaces:
+        if "flier_guidanceSe" in allySkills and ally.HPcur / allyStats[HP] >= 1.5 - 0.5 * allySkills["flier_guidanceSe"]:
+            if unit.move == 2:
+                if unit in allies_within_n(ally, 2):
+                    for tile in ally.tile.tilesWithinNSpaces(1):
                         warp_moves.append(tile)
 
         # Soaring Guidance / Soaring Echo
