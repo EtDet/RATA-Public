@@ -16,7 +16,8 @@ DEFENDER = 1
 UNCONDITIONAL = 0
 GIVEN_UNIT_SURVIVED = 1
 GIVEN_UNIT_ATTACKED = 2
-
+GIVEN_SPECIAL_TRIGGERED = 3
+GIVEN_SPECIAL_MAX = 4
 
 # A set of modifiers that change how combat and attacks work
 # One is held by each unit in combat and keeps track of their effects
@@ -31,6 +32,7 @@ class HeroModifiers:
 
         # Has effectiveness
         self.effective = False
+        self.effectiveness_types = [] # Array of weapon types this unit is effective against
 
         # Advantage types
         # List which weapon colors this unit is effective against
@@ -144,6 +146,7 @@ class HeroModifiers:
         self.DR_dragon_fang_shot_SP = False # based on special count and res difference
         self.DR_king_making_SP = False # based on special count
         self.DR_aether_path_SP = False # based on special count or triggered
+        self.DR_fire_emblem_SP = False # based on num allies with [Fire Emblem]
 
         # Stat-scaling Damage Reduction, (SPD, 4) in this array means: grants all hits DR = difference between self and foe's SPD * 4%, (max 40%)
         self.stat_scaling_DR = []
@@ -344,12 +347,12 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     defr.tile = defender.tile
 
     # Count add Phantom stats
-    if "phantomSpd" in atkSkills: atkPhantomStats[SPD] += atkSkills["phantomSpd"]
-    if "phantomRes" in atkSkills: atkPhantomStats[RES] += atkSkills["phantomRes"]
-    if "phantomSpd" in defSkills: defPhantomStats[SPD] += defSkills["phantomSpd"]
-    if "phantomRes" in defSkills: defPhantomStats[RES] += defSkills["phantomRes"]
+    atkPhantomStats[SPD] += attacker.get_phantom_stat(SPD)
+    atkPhantomStats[RES] += attacker.get_phantom_stat(RES)
+    defPhantomStats[SPD] += defender.get_phantom_stat(SPD)
+    defPhantomStats[RES] += defender.get_phantom_stat(RES)
 
-    # stored temporary buffs (essentially everything)
+    # Stored combat buffs
     atkCombatBuffs = [0] * 5
     defCombatBuffs = [0] * 5
 
@@ -482,9 +485,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     atkFoeWithin2Spaces = []  # Includes opposing unit in combat!
     defFoeWithin2Spaces = []  # Includes opposing unit in combat!
 
+    atkFoeWithin3Spaces = []  # Includes opposing unit in combat!
+    defFoeWithin3Spaces = []  # Includes opposing unit in combat!
+
     if is_in_sim:
         atkFoeWithin2Spaces = foes_within_n(attacker, attacker.attacking_tile, 2)
         defFoeWithin2Spaces = foes_within_n(defender, defender.tile, 2)
+
+        atkFoeWithin3Spaces = foes_within_n(attacker, attacker.attacking_tile, 3)
+        defFoeWithin3Spaces = foes_within_n(defender, defender.tile, 3)
 
     # Allies of a certain movment type within 2 spaces
     atkInfAlliesWithin2Spaces = []
@@ -962,7 +971,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     # All stats on player initiation
     if "spectrumBlow" in atkSkills:
-        atkCombatBuffs = [x + defSkills["spectrumBlow"] for x in atkCombatBuffs]
+        atkCombatBuffs = [x + atkSkills["spectrumBlow"] for x in atkCombatBuffs]
 
     # Follow-up denial on player initiation (Sturdy Impact, etc.)
     if "impactDenial" in atkSkills:
@@ -2683,7 +2692,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.true_all_hits += min(5 * (len(defAllyWithin3RowsCols) + 1), 20)
 
     if "springAirBoost" in defSkills and defHPGreaterEqual25Percent:
-        defr.true_all_hits += min(5 * len((atkAllyWithin3RowsCols) + 1), 20)
+        defr.true_all_hits += min(5 * (len(atkAllyWithin3RowsCols) + 1), 20)
 
     if "springAirTempo_f" in atkSkills: defr.defensive_tempo = True
     if "springAirTempo_f" in defSkills: atkr.defensive_tempo = True
@@ -2784,6 +2793,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     # Potent DR
     if "potentDR" in atkSkills: atkr.DR_all_hits_NSP.append(atkSkills["potentDR"])
     if "potentDR" in defSkills: defr.DR_all_hits_NSP.append(defSkills["potentDR"])
+
+    # Sword of Peace - FE!Marth
+    if "drivePreempt_f" in atkSkills: atkr.sp_jump_first += atkSkills["drivePreempt_f"]
+    if "drivePreempt_f" in defSkills: defr.sp_jump_first += defSkills["drivePreempt_f"]
+
+    # The Fire Emblem - FE!Marth
+    if "THE Fire Emblem" in atkSkills: atkr.DR_fire_emblem_SP = True
+    if "THE Fire Emblem" in defSkills: defr.DR_fire_emblem_SP = True
 
     # Feather Sword (Base) - CH!Caeda
     if "caedaVantage" in defSkills and (attacker.wpnType in ["Sword", "Lance", "Axe", "CBow"] or attacker.move == 3 or defHPCur / defStats[0] <= 0.75):
@@ -7331,11 +7348,11 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.true_all_hits += 7
         defr.damage_reduction_reduction.append(50)
 
-    if Status.PreemptPulse in attacker.statusPos:
-        atkr.sp_jump_first += 1
+    if Status.PreemptPulse in attacker.statusPos: atkr.sp_jump_first += 1
+    if Status.PreemptPulse in defender.statusPos: defr.sp_jump_first += 1
 
-    if Status.PreemptPulse in defender.statusPos:
-        defr.sp_jump_first += 1
+    if "preempt" in atkSkills: atkr.sp_jump_first += 1
+    if "preempt" in defSkills: defr.sp_jump_first += 1
 
     # Emblem Lyn Style
     if style == "EMBLEM-LYN":
@@ -17387,6 +17404,50 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             atkCombatBuffs[RES] -= 8
             cannotCounter = True
 
+    # Jaws of Closure - Elm
+    if "elmBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + trunc(0.15 * atkStats[SPD]) for x in atkCombatBuffs]
+
+        X = min(1 + len(defAllyWithin3Spaces), 4)
+
+        atkr.true_all_hits += 8 * X
+        atkr.TDR_first_strikes += 6 * X
+
+    if "elmBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + trunc(0.15 * defStats[SPD]) for x in defCombatBuffs]
+
+        X = min(1 + len(atkAllyWithin3Spaces), 4)
+
+        defr.true_all_hits += 8 * X
+        defr.TDR_first_strikes += 6 * X
+
+    # New Opening - Elm
+    if "newOpening" in atkSkills and (attacker.transformed or defHPGreaterEqual75Percent):
+        atkCombatBuffs = [x + 9 for x in atkCombatBuffs]
+        atkr.offensive_tempo = True
+        atkr.defensive_tempo = True
+
+        X = min(spaces_moved_by_atkr * 3, 12)
+
+        atkr.true_all_hits += X
+        atkr.TDR_first_strikes += X
+        atkr.TDR_on_foe_sp += 1
+
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "newOpening" in defSkills and (defender.transformed or atkHPGreaterEqual75Percent):
+        defCombatBuffs = [x + 9 for x in defCombatBuffs]
+        defr.offensive_tempo = True
+        defr.defensive_tempo = True
+
+        X = min(spaces_moved_by_atkr * 3, 12)
+
+        defr.true_all_hits += X
+        defr.TDR_first_strikes += X
+        defr.TDR_on_foe_sp += 1
+
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
     # Fang of Finality (Base) - NY!Elm
     if "nyElmBoost" in atkSkills:
         atkCombatBuffs[ATK] += 6
@@ -19878,8 +19939,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[RES] += atkSkills["closeGuard_f"]
 
     if "closeGuard_f" in defSkills and attacker.wpnType in MELEE_WEAPONS:
-        defCombatBuffs[DEF] += atkSkills["closeGuard_f"]
-        defCombatBuffs[RES] += atkSkills["closeGuard_f"]
+        defCombatBuffs[DEF] += defSkills["closeGuard_f"]
+        defCombatBuffs[RES] += defSkills["closeGuard_f"]
 
     if "distGuard_f" in atkSkills and defender.wpnType in RANGED_WEAPONS:
         atkCombatBuffs[DEF] += atkSkills["distGuard_f"]
@@ -20762,6 +20823,63 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.DR_first_strikes_NSP.append(40)
         for i in range(1, 5):
             defCombatBuffs[i] += 5 + max(defNeutrBuffsStats[i], max([ally.get_total_buff(i) for ally in defAllyWithin2Spaces], default=0))
+
+    # Sword of Peace - FE!Marth
+    if "The guy from Smash Bros" in atkSkills and atkAllyWithin3Spaces:
+        atkCombatBuffs = [x + min(len(atkAllyWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
+
+        X = max(sum(atkNeutrBuffsStats), max([ally.get_bonus_total() for ally in atkAllyWithin3Spaces], default=0))
+
+        atkr.true_all_hits += X
+        atkr.TDR_first_strikes += trunc(0.50 * X)
+        atkr.TDR_on_foe_sp += trunc(0.50 * X)
+
+        atkr.sp_jump_first += 1
+        atkr.damage_reduction_reduction.append(50)
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 10, "self", "one"))
+
+    if "The guy from Smash Bros" in defSkills and defAllyWithin3Spaces:
+        defCombatBuffs = [x + min(len(defAllyWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
+
+        X = max(sum(defNeutrBuffsStats), max([ally.get_bonus_total() for ally in defAllyWithin3Spaces], default=0))
+
+        defr.true_all_hits += X
+        defr.TDR_first_strikes += trunc(0.50 * X)
+        defr.TDR_on_foe_sp += trunc(0.50 * X)
+
+        defr.sp_jump_first += 1
+        defr.damage_reduction_reduction.append(50)
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 10, "self", "one"))
+
+    if Status.FireEmblem in attacker.statusPos:
+        for i in range(1, 5):
+            atkCombatBuffs[i] += max(atkNeutrBuffsStats[i], max([ally.get_total_buff(i) for ally in atkAllyWithin2Spaces], default=0))
+
+        atkr.TDR_first_strikes += 10
+
+    if Status.FireEmblem in defender.statusPos:
+        for i in range(1, 5):
+            defCombatBuffs[i] += max(defNeutrBuffsStats[i], max([ally.get_total_buff(i) for ally in defAllyWithin2Spaces], default=0))
+
+        defr.TDR_first_strikes += 10
+
+    # Shield of Hope - FE!Marth
+    if "shieldOfHope" in atkSkills:
+        bonus_total = sum(nlargest(3, [ally.get_bonus_total() for ally in atkAllAllies]))
+
+        if bonus_total >= 60:
+            if attacker.unitCombatInitiates == 0:
+                atkr.self_desperation = True
+
+    if "shieldOfHope" in defSkills:
+        bonus_total = sum(nlargest(3, [ally.get_bonus_total() for ally in defAllAllies]))
+
+        if bonus_total >= 40:
+            defr.vantage = True
+        if bonus_total >= 60:
+            disableCannotCounter = True
+            if defender.unitCombatInitiates == 0:
+                defr.self_desperation = True
 
     # Wing-Lifted Spear (Base) - L!Caeda
     if "https://www.youtube.com/watch?v=NqDawnpxcgc" in atkSkills or "LCaedaRefine" in atkSkills or "LCaedaRefineEffect" in atkSkills:
@@ -26314,32 +26432,44 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     # EFFECTIVENESS CHECK
 
+    atkNullEffMovement = False
+    defNullEffMovement = False
+
+    if "nullEffCav" in atkSkills and attacker.move == 1: atkNullEffMovement = True
+    if ("nullEffFly" in atkSkills or "haarEff" in atkSkills or Status.NullEffFliers in attacker.statusPos) and attacker.move == 2: atkNullEffMovement = True
+    if ("nullEffArm" in atkSkills or Status.NullEffArmors in attacker.statusPos) and attacker.move == 3: atkNullEffMovement = True
+
+    if Status.FireEmblem in attacker.statusPos: atkNullEffMovement = True
+
+    if "nullEffCav" in defSkills and defender.move == 1: defNullEffMovement = True
+    if ("nullEffFly" in defSkills or "haarEff" in defSkills or Status.NullEffFliers in defender.statusPos) and defender.move == 2: defNullEffMovement = True
+    if ("nullEffArm" in defSkills or Status.NullEffArmors in defender.statusPos) and defender.move == 3: defNullEffMovement = True
+
+    if Status.FireEmblem in defender.statusPos: defNullEffMovement = True
+
     # Infantry Effectiveness
-    if "effInf" in atkSkills and defender.move == 0: atkr.effective = True
-    if "effInf" in defSkills and attacker.move == 0: defr.effective = True
+    if "effInf" in atkSkills and defender.move == 0 and not defNullEffMovement: atkr.effective = True
+    if "effInf" in defSkills and attacker.move == 0 and not atkNullEffMovement: defr.effective = True
 
     # Cavalry Effectiveness
-    if "effCav" in atkSkills and "nullEffCav" not in defSkills and defender.move == 1: atkr.effective = True
-    if "effCav" in defSkills and "nullEffCav" not in atkSkills and attacker.move == 1: defr.effective = True
+    if "effCav" in atkSkills and defender.move == 1 and not defNullEffMovement: atkr.effective = True
+    if "effCav" in defSkills and attacker.move == 1 and not atkNullEffMovement: defr.effective = True
 
     # Flier Effectiveness
-    if "effFly" in atkSkills and ("nullEffFly" not in defSkills and "haarEff" not in defSkills) and defender.move == 2: atkr.effective = True
-    if "effFly" in defSkills and ("nullEffFly" not in atkSkills and "haarEff" not in defSkills) and attacker.move == 2: defr.effective = True
+    if "effFly" in atkSkills and defender.move == 2 and not defNullEffMovement: atkr.effective = True
+    if "effFly" in defSkills and attacker.move == 2 and not atkNullEffMovement: defr.effective = True
 
     # Bow Weapons
-    if attacker.wpnType in BOW_WEAPONS and ("nullEffFly" not in defSkills and "haarEff" not in defSkills) and defender.move == 2:
-        atkr.effective = True
-
-    if defender.wpnType in BOW_WEAPONS and ("nullEffFly" not in atkSkills and "haarEff" not in defSkills) not in atkSkills and attacker.move == 2:
-        defr.effective = True
+    if attacker.wpnType in BOW_WEAPONS and defender.move == 2 and not defNullEffMovement: atkr.effective = True
+    if defender.wpnType in BOW_WEAPONS and attacker.move == 2 and not atkNullEffMovement: defr.effective = True
 
     # Armor Effectiveness
-    if "effArmor" in atkSkills and "nullEffArm" not in defSkills and defender.move == 3: atkr.effective = True
-    if "effArmor" in defSkills and "nullEffArm" not in atkSkills and attacker.move == 3: defr.effective = True
+    if "effArmor" in atkSkills and defender.move == 3 and not defNullEffMovement: atkr.effective = True
+    if "effArmor" in defSkills and attacker.move == 3 and not atkNullEffMovement: defr.effective = True
 
     # Cavalry and Armor
-    if "effCavArmor" in atkSkills and (defender.move == 1 and "nullEffCav" not in defSkills or defender.move == 3 and "nullEffArm" not in defSkills): atkr.effective = True
-    if "effCavArmor" in defSkills and (attacker.move == 1 and "nullEffCav" not in atkSkills or attacker.move == 3 and "nullEffArm" not in defSkills): defr.effective = True
+    if "effCavArmor" in atkSkills and (defender.move == 1 or defender.move == 3) and not defNullEffMovement: atkr.effective = True
+    if "effCavArmor" in defSkills and (attacker.move == 1 or attacker.move == 3) and not atkNullEffMovement: defr.effective = True
 
     # Dragon Effectiveness
     for dragon_str in dragon_eff_strs:
@@ -26367,9 +26497,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             defr.effective = True
 
     # Caeda (Sword, Lance, Axe, CBow, Armor)
-    if "effCaeda" in atkSkills and (defender.wpnType in ["Sword", "Lance", "Axe", "CBow"] or (defender.move == 3 and "nullEffArm" not in defSkills)):
+    if "effCaeda" in atkSkills and (defender.wpnType in ["Sword", "Lance", "Axe", "CBow"] or (defender.move == 3 and not defNullEffMovement)):
         atkr.effective = True
-    if "effCaeda" in defSkills and (attacker.wpnType in ["Sword", "Lance", "Axe", "CBow"] or (attacker.move == 3 and "nullEffArm" not in atkSkills)):
+    if "effCaeda" in defSkills and (attacker.wpnType in ["Sword", "Lance", "Axe", "CBow"] or (attacker.move == 3 and not atkNullEffMovement)):
         defr.effective = True
 
     # Swift Slice - L!F!Shez (Speed Check)
@@ -26759,6 +26889,20 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if Status.PotentFollow in defender.statusPos and defStats[SPD] >= atkStats[SPD] + (defr.outspeed_factor - 25):
         defr.potent_percent_strong.append(80)
         defr.potent_percent_weak.append(40)
+
+    if "shieldOfHope" in atkSkills:
+        bonus_total = sum(nlargest(3, [ally.get_bonus_total() for ally in atkAllAllies]))
+
+        if bonus_total >= 20 and atkStats[SPD] >= defStats[SPD] + (atkr.outspeed_factor - 10):
+            atkr.potent_percent_strong.append(100)
+            atkr.potent_percent_weak.append(100)
+
+    if "shieldOfHope" in defSkills:
+        bonus_total = sum(nlargest(3, [ally.get_bonus_total() for ally in defAllAllies]))
+
+        if bonus_total >= 20 and defStats[SPD] >= atkStats[SPD] + (defr.outspeed_factor - 10):
+            defr.potent_percent_strong.append(100)
+            defr.potent_percent_weak.append(100)
 
     # Sparking Tome (Refine Base) - Azelle
     if "azelleRefineBoost" in atkSkills and atkStats[SPD] >= defStats[SPD] + (atkr.outspeed_factor - 25):
@@ -27258,9 +27402,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if defr.potent_FU:
         if defr.brave or defCanFollowUp:
-            defr.potent_percentage = max(atkr.potent_percent_weak)
+            defr.potent_percentage = max(defr.potent_percent_weak)
         else:
-            defr.potent_percentage = max(atkr.potent_percent_strong)
+            defr.potent_percentage = max(defr.potent_percent_strong)
 
     # Dodge Status
     if Status.Dodge in attacker.statusPos and atkPhantomStats[SPD] > defPhantomStats[SPD]: atkr.stat_scaling_DR.append((SPD, 40))
@@ -27903,6 +28047,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                 else:
                     special_damage_reductions.append(50 - (10 * defSpCountCur))
 
+            if defr.DR_fire_emblem_SP:
+                ally_count = 1 if Status.FireEmblem in defender.statusPos else 0
+
+                for ally in defAllAllies:
+                    if Status.FireEmblem in ally.statusPos:
+                        ally_count += 1
+
+                special_damage_reductions.append(min(10 * ally_count, 40))
+
             if atkr.special_triggered or atkSpCountCur == 0 or defr.special_triggered or defSpCountCur == 0:
                 special_damage_reductions += defr.DR_sp_trigger_by_any_special_SP
                 special_damage_reductions += defr.DR_sp_trigger_by_any_special_non_twin_SP
@@ -27962,6 +28115,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                     special_damage_reductions.append(50)
                 else:
                     special_damage_reductions.append(50 - (10 * atkSpCountCur))
+
+            if atkr.DR_fire_emblem_SP:
+                ally_count = 1 if Status.FireEmblem in attacker.statusPos else 0
+
+                for ally in atkAllAllies:
+                    if Status.FireEmblem in ally.statusPos:
+                        ally_count += 1
+
+                special_damage_reductions.append(min(10 * ally_count, 40))
 
             if atkr.special_triggered or atkSpCountCur == 0 or defr.special_triggered or defSpCountCur == 0:
                 special_damage_reductions += atkr.DR_sp_trigger_by_any_special_SP

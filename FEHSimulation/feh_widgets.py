@@ -5530,14 +5530,16 @@ class GameplayCanvas(tk.Canvas):
 
                     arg_true_sum = int(far_savior_skill) + int(near_savior_skill) + int(assign_decoy_status)
 
-                    if targeting_range == 1 and (near_savior_skill or assign_decoy_status) and arg_true_sum == 1 and Status.Undefended not in cur_tile_Obj.hero_on.statusNeg:
+                    disable_savior = bool("disableFoeSavior" in cur_hero.getSkills() or Status.Undefended in cur_tile_Obj.hero_on.statusNeg)
+
+                    if targeting_range == 1 and (near_savior_skill or assign_decoy_status) and arg_true_sum == 1 and not disable_savior:
                         if savior_unit is None:
                             savior_unit = ally
                         else:
                             savior_unit = None
                             break
 
-                    elif targeting_range == 2 and (far_savior_skill or assign_decoy_status) and arg_true_sum == 1 and Status.Undefended not in cur_tile_Obj.hero_on.statusNeg:
+                    elif targeting_range == 2 and (far_savior_skill or assign_decoy_status) and arg_true_sum == 1 and not disable_savior:
                         if savior_unit is None:
                             savior_unit = ally
                         else:
@@ -6272,18 +6274,26 @@ class GameplayCanvas(tk.Canvas):
             enemy_tile = release_tile
 
             # Determine savior variables
-            targeting_range = player.weapon.range
+            targeting_range = 1 if player.wpnType in hero.MELEE_WEAPONS else 2
             savior_unit = None
 
             for ally in feh.allies_within_n(enemy, 2):
-                if targeting_range == 1 and (("nearSavior" in ally.getSkills()) ^ (Status.AssignDecoy in ally.statusPos and ally.wpnType in hero.MELEE_WEAPONS)) and Status.Undefended not in enemy.statusNeg:
+                near_savior_skill = bool("nearSavior" in ally.getSkills() and (ally.getSkills()["nearSavior"] == 2 or ally in feh.allies_within_n(player, 1)))
+                far_savior_skill = bool("farSavior" in ally.getSkills() and (ally.getSkills()["farSavior"] == 2 or ally in feh.allies_within_n(player, 1)))
+                assign_decoy_status = bool(Status.AssignDecoy in ally.statusPos and ally.getRange() == player.getRange())
+
+                arg_true_sum = int(far_savior_skill) + int(near_savior_skill) + int(assign_decoy_status)
+
+                disable_savior = bool("disableFoeSavior" in player.getSkills() or Status.Undefended in enemy.statusNeg)
+
+                if targeting_range == 1 and (near_savior_skill or assign_decoy_status) and arg_true_sum == 1 and not disable_savior:
                     if savior_unit is None:
                         savior_unit = ally
                     else:
                         savior_unit = None
                         break
 
-                elif targeting_range == 2 and (("farSavior" in ally.getSkills()) ^ (Status.AssignDecoy in ally.statusPos and ally.wpnType in hero.RANGED_WEAPONS)) and Status.Undefended not in enemy.statusNeg:
+                elif targeting_range == 2 and (far_savior_skill or assign_decoy_status) and arg_true_sum == 1 and not disable_savior:
                     if savior_unit is None:
                         savior_unit = ally
                     else:
@@ -10637,6 +10647,11 @@ class GameplayCanvas(tk.Canvas):
                         highest_hp_allies[0].inflictStat(RES, 3)
                         highest_hp_allies[0].inflictStatus(Status.Orders)
 
+                    # FE!Marth
+                    if effect['degree'] == 2:
+                        highest_hp_allies[0].inflictStatus(Status.PotentFollow)
+                        highest_hp_allies[0].inflictStatus(Status.NullBonuses)
+
             if effect['effect'] == "galeforce":
                 self.units_to_move.append(unit)
                 self.update_unit_graphics(unit)
@@ -11820,7 +11835,10 @@ class UnitInfoDisplay(tk.Frame):
             if unit.emblem_merges > 0:
                 emblem_text += "+" + str(unit.emblem_merges)
 
-            self.emblem_label.config(text=emblem_text)
+        else:
+            emblem_text = "Emblem: None"
+
+        self.emblem_label.config(text=emblem_text)
 
         ssupport_names = ["None", "C", "B", "A", "S"]
         self.ssupport_label.config(text="Summoner Support: " + ssupport_names[unit.summonerSupport])
@@ -12640,12 +12658,20 @@ class ExtrasFrame(tk.Frame):
         burn_damages = result[14]
 
         if burn_damages[ENEMY] > 0:
-            atkHP = max(1, atkHP - burn_damages[1])
+            atkHP = max(1, atkHP - burn_damages[ENEMY])
             atk_burn_damage_present = True
 
         if burn_damages[PLAYER] > 0:
-            defHP = max(1, defHP - burn_damages[0])
+            defHP = max(1, defHP - burn_damages[PLAYER])
             def_burn_damage_present = True
+
+        precombat_heals = result[15]
+
+        if precombat_heals[PLAYER] > 0:
+            atkHP = min(attacker.visible_stats[HP], atkHP + precombat_heals[PLAYER])
+
+        if precombat_heals[ENEMY] > 0:
+            defHP = min(defender.visible_stats[HP], defHP + precombat_heals[ENEMY])
 
         wpn_adv = result[4]
         atk_eff = result[5]
@@ -12797,8 +12823,8 @@ class ExtrasFrame(tk.Frame):
         # AOE Damage
         if aoe_present:
             box_color = "#6e2a9c"
-            canvas.create_rectangle(cur_box_pos - 15, 50, cur_box_pos + 15, 80, fill=box_color, outline='#dae6e2')
-            canvas.create_text((cur_box_pos, 65), text=aoe_damage, fill='#e8c35d', font=("Helvetica", 12), anchor='center')
+            canvas.create_rectangle(cur_box_pos - 15, 55, cur_box_pos + 15, 85, fill=box_color, outline='#dae6e2')
+            canvas.create_text((cur_box_pos, 70), text=aoe_damage, fill='#e8c35d', font=("Helvetica", 12), anchor='center')
 
             cur_box_pos += int(box_size + gap_size)
 
@@ -12810,11 +12836,11 @@ class ExtrasFrame(tk.Frame):
             atk_color = "#18284f" if attacker.side == 0 else "#541616"
             def_color = "#541616" if attacker.side == 0 else "#18284f"
 
-            canvas.create_rectangle(cur_box_pos - 15, 50, cur_box_pos + 15, 65, fill=atk_color, outline='#c9692c')
-            canvas.create_text((cur_box_pos, 57), text=atk_burn_txt, fill='#e8c35d', font=("Helvetica", 12), anchor='center')
+            canvas.create_rectangle(cur_box_pos - 15, 55, cur_box_pos + 15, 70, fill=atk_color, outline='#c9692c')
+            canvas.create_text((cur_box_pos, 62), text=atk_burn_txt, fill='#e8c35d', font=("Helvetica", 12), anchor='center')
 
-            canvas.create_rectangle(cur_box_pos - 15, 65, cur_box_pos + 15, 80, fill=def_color, outline='#c9692c')
-            canvas.create_text((cur_box_pos, 72), text=def_burn_txt, fill='#e8c35d', font=("Helvetica", 12), anchor='center')
+            canvas.create_rectangle(cur_box_pos - 15, 70, cur_box_pos + 15, 85, fill=def_color, outline='#c9692c')
+            canvas.create_text((cur_box_pos, 77), text=def_burn_txt, fill='#e8c35d', font=("Helvetica", 12), anchor='center')
 
             cur_box_pos += int(box_size + gap_size)
 
@@ -12823,7 +12849,7 @@ class ExtrasFrame(tk.Frame):
             box_color = "#18284f" if x.attackOwner == attacker.side else "#541616"
             border_color = "#dae6e2" if not x.isSpecial else "#fc03e3"
 
-            canvas.create_rectangle(cur_box_pos - 15, 50, cur_box_pos + 15, 80, fill=box_color, outline=border_color)
+            canvas.create_rectangle(cur_box_pos - 15, 55, cur_box_pos + 15, 85, fill=box_color, outline=border_color)
 
             dmg_fill = '#e8c35d'
             if x.attackOwner == 0 and atk_eff:
@@ -12832,9 +12858,9 @@ class ExtrasFrame(tk.Frame):
                 dmg_fill = '#46eb34'
 
             if x.healed != 0:
-                canvas.create_text((cur_box_pos-10, 65-10), text=x.healed, fill="green", font=("Helvetica", 8, 'bold'), anchor='center')
+                canvas.create_text((cur_box_pos-10, 70-10), text=x.healed, fill="green", font=("Helvetica", 8, 'bold'), anchor='center')
 
-            canvas.create_text((cur_box_pos, 65), text=x.damage, fill=dmg_fill, font=("Helvetica", 12), anchor='center')
+            canvas.create_text((cur_box_pos, 70), text=x.damage, fill=dmg_fill, font=("Helvetica", 12), anchor='center')
 
             cur_box_pos += int(box_size + gap_size)
 

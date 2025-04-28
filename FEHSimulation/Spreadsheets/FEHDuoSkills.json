@@ -772,6 +772,19 @@
       }
     ]
   },
+  "FE!Marth": {
+    "desc": "Grants another action to ally with the highest HP that is within 2 spaces of unit and has already acted (excluding unit) and grants [Potent Follow] and \"neutralizes foe's bonuses during combat\" to that ally for 1 turn.\n\n(If multiple units meet the above conditions, effect will not trigger.)",
+    "type": "duo",
+    "skill_refresh": -1,
+    "skills": [
+      {
+        "effect": "dance",
+        "degree": 2,
+        "targets": "allies",
+        "area": "within_2_spaces"
+      }
+    ]
+  },
   "SU!Mia": {
     "desc": "Grants [Resonance: Blades] to unit and allies from the same titles as unit.\n\nOnce used, Harmonized Skill cannot be activated again right away. At start of every third turn, if Harmonized Skill has already been used, unit can use Harmonized Skill again.",
     "type": "harmonic",

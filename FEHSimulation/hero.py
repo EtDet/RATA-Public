@@ -1323,7 +1323,7 @@ blessing_dict = {
     "Kvasir":      (DARK,  2, SPD),
     "Gullveig":    (ANIMA, 2, SPD),
     "Ratatoskr":   (ASTRA, 2, SPD),
-    "MY!Lumera":    (LIGHT, 2, DEF),
+    "MY!Lumera":   (LIGHT, 2, DEF),
     "Loki":        (DARK,  2, ATK),
     "Heiðrún":     (ANIMA, 2, RES),
     "Eikþyrnir":   (ASTRA, 2, DEF),
@@ -1331,7 +1331,8 @@ blessing_dict = {
     "Níðhöggr":    (ASTRA, 2, RES),
     "Læraðr":      (DARK,  2, DEF),
     "Rune":        (LIGHT, 3, SPD),
-    "Athos":       (ANIMA, 3, DEF)
+    "Athos":       (ANIMA, 3, DEF),
+    "Elm":         (ASTRA, 3, SPD)
 }
 
 def create_specialized_blessing(int_name):
@@ -1398,7 +1399,8 @@ class Status(Enum):
     Dosage = 108  # 🔴 Atk/Spd/Def/Res+5, 10HP healed after combat, disables effects that steal bonuses, and clears all bonuses from foes that attempt to steal bonuses
     Empathy = 109  # 🔴 Grants Atk/Spd/Def/Res = num unique Bonus effects and Penalty effects currently on map (max 7)
     DivinelyInspiring = 110  # 🔴 Grants Atk/Spd/Def/Res = X * 3, grants -X sp jump to self before foe's first attack, and heals X * 4 HP per hit (X = num allies with this status in 3 spaces, max 2)
-    Salvage = 111  # 🔵 UPDATE WITH PROPER POSITION - Can move 2 spaces after combat with Canto. If Canto Control applied, base Canto movement is instead set to 2 for Melee units, 1 for Ranged units.
+    Salvage = 111  # 🔵 Can move 2 spaces after combat with Canto. If Canto Control applied, base Canto movement is instead set to 2 for Melee units, 1 for Ranged units.
+    FireEmblem = 111.5 # 🔴 Nulls "Eff against move types", grants Atk/Spd/Def/Res = highest bonus on foes within 2 spaces, and reduces damage from first strikes by 10.
     Anathema = 112  # 🔴 Inflicts Spd/Def/Res-4 on foes within 3 spaces
     DraconicHex = 113 # 🔴 Inflicts Atk/Spd/Def/Res-5 on foe, and an additional Atk/Spd/Def/Res-5 minus current debuff of each stat.
     Treachery = 114  # 🔴 Deal true damage = number of stat bonuses on unit (not including Panic + Bonus)

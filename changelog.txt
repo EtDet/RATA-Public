@@ -1,12 +1,19 @@
-2.7.1 (4/XX/25)
+2.7.1 (4/28/25)
 New Features:
--New Mythic Hero Anri/Sombron/Váli/Fáfnir was added
+-New heroes Elm and 35th Anniversary Marth were added (Note: Levels 2-39 will be inaccurate for a short while, until BVID is found).
 -Resplendent Outfit can now be used for Lyon.
 -All Sacred Seals are now available to use.
+-RATA can now be updated by running updater.py. Check the README for more information regarding how to update.
 
 Bug Fixes:
 -S/D Rein Snap can no longer be equipped by ranged fliers.
 -Stall Ploy now properly gives out [Stall] instead of [Ploy].
+-Close Guard now works properly.
+-Yunaka's warping now works properly.
+-The Selected Hero Status will now show a hero's chosen Emblem properly.
+-Bridal Juno and Desert Juno now have the correct functionality.
+-Fixed Savior skills within the forecast.
+-Breath of Life-type healing now works within the forecast.
 
 2.7.0 (4/22/25)
 New Features:

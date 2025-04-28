@@ -562,6 +562,16 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
+        # Sword of Peace - FE!Marth
+        if "The guy from Smash Bros" in unitSkills:
+            range = within_3_space
+            condition = lambda s: lambda o: True
+            affect_same_side = True
+            effects = {"atkCombat": 5, "spdCombat": 5, "postCombatHeal_f": 10, "drivePreempt_f": 1}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
         # Renowned Bow (Refine Eff) - Gordin
         if "gordin_field" in unitSkills:
             range = within_2_space
@@ -1919,6 +1929,17 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
+        # Jaws of Closure - Elm
+        if "elmBoost" in unitSkills:
+            range = within_3_rows_or_cols
+            condition = lambda s: lambda o: True
+            affect_same_side = False
+            effects = {"atkCombat": -6, "spdCombat": -6, "defCombat": -6, "resCombat": -6, "reinHalfDR_f": 1}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
+        # Thorr
         if "worldbreaker" in unitSkills:
             range = within_2_space
             condition = lambda s: lambda o: True
@@ -2256,7 +2277,7 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             buff = max(unitSkills.get("honeAtk", 0), unitSkills.get("honeAtkSe", 0))
 
             for ally in allies_within_n_spaces[1]:
-                add_buff(ally, ATK, unitSkills[buff])
+                add_buff(ally, ATK, buff)
 
         if "honeAtkW" in unitSkills:
             for ally in allies_within_n_spaces[1]:
@@ -2266,19 +2287,19 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             buff = max(unitSkills.get("honeSpd", 0), unitSkills.get("honeSpdSe", 0))
 
             for ally in allies_within_n_spaces[1]:
-                add_buff(ally, SPD, unitSkills[buff])
+                add_buff(ally, SPD, buff)
 
         if "fortifyDef" in unitSkills or "fortifyDefSe" in unitSkills:
             buff = max(unitSkills.get("fortifyDef", 0), unitSkills.get("fortifyDefSe", 0))
 
             for ally in allies_within_n_spaces[1]:
-                add_buff(ally, DEF, unitSkills[buff])
+                add_buff(ally, DEF, buff)
 
         if "fortifyRes" in unitSkills or "fortifyResSe" in unitSkills:
             buff = max(unitSkills.get("fortifyRes", 0), unitSkills.get("fortifyResSe", 0))
 
             for ally in allies_within_n_spaces[1]:
-                add_buff(ally, RES, unitSkills[buff])
+                add_buff(ally, RES, buff)
 
         if "honecav" in unitSkills:
             for ally in allies_within_n_spaces[2]:
@@ -3820,6 +3841,17 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
 
             for ally in allies_within_n_spaces[2]:
                 add_buff(ally, ATK, 6)
+
+        # The Fire Emblem - FE!Marth
+        if "THE Fire Emblem" in unitSkills and allies_within_n_spaces[2]:
+            add_buff(unit, OMNI, 7)
+            add_status(unit, Status.NullPanic)
+            add_status(unit, Status.FireEmblem)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, OMNI, 7)
+                add_status(ally, Status.NullPanic)
+                add_status(ally, Status.FireEmblem)
 
         # Wing-Lifted Spear (Refine Eff) - L!Caeda
         if "LCaedaRefineEffect" in unitSkills and allies_within_n_spaces[2]:
@@ -7337,6 +7369,17 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                     add_debuff(unit, RES, 7)
                     add_status(foe, Status.Discord)
 
+        # The Fire Emblem - FE!Marth
+        if "THE Fire Emblem" in unitSkills and allies_within_n(unit, 2):
+            add_buff(unit, OMNI, 7)
+            add_status(unit, Status.NullPanic)
+            add_status(unit, Status.FireEmblem)
+
+            for ally in allies_within_n(unit, 2):
+                add_buff(ally, OMNI, 7)
+                add_status(ally, Status.NullPanic)
+                add_status(ally, Status.FireEmblem)
+
         # Wing-Lifted Spear (Refine Eff) - Caeda
         if "LCaedaRefineEffect" in unitSkills and allies_within_n(unit, 2):
             add_buff(unit, ATK, 6)
@@ -8974,6 +9017,12 @@ def get_warp_moves(unit, unit_team, other_team):
             for adj_tile in ally.tile.tilesWithinNSpaces(2):
                 warp_moves.append(adj_tile)
 
+    # Hold Guide
+    if "holdGuide" in unitSkills:
+        for ally in allies_within_n(unit, 2):
+            for adj_tile in ally.tile.tilesWithinNSpaces(2):
+                warp_moves.append(adj_tile)
+
     # True-Bond Bow - X!Alm
     if "xAlmBoost" in unitSkills:
         for ally in allies_within_n(unit, 2):
@@ -9092,7 +9141,7 @@ def get_warp_moves(unit, unit_team, other_team):
             if unit.isAllyOf(tile.hero_on) or tile.is_difficult_terrain() or tile.is_def_terrain or tile.has_divine_vein():
                 warp_moves.append(tile)
 
-                for adj_tile in unit.tile.tilesWithinNSpaces(2):
+                for adj_tile in tile.tilesWithinNSpaces(2):
                     warp_moves.append(adj_tile)
 
     # Warp Ragnarok
@@ -9379,6 +9428,11 @@ def get_warp_moves(unit, unit_team, other_team):
 
         # Guidance 4
         if "guidance4" in allySkills and (unit.move == 0 or unit.move == 3) and unit in allies_within_n(ally, 2):
+            for tile in ally.tile.tilesWithinNSpaces(2):
+                warp_moves.append(tile)
+
+        # Hold Guide
+        if "holdGuide" in allySkills and unit in allies_within_n(ally, 2):
             for tile in ally.tile.tilesWithinNSpaces(2):
                 warp_moves.append(tile)
 
@@ -10866,6 +10920,11 @@ def apply_after_action_stats(unit, is_canto):
                 foe.inflictStat(ATK, -7)
                 foe.inflictStat(DEF, -7)
                 foe.inflictStatus(Status.Gravity)
+
+    # Jaws of Closure - Elm
+    if "elmBoost" in unitSkills and not is_canto:
+        for foe in nearest_foes_within_n(unit, 5):
+            foe.inflictStatus(Status.Undefended)
 
     # Enticing Dose - Níðhöggr
     if "God's strongest drunk driver" in unitSkills and not is_canto:

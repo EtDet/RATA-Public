@@ -1,5 +1,5 @@
 # RATA: An FE Heroes Simulator</h1>
-### Version 2.7.0
+### Version 2.7.1
 
 RATA is a desktop application made with the Python language and Tkinter library which simulates and facilitates 
 the gameplay of the Fire Emblem Heroes (2017) mobile game. Fire Emblem Heroes (FEH) is a strategy game developed
@@ -34,6 +34,7 @@ Sprites and gameplay assets are downloaded from the https://feheroes.fandom.com 
 
 <h2>How to Use</h2>
 
+### Installation
 1. Download the source code for a given version, or clone this repository.
    
 ```
@@ -41,7 +42,7 @@ $ git clone https://github.com/EtDet/RATA-Public
 ```
 
 
-2. Install required packages.
+2. Install required packages by switching into the directory folder and installing requirements.
 ```
 $ cd RATA-Public
 ```
@@ -49,7 +50,7 @@ $ cd RATA-Public
 $ pip install -r requirements.txt
 ```
 
-3. Run sprites.py to download all unit sprites and map backgrounds.
+3. Switch into the FEHSimulation folder and run sprites.py to download all unit sprites and map backgrounds.
 ```
 $ cd FEHSimulation
 ```
@@ -57,14 +58,27 @@ $ cd FEHSimulation
 $ python3 sprites.py
 ```
 
-4. Run overview_menu.py to start the application. NOTE: This has changed starting 2.0.0!
+4. Run overview_menu.py to start the application.
 ```
 $ python3 overview_menu.py
 ```
 
-If a new version of this repository is released, the sprites file must be rerun to obtain image files.
+### Updating
+1. Change into the FEHSimulation folder.
+```
+$ cd RATA-Public/FEHSimulation
+```
 
-Personal unit data is stored within my_units.csv. This file can be copied into newer versions of this repository to continue using created units.
+2. Run updater.py to obtain the latest files.
+
+```
+$ python3 updater.py
+```
+
+3. If new sprites were added (New Heroes/Maps/Resplendents), sprites.py must be run to obtain them.
+```
+$ python3 sprites.py
+```
 
 <h2>Navigating RATA 2.0.0+</h2>
 The new menu is broken into 5 sections: Map Selection, My Units, Main Display, Selected Unit Status, and Extras.
