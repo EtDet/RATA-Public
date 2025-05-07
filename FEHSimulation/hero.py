@@ -1403,6 +1403,7 @@ class Status(Enum):
     FireEmblem = 111.5 # 🔴 Nulls "Eff against move types", grants Atk/Spd/Def/Res = highest bonus on foes within 2 spaces, and reduces damage from first strikes by 10.
     Anathema = 112  # 🔴 Inflicts Spd/Def/Res-4 on foes within 3 spaces
     DraconicHex = 113 # 🔴 Inflicts Atk/Spd/Def/Res-5 on foe, and an additional Atk/Spd/Def/Res-5 minus current debuff of each stat.
+    FellSpirit = 113.5 # 🔴 Inflicts Atk/Spd/Def/Res-4 on foe, disables cannot counter skills, any special DR can be triggered twice, and if any unit in combat is engaged, inflicts additional Atk/Spd/Def/Res-2 on foe
     Treachery = 114  # 🔴 Deal true damage = number of stat bonuses on unit (not including Panic + Bonus)
     Dominance = 115  # 🔴 Deal true damage = number of stat penalties on foe (including Panic-reversed Bonus)
     AOEReduce80Percent = 116  # 🔴 Reduces non-Røkkr AoE damage taken by 80%

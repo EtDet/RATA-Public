@@ -5088,7 +5088,7 @@ class GameplayCanvas(tk.Canvas):
 
                         ally = self.map.tiles[n].hero_on
 
-                        assist_effects = [] if self.canto else cur_hero.assist.effects
+                        assist_effects = {} if self.canto else cur_hero.assist.effects
 
                         if (self.canto and self.shadow_assist != "refresh") or (not self.canto and cur_hero.assist.type == "Move"):
                             if (self.canto and self.shadow_assist == "repo") or "repo" in assist_effects:
@@ -5096,10 +5096,12 @@ class GameplayCanvas(tk.Canvas):
                                 move_ally_to = feh.final_reposition_tile(m.destination, n)
 
                                 no_one_on = self.map.tiles[move_ally_to].hero_on is None or self.map.tiles[move_ally_to].hero_on == cur_hero
-                                someone_on = not no_one_on
 
-                                ally_is_tile_accessible = feh.can_be_on_tile(self.map.tiles[move_ally_to], ally) and not someone_on
-                                valid_ally_cond = move_ally_to != -1 and ally_is_tile_accessible
+                                ally_is_tile_accessible = feh.can_be_on_tile(self.map.tiles[move_ally_to], ally) and no_one_on
+
+                                is_return = "heal" in assist_effects and ally.HPcur < ally.visible_stats[HP] and not self.canto
+
+                                valid_ally_cond = (move_ally_to != -1 and ally_is_tile_accessible) or is_return
 
                             elif "draw" in assist_effects:
                                 move_unit_to = feh.final_reposition_tile(m.destination, n)
@@ -5109,8 +5111,10 @@ class GameplayCanvas(tk.Canvas):
 
                                 no_one_on_ally = self.map.tiles[move_ally_to].hero_on is None or self.map.tiles[move_ally_to].hero_on == cur_hero
 
-                                valid_unit_cond = feh.can_be_on_tile(self.map.tiles[move_unit_to], cur_hero) and move_unit_to != -1 and no_one_on
-                                valid_ally_cond = feh.can_be_on_tile(self.map.tiles[move_ally_to], ally) and move_ally_to != -1 and no_one_on_ally
+                                is_rescue = "heal" in assist_effects and ally.HPcur < ally.visible_stats[HP] and not self.canto
+
+                                valid_unit_cond = (feh.can_be_on_tile(self.map.tiles[move_unit_to], cur_hero) and move_unit_to != -1 and no_one_on) or is_rescue
+                                valid_ally_cond = (feh.can_be_on_tile(self.map.tiles[move_ally_to], ally) and move_ally_to != -1 and no_one_on_ally) or is_rescue
 
                             elif (self.canto and self.shadow_assist == "distant_swap") or "swap" in assist_effects:
                                 move_unit_to = n
@@ -5171,7 +5175,9 @@ class GameplayCanvas(tk.Canvas):
                                     unit_on_dest = self.map.tiles[final_dest].hero_on is not None and self.map.tiles[final_dest].hero_on != cur_hero
                                     can_traverse_dest = feh.can_be_on_tile(self.map.tiles[final_dest], ally)
 
-                                    valid_shove = not unit_on_dest and can_traverse_dest
+                                    is_nudge = "heal" in assist_effects and ally.HPcur < ally.visible_stats[HP] and self.canto is None
+
+                                    valid_shove = (not unit_on_dest and can_traverse_dest or is_nudge)
 
                                 valid_ally_cond = valid_shove
 
@@ -5521,30 +5527,7 @@ class GameplayCanvas(tk.Canvas):
 
                 # Determine if Savior Unit should be targeted instead.
                 targeting_range = cur_hero.weapon.range
-                savior_unit = None
-
-                for ally in feh.allies_within_n(cur_tile_Obj.hero_on, 2):
-                    near_savior_skill = "nearSavior" in ally.getSkills() and (ally.getSkills()["nearSavior"] == 2 or ally in feh.allies_within_n(cur_tile_Obj.hero_on, 1))
-                    far_savior_skill = "farSavior" in ally.getSkills() and (ally.getSkills()["farSavior"] == 2 or ally in feh.allies_within_n(cur_tile_Obj.hero_on, 1))
-                    assign_decoy_status = Status.AssignDecoy in ally.statusPos and (cur_hero.wpnType in hero.MELEE_WEAPONS and ally.wpnType in hero.MELEE_WEAPONS or cur_hero.wpnType in hero.RANGED_WEAPONS and ally.wpnType in hero.RANGED_WEAPONS)
-
-                    arg_true_sum = int(far_savior_skill) + int(near_savior_skill) + int(assign_decoy_status)
-
-                    disable_savior = bool("disableFoeSavior" in cur_hero.getSkills() or Status.Undefended in cur_tile_Obj.hero_on.statusNeg)
-
-                    if targeting_range == 1 and (near_savior_skill or assign_decoy_status) and arg_true_sum == 1 and not disable_savior:
-                        if savior_unit is None:
-                            savior_unit = ally
-                        else:
-                            savior_unit = None
-                            break
-
-                    elif targeting_range == 2 and (far_savior_skill or assign_decoy_status) and arg_true_sum == 1 and not disable_savior:
-                        if savior_unit is None:
-                            savior_unit = ally
-                        else:
-                            savior_unit = None
-                            break
+                savior_unit = feh.get_savior(cur_tile_Obj.hero_on, cur_hero)
 
                 if savior_unit is None:
 
@@ -6275,30 +6258,7 @@ class GameplayCanvas(tk.Canvas):
 
             # Determine savior variables
             targeting_range = 1 if player.wpnType in hero.MELEE_WEAPONS else 2
-            savior_unit = None
-
-            for ally in feh.allies_within_n(enemy, 2):
-                near_savior_skill = bool("nearSavior" in ally.getSkills() and (ally.getSkills()["nearSavior"] == 2 or ally in feh.allies_within_n(player, 1)))
-                far_savior_skill = bool("farSavior" in ally.getSkills() and (ally.getSkills()["farSavior"] == 2 or ally in feh.allies_within_n(player, 1)))
-                assign_decoy_status = bool(Status.AssignDecoy in ally.statusPos and ally.getRange() == player.getRange())
-
-                arg_true_sum = int(far_savior_skill) + int(near_savior_skill) + int(assign_decoy_status)
-
-                disable_savior = bool("disableFoeSavior" in player.getSkills() or Status.Undefended in enemy.statusNeg)
-
-                if targeting_range == 1 and (near_savior_skill or assign_decoy_status) and arg_true_sum == 1 and not disable_savior:
-                    if savior_unit is None:
-                        savior_unit = ally
-                    else:
-                        savior_unit = None
-                        break
-
-                elif targeting_range == 2 and (far_savior_skill or assign_decoy_status) and arg_true_sum == 1 and not disable_savior:
-                    if savior_unit is None:
-                        savior_unit = ally
-                    else:
-                        savior_unit = None
-                        break
+            savior_unit = feh.get_savior(enemy, player)
 
             # Using unit and foe's positioning, figure out which direction to shift while attacking
             # Go back and revise, Emblem Lyn attacks differently when using Astra Storm Style
@@ -7247,15 +7207,37 @@ class GameplayCanvas(tk.Canvas):
                 ally_tile_num = ally.tile.tileNum
 
                 # Where each unit is moving to
-                unit_final_position = player.tile.tileNum
-                ally_final_position = feh.final_reposition_tile(unit_tile_num, ally_tile_num)
+                unit_final_position = unit_tile_num
+                ally_final_position = ally_tile_num
+
+                final_dest = feh.final_reposition_tile(unit_tile_num, ally_tile_num)
+
+                if final_dest != -1:
+                    unit_on_dest = self.map.tiles[final_dest].hero_on is not None and self.map.tiles[final_dest].hero_on != player
+                    can_traverse_dest = feh.can_be_on_tile(self.map.tiles[final_dest], ally)
+
+                    if not unit_on_dest and can_traverse_dest:
+                        ally_final_position = final_dest
 
             elif "draw" in assist_effects:
                 unit_tile_num = player.tile.tileNum
                 ally_tile_num = ally.tile.tileNum
 
-                unit_final_position = feh.final_reposition_tile(unit_tile_num, ally_tile_num)
-                ally_final_position = unit_tile_num
+                unit_final_position = unit_tile_num
+                ally_final_position = ally_tile_num
+
+                unit_final_dest = feh.final_reposition_tile(unit_tile_num, ally_tile_num)
+                ally_final_dest = unit_tile_num
+
+                if unit_final_dest != 1:
+                    unit_on_dest = self.map.tiles[unit_final_dest].hero_on is not None and self.map.tiles[unit_final_dest].hero_on != player
+                    can_traverse_dest = feh.can_be_on_tile(self.map.tiles[unit_final_dest], player)
+
+                    can_traverse_dest_ally = feh.can_be_on_tile(self.map.tiles[ally_final_dest], ally)
+
+                    if not unit_on_dest and can_traverse_dest and can_traverse_dest_ally:
+                        unit_final_position = unit_final_dest
+                        ally_final_position = ally_final_dest
 
             elif "swap" in assist_effects or self.shadow_assist == "distant_swap":
                 unit_final_position = ally.tile.tileNum
@@ -7306,8 +7288,17 @@ class GameplayCanvas(tk.Canvas):
                 unit_tile_num = player.tile.tileNum
                 ally_tile_num = ally.tile.tileNum
 
-                unit_final_position = player.tile.tileNum
-                ally_final_position = feh.final_reposition_tile(ally_tile_num, unit_tile_num)
+                unit_final_position = unit_tile_num
+                ally_final_position = ally_tile_num
+
+                final_dest = feh.final_reposition_tile(ally_tile_num, unit_tile_num)
+
+                if final_dest != -1:
+                    unit_on_dest = self.map.tiles[final_dest].hero_on is not None and self.map.tiles[final_dest].hero_on != player
+                    can_traverse_dest = feh.can_be_on_tile(self.map.tiles[final_dest], ally)
+
+                    if not unit_on_dest and can_traverse_dest:
+                        ally_final_position = final_dest
 
             # Dance/Sing/Play
             elif "refresh" in assist_effects or self.shadow_assist == "refresh":
@@ -8939,6 +8930,10 @@ class GameplayCanvas(tk.Canvas):
                         shadow_skills.append("distant_swap")
 
                     if "requiemPrayer" in playerSkills and not cur_unit.nonspecial_galeforce_triggered:
+                        cur_unit.nonspecial_galeforce_triggered = True
+                        shadow_skills.append("refresh")
+
+                    if "marianneDance" in playerSkills and not cur_unit.nonspecial_galeforce_triggered:
                         cur_unit.nonspecial_galeforce_triggered = True
                         shadow_skills.append("refresh")
 

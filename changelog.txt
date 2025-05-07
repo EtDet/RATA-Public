@@ -1,3 +1,23 @@
+2.7.2 (5/7/25)
+
+-New fallen heroes F!Alear, M!Alear, Lena, Dedue, and base Fáfnir were added (Note: Levels 2-39 will be inaccurate for a short while, until BVID is found).
+-Elm and 35th Anniversary Marth will now have accurate level 2-39 stats.
+-Weapon refines + remixes for Legendary Myrrh, Legendary Deirdre, Louise, Arete, Marianne, Fallen Male Morgan, and Winter Bernadetta are now usable.
+-Resplendent Outfit can now be used for Athena.
+-The following structures can be upgraded to level 14: Inf/Cav/Fly/Armor Schools, Catapult
+
+Bug Fixes:
+-Movement-based staff assists can now be used when a unit can be healed and no movement is possible.
+-35th Anniv. Marth's The Fire Emblem no longer grants desperation for both phases.
+-Momentum's special jumps now work properly.
+-Arlen's Lightburst Tome's special jumps now work properly.
+-Brave Seliph's Holytide Tyrfing will now display the correct description when refined.
+-Various Beast weapons will now have the correct weapon description.
+-Primordial Boost will now trigger unconditionally when initiated against.
+-Various placeholder descriptions have been fixed.
+-Eirika Ring's effects will no longer trigger if equipped with an AOE special.
+-Fixed several skills which inflict debuffs at start of enemy phase, which instead were inflicting debuffs to their own team.
+
 2.7.1 (4/28/25)
 New Features:
 -New heroes Elm and 35th Anniversary Marth were added (Note: Levels 2-39 will be inaccurate for a short while, until BVID is found).
