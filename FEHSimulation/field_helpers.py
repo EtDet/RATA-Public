@@ -8675,11 +8675,11 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                     foe_count += 1
 
             if foe_count >= 2:
-                add_status(unit, Status.Pursual)
+                add_status(unit, Status.MakeFollowUp)
                 add_status(unit, Status.Canto1)
 
                 for ally in allies_within_n(unit, 2):
-                    add_status(ally, Status.Pursual)
+                    add_status(ally, Status.MakeFollowUp)
                     add_status(ally, Status.Canto1)
 
         if "fettersODromi" in unitSkills and Status.Stall in unit.statusNeg and Status.MobilityUp in unit.statusPos:

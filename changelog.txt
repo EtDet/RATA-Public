@@ -1,3 +1,7 @@
+2.7.3.1 (5/16/25)
+Hotfix:
+-The guaranteed follow-up status from Full Light & Dark is now grants a follow-up for both phases.
+
 2.7.3 (5/16/25)
 New Features:
 -New bridal heroes Larcei, Tine, Julia, Lana, and groom Seliph were added (Note: Levels 2-39 will be inaccurate for a short while, until BVID is found).

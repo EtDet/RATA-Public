@@ -1435,6 +1435,7 @@ class Status(Enum):
     SpecialCharge = 142  # 🔴 Special charge +1 per hit during combat
     PreemptPulse = 143  # 🔴 Grants -1 sp jump before unit's first attack
     Pursual = 144  # 🔴 Unit makes follow-up attack when initiating combat
+    MakeFollowUp = 144.5 # 🔴 Unit makes follow-up attack
     DenyFollowUp = 145  # 🔴 Foe cannot make a follow-up attack
     Outspeeding = 146  # Increases Spd difference needed for foe to make follow-up by 10
     PotentFollow = 147 # 🔴 If being outsped by 20 or less, grants 80/40 Potent hit
