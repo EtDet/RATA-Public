@@ -785,6 +785,25 @@
       }
     ]
   },
+  "BR!Julia": {
+    "desc": "Grants [Empathy] to unit and allies iwthin 2 spaces for 1 turn, and grants Special cooldown count-1 to unit and those allies.\n\nOnce used, Harmonized Skill cannot be activated again right away. At start of every third turn, if Harmonized Skill has already been used, unit can use Harmonized Skill again.",
+    "type": "duo",
+    "skill_refresh": 3,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "Empathy",
+        "targets": "self_and_allies",
+        "area": "within_2_spaces"
+      },
+      {
+        "effect": "sp_charge",
+        "degree": 1,
+        "targets": "self_and_allies",
+        "area": "within_2_spaces"
+      }
+    ]
+  },
   "SU!Mia": {
     "desc": "Grants [Resonance: Blades] to unit and allies from the same titles as unit.\n\nOnce used, Harmonized Skill cannot be activated again right away. At start of every third turn, if Harmonized Skill has already been used, unit can use Harmonized Skill again.",
     "type": "harmonic",

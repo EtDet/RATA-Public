@@ -5316,7 +5316,7 @@ class GameplayCanvas(tk.Canvas):
 
         # Raise enemy team
         i = 0
-        while i < len(self.current_units[S - 1]):
+        while i < len(self.all_units[S - 1]):
             self.tag_raise(self.unit_sprites[S - 1][i])
             self.tag_raise(self.unit_sprites_gs[S - 1][i])
             self.tag_raise(self.unit_sprites_trans[S - 1][i])
@@ -7351,19 +7351,19 @@ class GameplayCanvas(tk.Canvas):
 
                 if "atkCantrip" in playerSkills:
                     for foe in feh.nearest_foes_within_n(player, 4):
-                        foe.inflictStats(ATK, -playerSkills["atkCantrip"])
+                        foe.inflictStat(ATK, -playerSkills["atkCantrip"])
 
                 if "spdCantrip" in playerSkills:
                     for foe in feh.nearest_foes_within_n(player, 4):
-                        foe.inflictStats(SPD, -playerSkills["spdCantrip"])
+                        foe.inflictStat(SPD, -playerSkills["spdCantrip"])
 
                 if "defCantrip" in playerSkills:
                     for foe in feh.nearest_foes_within_n(player, 4):
-                        foe.inflictStats(DEF, -playerSkills["defCantrip"])
+                        foe.inflictStat(DEF, -playerSkills["defCantrip"])
 
                 if "resCantrip" in playerSkills:
                     for foe in feh.nearest_foes_within_n(player, 4):
-                        foe.inflictStats(RES, -playerSkills["resCantrip"])
+                        foe.inflictStat(RES, -playerSkills["resCantrip"])
 
                 if "atkDefCantrip" in playerSkills:
                     valid_foes = []
@@ -7374,8 +7374,8 @@ class GameplayCanvas(tk.Canvas):
                                 valid_foes.append(foe)
 
                     for foe in valid_foes:
-                        foe.inflictStats(ATK, -7)
-                        foe.inflictStats(DEF, -7)
+                        foe.inflictStat(ATK, -7)
+                        foe.inflictStat(DEF, -7)
                         foe.inflictStatus(Status.Sabotage)
 
                 if "atkResCantrip" in playerSkills:
@@ -7387,8 +7387,8 @@ class GameplayCanvas(tk.Canvas):
                                 valid_foes.append(foe)
 
                     for foe in valid_foes:
-                        foe.inflictStats(ATK, -7)
-                        foe.inflictStats(RES, -7)
+                        foe.inflictStat(ATK, -7)
+                        foe.inflictStat(RES, -7)
                         foe.inflictStatus(Status.Sabotage)
 
                 # Gentle Dream - Peony
@@ -10893,7 +10893,7 @@ class GameplayCanvas(tk.Canvas):
 
             else:
                 made_hero = make_hero_from_pd_row(row_data, ENEMY)
-                made_hero.side == ENEMY
+                made_hero.side = ENEMY
                 self.unit_reinf_points[-3].hero = made_hero
 
             self.refresh_units_prep()

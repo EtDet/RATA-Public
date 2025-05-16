@@ -1400,9 +1400,9 @@ class Status(Enum):
     Empathy = 109  # 🔴 Grants Atk/Spd/Def/Res = num unique Bonus effects and Penalty effects currently on map (max 7)
     DivinelyInspiring = 110  # 🔴 Grants Atk/Spd/Def/Res = X * 3, grants -X sp jump to self before foe's first attack, and heals X * 4 HP per hit (X = num allies with this status in 3 spaces, max 2)
     Salvage = 111  # 🔵 Can move 2 spaces after combat with Canto. If Canto Control applied, base Canto movement is instead set to 2 for Melee units, 1 for Ranged units.
-    FireEmblem = 111.5 # 🔴 Nulls "Eff against move types", grants Atk/Spd/Def/Res = highest bonus on foes within 2 spaces, and reduces damage from first strikes by 10.
     Anathema = 112  # 🔴 Inflicts Spd/Def/Res-4 on foes within 3 spaces
     DraconicHex = 113 # 🔴 Inflicts Atk/Spd/Def/Res-5 on foe, and an additional Atk/Spd/Def/Res-5 minus current debuff of each stat.
+    FireEmblem = 113.25  # 🔴 Nulls "Eff against move types", grants Atk/Spd/Def/Res = highest bonus on foes within 2 spaces, and reduces damage from first strikes by 10.
     FellSpirit = 113.5 # 🔴 Inflicts Atk/Spd/Def/Res-4 on foe, disables cannot counter skills, any special DR can be triggered twice, and if any unit in combat is engaged, inflicts additional Atk/Spd/Def/Res-2 on foe
     Treachery = 114  # 🔴 Deal true damage = number of stat bonuses on unit (not including Panic + Bonus)
     Dominance = 115  # 🔴 Deal true damage = number of stat penalties on foe (including Panic-reversed Bonus)

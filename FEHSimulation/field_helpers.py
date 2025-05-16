@@ -701,6 +701,46 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
+        # Legacy Axe - GR!Seliph
+        if "grSeliphBoost" in unitSkills:
+            range = within_3_rows_or_cols
+            condition = lambda s: lambda o: True
+            affect_same_side = True
+            effects = {"atkCombat": 5, "spdCombat": 5, "driveNullPenalties": 1}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
+        # Loving Bouquets - BR!Julia
+        if "brJuliaBoost" in unitSkills:
+            range = within_3_rows_or_cols
+            condition = lambda s: lambda o: True
+            affect_same_side = True
+            effects = {"atkCombat": 5, "resCombat": 5, "nullBonuses": 1, "drivePreempt_f": 1}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
+        # Bridal Bouquet
+        if "bridalBouquet" in unitSkills:
+            range = within_3_rows_or_cols
+            condition = lambda s: lambda o: True
+            affect_same_side = True
+            effects = {"atkCombat": 5, "spdCombat": 5, "nullBonuses": 1}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
+        # Bouquet Baton
+        if "bouquetBaton" in unitSkills:
+            range = within_3_rows_or_cols
+            condition = lambda s: lambda o: True
+            affect_same_side = True
+            effects = {"atkCombat": 5, "spdCombat": 5, "driveNullPenalties": 1}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
         # Spirit Forest Writ (Refine Eff) - L!Deirdre
         if "Jovial Merryment" in unitSkills:
             range = within_2_space
@@ -713,7 +753,7 @@ def create_combat_fields(player_team, enemy_team):
 
         # Heavenly Icicle (Base) - Díthorba
         if "dithorbaField" in unitSkills:
-            range = lambda s: lambda o: within_3_rows_or_cols
+            range = within_3_rows_or_cols
             condition = lambda s: lambda o: True
             affect_same_side = False
             effects = {"spdRein_f": 5, "defRein_f": 5, "fuDenialRein_f": 1, "cruxField_f": 1}
@@ -4345,6 +4385,23 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             add_status(unit, Status.MobilityUp)
             add_status(unit, Status.NullFollowUp)
 
+        # The Heir to Light - B!Seliph
+        if "theHeirToLight" in unitSkills and allies_within_n_spaces[2]:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, SPD, 6)
+            add_status(unit, Status.Incited)
+            add_status(unit, Status.NullFollowUp)
+            add_status(unit, Status.MobilityUp)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, ATK, 6)
+                add_buff(ally, SPD, 6)
+                add_status(ally, Status.Incited)
+                add_status(ally, Status.NullFollowUp)
+
+                if ally.wpnType in ["Sword", "Lance", "Axe"] or ally.move == 0 or ally.move == 2:
+                    add_status(ally, Status.MobilityUp)
+
         # Spirit Forest Writ (Refine Eff) - L!Deirdre
         if "Jovial Merryment" in unitSkills and allies_within_n_spaces[2]:
             add_buff(unit, ATK, 6)
@@ -4371,6 +4428,19 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                     add_status(foe, Status.Sabotage)
                     add_status(foe, Status.DeepWounds)
                     add_status(foe, Status.NullMiracle)
+
+        # Full Light & Dark - BR!Julia
+        if "fullLightAndDark" in unitSkills:
+            unit_res = unit.get_visible_stat(RES) + unit.get_phantom_stat(RES)
+            for foe in waiting_team:
+                foe_res = foe.get_visible_stat(RES) + foe.get_phantom_stat(RES)
+
+                if allies_within_n(foe, 2) and unit_res > foe_res:
+                    add_debuff(foe, ATK, -7)
+                    add_debuff(foe, RES, -7)
+                    add_status(foe, Status.Sabotage)
+                    add_status(foe, Status.Schism)
+
 
         # Winds of Silesse (Refine Eff) - Ced
         if "cedEffects" in unitSkills and unitHPGreaterEqual25Percent:
@@ -4400,6 +4470,20 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
         # Larcei's Edge (Refine Eff) - Larcei
         if "infiniteSpecial" in unitSkills and unitHPGreaterEqual25Percent and unit.specialCount == unit.specialMax:
             sp_charges[unit] += 1
+
+        # Brilliant Brident - BR!Larcei
+        if "brLarceiBoost" in unitSkills and unitHPGreaterEqual25Percent:
+            for foe in nearest_foes_within_n(unit, 20):
+                add_debuff(foe, SPD, -7)
+                add_debuff(foe, DEF, -7)
+                add_status(foe, Status.Exposure)
+                add_status(foe, Status.Discord)
+
+                for ally in allies_within_n(foe, 2):
+                    add_debuff(ally, SPD, -7)
+                    add_debuff(ally, DEF, -7)
+                    add_status(ally, Status.Exposure)
+                    add_status(ally, Status.Discord)
 
         # Aerial Longsword (Base) - Annand
         if "annandBoost" in unitSkills and allies_within_n_spaces[2]:
@@ -7713,6 +7797,18 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                     add_status(foe, Status.DeepWounds)
                     add_status(foe, Status.NullMiracle)
 
+        # Full Light & Dark - BR!Julia
+        if "fullLightAndDark" in unitSkills:
+            unit_res = unit.get_visible_stat(RES) + unit.get_phantom_stat(RES)
+            for foe in starting_team:
+                foe_res = foe.get_visible_stat(RES) + foe.get_phantom_stat(RES)
+
+                if allies_within_n(foe, 2) and unit_res > foe_res:
+                    add_debuff(foe, ATK, -7)
+                    add_debuff(foe, RES, -7)
+                    add_status(foe, Status.Sabotage)
+                    add_status(foe, Status.Schism)
+
         # Silesse Frost (Refine Eff) - Erinys
         if "stabbitystabbitystabstab" in unitSkills and allies_within_n(unit, 2):
             add_buff(unit, ATK, 6)
@@ -8570,6 +8666,21 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
 
             if foe_count >= 2:
                 add_status(unit, Status.Canto1)
+
+        if "fullLightAndDark" in unitSkills:
+            foe_count = 0
+
+            for foe in waiting_team:
+                if Status.Sabotage in foe.statusNeg:
+                    foe_count += 1
+
+            if foe_count >= 2:
+                add_status(unit, Status.Pursual)
+                add_status(unit, Status.Canto1)
+
+                for ally in allies_within_n(unit, 2):
+                    add_status(ally, Status.Pursual)
+                    add_status(ally, Status.Canto1)
 
         if "fettersODromi" in unitSkills and Status.Stall in unit.statusNeg and Status.MobilityUp in unit.statusPos:
             unit.statusNeg.remove(Status.MobilityUp)

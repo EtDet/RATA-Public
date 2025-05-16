@@ -1,5 +1,17 @@
-2.7.2 (5/7/25)
+2.7.3 (5/16/25)
+New Features:
+-New bridal heroes Larcei, Tine, Julia, Lana, and groom Seliph were added (Note: Levels 2-39 will be inaccurate for a short while, until BVID is found).
+-Resplendent Outfit can now be used for Henry.
 
+Bug Fixes:
+-Cantrip skills have been fixed.
+-Fixed Iron Hreiðmarr to only be usable by Fáfnir.
+-Fixed certain interactions involving sprite layering.
+-Sunlight+'s refines work properly.
+-The Fire Emblem status effect is now properly ordered.
+
+2.7.2 (5/7/25)
+New Features:
 -New fallen heroes F!Alear, M!Alear, Lena, Dedue, and base Fáfnir were added (Note: Levels 2-39 will be inaccurate for a short while, until BVID is found).
 -Elm and 35th Anniversary Marth will now have accurate level 2-39 stats.
 -Weapon refines + remixes for Legendary Myrrh, Legendary Deirdre, Louise, Arete, Marianne, Fallen Male Morgan, and Winter Bernadetta are now usable.

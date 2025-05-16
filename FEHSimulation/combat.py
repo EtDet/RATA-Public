@@ -1508,6 +1508,17 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "finishDmg" in defSkills and defAllyWithin3Spaces: defr.true_finish += defSkills["finishDmg"]
     if "finishHeal" in defSkills and defAllyWithin3Spaces: defr.finish_mid_combat_heal += 7
 
+    # Potent Finish
+    if "potentFinish" in atkSkills:
+        atkr.TDR_all_hits += 7
+        atkr.true_finish += 15
+        atkr.finish_mid_combat_heal += 7
+
+    if "potentFinish" in defSkills:
+        defr.TDR_all_hits += 7
+        defr.true_finish += 15
+        defr.finish_mid_combat_heal += 7
+
     # SCOWL SKILLS
     if defHPGreaterEqual75Percent:
         if "atkScowl" in atkSkills: atkCombatBuffs[ATK] += atkSkills["atkScowl"]
@@ -2737,6 +2748,28 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "giantEnemyCrab" in defSkills and defHPGreaterEqual25Percent:
         defCombatBuffs = [x + 5 for x in defCombatBuffs]
         defr.true_all_hits += min(len(defender.statusPos) * 5, 25)
+
+    # Bridal Bouquet
+    if "bridalBouquet" in atkSkills:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        defBonusesNeutralized = [True] * 5
+        atkr.true_all_hits += min(5 * len(atkAllyWithin3RowsCols), 15)
+
+    if "bridalBouquet" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        atkBonusesNeutralized = [True] * 5
+        defr.true_all_hits += min(5 * len(defAllyWithin3RowsCols), 15)
+
+    # Bouquet Baton
+    if "bouquetBaton" in atkSkills:
+        atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
+        atkPenaltiesNeutralized = [True] * 5
+        atkr.true_all_hits += min(5 * len(atkAllyWithin3RowsCols), 15)
+
+    if "bouquetBaton" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + 5 for x in defCombatBuffs]
+        defPenaltiesNeutralized = [True] * 5
+        defr.true_all_hits += min(5 * len(defAllyWithin3RowsCols), 15)
 
     # SPECIALS
     if "blueFlame" in atkSkills:
@@ -4935,6 +4968,48 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.TDR_on_foe_sp += min(spaces_moved_by_atkr * 3, 12)
         defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
 
+    # Legacy Axe - GR!Seliph
+    if "grSeliphBoost" in atkSkills:
+        Z = 14 if spaces_moved_by_atkr >= 3 else min(len(atkAllyWithin3RowsCols) * 3 + 5, 14)
+        atkCombatBuffs = [x + Z for x in atkCombatBuffs]
+        atkPenaltiesNeutralized = [True] * 5
+
+        X = len(attacker.statusPos) + len(defender.statusNeg)
+        atkr.true_all_hits += min(X * 5, 25)
+
+        Y = trunc(0.50 * spaces_moved_by_atkr)
+        atkr.sp_jump_first += Y
+        atkr.sp_jump_followup += Y
+
+        atkr.pseudo_miracle = True
+
+    if "grSeliphBoost" in defSkills and defAllyWithin2Spaces:
+        Z = 14 if spaces_moved_by_atkr >= 3 else min(len(defAllyWithin3RowsCols) * 3 + 5, 14)
+        defCombatBuffs = [x + Z for x in defCombatBuffs]
+        defPenaltiesNeutralized = [True] * 5
+
+        X = len(defender.statusPos) + len(attacker.statusNeg)
+        defr.true_all_hits += min(X * 5, 25)
+
+        Y = trunc(0.50 * spaces_moved_by_atkr)
+        defr.sp_jump_first += Y
+        defr.sp_jump_followup += Y
+
+        defr.pseudo_miracle = True
+
+    # The Heir to Light - GR!Seliph
+    if "theHeirToLight" in atkSkills:
+        atkCombatBuffs[ATK] += min(5 + spaces_moved_by_atkr, 9)
+        atkCombatBuffs[SPD] += min(5 + spaces_moved_by_atkr, 9)
+        atkr.TDR_first_strikes += 7
+        atkPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
+    if "theHeirToLight" in defSkills and defAllyWihtin2Spaces:
+        defCombatBuffs[ATK] += min(5 + spaces_moved_by_atkr, 9)
+        defCombatBuffs[SPD] += min(5 + spaces_moved_by_atkr, 9)
+        defr.TDR_first_strikes += 7
+        defPostCombatEffs[UNCONDITIONAL].append(("heal", 7, "self", "one"))
+
     # Hallowed Tyrfing (Base) - L!Sigurd
     if "WaitIsHeAGhost" in atkSkills and defHPGreaterEqual75Percent:
         atkCombatBuffs = [x + 5 for x in atkCombatBuffs]
@@ -5197,6 +5272,46 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.true_stat_damages.append((RES, 20))
         defr.stat_scaling_DR.append((RES, 40))
 
+    # Loving Bouquets - BR!Julia
+    if "brJuliaBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= 6 + trunc(0.20 * atkStats[RES])
+        defCombatBuffs[RES] -= 6 + trunc(0.20 * atkStats[RES])
+
+        X = min(5 * len(atkAllyWithin3RowsCols), 15)
+        atkr.true_all_hits += X
+        atkr.TDR_all_hits += X
+        atkr.offensive_tempo = True
+        atkr.sp_jump_first += 1
+
+    if "brJuliaBoost" in defSkills and defHPGreaterEqual25Percent:
+        atkCombatBuffs[ATK] -= 6 + trunc(0.20 * defStats[RES])
+        atkCombatBuffs[RES] -= 6 + trunc(0.20 * defStats[RES])
+
+        X = min(5 * len(defAllyWithin3RowsCols), 15)
+        defr.true_all_hits += X
+        defr.TDR_all_hits += X
+        defr.offensive_tempo = True
+        defr.sp_jump_first += 1
+
+    # Full Light & Dark
+    if "fullLightAndDark" in atkSkills:
+        X = sum([1 for ally in defAllAllies if Status.Sabotage in ally.statusNeg]) + int(Status.Sabotage in defender.statusNeg)
+        defCombatBuffs[ATK] -= min(X * 3 + 5, 14)
+        defCombatBuffs[RES] -= min(X * 3 + 5, 14)
+
+        atkr.true_stat_damages.append((RES, 20))
+        atkr.TDR_stats.append((RES, 20))
+        atkr.damage_reduction_reduction.append(50)
+
+    if "fullLightAndDark" in defSkills:
+        X = sum([1 for ally in atkAllAllies if Status.Sabotage in ally.statusNeg]) + int(Status.Sabotage in attacker.statusNeg)
+        atkCombatBuffs[ATK] -= min(X * 3 + 5, 14)
+        atkCombatBuffs[RES] -= min(X * 3 + 5, 14)
+
+        defr.true_stat_damages.append((RES, 20))
+        defr.TDR_stats.append((RES, 20))
+        defr.damage_reduction_reduction.append(50)
+
     # Splashy Bucket
     if "bucket" in atkSkills:
         atkr.disable_foe_hexblade = True
@@ -5384,6 +5499,21 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defCombatBuffs = [x + 4 for x in defCombatBuffs]
         defr.offensive_NFU = True
         defr.defensive_NFU = True
+
+    # Brilliant Brident - BR!Larcei
+    if "brLarceiBoost" in atkSkills and atkHPGreaterEqual25Percent:
+        atkCombatBuffs = [x + min(len(atkFoeWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
+        atkr.true_stat_damages.append((SPD, 20))
+        atkr.TDR_first_stats.append((SPD, 20))
+        atkr.TDR_special_stats.append((SPD, 20))
+        atkr.potent_new_percentage = 100
+
+    if "brLarceiBoost" in defSkills and defHPGreaterEqual25Percent:
+        defCombatBuffs = [x + min(len(defFoeWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
+        defr.true_stat_damages.append((SPD, 20))
+        defr.TDR_first_stats.append((SPD, 20))
+        defr.TDR_special_stats.append((SPD, 20))
+        defr.potent_new_percentage = 100
 
     # Winds of Silesse (Refine Base) - Ced
     if "cedBoost" in atkSkills:
@@ -26389,6 +26519,10 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "buggedDragonFlame" in defSkills:
         defr.disable_def_sp = True
 
+    # Ice Wall
+    if "iceWall" in atkSkills and atkPhantomStats[RES] >= defPhantomStats[RES] - 10: atkr.DR_sp_trigger_by_any_special_SP.append(40)
+    if "iceWall" in defSkills and defPhantomStats[RES] >= atkPhantomStats[RES] - 10: defr.DR_sp_trigger_by_any_special_SP.append(40)
+
     # TRUE DAMAGE ADDITION
     for x in atkr.true_stat_damages:
         stat, percentage = x
@@ -26605,6 +26739,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
         if defPhantomStats[RES] >= atkPhantomStats[RES] + 5 and atkSpTriggeredByAttack:
             atkr.sp_jump_first -= 1
+
+    # Loving Bouquets - BR!Julia
+    if "brJuliaBoost" in atkSkills and atkHPGreaterEqual25Percent and atkPhantomStats[RES] >= defPhantomStats[RES] + 10:
+        atkr.brave = True
+
+    if "brJuliaBoost" in defSkills and defHPGreaterEqual25Percent and defPhantomStats[RES] >= atkPhantomStats[RES] + 10:
+        defr.brave = True
 
     # Gray Illusion - V!Lyon
     if "grayIllusion" in atkSkills and atkPhantomStats[RES] > defPhantomStats[RES]:
@@ -26831,7 +26972,6 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         else:
             defr.TDR_on_foe_sp += trunc(0.20 * defStats[SPD])
 
-
     # SKILLS
 
     # Assault Force
@@ -26839,6 +26979,14 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.true_all_hits += trunc(0.20 * max(atkStats[SPD], atkStats[DEF]))
 
     if "assaultForce" in defSkills and defAllyWithin2Spaces:
+        defr.true_all_hits += trunc(0.20 * max(defStats[SPD], defStats[DEF]))
+
+    if "potentAssault" in atkSkills:
+        atkr.damage_reduction_reduction.append(50)
+        atkr.true_all_hits += trunc(0.20 * max(atkStats[SPD], atkStats[DEF]))
+
+    if "potentAssault" in defSkills and defAllyWithin2Spaces:
+        defr.damage_reduction_reduction.append(50)
         defr.true_all_hits += trunc(0.20 * max(defStats[SPD], defStats[DEF]))
 
     # BULWARK 4
