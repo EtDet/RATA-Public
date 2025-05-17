@@ -1,3 +1,7 @@
+2.7.3.2 (5/16/25)
+Hotfix:
+-The guaranteed follow-up status from Full Light & Dark now works properly.
+
 2.7.3.1 (5/16/25)
 Hotfix:
 -The guaranteed follow-up status from Full Light & Dark is now grants a follow-up for both phases.

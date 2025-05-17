@@ -26278,6 +26278,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if Status.Pursual in attacker.statusPos:
         atkr.follow_ups_skill += 1
 
+    # "unit makes a guaraneteed follow-up attack"
+    if Status.MakeFollowUp in atkSkills:
+        atkr.follow_ups_skill += 1
+
+    if Status.MakeFollowUp in defSkills:
+        defr.follow_ups_skill += 1
+
     # "foe cannot make a follow-up attack"
     if Status.DenyFollowUp in atkSkills:
         defr.follow_up_denials -= 1
