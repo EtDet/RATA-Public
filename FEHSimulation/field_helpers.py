@@ -5469,6 +5469,19 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_status(ally, Status.Outspeeding)
                 add_status(ally, Status.NullPanic)
 
+        # Final Sword - L!Black Knight
+        if "WILL YOU SURVIVE?" in unitSkills and unitHPGreaterEqual25Percent:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, DEF, 6)
+            add_status(unit, Status.Imbue)
+            add_status(unit, Status.Reflex)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, ATK, 6)
+                add_buff(ally, DEF, 6)
+                add_status(ally, Status.Imbue)
+                add_status(ally, Status.Reflex)
+
         # Elena's Staff (Base) - Mist
         if "mistDebuff" in unitSkills:
             i = 1
@@ -7919,6 +7932,19 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_buff(ally, DEF, 6)
                 add_status(ally, Status.Outspeeding)
                 add_status(ally, Status.NullPanic)
+
+        # Final Sword - L!Black Knight
+        if "WILL YOU SURVIVE?" in unitSkills and unitHPGreaterEqual25Percent:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, DEF, 6)
+            add_status(unit, Status.Imbue)
+            add_status(unit, Status.Reflex)
+
+            for ally in allies_within_n(unit, 2):
+                add_buff(ally, ATK, 6)
+                add_buff(ally, DEF, 6)
+                add_status(ally, Status.Imbue)
+                add_status(ally, Status.Reflex)
 
         # Tome of Despair - FA!M!Morgan
         if "among uhhs" in unitSkills and unitHPGreaterEqual25Percent:

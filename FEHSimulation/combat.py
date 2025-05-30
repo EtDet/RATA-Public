@@ -249,6 +249,7 @@ class HeroModifiers:
         # reduces the effect of deep wounds
         self.deep_wounds_allowance = []
         self.disable_foe_healing = False
+        self.disable_deep_wounds = False
 
         # miracle
         self.pseudo_miracle = False
@@ -1403,6 +1404,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if "atkResTidings" in defSkills and defAllyWithin3Spaces:
         defCombatBuffs[ATK] += min(8 + len(defAllyWithin3Spaces) * 2, 12)
         defCombatBuffs[RES] += min(8 + len(atkAllyWithin3Spaces) * 2, 12)
+
+    # DISTANT FORM
+    if "atkDefDistForm" in atkSkills:
+        atkCombatBuffs[ATK] += min(len(atkAllyWithin3Spaces) * 3, 9)
+        atkCombatBuffs[DEF] += min(len(atkAllyWithin3Spaces) * 3, 9)
+
+    if "atkDefDistForm" in defSkills:
+        defCombatBuffs[ATK] += 9 if savior_triggered else min(len(atkAllyWithin3Spaces) * 3, 9)
+        defCombatBuffs[DEF] += 9 if savior_triggered else min(len(atkAllyWithin3Spaces) * 3, 9)
 
     # REIN SKILLS
     if "atkRein_f" in atkSkills: atkCombatBuffs[ATK] -= atkSkills["atkRein_f"]
@@ -10319,6 +10329,58 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             if atkHPCur / defStats[HP] >= 0.60:
                 defr.offensive_NFU = True
                 defr.defensive_NFU = True
+
+    # Final Sword - L!Black Knight
+    if "WILL YOU SURVIVE?" in atkSkills and atkHPGreaterEqual25Percent:
+        X = trunc(atkStats[DEF] * 0.20) + 6
+        
+        atkCombatBuffs[ATK] += X
+        defCombatBuffs[ATK] -= X
+        
+        Y = 16 if defHPCur / defStats[HP] >= 0.70 else 10
+        
+        atkr.true_all_hits += Y
+        atkr.TDR_all_hits += Y
+        atkr.TDR_on_foe_sp += Y
+        
+        atkr.disable_deep_wounds = True
+        atkr.sp_pierce_DR = True
+
+    if "WILL YOU SURVIVE?" in defSkills:
+        X = trunc(defStats[DEF] * 0.20) + 6
+
+        defCombatBuffs[ATK] += X
+        atkCombatBuffs[ATK] -= X
+
+        Y = 16 if atkHPCur / atkStats[HP] >= 0.70 else 10
+
+        defr.true_all_hits += Y
+        defr.TDR_all_hits += Y
+        defr.TDR_on_foe_sp += Y
+
+        defr.disable_deep_wounds = True
+        defr.sp_pierce_DR = True
+
+    if "pitchDarkLuna" in atkSkills:
+        atkr.DR_aether_path_SP = True
+
+    if "pitchDarkLuna" in defSkills:
+        disableCannotCounter = True
+        defr.DR_aether_path_SP = True
+
+    if Status.Imbue in attacker.statusPos:
+        atkr.deep_wounds_allowance.append(50)
+        
+    if Status.Imbue in defender.statusPos:
+        defr.deep_wounds_allowance.append(50)
+
+    if Status.Reflex in attacker.statusPos:
+        atkr.TDR_first_strikes += 7
+        atkr.retaliatory_reduced += 1
+
+    if Status.Reflex in defender.statusPos:
+        defr.TDR_first_strikes += 7
+        defr.retaliatory_reduced += 1
 
     # Scarlet Spear - NI!Zelgius
     if "zelgin up" in atkSkills and atkHPGreaterEqual25Percent:
@@ -19374,8 +19436,13 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkr.spLossOnAtk -= 1
         atkr.spLossWhenAtkd -= 1
 
-    if Status.DivineNectar in attacker.statusPos: atkr.TDR_all_hits += 10
-    if Status.DivineNectar in defender.statusPos: defr.TDR_all_hits += 10
+    if Status.DivineNectar in attacker.statusPos: 
+        atkr.TDR_all_hits += 10
+        atkr.disable_deep_wounds = True
+        
+    if Status.DivineNectar in defender.statusPos: 
+        defr.TDR_all_hits += 10
+        defr.disable_deep_wounds = True
 
     # New Year Treats - NY!Heiðrún
     if "newYearTreats" in atkSkills and atkHPGreaterEqual25Percent:
@@ -20240,11 +20307,29 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         defr.spGainOnAtk += 1
 
     if "vengeful_fighter_4" in defSkills and defHPGreaterEqual25Percent:
-        atkCombatStats[ATK] -= 4
+        atkCombatBuffs[ATK] -= 4
         atkr.follow_ups_skill += 1
         defr.follow_up_denials -= 1
         atkr.spGainOnAtk += 1
         atkr.spGainWhenAtkd += 1
+
+    if "counter_fighter" in atkSkills and atkHPGreaterEqual25Percent:
+        defCombatBuffs[ATK] -= 5
+        atkr.true_stat_damages.append((ATK, 15))
+        atkr.TDR_stats.append((ATK, 15))
+        atkr.all_hits_heal += 7
+
+        if atkSpTriggeredByAttack:
+            atkr.sp_jump_foe_first += 2
+
+    if "counter_fighter" in defSkills:
+        atkCombatBuffs[ATK] -= 5
+        defr.true_stat_damages.append((ATK, 15))
+        defr.TDR_stats.append((ATK, 15))
+        defr.all_hits_heal += 7
+
+        if defSpTriggeredByAttack:
+            defr.sp_jump_foe_first += 2
 
     if "crafty_fighter" in defSkills and defHPCur / defStats[HP] >= 1.0 - 0.25 * defSkills["crafty_fighter"]:
         defr.follow_ups_skill += 1
@@ -26979,6 +27064,15 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         else:
             defr.TDR_on_foe_sp += trunc(0.20 * defStats[SPD])
 
+    # Pitch-Dark Luna - L!Black Knight
+    if "pitchDarkLuna" in atkSkills and atkPhantomStats[DEF] >= defPhantomStats[DEF] + 5:
+        atkr.hardy_bearing = True
+        defr.hardy_bearing = True
+
+    if "pitchDarkLuna" in defSkills and defPhantomStats[DEF] >= atkPhantomStats[DEF] + 5:
+        atkr.hardy_bearing = True
+        defr.hardy_bearing = True
+
     # SKILLS
 
     # Assault Force
@@ -27809,6 +27903,8 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
     if atkr.offensive_NFU: atkr.follow_up_denials = 0
     if defr.offensive_NFU: defr.follow_up_denials = 0
 
+    print(atkr.follow_ups_spd, atkr.follow_ups_skill, atkr.follow_up_denials)
+
     # Follow-Up Granted if sum of allowed - denied follow-ups is > 0
     followupA = atkr.follow_ups_spd + atkr.follow_ups_skill + atkr.follow_up_denials > 0
     followupD = defr.follow_ups_spd + defr.follow_ups_skill + defr.follow_up_denials > 0
@@ -28533,7 +28629,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
             for allowance in I_stkr.deep_wounds_allowance:
                 total_prevention *= (1 - allowance/100)
 
-            if Status.DivineNectar in striker.statusPos:
+            if I_stkr.disable_deep_wounds:
                 total_prevention = 0
 
             totalHealedAmount -= trunc(totalHealedAmount * total_prevention)
@@ -28600,6 +28696,9 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
 
     if Status.DivineNectar in attacker.statusPos: precombat_heals[ATTACKER] = max(precombat_heals[ATTACKER], 20)
     if Status.DivineNectar in defender.statusPos: precombat_heals[DEFENDER] = max(precombat_heals[DEFENDER], 20)
+    
+    if Status.Imbue in attacker.statusPos: precombat_heals[ATTACKER] = max(precombat_heals[ATTACKER], trunc(0.40 * atkStats[HP]))
+    if Status.Imbue in defender.statusPos: precombat_heals[DEFENDER] = max(precombat_heals[DEFENDER], trunc(0.40 * defStats[HP]))
 
     # Apply Deep Wounds to BoL healing
     atk_total_prevention = 0
@@ -28609,7 +28708,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         for allowance in atkr.deep_wounds_allowance:
             atk_total_prevention *= (1 - allowance / 100)
 
-        if Status.DivineNectar in attacker.statusPos:
+        if atkr.disable_deep_wounds:
             atk_total_prevention = 0
 
     def_total_prevention = 0
@@ -28619,7 +28718,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         for allowance in defr.deep_wounds_allowance:
             def_total_prevention *= (1 - allowance / 100)
 
-        if Status.DivineNectar in defender.statusPos:
+        if defr.disable_deep_wounds:
             def_total_prevention = 0
 
     precombat_heals[ATTACKER] -= trunc(precombat_heals[ATTACKER] * atk_total_prevention)
@@ -30239,7 +30338,7 @@ def get_AOE_damage(attacker, defender, spaces_moved_by_atkr):
     if "bSorenBoost" in defSkills and allies_within_n(defender, defender.tile, 3):
         stat_scaling_DR.append((RES, 40))
 
-    # SF!Nephenee - Unsure if drive effect applies to allies' AOE specials. If so, GOD DAMNIT.
+    # SF!Nephenee
     if "sfNepheneeBoost" in atkSkills and attacker.HPcur != atkStats[HP]:
         true_damage += 10
 

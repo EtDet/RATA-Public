@@ -1,3 +1,11 @@
+2.7.4 (5/30/25)
+New Features:
+-Legendary Black Knight has been added.
+-Correct level 2-39 stats for fallen and bridal heroes are now present.
+
+Bug Fixes:
+-Vengeful Fighter 4 now works properly.
+
 2.7.3.2 (5/16/25)
 Hotfix:
 -The guaranteed follow-up status from Full Light & Dark now works properly.

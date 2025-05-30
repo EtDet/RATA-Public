@@ -179,3 +179,4 @@ At start of player phase or enemy phase, if unit's HP > 25%, grants [Fell Spirit
 If foe initiates combat, if unit's or foe's Special is ready, or if unit's or foe's Special triggered before or during this combat, reduces damage from foe's next attack by 40% (once per combat; excluding area-of-effect Specials).
 
 Unit can counterattack regardless of foe's range during combat.",3,Offense,resBoostSp,50,fellBlast,0,dCounter,0,,,Any,Staff,FA!F!Alear,,
+Pitch-Dark Luna,"When Special triggers, boosts damage by 80% of the greater of foe's Spd or Def.",3,Offense,aetherPathSp,80,pitchDarkLuna,0,,,,,Any,Staff,L!Black Knight,,
