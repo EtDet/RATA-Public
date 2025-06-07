@@ -1,3 +1,17 @@
+2.7.5 (6/7/25)
+New Features:
+-New heroes Noire, attuned Tharja, M!Grima, F!Grima, and Excellus were added, with Heimdallr added with early access as well.
+-Weapon refines for Erk, New Years Veloria, Fallen Edelgard, Valentia Palla, and Pelleas are now usable.
+-Resplendent Outfit can now be used for Titania.
+-The Panic Manor structure can now be upgraded to level 14.
+
+Bug Fixes:
+-Called to Serve's given true damage to allies now works properly.
+-Fixed an issue where resplendants would be marked as aided by default.
+-Assassin's/Occultist's Strike will no longer take effect when initiated against.
+-Fixed the conditions for the in-combat effects Höðr's Dusk Rifle when initiated against.
+-Fixed an issue causing A/R Incite Hone to not be selectable.
+
 2.7.4 (5/30/25)
 New Features:
 -Legendary Black Knight has been added.

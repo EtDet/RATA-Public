@@ -1,10 +1,10 @@
-﻿Name,Occupies Tile,Is Targetable,Offense Exists,Defense Exists,Max Level,Health,Category
+Name,Occupies Tile,Is Targetable,Offense Exists,Defense Exists,Max Level,Health,Category
 Obstacle,TRUE,TRUE,FALSE,FALSE,-1,1,WALL
 Fortress,TRUE,FALSE,TRUE,TRUE,5,-1,AR-BASE
 Bolt Tower,TRUE,TRUE,TRUE,TRUE,13,1,AR-STRUCT
 Tactics Room,TRUE,TRUE,TRUE,TRUE,13,1,AR-STRUCT
 Healing Tower,TRUE,TRUE,TRUE,TRUE,13,1,AR-STRUCT
-Panic Manor,TRUE,TRUE,TRUE,TRUE,13,1,AR-STRUCT
+Panic Manor,TRUE,TRUE,TRUE,TRUE,14,1,AR-STRUCT
 Catapult,TRUE,TRUE,TRUE,TRUE,14,1,AR-STRUCT
 Infantry School,TRUE,TRUE,TRUE,TRUE,14,1,AR-STRUCT
 Cavalry School,TRUE,TRUE,TRUE,TRUE,14,1,AR-STRUCT

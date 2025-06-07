@@ -1452,7 +1452,7 @@ class Status(Enum):
     DualStrike = 155  # 🔴 If unit initiates combat and is adjacent to unit with DualStrike, unit attacks twice
     EssenceDrain = 156 # 🔴 If unit attacks, steals positive bonuses from foes within 2 spaces of target and gives to self and all allies with this status. If foe defeated, heals 10HP to self and allies with this status.
     Bonded = 157 # 🔴 Activates different effects depending on skills present in battle
-
+    ForesightSnare = 158 # 🟢 If unit initiated with this status is the first combat of the phase, cancel that combat and remove this status from all of team.
 
 class GameMode(Enum):
     # PVE
@@ -1479,11 +1479,11 @@ class GameMode(Enum):
 
 
 print("Reading Unit & Skill Data...")
-hero_sheet = pd.read_csv('Spreadsheets/FEHstats.csv')
-weapon_sheet = pd.read_csv('Spreadsheets/FEHWeapons.csv')
+hero_sheet = pd.read_excel('Spreadsheets/FEHstats.xlsx')
+weapon_sheet = pd.read_excel('Spreadsheets/FEHWeapons.xlsx')
 assist_sheet = pd.read_csv('Spreadsheets/FEHAssists.csv')
-special_sheet = pd.read_csv('Spreadsheets/FEHSpecials.csv')
-skills_sheet = pd.read_csv('Spreadsheets/FEHABCXSkills.csv')
+special_sheet = pd.read_excel('Spreadsheets/FEHSpecials.xlsx')
+skills_sheet = pd.read_excel('Spreadsheets/FEHABCXSkills.xlsx')
 seals_sheet = pd.read_csv("Spreadsheets/FEHSeals.csv")
 with open('Spreadsheets/FEHDuoSkills.json', encoding="utf-8") as read_file: duoskills_sheet = json.load(read_file)
 

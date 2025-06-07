@@ -2548,6 +2548,15 @@ class HeroListing(tk.Frame):
         self.creation_comboboxes[5].set(s_str)
         self.handle_selection_change_summsupport()
 
+        # Aide
+        aided = unit.aided
+
+        if aided:
+            self.creation_comboboxes[25].set("True")
+        else:
+            self.creation_comboboxes[25].set("False")
+        self.handle_selection_change_aided()
+
         # Pair Up
         pair_up = unit.pair_up
         if pair_up is None:
@@ -2692,15 +2701,6 @@ class HeroListing(tk.Frame):
 
         self.creation_comboboxes[12].set(emblem_merges)
         self.handle_selection_change_emblem_merges()
-
-        # Aide
-        aided = unit.aided
-
-        if resp:
-            self.creation_comboboxes[25].set("True")
-        else:
-            self.creation_comboboxes[25].set("False")
-        self.handle_selection_change_aided()
 
     def button_deletion_confirm(self):
         if self.confirm_deletion_popup:
@@ -6241,6 +6241,14 @@ class GameplayCanvas(tk.Canvas):
                         if destination_unit.HPcur <= get_tower_hp_threshold(final_dest_struct.level):
                             trap_triggered = True
 
+        # Foresight Snare
+        if sum([player_ally.unitCombatInitiates for player_ally in self.all_units[S]]) == 0 and release_unit and Status.ForesightSnare in release_unit.statusPos:
+            trap_triggered = True
+
+            for ally in self.all_units[S-1]:
+                if Status.ForesightSnare in ally.statusPos:
+                    ally.statusPos.remove(Status.ForesightSnare)
+
         # ATTAAAAAAAAAAAAAAAAAAAAAAACK!!!!!!!!!!!!!!!!!!
         if is_targeting_object and is_targeting_hero and destination_unit.isEnemyOf(release_unit) and not trap_triggered:
 
@@ -6415,7 +6423,10 @@ class GameplayCanvas(tk.Canvas):
             if self.style_name:
                 player.style_ready = False
 
-            # Perform burn damage
+            # HP check - Fallen Edelgard
+            playerHPAbove25Percent = player.HPcur / player.visible_stats[HP] >= 0.25
+
+                # Perform burn damage
             burn_damages = combat_result[14]
 
             burn_present = 0
@@ -6860,7 +6871,7 @@ class GameplayCanvas(tk.Canvas):
                     galeforce_triggered = True
 
                 # Twin-Crest Power (Base) - FA!Edelgard
-                elif "IT'S ME" in playerSkills and player.transformed and not player.nonspecial_galeforce_triggered:
+                elif ("IT'S ME" in playerSkills or "My sins with pride" in playerSkills) and player.transformed and playerHPAbove25Percent and not player.nonspecial_galeforce_triggered:
                     player.nonspecial_galeforce_triggered = True
                     galeforce_triggered = True
 
@@ -6874,6 +6885,7 @@ class GameplayCanvas(tk.Canvas):
                     player.nonspecial_galeforce_triggered = True
                     galeforce_triggered = True
 
+                # Gold Unwinding - B!Gullveig
                 elif "goldUnwinding" in playerSkills and not player.nonspecial_galeforce_triggered and "disableBSkill" not in player.statusOther:
                     player.nonspecial_galeforce_triggered = True
                     galeforce_triggered = True
@@ -6909,7 +6921,6 @@ class GameplayCanvas(tk.Canvas):
                 elif "SIGURD HORSE ATTACK" in playerSkills and num_aoe_targets >= 2 and not player.special_galeforce_triggered:
                     player.special_galeforce_triggered = True
                     galeforce_triggered = True
-
 
 
                 # STANDARD GALEFORCE
