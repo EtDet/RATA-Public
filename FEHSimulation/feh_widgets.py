@@ -3050,7 +3050,7 @@ class UnitState:
 
 # One state of the game
 class MapState:
-    def __init__(self, unit_states, struct_states, units_to_move, turn_num, reinf_points, defeated_count, dv_states, first_duo_user, duos_ind_used):
+    def __init__(self, unit_states, struct_states, units_to_move, turn_num, reinf_points, defeated_count, dv_states, first_duo_user, duos_ind_used, ssp_used):
         self.unit_states = unit_states
         self.struct_states = struct_states
         self.units_to_move = units_to_move
@@ -3064,6 +3064,8 @@ class MapState:
 
         self.first_duo_user = first_duo_user
         self.duos_ind_used = duos_ind_used
+
+        self.share_spoils_plus_used = ssp_used
 
     def print_mapstate(self):
         print("Unit States:")
@@ -3089,7 +3091,7 @@ class MapState:
 
         print("\nTurn Num: " + str(self.turn_num))
 
-def create_mapstate(c_map, units_to_move, turn_num, reinf_points, defeated_count, first_duo_user, duos_ind_used):
+def create_mapstate(c_map, units_to_move, turn_num, reinf_points, defeated_count, first_duo_user, duos_ind_used, ssp_used):
     unit_states = {}
 
     for unit in c_map.get_heroes_present():
@@ -3116,7 +3118,7 @@ def create_mapstate(c_map, units_to_move, turn_num, reinf_points, defeated_count
     for tile in c_map.tiles:
         divine_vein_states.append((tile.divine_vein, tile.divine_vein_side, tile.divine_vein_turn))
 
-    return MapState(unit_states, struct_states, units_to_move[:], turn_num, reinf_states, defeated_count, divine_vein_states, first_duo_user, duos_ind_used)
+    return MapState(unit_states, struct_states, units_to_move[:], turn_num, reinf_states, defeated_count, divine_vein_states, first_duo_user, duos_ind_used, ssp_used)
 
 class GameplayCanvas(tk.Canvas):
     def __init__(self, master, hero_listing):
@@ -3148,6 +3150,8 @@ class GameplayCanvas(tk.Canvas):
 
         self.first_duo_skill_used = None
         self.indulgence_used = False
+
+        self.share_spoils_plus_used = False
 
         # Currently placed movement spaces
         self.tile_sprites = []
@@ -3329,6 +3333,8 @@ class GameplayCanvas(tk.Canvas):
 
         self.first_duo_skill_used = None
         self.indulgence_used = False
+
+        self.share_spoils_plus_used = False
 
         if self.hero_listing.confirm_deletion_popup:
             self.hero_listing.confirm_deletion_popup.destroy()
@@ -3569,7 +3575,7 @@ class GameplayCanvas(tk.Canvas):
         # Start enemy defeated count
         self.enemy_defeated_count = {}
 
-        self.initial_mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used)
+        self.initial_mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used, self.share_spoils_plus_used)
 
         print("------------------- START OF NEW SIMULATION -------------------")
         print()
@@ -3664,7 +3670,7 @@ class GameplayCanvas(tk.Canvas):
         self.refresh_divine_veins()
 
         if self.units_to_move:
-            mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used)
+            mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used, self.share_spoils_plus_used)
             self.map_states.append(mapstate)
         else:
             self.next_phase()
@@ -3787,7 +3793,7 @@ class GameplayCanvas(tk.Canvas):
                 self.delete(tile)
             self.canto_tile_imgs.clear()
 
-            self.initial_mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used)
+            self.initial_mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used, self.share_spoils_plus_used)
 
             print("---- PLAYER PHASE ----")
 
@@ -3880,7 +3886,7 @@ class GameplayCanvas(tk.Canvas):
 
             if self.units_to_move:
                 self.map_states.clear()
-                self.map_states.append(create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used))
+                self.map_states.append(create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used, self.share_spoils_plus_used))
             else:
                 self.next_phase()
 
@@ -3908,6 +3914,9 @@ class GameplayCanvas(tk.Canvas):
         # Duo Skill usage
         self.first_duo_skill_used = mapstate.first_duo_user
         self.indulgence_used = mapstate.duos_ind_used
+
+        # Share Spoils Plus usage
+        self.share_spoils_plus_used = mapstate.share_spoils_plus_used
 
         # Update phase labels
         if self.turn_info[1] == PLAYER:
@@ -4375,6 +4384,8 @@ class GameplayCanvas(tk.Canvas):
             #self.refresh_walls()
             #self.refresh_divine_veins()
 
+        self.share_spoils_plus_used = False
+
         for unit in current_player_units + current_enemy_units:
             # Update transformation sprites
             S = unit.side
@@ -4497,7 +4508,7 @@ class GameplayCanvas(tk.Canvas):
         self.refresh_divine_veins()
 
         if self.units_to_move:
-            mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used)
+            mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used, self.share_spoils_plus_used)
             self.map_states.append(mapstate)
         else:
             self.next_phase()
@@ -4981,6 +4992,8 @@ class GameplayCanvas(tk.Canvas):
                     atk_arr = list(set(self.map.tiles[move.destination].tilesWithinNSpaces(5)) & set(self.map.tiles[move.destination].tilesWithinNRowsOrCols(3, 3)))
                 elif self.style_name == "WIND-SWORD":
                     atk_arr = self.map.tiles[move.destination].tilesNSpacesAway(2)
+                elif self.style_name == "ECHO":
+                    atk_arr = self.map.tiles[move.destination].tilesNSpacesAway(3)
                 else:
                     atk_arr = self.map.tiles[move.destination].tilesNSpacesAway(cur_hero.weapon.range)
 
@@ -5032,6 +5045,8 @@ class GameplayCanvas(tk.Canvas):
                     atk_arr = list(set(self.map.tiles[m.destination].tilesWithinNSpaces(5)) & set(self.map.tiles[m.destination].tilesWithinNRowsOrCols(3, 3)))
                 elif self.style_name == "WIND-SWORD":
                     atk_arr = self.map.tiles[m.destination].tilesNSpacesAway(2)
+                elif self.style_name == "ECHO":
+                    atk_arr = self.map.tiles[m.destination].tilesNSpacesAway(3)
                 else:
                     atk_arr = self.map.tiles[m.destination].tilesNSpacesAway(cur_hero.weapon.range)
 
@@ -5506,7 +5521,7 @@ class GameplayCanvas(tk.Canvas):
 
                 distance = abs(target_tile % 6 - sdd["start_x_comp"]) + abs(target_tile // 6 - sdd["start_y_comp"])
 
-                aoe_disabled = feh.get_aoe_disable(cur_hero, cur_tile_Obj.hero_on) or self.style_unit
+                aoe_disabled = feh.get_aoe_disable(cur_hero, cur_tile_Obj.hero_on) or (self.style_unit and self.style_name != "ECHO")
 
                 # Display AOE
                 if cur_hero.special and cur_hero.special.type == "AOE" and not aoe_disabled:
@@ -6336,7 +6351,7 @@ class GameplayCanvas(tk.Canvas):
             aoe_present = 0
             num_aoe_targets = 0
 
-            aoe_disabled = feh.get_aoe_disable(player, enemy) or self.style_unit
+            aoe_disabled = feh.get_aoe_disable(player, enemy) or (self.style_unit and self.style_name != "ECHO")
 
             # Will eventually need to change to account for skills that
             # Go back and revise, jump the count before the AoE goes off (Momentum, Arcane Truthfire)
@@ -6845,8 +6860,11 @@ class GameplayCanvas(tk.Canvas):
                 playerSkills = player.getSkills()
 
                 # SHARE SPOILS - PRIORITY OVER ALL OTHER FORMS OF ADDITIONAL ACTIONS
-                if Status.ShareSpoils in initiated_enemy.statusNeg and initiated_enemy.HPcur == 0:
+                if (Status.ShareSpoils in initiated_enemy.statusNeg or (Status.ShareSpoilsPlus in initiated_enemy.statusNeg and not self.share_spoils_plus_used)) and initiated_enemy.HPcur == 0:
                     galeforce_triggered = True
+
+                    if Status.ShareSpoilsPlus in initiated_enemy.statusNeg:
+                        self.share_spoils_plus_used = True
 
                 # TIME IS LIGHT/TIME AND LIGHT HAVE PRIORITY OVER ALL NONSPECIAL GALEFORCE
                 elif "priorityGaleforce" in playerSkills and playerSpecialTriggered and not player.special_galeforce_triggered:
@@ -8940,6 +8958,9 @@ class GameplayCanvas(tk.Canvas):
                     if "lookout" in playerSkills and cur_unit.HPcur / cur_unit.visible_stats[HP] >= 1.00 - 0.25 * playerSkills["lookout"]:
                         shadow_skills.append("distant_swap")
 
+                    if "suLapisBoost" in playerSkills:
+                        shadow_skills.append("distant_swap")
+
                     if "requiemPrayer" in playerSkills and not cur_unit.nonspecial_galeforce_triggered:
                         cur_unit.nonspecial_galeforce_triggered = True
                         shadow_skills.append("refresh")
@@ -9181,7 +9202,7 @@ class GameplayCanvas(tk.Canvas):
                     self.after(finish_time, set_unit_actability, cur_unit)
 
             # Capture the mapstate
-            mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used)
+            mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used, self.share_spoils_plus_used)
 
             #if (self.units_to_move or any(x.pair_up_obj for x in self.map.get_heroes_present_by_side()[S]) or any(x.duo_skill for x in self.map.get_heroes_present_by_side()[S])):
             if self.units_to_move:
@@ -9356,7 +9377,7 @@ class GameplayCanvas(tk.Canvas):
                     self.next_phase()
 
                 else:
-                    mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used)
+                    mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used, self.share_spoils_plus_used)
                     self.map_states.append(mapstate)
 
         return
@@ -10400,6 +10421,8 @@ class GameplayCanvas(tk.Canvas):
             move_range = feh.get_regular_moves(unit, unit_team, other_team, style=self.style_name)[2]
         elif self.style_name == "WIND-SWORD":
             move_range = feh.get_regular_moves(unit, unit_team, other_team, style=self.style_name)[2]
+        elif self.style_name == "ECHO":
+            move_range = feh.get_regular_moves(unit, unit_team, other_team, style=self.style_name)[2]
 
         for m in move_range:
             x_comp = m.destination % 6
@@ -10422,6 +10445,8 @@ class GameplayCanvas(tk.Canvas):
                 attack_range.extend(list(set(self.map.tiles[m.destination].tilesWithinNSpaces(5)) & set(self.map.tiles[m.destination].tilesWithinNRowsOrCols(3, 3))))
             elif self.style_name == "WIND-SWORD":
                 attack_range.extend(self.map.tiles[m.destination].tilesNSpacesAway(2))
+            elif self.style_name == "ECHO":
+                attack_range.extend(self.map.tiles[m.destination].tilesNSpacesAway(3))
 
         attack_range = list(set(attack_range))
 
@@ -10742,7 +10767,7 @@ class GameplayCanvas(tk.Canvas):
                 self.refresh_divine_veins()
 
         # Add mapstate after skill is applied
-        mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used)
+        mapstate = create_mapstate(self.map, self.units_to_move, self.turn_info[0], self.unit_reinf_points, self.enemy_defeated_count, self.first_duo_skill_used, self.indulgence_used, self.share_spoils_plus_used)
         self.map_states.append(mapstate)
 
         # Refresh unit display
@@ -12619,7 +12644,7 @@ class ExtrasFrame(tk.Frame):
         aoe_damage: int = 0
         aoe_present: bool = False
 
-        aoe_disabled = feh.get_aoe_disable(attacker, defender) or style
+        aoe_disabled = feh.get_aoe_disable(attacker, defender) or style != "ECHO"
 
         # Track HP of all units after being hit by AOE, for skills that track "num allies with HP >= X%"
         target_healths = {}

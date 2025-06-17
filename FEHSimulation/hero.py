@@ -70,7 +70,7 @@ weapons = {
 }
 
 MELEE_STYLES = ["WIND-SWORD"]
-RANGED_STYLES = ["ASTRA-STORM", "EMBLEM-LYN"]
+RANGED_STYLES = ["ASTRA-STORM", "EMBLEM-LYN", "ECHO"]
 
 # return stat increase needed for level 1 -> 40 based on growth and rarity
 def growth_to_increase(value, rarity):
@@ -1059,7 +1059,7 @@ class Hero:
         return conditions_arr
 
     def get_style_conditions(self, turn):
-        present = False
+        present = 0
 
         styles = []
 
@@ -1067,25 +1067,31 @@ class Hero:
 
         # Astra Storm Style
         if "astraStorm" in unitSkills:
-            present = True
+            present += 1
 
             styles.append("ASTRA-STORM")
 
         # Emblem Lyn Style
         if "sweep across" in unitSkills:
-            present = True
+            present += 1
 
             if "disableEmblem" not in self.statusOther and self.wpnType in RANGED_WEAPONS and turn >= 2:
-
                 styles.append("EMBLEM-LYN")
 
         # Wind Sword Style
         if "eEirikaBoost" in unitSkills:
-            present = True
+            present += 1
 
             styles.append("WIND-SWORD")
 
-        if len(styles) > 1:
+        # Echo Style
+        if "suCelicaBoost" in unitSkills:
+            present += 1
+
+            styles.append("ECHO")
+
+        if present != 1:
+            present = False
             styles = []
 
         return present, styles
@@ -1370,6 +1376,7 @@ class Status(Enum):
     Discord = 4  # 🔴 Reduces atk/spd/def/res by 2 + number of allies within 2 spaces of unit, max 3 during combat
     HushSpectrum = 5 # 🔴 Atk/Spd/Def/Res-5 and sp halt +1 on self before unit's first attack
     ShareSpoils = 6 # 🔴 Atk/Spd/Def/Res-5, nullify percentage damage reduction of self, and grants another action to foe if this unit is defeated
+    ShareSpoilsPlus = 6.5 # 🔴 Atk/Spd/Def/Res-5, nullify percentage damage reduction of self, and grants another action to foe if this unit is defeated (once per turn)
     FalseStart = 7  # 🟢 Disables "at start of turn" skills, does not neutralize beast transformations or reusable duo/harmonized skills, cancelled by Odd/Even Recovery Skills
     Flash = 8  # 🔴 Unable to counterattack
     Isolation = 9  # 🟢 Cannot use or receive assist skills

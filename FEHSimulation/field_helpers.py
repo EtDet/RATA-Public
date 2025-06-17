@@ -3763,6 +3763,9 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
         if "brutalTempest" in unitSkills:
             add_status(unit, Status.MobilityUp)
 
+        if "pulseTempest" in unitSkills:
+            add_status(unit, Status.MobilityUp)
+
         if "air_orders" in unitSkills and unit.HPcur / unit.visible_stats[HP] >= 1.5 - 0.5 * unitSkills["air_orders"]:
             for ally in allies_within_n_spaces[1]:
                 if ally.move == 2:
@@ -4377,6 +4380,20 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
 
             if unit.specialCount == unit.specialMax:
                 sp_charges[unit] += 1
+
+        # Holy Soul of Zofia - SU!Celica
+        if "holySoulOfZofia" in unitSkills:
+            for foe in nearest_foes_within_n(unit, 20):
+                add_debuff(foe, SPD, -7)
+                add_debuff(foe, RES, -7)
+                add_status(foe, Status.Sabotage)
+                add_status(foe, Status.Discord)
+
+                for ally in allies_within_n(foe, 2):
+                    add_debuff(ally, SPD, -7)
+                    add_debuff(ally, RES, -7)
+                    add_status(ally, Status.Sabotage)
+                    add_status(ally, Status.Discord)
 
         # Wedding-Bell Axe (Base) - BR!Catria
         if "weddingBellAxe" in unitSkills and allies_within_n_spaces[2]:
@@ -5181,7 +5198,7 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 add_buff(ally, ATK, 6)
                 add_buff(ally, SPD, 6)
 
-        # Fleeting Echo - X!Nino
+        # Fanged Ties - X!Nino
         if "fangedTies" in unitSkills and allies_within_n_spaces[2]:
             add_status(unit, Status.Canto1)
             add_status(unit, Status.MobilityUp)
@@ -5190,6 +5207,40 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                 sp_charges[unit] += 2
             if unit.specialCount == unit.specialMax - 1:
                 sp_charges[unit] += 1
+
+        # Bouncin' Ball - SU!Nino
+        if "suNinoBoost" in unitSkills and allies_within_n_spaces[2]:
+            add_buff(unit, ATK, 6)
+            add_buff(unit, SPD, 6)
+            add_status(unit, Status.NullPenalties)
+            add_status(unit, Status.Hexblade)
+
+            for ally in allies_within_n_spaces[2]:
+                add_buff(ally, ATK, 6)
+                add_buff(ally, SPD, 6)
+                add_status(ally, Status.NullPenalties)
+                add_status(ally, Status.Hexblade)
+
+        # Black Fang Bond - SU!Nino
+        if "blackFangBond" in unitSkills and allies_within_n_spaces[2]:
+            add_status(unit, Status.Canto1)
+            add_status(unit, Status.MobilityUp)
+
+            if unit.specialCount == unit.specialMax:
+                sp_charges[unit] += 2
+            if unit.specialCount == unit.specialMax - 1:
+                sp_charges[unit] += 1
+
+            for foe in nearest_foes_within_n(unit, 20):
+                add_debuff(foe, SPD, -7)
+                add_debuff(foe, RES, -7)
+                add_status(foe, Status.Exposure)
+                add_status(foe, Status.Undefended)
+
+                for ally in allies_within_n(foe, 2):
+                    add_debuff(ally, SPD, -7)
+                    add_debuff(ally, RES, -7)
+                    add_status(ally, Status.Exposure)
 
         # Crow's Crystal (Base) - DE!Ursula
         if "deUrsulaBoost" in unitSkills and unitHPGreaterEqual25Percent:
@@ -9186,6 +9237,8 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                             attack_range = list(set(game_map.tiles[movement].tilesWithinNSpaces(5)) & set(game_map.tiles[movement].tilesWithinNRowsOrCols(3, 3)))
                         elif style == "WIND-SWORD":
                             attack_range = game_map.tiles[movement].tilesNSpacesAway(2)
+                        elif style == "ECHO":
+                            attack_range = game_map.tiles[movement].tilesNSpacesAway(3)
 
                         for atk_tile in attack_range:
                             if unit.isEnemyOf(atk_tile.hero_on) and not (abs(atk_tile.x_coord - struct_tile.x_coord) <= 3 and abs(atk_tile.y_coord - struct_tile.y_coord) <= 1):
@@ -11322,7 +11375,7 @@ def end_of_combat(atk_effects, def_effects, attacker, defender, savior_unit, uni
 
         if effect[0] == "status":
             for x in targeted_units:
-                if not(effect[1] == Status.CancelAction and any([ally for ally in (allies_within_n(x, 3) + [x]) if "cantoCurbStomp" in ally.getSkills()])):
+                if not(effect[1] == Status.CancelAction and any([ally for ally in (allies_within_n(x, 3) + [x]) if "cantoCurbStomp" in ally.getSkills()])) and x.HPcur != 0:
                     x.inflictStatus(effect[1])
 
         if effect[0] == "sp_charge":

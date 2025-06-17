@@ -1,3 +1,16 @@
+2.7.6 (6/17/25)
+New Features:
+-New summer heroes Nino, Lapis, Palla, Celica, and Fogado were added.
+-Resplendent Outfit can now be used for Narcian.
+-Added the following sacred seals: Spd/Def Clash, Flow Refresh, Dazzling Staff, Rouse Spd/Res
+
+Bug Fixes:
+-Potent strikes now work properly when initiated against.
+-Triandra's burn damage is now properly applied to enemies.
+-Fixed the name of the Rouse Spd/Def 3 seal.
+-Fixed the descriptions of Close Def/Distant Def seals.
+-Fixed Wildflower Edge's ability to grant [Share Spoils] such that it doesn't immediately trigger upon defeating an enemy.
+
 2.7.5 (6/7/25)
 New Features:
 -New heroes Noire, attuned Tharja, M!Grima, F!Grima, and Excellus were added, with Heimdallr added with early access as well.

@@ -1508,5 +1508,29 @@
         "area": "global"
       }
     ]
+  },
+  "SU!Celica": {
+    "desc": "Neutralizes any [Penalty], restores 40 HP, and grants [Resonance: Blades] to unit and allies from the same titles as unit for 1 turn.\n\nOnce used, Harmonized Skill cannot be activated again right away. At start of every third turn, if Harmonized Skill has already been used, unit can use Harmonized Skill again.",
+    "type": "harmonic",
+    "skill_refresh": 3,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "ResonanceBlades",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "clear_penalties",
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      },
+      {
+        "effect": "heal",
+        "degree": 40,
+        "targets": "self_and_same_game_allies",
+        "area": "global"
+      }
+    ]
   }
 }
