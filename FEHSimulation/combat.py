@@ -817,7 +817,7 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
                                 updated_skills = {x: updated_skills.get(x, 0) + e.effect.get(x, 0) for x in set(updated_skills).union(e.effect)}
 
                 elif "vRheaMiracle_f" in e.effect:
-                    if not e.owner.assist_galeforce_triggered:
+                    if not e.owner.once_per_turn_cond:
                         updated_skills = {x: updated_skills.get(x, 0) + e.effect.get(x, 0) for x in set(updated_skills).union(e.effect)}
 
                 elif "nyVelTarget" in e.effect:
@@ -23195,6 +23195,55 @@ def simulate_combat(attacker, defender, is_in_sim, turn, spaces_moved_by_atkr, c
         atkCombatBuffs[ATK] -= 5 + X
         atkCombatBuffs[RES] -= 5 + X
         defr.damage_reduction_reduction.append(50)
+
+    # Maiden's Tome - E!Micaiah
+    if "eMicaiahBoost" in atkSkills:
+        atkCombatBuffs = [x + min(len(atkAllyWithin3RowsCols) * 3 + 5, 14) for x in atkCombatBuffs]
+
+        X = abs(min(sum(defNeutrDebuffsStats), min([ally.get_penalty_total() for foe in defAllyWithin2Spaces], default=0)))
+        atkr.true_all_hits += X
+        atkr.TDR_all_hits += 7
+        atkr.sp_jump_first += 1
+
+    if "eMicaiahBoost" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs = [x + min(len(defAllyWithin3RowsCols) * 3 + 5, 14) for x in defCombatBuffs]
+
+        X = abs(min(sum(atkNeutrDebuffsStats), min([ally.get_penalty_total() for foe in atkAllyWithin2Spaces], default=0)))
+        defr.true_all_hits += X
+        defr.TDR_all_hits += 7
+        defr.sp_jump_first += 1
+
+    # Micaiah Ring
+    if "heal us" in atkSkills:
+        atkr.true_sp += attacker.specialMax * 4
+
+    if "heal us" in defSkills:
+        defr.true_sp += defender.specialMax * 4
+
+    # Silence Ward
+    if "driveSilence" in atkSkills:
+        atkCombatBuffs[ATK] += atkSkills["driveSilence"]
+        atkCombatBuffs[RES] += atkSkills["driveSilence"]
+
+        if "silenceWard4" in atkSkills and atkSpTriggeredByAttack:
+            atkr.sp_jump_first += 1
+
+    if "driveSilence" in defSkills and defAllyWithin2Spaces:
+        defCombatBuffs[ATK] += defSkills["driveSilence"]
+        defCombatBuffs[RES] += defSkills["driveSilence"]
+        disableCannotCounter = True
+
+        if "silenceWard4" in defSkills and defSpTriggeredByAttack:
+            defr.sp_jump_first += 1
+
+    if "silenceWard4_f" in atkSkills and atkSpTriggeredByAttack:
+        atkr.sp_jump_first += atkSkills["silenceWard4_f"]
+
+    if "driveNullC" in defSkills:
+        disableCannotCounter = True
+
+        if "silenceWard4_f" in defSkills and defSpTriggeredByAttack:
+            defr.sp_jump_first += defSkills["silenceWard4_f"]
 
     # Chaos Manifest (Base) - Yune
     if "yunePenalty" in atkSkills and defHasPenalty:

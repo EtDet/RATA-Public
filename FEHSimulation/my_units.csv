@@ -3,14 +3,13 @@ Lucina,Sample Lucina,Sealed FalchionEff,Reposition,,Armored Blow 3,Axebreaker 3,
 M!Robin,Sample Robin,Tactical BoltSpd,Rally Atk/Def+,Blazing Flame,Brazen Spd/Res 3,Spd/Res Ruse 3,Joint Hone Spd,,,40,0,5,2,3,2,0,,,0,False,,0,False,,False
 Mia,Sample Mia,Resolute BladeEff,Reposition,Moonbow,Death Blow 3,Dull Close 3,Def Smoke 3,,,40,0,5,0,0,0,0,,,0,True,,0,False,,False
 P!F!Corrin,Sample Corrin,Draconic RageEff,Draw Back,Miracle,Fury 3,Desperation 3,Breath of Life 3,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
-Sharena,Sample Sharena,FensalirEff,Reposition,Noontime,Darting Blow 3,Vantage 3,Fortify Def 3,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
+Sharena,Sample Sharena,FensalirEff,Reposition,Noontime,Darting Blow 3,Vantage 3,Fortify Def 3,,,40,0,5,0,0,0,0,,,0,False,Micaiah,0,False,,False
 V!Eliwood,Sample Eliwood,Berkut's Lance+Spd,Swap,Bonfire,Atk/Def Solo 4,Bold Fighter 3,Threat. Atk/Def 2,,,40,10,5,1,0,1,0,,,0,False,,0,False,,False
 L!Xander,Sample Xander,Ebon BölverkEff,Reposition,Bonfire,Atk/Spd Excel,Chivalry II,Def/Res Menace,,,40,0,5,2,0,2,0,,,0,False,Celica,0,False,,False
 Alfonse,Fire Emblem Hero,Fólkvangr,,Sol,Death Blow 3,,Spur Atk 3,,,40,0,5,0,0,0,0,,4.0,0,False,,0,False,,False
 Micaiah,micky,Thani,Sacrifice,,,,,,,40,0,5,0,0,0,0,,4.0,0,False,,0,False,,False
 L!Roy,Sample Pair-Up,DragonbindEff,,Moonbow,Bonus Doubler 3,Spurn 3,Human Virtue II,,,40,0,5,0,0,0,0,,,0,False,,0,False,micky,False
 Ratatoskr,Rata from RATA,World-Tree Tail,Reposition,Luna,Atk/Spd Clash 4,Beast Agility 4,Mending Heart,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
-L!Black Knight,WILL YOU SURVIVE?,Final Sword,,Pitch-Dark Luna,Distant A/D Form,Counter Fighter,A/D Briar F Save,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
 Heimdallr,No action 4 u,Gjallarhorn,,,,,,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False
 SU!Celica,Would you rather have 0 or 0 * 2,Pious Offering,,Magic Light,Sly Swift Sparrow,Holy Soul of Zofia,A/S Incite Hone,,,40,0,5,0,0,0,0,,,0,False,Lyn,0,False,,False
-CH!Camilla,ae,Axe of Dusk,,No Quarter,Trample,Tut-Tut!,Guidance 4,,,40,0,5,0,0,0,0,,,0,False,Eirika,0,False,,False
+E!Micaiah,micky+,Maiden's Tome,Swap,Great Sacrifice,Crystalline Water,Atk/Res Havoc,Silence Ward 4,,,40,0,5,0,0,0,0,,,0,False,,0,False,,False

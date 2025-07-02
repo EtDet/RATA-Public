@@ -550,6 +550,19 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
+        # Silence Ward
+        if "driveSilence" in unitSkills:
+            range = within_2_space
+            condition = lambda s: lambda o: True
+            affect_same_side = True
+            effects = {"atkCombat": unitSkills["driveSilence"], "resCombat": unitSkills["driveSilence"], "driveNullC": 0}
+
+            if "silenceWard4" in unitSkills:
+                effects["silenceWard4_f"] = 1
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
         # UNIQUE STUFF
 
         # Falchion (Refine Eff) - Marth
@@ -1046,6 +1059,16 @@ def create_combat_fields(player_team, enemy_team):
             condition = lambda s: lambda o: True
             affect_same_side = False
             effects = {"atkRein_f": 4, "spdRein_f": 4, "defRein_f": 4, "resRein_f": 4}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
+        # Maiden's Tome - E!Micaiah
+        if "eMicaiahBoost" in unitSkills:
+            range = global_range
+            condition = lambda s: lambda o: Status.Exposure in o.statusNeg
+            affect_same_side = False
+            effects = {"atkCombat": -5, "spdCombat": -5, "defCombat": -5, "resCombat": -5, "cruxField_f": 1}
 
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
@@ -11401,7 +11424,7 @@ def end_of_combat(atk_effects, def_effects, attacker, defender, savior_unit, uni
 
         if effect[0] == "enable_once_per_turn":
             for x in targeted_units:
-                x.assist_galeforce_triggered = True
+                x.once_per_turn_cond = True
 
         if effect[0] == "disable_weapon":
             for x in targeted_units:

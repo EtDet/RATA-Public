@@ -1680,7 +1680,7 @@ class HeroListing(tk.Frame):
                        "Edelgard", "Tiki", "Hector", "Soren", "Camilla", "Chrom", "Veronica",
                        "Ephraim", "Dimitri", "Claude", "Robin"]
 
-        emblems = ["None", "Marth", "Celica", "Sigurd", "Lyn", "Eirika", "Ike"]
+        emblems = ["None", "Marth", "Celica", "Sigurd", "Lyn", "Eirika", "Ike", "Micaiah"]
         all_emblems = []
 
         if not self.creation_str_vars[11].get() or (self.created_hero.intName.replace("E!", "") == self.creation_str_vars[11].get()):
@@ -3024,6 +3024,7 @@ class UnitState:
         self.nsp_galeforce = unit.nonspecial_galeforce_triggered
         self.ast_galeforce = unit.assist_galeforce_triggered
         self.once_per_map_cond = unit.once_per_map_cond
+        self.once_per_turn_cond = unit.once_per_turn_cond
         self.sp_triggered = unit.specialTriggeredThisTurn
 
         self.canto = unit.canto_ready
@@ -3985,6 +3986,7 @@ class GameplayCanvas(tk.Canvas):
             unit.nonspecial_galeforce_triggered = mapstate.unit_states[unit].nsp_galeforce
             unit.assist_galeforce_triggered = mapstate.unit_states[unit].ast_galeforce
             unit.once_per_map_cond = mapstate.unit_states[unit].once_per_map_cond
+            unit.once_per_turn_cond = mapstate.unit_states[unit].once_per_turn_cond
 
             unit.canto_ready = mapstate.unit_states[unit].canto
             unit.style_ready = mapstate.unit_states[unit].style
@@ -4291,6 +4293,7 @@ class GameplayCanvas(tk.Canvas):
                 x.special_galeforce_triggered = False
                 x.nonspecial_galeforce_triggered = False
                 x.assist_galeforce_triggered = False
+                x.once_per_turn_cond = False
                 x.canto_ready = True
                 x.style_ready = True
                 x.specialTriggeredThisTurn = False
@@ -4312,6 +4315,7 @@ class GameplayCanvas(tk.Canvas):
                     x.pair_up_obj.special_galeforce_triggered = False
                     x.pair_up_obj.nonspecial_galeforce_triggered = False
                     x.pair_up_obj.assist_galeforce_triggered = False
+                    x.pair_up_obj.once_per_turn_cond = False
                     x.pair_up_obj.canto_ready = True
                     x.pair_up_obj.style_ready = True
                     x.pair_up_obj.specialTriggeredThisTurn = False
@@ -4351,6 +4355,7 @@ class GameplayCanvas(tk.Canvas):
                 x.special_galeforce_triggered = False
                 x.nonspecial_galeforce_triggered = False
                 x.assist_galeforce_triggered = False
+                x.once_per_turn_cond = False
                 x.canto_ready = True
                 x.specialTriggeredThisTurn = True
 
@@ -5224,11 +5229,16 @@ class GameplayCanvas(tk.Canvas):
                             feint_skills = ["atkFeint", "spdFeint", "defFeint", "resFeint", "atkFeintSe", "spdFeintSe", "defFeintSe", "resFeintSe"]
                             ruse_skills = ["atkSpdRuse", "atkDefRuse", "atkResRuse", "spdDefRuse", "spdResRuse", "defResRuse"]
 
+
+                            # Certain Weapons/Skills that grant/inflict effects, can rally/be rallied regardless of current buffs on target
                             self_exceptions = ["annetteRally", "annetteBoost", "hubertRuse", "shigureLink", "merlinusRally", "jolly!",
                                                "astridRally", "heiðrBoost", "goldSerpent", "niHeatherBoost", "isadoraBoost", "sling a thing",
                                                "magicShield", "magicShieldPlus", "iceLock", "iceLockPlus", "chFRobinBoost", "suavamente",
-                                               "wiHortensiaBoost", "iceLock", "iceLockPlus", "edainBoost", "calledToServe", "chLeoBoost"]
-                            ally_exceptions = ["hubertRuse", "shigureLink", "heiðrBoost", "niHeatherBoost", "isadoraBoost", "suavamente"]
+                                               "wiHortensiaBoost", "iceLock", "iceLockPlus", "edainBoost", "calledToServe", "chLeoBoost",
+                                               "eMicaiahBoost", "greatSacrifice", "heal us", "ymirBoost"]
+
+                            ally_exceptions = ["hubertRuse", "shigureLink", "heiðrBoost", "niHeatherBoost", "isadoraBoost",
+                                               "suavamente", "eMicaiahBoost", "ymirBoost"]
 
                             for skill in feint_skills + ruse_skills:
                                 if skill in cur_hero.getSkills() or skill in ally.getSkills():
@@ -7951,27 +7961,27 @@ class GameplayCanvas(tk.Canvas):
                             if ally not in allied_affected:
                                 allied_affected.append(ally)
 
-                        for ally in allied_affected:
+                        for affected in allied_affected:
                             # Heal
-                            cur_heal = hp_healed if Status.DeepWounds not in ally.statusNeg else 0
+                            cur_heal = hp_healed if Status.DeepWounds not in affected.statusNeg else 0
 
-                            ally.HPcur = min(ally.visible_stats[HP], ally.HPcur + cur_heal)
-                            self.animate_heal_popup(cur_heal, ally.tile.tileNum)
+                            affected.HPcur = min(affected.visible_stats[HP], affected.HPcur + cur_heal)
+                            self.animate_heal_popup(cur_heal, affected.tile.tileNum)
 
                             # Get/Update HP assets
-                            self.refresh_unit_visuals_obj(ally)
+                            self.refresh_unit_visuals_obj(affected)
 
                             # Clear Penalties
-                            if Status.Schism in ally.statusNeg:
-                                if Status.Pathfinder in ally.statusPos:
-                                    ally.statusPos.remove(Status.Pathfinder)
-                                if Status.TriangleAttack in ally.statusPos:
-                                    ally.statusPos.remove(Status.TriangleAttack)
-                                if Status.DualStrike in ally.statusPos:
-                                    ally.statusPos.remove(Status.DualStrike)
+                            if Status.Schism in affected.statusNeg:
+                                if Status.Pathfinder in affected.statusPos:
+                                    affected.statusPos.remove(Status.Pathfinder)
+                                if Status.TriangleAttack in affected.statusPos:
+                                    affected.statusPos.remove(Status.TriangleAttack)
+                                if Status.DualStrike in affected.statusPos:
+                                    affected.statusPos.remove(Status.DualStrike)
 
-                            ally.statusNeg.clear()
-                            ally.debuffs = [0, 0, 0, 0, 0]
+                            affected.statusNeg.clear()
+                            affected.debuffs = [0, 0, 0, 0, 0]
 
                     if "isadoraBoost" in playerSkills or "isadoraBoost" in allySkills:
                         player.inflictStat(ATK, 6)
@@ -8028,6 +8038,100 @@ class GameplayCanvas(tk.Canvas):
 
                         for other_ally in feh.allies_within_n(ally, 2):
                             other_ally.inflictStatus(Status.NullBonuses)
+
+                    if "eMicaiahBoost" in playerSkills or "eMicaiahBoost" in allySkills:
+                        i = 1
+                        affected_units = []
+
+                        while i <= 5 and not affected_units:
+                            affected_units += feh.foes_within_n(player, i)
+                            affected_units += feh.foes_within_n(ally, i)
+
+                            affected_units = list(set(affected_units))
+
+                            for foe in affected_units:
+                                foe.inflictStat(ATK, -6)
+                                foe.inflictStat(SPD, -6)
+                                foe.inflictStat(DEF, -6)
+                                foe.inflictStat(RES, -6)
+                                foe.inflictStatus(Status.Exposure)
+
+                                for allied_foe in allies_within_n(foe, 2):
+                                    allied_foe.inflictStat(ATK, -6)
+                                    allied_foe.inflictStat(SPD, -6)
+                                    allied_foe.inflictStat(DEF, -6)
+                                    allied_foe.inflictStat(RES, -6)
+                                    allied_foe.inflictStatus(Status.Exposure)
+
+                            i += 1
+
+                    if "greatSacrifice" in playerSkills:
+                        allied_affected = [ally]
+
+                        for ally in feh.allies_within_n(player, 2) + feh.allies_within_n(ally, 2):
+                            if ally not in allied_affected and ally != player:
+                                allied_affected.append(ally)
+
+                        for affected in allied_affected:
+                            cur_heal = 20 if Status.DeepWounds not in affected.statusNeg else 0
+
+                            affected.HPcur = min(affected.visible_stats[HP], affected.HPcur + cur_heal)
+                            self.animate_heal_popup(cur_heal, affected.tile.tileNum)
+
+                            # Get/Update HP assets
+                            self.refresh_unit_visuals_obj(affected)
+
+                            # Clear Penalties
+                            if Status.Schism in affected.statusNeg:
+                                if Status.Pathfinder in affected.statusPos:
+                                    affected.statusPos.remove(Status.Pathfinder)
+                                if Status.TriangleAttack in affected.statusPos:
+                                    affected.statusPos.remove(Status.TriangleAttack)
+                                if Status.DualStrike in affected.statusPos:
+                                    affected.statusPos.remove(Status.DualStrike)
+
+                            affected.statusNeg.clear()
+                            affected.debuffs = [0, 0, 0, 0, 0]
+
+                        if player.assistTargetedOther == 0:
+                            galeforce_triggered = True
+
+                    if "heal us" in playerSkills:
+                        cur_heal = 20 if Status.DeepWounds not in ally.statusNeg else 0
+
+                        ally.HPcur = min(ally.visible_stats[HP], ally.HPcur + cur_heal)
+                        self.animate_heal_popup(cur_heal, ally.tile.tileNum)
+
+                        # Get/Update HP assets
+                        self.refresh_unit_visuals_obj(ally)
+
+                        # Clear Penalties
+                        if Status.Schism in ally.statusNeg:
+                            if Status.Pathfinder in ally.statusPos:
+                                ally.statusPos.remove(Status.Pathfinder)
+                            if Status.TriangleAttack in ally.statusPos:
+                                ally.statusPos.remove(Status.TriangleAttack)
+                            if Status.DualStrike in ally.statusPos:
+                                ally.statusPos.remove(Status.DualStrike)
+
+                        ally.statusNeg.clear()
+                        ally.debuffs = [0, 0, 0, 0, 0]
+
+                        if player.assistTargetedOther == 0:
+                            # Inflict self
+                            galeforce_triggered = True
+
+                            player.inflictStatus(Status.Isolation)
+
+                            if player.getRange() == 2:
+                                player.inflictStatus(Status.Gravity)
+
+                            # Inflict pair-up
+                            if player.pair_up_obj:
+                                player.pair_up_obj.inflictStatus(Status.Isolation)
+
+                                if player.pair_up_obj.getRange() == 2:
+                                    player.pair_up_obj.inflictStatus(Status.Gravity)
 
                 # Link skills, or other effects that trigger after assist use
                 if player.assist.type == "Move":

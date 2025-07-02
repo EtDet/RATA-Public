@@ -327,6 +327,7 @@ class Hero:
         self.canto_galeforce_triggered = False
 
         self.once_per_map_cond = False
+        self.once_per_turn_cond = False
 
         self.transformed = False
 
@@ -1759,6 +1760,9 @@ Unit cannot move or attack structures, after-combat movement effects do not occu
 ――――――――――――――――――――''',
     "Eirika": '''When Special triggers, boosts damage by unit's max Special cooldown count value × 4 (excluding area-of-effect Specials).
 
-If it is unit's first combat initiated by unit or first combat initiated by foe that turn, inflicts Atk-4 on unit and unit attacks twice during combat (triggers only when unit's Range = 1; does not trigger when equipped with an area-of-effect Special).'''
+If it is unit's first combat initiated by unit or first combat initiated by foe that turn, inflicts Atk-4 on unit and unit attacks twice during combat (triggers only when unit's Range = 1; does not trigger when equipped with an area-of-effect Special).''',
+    "Micaiah": '''When Special triggers, boosts damage by unit's max Special cooldown count value × 4 (excluding area-of-effect Specials).
+
+If a Rally of movement Assist skill is used by unit, restores 20 HP to target ally and neutralizes any [Penalty] on that ally, and grants another action to unit and inflicts [Isolation] on unit and Pair Up cohort through their next action, and also, if unit's or Pair Up Cohort's Range = 2, inflicts "restricts movement to 1 space" on unit and Pair Up cohort, respectively, through their next action ("grants another action" effect and onward is once per turn; if another effect that grants additional action to unit has been triggered at the same time, this effect is also considered to have been triggered).'''
 
 }

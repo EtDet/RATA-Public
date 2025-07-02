@@ -1,3 +1,10 @@
+2.7.7 (6/30/25)
+New Features:
+-Emblem Micaiah has been added.
+
+Bug Fixes:
+-Fixed the conditions to allow Ymir's Everliving Breath to use rally skills.
+
 2.7.6 (6/17/25)
 New Features:
 -New summer heroes Nino, Lapis, Palla, Celica, and Fogado were added.
