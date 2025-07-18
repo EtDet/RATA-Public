@@ -1037,24 +1037,34 @@ class Hero:
 
         conditions_arr = ["DEFAULT-BEAST"]
 
-        if "faMuarimBoost" in self.getSkills():
+        skill_dict = self.getSkills()
+
+        if "faMuarimBoost" in skill_dict:
             conditions_arr = ["MUARIM-TURNS"]
 
-        if "uncondBeast" in self.getSkills():
+        if "uncondBeast" in skill_dict:
             conditions_arr.append("NO-CONDITIONS")
 
-        if "uncondBeast100" in self.getSkills():
+        if "uncondBeast100" in skill_dict:
             conditions_arr.append("NO-CONDITIONS-100")
 
-        if "uncondBeast50" in self.getSkills():
+        if "uncondBeast50" in skill_dict:
             conditions_arr.append("NO-CONDITIONS-50")
 
-        if "connectedWorld" in self.getSkills():
+        if "connectedWorld" in skill_dict:
             conditions_arr.append("ASKR-OTHERWORLD")
             conditions_arr.append("AR-TRANSFORM")
 
-        if "fortuneCond" in self.getSkills():
+        if "fortuneCond" in skill_dict:
             conditions_arr.append("FORTUNE-BEAST")
+            conditions_arr.append("AR-TRANSFORM")
+
+        if "divineBrawn" in skill_dict:
+            conditions_arr.append("NO-CONDITIONS")
+            conditions_arr.append("AR-TRANSFORM")
+
+        if "severancePlus" in skill_dict:
+            conditions_arr.append("EMBLA-SEVERANCE")
             conditions_arr.append("AR-TRANSFORM")
 
         return conditions_arr
@@ -1489,10 +1499,10 @@ class GameMode(Enum):
 print("Reading Unit & Skill Data...")
 hero_sheet = pd.read_excel('Spreadsheets/FEHstats.xlsx')
 weapon_sheet = pd.read_excel('Spreadsheets/FEHWeapons.xlsx')
-assist_sheet = pd.read_csv('Spreadsheets/FEHAssists.csv')
+assist_sheet = pd.read_excel('Spreadsheets/FEHAssists.xlsx')
 special_sheet = pd.read_excel('Spreadsheets/FEHSpecials.xlsx')
 skills_sheet = pd.read_excel('Spreadsheets/FEHABCXSkills.xlsx')
-seals_sheet = pd.read_csv("Spreadsheets/FEHSeals.csv")
+seals_sheet = pd.read_excel("Spreadsheets/FEHSeals.xlsx")
 with open('Spreadsheets/FEHDuoSkills.json', encoding="utf-8") as read_file: duoskills_sheet = json.load(read_file)
 
 # Skills currently present for use

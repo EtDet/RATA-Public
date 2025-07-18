@@ -4293,7 +4293,6 @@ class GameplayCanvas(tk.Canvas):
                 x.special_galeforce_triggered = False
                 x.nonspecial_galeforce_triggered = False
                 x.assist_galeforce_triggered = False
-                x.once_per_turn_cond = False
                 x.canto_ready = True
                 x.style_ready = True
                 x.specialTriggeredThisTurn = False
@@ -4315,7 +4314,6 @@ class GameplayCanvas(tk.Canvas):
                     x.pair_up_obj.special_galeforce_triggered = False
                     x.pair_up_obj.nonspecial_galeforce_triggered = False
                     x.pair_up_obj.assist_galeforce_triggered = False
-                    x.pair_up_obj.once_per_turn_cond = False
                     x.pair_up_obj.canto_ready = True
                     x.pair_up_obj.style_ready = True
                     x.pair_up_obj.specialTriggeredThisTurn = False
@@ -4355,7 +4353,6 @@ class GameplayCanvas(tk.Canvas):
                 x.special_galeforce_triggered = False
                 x.nonspecial_galeforce_triggered = False
                 x.assist_galeforce_triggered = False
-                x.once_per_turn_cond = False
                 x.canto_ready = True
                 x.specialTriggeredThisTurn = True
 
@@ -4464,6 +4461,8 @@ class GameplayCanvas(tk.Canvas):
 
             unit.moveOrDestroyActions = 0
 
+            unit.once_per_turn_cond = False
+
             if unit.pair_up_obj:
                 unit.pair_up_obj.unitCombatInitiates = 0
                 unit.pair_up_obj.num_foes_defeated = 0
@@ -4476,6 +4475,9 @@ class GameplayCanvas(tk.Canvas):
                 unit.pair_up_obj.assistTargetedSelf_Other = 0
 
                 unit.pair_up_obj.moveOrDestroyActions = 0
+
+                unit.pair_up_obj.once_per_turn_cond = False
+
 
         for unit in end_actions:
             self.units_to_move.remove(unit)
@@ -4984,7 +4986,7 @@ class GameplayCanvas(tk.Canvas):
 
         perimeter_attack_range = []  # red tiles on edge of moves
         attack_range = []  # all tiles that can be attacked
-        assist_range = []  # all tiles that can be assisted
+        #assist_range = []  # all tiles that can be assisted
 
         # Identify all possible tiles to attack from, regardless of targets
         if cur_hero.weapon and not (self.canto is not None and self.canto == cur_hero) and not self.swap_mode:
@@ -5095,7 +5097,13 @@ class GameplayCanvas(tk.Canvas):
                 if not self.canto:
                     ast_arr = self.map.tiles[m.destination].tilesNSpacesAway(cur_hero.assist.range)
                 else:
-                    assist_range = 2 if self.shadow_assist == "distant_swap" else 1
+                    if self.shadow_assist == "distant_swap":
+                        assist_range = 2
+                    elif self.shadow_assist == "foul_play":
+                        assist_range = 3
+                    else:
+                        assist_range = 1
+
                     ast_arr = self.map.tiles[m.destination].tilesNSpacesAway(assist_range)
 
                 for atk_tile in ast_arr:
@@ -5136,7 +5144,7 @@ class GameplayCanvas(tk.Canvas):
                                 valid_unit_cond = (feh.can_be_on_tile(self.map.tiles[move_unit_to], cur_hero) and move_unit_to != -1 and no_one_on) or is_rescue
                                 valid_ally_cond = (feh.can_be_on_tile(self.map.tiles[move_ally_to], ally) and move_ally_to != -1 and no_one_on_ally) or is_rescue
 
-                            elif (self.canto and self.shadow_assist == "distant_swap") or "swap" in assist_effects:
+                            elif (self.canto and (self.shadow_assist == "distant_swap" or self.shadow_assist == "foul_play")) or "swap" in assist_effects:
                                 move_unit_to = n
                                 move_ally_to = m.destination
 
@@ -6888,6 +6896,16 @@ class GameplayCanvas(tk.Canvas):
 
                 # OTHER NONSPECIAL GALEFORCE EFFECTS
 
+                elif "trueNjorun" in playerSkills and playerSpecialTriggered and not player.special_galeforce_triggered:
+                    player.special_galeforce_triggered = True
+                    galeforce_triggered = True
+
+                    if not feh.allies_within_n(player, 2):
+                        player.inflictStatus(Status.Gravity)
+
+                        if player.pair_up_obj:
+                            player.pair_up_obj.inflictStatus(Status.Gravity)
+
                 # Victorious Axe (Refine Eff) - Edelgard
                 elif "another 3 years" in playerSkills and not feh.allies_within_n(player, 1) and not player.nonspecial_galeforce_triggered:
                     player.nonspecial_galeforce_triggered = True
@@ -7278,7 +7296,7 @@ class GameplayCanvas(tk.Canvas):
                         unit_final_position = unit_final_dest
                         ally_final_position = ally_final_dest
 
-            elif "swap" in assist_effects or self.shadow_assist == "distant_swap":
+            elif "swap" in assist_effects or self.shadow_assist == "distant_swap" or self.shadow_assist == "foul_play":
                 unit_final_position = ally.tile.tileNum
                 ally_final_position = player.tile.tileNum
 
@@ -8149,6 +8167,13 @@ class GameplayCanvas(tk.Canvas):
                             x.inflictStat(ATK, stat_boost * 2)
                             x.inflictStat(DEF, stat_boost * 2)
 
+                    if "atkDefLinkSe" in playerSkills or "atkDefLinkSe" in allySkills:
+                        stat_boost = max(playerSkills.get("atkDefLinkSe", 0), allySkills.get("atkDefLinkSe", 0))
+
+                        for x in [player, ally]:
+                            x.inflictStat(ATK, stat_boost * 2)
+                            x.inflictStat(DEF, stat_boost * 2)
+
                     if "atkResLink" in playerSkills or "atkResLink" in allySkills:
                         stat_boost = max(playerSkills.get("atkResLink", 0), allySkills.get("atkResLink", 0))
 
@@ -8645,7 +8670,6 @@ class GameplayCanvas(tk.Canvas):
             # Keep your turn after using assist
 
             if not self.shadow_assist:
-
                 # Divine Nectar - Heiðrún
                 if Status.DivineNectar in player.statusPos:
                     for other_ally in feh.allies_within_n(player, 20):
@@ -8654,6 +8678,10 @@ class GameplayCanvas(tk.Canvas):
                             galeforce_triggered = True
 
                          if "nectarsMagic" in other_ally.getSkills() and not other_ally.nonspecial_galeforce_triggered:
+                            other_ally.nonspecial_galeforce_triggered = True
+                            galeforce_triggered = True
+
+                         if "sweetNectar" in other_ally.getSkills() and not other_ally.nonspecial_galeforce_triggered:
                             other_ally.nonspecial_galeforce_triggered = True
                             galeforce_triggered = True
 
@@ -9073,6 +9101,9 @@ class GameplayCanvas(tk.Canvas):
                         cur_unit.nonspecial_galeforce_triggered = True
                         shadow_skills.append("refresh")
 
+                    if "theTrueDromi" in playerSkills:
+                        shadow_skills.append("foul_play")
+
                     if len(shadow_skills) > 1:
                         shadow_skills.clear()
 
@@ -9097,8 +9128,6 @@ class GameplayCanvas(tk.Canvas):
                         y1 = cur_pixel_offset_y
                         z1 = tile_photo
                         self.after(finish_time, create_tile, x1, y1, z1)
-
-                    assist_range = []
 
                     possible_assist_tile_nums = []
                     confirmed_assists = []
@@ -12748,7 +12777,7 @@ class ExtrasFrame(tk.Frame):
         aoe_damage: int = 0
         aoe_present: bool = False
 
-        aoe_disabled = feh.get_aoe_disable(attacker, defender) or style != "ECHO"
+        aoe_disabled = feh.get_aoe_disable(attacker, defender) or (style and style != "ECHO")
 
         # Track HP of all units after being hit by AOE, for skills that track "num allies with HP >= X%"
         target_healths = {}

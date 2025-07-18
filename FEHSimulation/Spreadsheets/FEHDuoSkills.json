@@ -786,7 +786,7 @@
     ]
   },
   "BR!Julia": {
-    "desc": "Grants [Empathy] to unit and allies iwthin 2 spaces for 1 turn, and grants Special cooldown count-1 to unit and those allies.\n\nOnce used, Harmonized Skill cannot be activated again right away. At start of every third turn, if Harmonized Skill has already been used, unit can use Harmonized Skill again.",
+    "desc": "Grants [Empathy] to unit and allies within 2 spaces for 1 turn, and grants Special cooldown count-1 to unit and those allies.\n\nOnce used, Harmonized Skill cannot be activated again right away. At start of every third turn, if Harmonized Skill has already been used, unit can use Harmonized Skill again.",
     "type": "duo",
     "skill_refresh": 3,
     "skills": [
@@ -801,6 +801,31 @@
         "degree": 1,
         "targets": "self_and_allies",
         "area": "within_2_spaces"
+      }
+    ]
+  },
+  "SU!Hapi": {
+    "desc": "Grants Special cooldown count-1 to unit.\n\nGrants \"unit can move 1 extra space (that turn only; does not stack)\" and [Incited] to unit for 1 turn.\n\nOnce used, Duo Skill cannot be activated again right away. At start of every third turn, if Duo Skill has already been used, unit can use Duo Skill again.",
+    "type": "duo",
+    "skill_refresh": 3,
+    "skills": [
+      {
+        "effect": "status",
+        "degree": "MobilityUp",
+        "targets": "self",
+        "area": "one"
+      },
+      {
+        "effect": "status",
+        "degree": "Incited",
+        "targets": "self",
+        "area": "one"
+      },
+      {
+        "effect": "sp_charge",
+        "degree": 1,
+        "targets": "self",
+        "area": "one"
       }
     ]
   },

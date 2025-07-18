@@ -1,3 +1,19 @@
+2.7.8 (7/8/25)
+New Features:
+-Summer heroes Yuri, Hapi, Balthus, Eikþyrnir, and Heiðrún, as well as new heroes Machyua, Linoan, Homer, Attuned Leif, Dagdar, and Melíai were added, with Váli in early access as well.
+-Weapon refines for Luthier, New Years Kaden, Fallen Dimitri, Embla, Aelfric, Pent, and Legendary Nanna are now usable
+-Resplendent Outfit can now be used for Soleil and Flora.
+-The Healing Tower structure can now be upgraded to level 14.
+-Atk/Def Link and Spd/Res Rein seals are now available.
+
+Bug Fixes:
+-Tut-tut! now gives the proper in combat effects.
+-Fixed the display of AOE attacks within the forecast tab.
+-Chivalry and Chivalry II will now grant the correct effects in combat.
+-Atk/Spd Fortune will now lull the correct stat bonuses.
+-Fixed the conditions for Winter Eikþyrnir's Delivering Antler when initiated against.
+-Added the Offensive NFU effect to Legendary Nanna's base Lands Sword.
+
 2.7.7 (6/30/25)
 New Features:
 -Emblem Micaiah has been added.
