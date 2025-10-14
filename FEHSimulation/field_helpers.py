@@ -3576,6 +3576,18 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
 
 
         # DISCORD SKILLS
+        if "atkDefDiscord" in unitSkills:
+            unit_res = unit.get_visible_stat(RES) + unit.get_phantom_stat(RES)
+
+            for foe in waiting_team:
+                if allies_within_n(foe, 2):
+                    foe_res = foe.get_visible_stat(RES) + foe.get_phantom_stat(RES)
+
+                    if foe_res < unit_res:
+                        add_debuff(foe, ATK, -6)
+                        add_debuff(foe, DEF, -6)
+                        add_status(foe, Status.Discord)
+
         if "atkResDiscord" in unitSkills:
             unit_res = unit.get_visible_stat(RES) + unit.get_phantom_stat(RES)
 
@@ -8142,6 +8154,18 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                     add_status(foe, Status.Ploy)
 
         # DISCORD
+        if "atkDefDiscord" in unitSkills:
+            unit_res = unit.get_visible_stat(RES) + unit.get_phantom_stat(RES)
+
+            for foe in starting_team:
+                if allies_within_n(foe, 2):
+                    foe_res = foe.get_visible_stat(RES) + foe.get_phantom_stat(RES)
+
+                    if foe_res < unit_res:
+                        add_debuff(foe, ATK, -6)
+                        add_debuff(foe, DEF, -6)
+                        add_status(foe, Status.Discord)
+
         if "atkResDiscord" in unitSkills:
             unit_res = unit.get_visible_stat(RES) + unit.get_phantom_stat(RES)
 
