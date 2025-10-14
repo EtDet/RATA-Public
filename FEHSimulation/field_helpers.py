@@ -1451,6 +1451,16 @@ def create_combat_fields(player_team, enemy_team):
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
 
+        # Sublime Creator
+        if "bmBylethBoost" in unitSkills:
+            range = within_3_rows_or_cols
+            condition = lambda s: lambda o: True
+            affect_same_side = True
+            effects = {"atkCombat": 5, "spdCombat": 5, "defCombat": 5, "resCombat": 5, "driveNullPenalties": 0, "allHitHeal": 7}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
         if "the nair landing hitbox has won me many a game" in unitSkills:
             range = within_3_rows_or_cols
             condition = lambda s: lambda o: True
@@ -2205,6 +2215,16 @@ def create_combat_fields(player_team, enemy_team):
             condition = lambda s: lambda o: True
             affect_same_side = True
             effects = {"atkCombat": 5, "defCombat": 5, "resCombat": 5, "nectarLull_f": 1}
+
+            field = CombatField(owner, range, condition, affect_same_side, effects)
+            combat_fields.append(field)
+
+        # Truth Keeper - Höðr
+        if "truthKeeper" in unitSkills:
+            range = within_3_rows_or_cols
+            condition = lambda s: lambda o: True
+            affect_same_side = True
+            effects = {"atkCombat": 5, "resCombat": 5, "postCombatHeal_f": 1, "TDR_first_f": 7}
 
             field = CombatField(owner, range, condition, affect_same_side, effects)
             combat_fields.append(field)
@@ -6682,6 +6702,21 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
             add_status(unit, Status.Dodge)
             add_status(unit, Status.TraverseTerrain)
 
+        # Prof's Guidance - B!M!Byleth
+        if "profsGuidance" in unitSkills and allies_within_n(unit, 3):
+            add_status(unit, Status.NullFollowUp)
+            add_status(unit, Status.ProfsGuidance)
+
+            if unit.specialCount == unit.specialMax:
+                sp_charges[unit] += 1
+
+            for ally in allies_within_n(unit, 3):
+                add_status(ally, Status.NullFollowUp)
+                add_status(unit, Status.ProfsGuidance)
+
+                if ally.specialCount == ally.specialMax:
+                    sp_charges[ally] += 1
+
         # Breaker Lance (Base) - Jeralt
         if "he lives" in unitSkills:
             for foe in units_with_extreme_stat_pairing_sum(waiting_team, DEF, RES):
@@ -7899,6 +7934,34 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                     add_debuff(foe, SPD, -7)
                     add_debuff(foe, RES, -7)
 
+        # Justice Enforcer - Baldr
+        if "justiceEnforcer" in unitSkills and unitHPGreaterEqual25Percent:
+            for foe in nearest_foes_within_n(unit, 20):
+                add_status(foe, Status.Exposure)
+
+                for ally in allies_within_n(foe, 2):
+                    add_status(ally, Status.Exposure)
+
+        # Truth Seeker - B!Baldr
+        if "bBaldrBoost" in unitSkills and allies_within_n(unit, 2):
+            add_status(unit, Status.MobilityUp)
+            add_status(unit, Status.DamageReductionPierce50)
+            add_status(unit, Status.SpecialCharge)
+
+            for ally in allies_within_n(unit, 2):
+                add_status(ally, Status.DamageReductionPierce50)
+                add_status(ally, Status.SpecialCharge)
+
+        # Heaven's Stead - B!Baldr
+        if "heavensStead" in unitSkills and allies_within_n(unit, 2):
+            for foe in nearest_foes_within_n(unit, 20):
+                add_status(foe, Status.Exposure)
+                add_status(foe, Status.TriangleAdept)
+
+                for ally in allies_within_n(foe, 2):
+                    add_status(ally, Status.Exposure)
+                    add_status(ally, Status.TriangleAdept)
+
         # Dusk Rifle - Höðr
         if "höðrBoost" in unitSkills:
             add_buff(unit, RES, 6)
@@ -8534,6 +8597,21 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                     add_debuff(foe, RES, -7)
                     add_status(foe, Status.Gravity)
 
+        # Prof's Guidance - B!M!Byleth
+        if "profsGuidance" in unitSkills and allies_within_n(unit, 3):
+            add_status(unit, Status.NullFollowUp)
+            add_status(unit, Status.ProfsGuidance)
+
+            if unit.specialCount == unit.specialMax:
+                sp_charges[unit] += 1
+
+            for ally in allies_within_n(unit, 3):
+                add_status(ally, Status.NullFollowUp)
+                add_status(unit, Status.ProfsGuidance)
+
+                if ally.specialCount == ally.specialMax:
+                    sp_charges[ally] += 1
+
         # Icy Fimbulvetr (Refine Base) - Marianne
         if "marianneCanto" in unitSkills:
             unit_res = unit.get_visible_stat(RES) + unit.get_phantom_stat(RES)
@@ -8759,6 +8837,15 @@ def start_of_turn(starting_team, waiting_team, turn, season, game_mode, game_map
                     add_debuff(foe, ATK, -7)
                     add_debuff(foe, SPD, -7)
                     add_debuff(foe, RES, -7)
+
+        # Truth Seeker - B!Baldr
+        if "bBaldrBoost" in unitSkills and allies_within_n(unit, 2):
+            add_status(unit, Status.DamageReductionPierce50)
+            add_status(unit, Status.SpecialCharge)
+
+            for ally in allies_within_n(unit, 2):
+                add_status(ally, Status.DamageReductionPierce50)
+                add_status(ally, Status.SpecialCharge)
 
         # Dusk Rifle - Höðr
         if "höðrBoost" in unitSkills:
@@ -9822,7 +9909,7 @@ def allowed_movement(unit):
 
     return spaces_allowed
 
-def get_obstruct_tiles(unit, enemy_team):
+def get_obstruct_tiles(unit, enemy_team, style):
     all_obstruct_tiles = []
     for enemy in enemy_team:
         enemy_skills = enemy.getSkills()
@@ -9836,10 +9923,8 @@ def get_obstruct_tiles(unit, enemy_team):
             obstruct_cond = True
 
         if "bulwark" in enemy_skills or Status.Bulwark in enemy.statusPos:
-            if unit.wpnType in MELEE_WEAPONS:
-                obstruct_cond = True
-            else:
-                bulwark_cond = True
+            obstruct_cond = True
+            bulwark_cond = True
 
         tiles = []
 
@@ -9847,7 +9932,12 @@ def get_obstruct_tiles(unit, enemy_team):
             tiles = enemy.tile.tilesWithinNSpaces(1)
 
         if bulwark_cond:
-            tiles = enemy.tile.tilesWithinNSpaces(2)
+            if unit.wpnType in MELEE_WEAPONS:
+                tiles = enemy.tile.tilesWithinNSpaces(1)
+            if unit.wpnType in RANGED_WEAPONS:
+                tiles = enemy.tile.tilesWithinNSpaces(2)
+            if style == "SUBLIME-HEAVEN":
+                tiles = enemy.tile.tilesWithinNSpaces(3)
 
         for x in tiles:
             if x not in all_obstruct_tiles:
@@ -9887,7 +9977,7 @@ def get_tile_cost(tile, unit):
     return cost
 
 # Get all non-warp tiles to move to + the path to get to them
-def get_nonwarp_moves(unit, other_team, spaces_allowed=None):
+def get_nonwarp_moves(unit, other_team, style, spaces_allowed=None):
     tile = unit.tile
 
     if spaces_allowed is None:
@@ -9911,7 +10001,7 @@ def get_nonwarp_moves(unit, other_team, spaces_allowed=None):
         pass_cond = True
 
     # all tiles which can obstruct non-warping movement
-    obstruct_tiles = get_obstruct_tiles(unit, other_team)
+    obstruct_tiles = get_obstruct_tiles(unit, other_team, style)
     possible_obstruct_tiles = [] # obstruct tiles that can be moved to
     optimal_obstruct_moves = [] # paths to each obstruct tile
 
@@ -9984,7 +10074,7 @@ def get_nonwarp_moves(unit, other_team, spaces_allowed=None):
     return final_possible_tiles, final_optimal_moves, final_possible_obstruct_tiles, final_optimal_obstruct_moves
 
 # List possible tiles to warp to
-def get_warp_moves(unit, unit_team, other_team):
+def get_warp_moves(unit, unit_team, other_team, style):
     unitSkills = unit.getSkills()
     unitStats = unit.getStats()
 
@@ -10423,7 +10513,7 @@ def get_warp_moves(unit, unit_team, other_team):
             if can_be_on_tile(cur_tile, unit) and (not cur_tile.hero_on or (cur_tile.hero_on and unit.isAllyOf(cur_tile.hero_on))):
                 warp_moves.append(cur_tile)
 
-                if cur_tile in get_obstruct_tiles(unit, other_team) and not pass_cond:
+                if cur_tile in get_obstruct_tiles(unit, other_team, style) and not pass_cond:
                     i = 3
                 else:
                     cur_tile = cur_tile.north
@@ -10438,7 +10528,7 @@ def get_warp_moves(unit, unit_team, other_team):
             if can_be_on_tile(cur_tile, unit) and (not cur_tile.hero_on or (cur_tile.hero_on and unit.isAllyOf(cur_tile.hero_on))):
                 warp_moves.append(cur_tile)
 
-                if cur_tile in get_obstruct_tiles(unit, other_team) and not pass_cond:
+                if cur_tile in get_obstruct_tiles(unit, other_team, style) and not pass_cond:
                     i = 3
                 else:
                     cur_tile = cur_tile.south
@@ -10453,7 +10543,7 @@ def get_warp_moves(unit, unit_team, other_team):
             if can_be_on_tile(cur_tile, unit) and (not cur_tile.hero_on or (cur_tile.hero_on and unit.isAllyOf(cur_tile.hero_on))):
                 warp_moves.append(cur_tile)
 
-                if cur_tile in get_obstruct_tiles(unit, other_team) and not pass_cond:
+                if cur_tile in get_obstruct_tiles(unit, other_team, style) and not pass_cond:
                     i = 3
                 else:
                     cur_tile = cur_tile.east
@@ -10467,7 +10557,7 @@ def get_warp_moves(unit, unit_team, other_team):
             if can_be_on_tile(cur_tile, unit) and (not cur_tile.hero_on or (cur_tile.hero_on and unit.isAllyOf(cur_tile.hero_on))):
                 warp_moves.append(cur_tile)
 
-                if cur_tile in get_obstruct_tiles(unit, other_team) and not pass_cond:
+                if cur_tile in get_obstruct_tiles(unit, other_team, style) and not pass_cond:
                     i = 3
                 else:
                     cur_tile = cur_tile.west
@@ -10763,11 +10853,11 @@ def get_regular_moves(unit, unit_team, other_team, style=None):
     final_move_Objs = []
 
     if style == "ASTRA-STORM" or style == "EMBLEM-LYN":
-        moves, paths, obst_moves, obst_paths = get_nonwarp_moves(unit, other_team, spaces_allowed=0)
+        moves, paths, obst_moves, obst_paths = get_nonwarp_moves(unit, other_team, style, spaces_allowed=0)
         warp_tiles = []
     else:
-        moves, paths, obst_moves, obst_paths = get_nonwarp_moves(unit, other_team)
-        warp_tiles = get_warp_moves(unit, unit_team, other_team)
+        moves, paths, obst_moves, obst_paths = get_nonwarp_moves(unit, other_team, style)
+        warp_tiles = get_warp_moves(unit, unit_team, other_team, style)
 
     for i in range(0, len(moves)):
         final_dests.append(moves[i].tileNum)
@@ -10800,7 +10890,7 @@ def get_regular_moves(unit, unit_team, other_team, style=None):
 
     return final_dests, final_paths, final_move_Objs
 
-def get_canto_moves(unit, unit_team, other_team, distance_traveled, allowed_movement, action, turn, starting_tile, has_unit_warped):
+def get_canto_moves(unit, unit_team, other_team, distance_traveled, allowed_movement, action, turn, starting_tile, has_unit_warped, style):
     tile = unit.tile
 
     INVALID = -1
@@ -11051,7 +11141,7 @@ def get_canto_moves(unit, unit_team, other_team, distance_traveled, allowed_move
     canto_paths = []
     canto_move_Objs = []
 
-    moves, paths, obst_moves, obst_paths = get_nonwarp_moves(unit, other_team, base_move)
+    moves, paths, obst_moves, obst_paths = get_nonwarp_moves(unit, other_team, style, base_move)
 
     warp_tiles = []
     special_warp_tiles = []
@@ -11114,7 +11204,7 @@ def get_canto_moves(unit, unit_team, other_team, distance_traveled, allowed_move
     special_warp_tiles = remove_blocked_warp_tiles(unit, other_team, special_warp_tiles)
 
     if base_move > 0:
-        warp_tiles = get_warp_moves(unit, unit_team, other_team)
+        warp_tiles = get_warp_moves(unit, unit_team, other_team, style)
 
     # Standard movements
     for i in range(0, len(moves)):

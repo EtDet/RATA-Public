@@ -1,7 +1,9 @@
+import os
+import sys
+
 import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
-import os
 
 import textwrap
 from re import sub
@@ -77,6 +79,7 @@ def get_tower_hp_threshold(level):
 def _generate_all_units_option():
     names = hero.hero_sheet['Name']
     int_names = hero.hero_sheet['IntName']
+
     epithets = hero.hero_sheet['Epithet']
 
     # Units currently allowed for this build of the sim, what's implemented so far
@@ -1230,9 +1233,6 @@ class HeroListing(tk.Frame):
             def disable_scroll(event):
                 return 'break'
 
-            combo1 = ttk.Combobox(left_dropbox_frame)
-            combo1.grid(row=0, column=1, padx=10, pady=10)
-
             for row in range(13):
                 cur_str_var = tk.StringVar()
 
@@ -1244,6 +1244,10 @@ class HeroListing(tk.Frame):
                 combo1 = ttk.Combobox(left_dropbox_frame, textvariable=cur_str_var)
                 combo1.bind('<MouseWheel>', disable_scroll) # DISABLE SCROLL, TESTING
                 combo1.grid(row=row, column=1, padx=10, pady=10)
+
+                #combo1 = AutocompleteCombobox(left_dropbox_frame, textvariable=cur_str_var)
+                #combo1.bind('<MouseWheel>', disable_scroll)
+                #combo1.grid(row=row, column=1, padx=10, pady=10)
 
                 self.creation_str_vars.append(cur_str_var)
                 self.creation_comboboxes.append(combo1)
@@ -1405,9 +1409,12 @@ class HeroListing(tk.Frame):
     def handle_selection_change_name(self, event=None):
         # Get name selected
         selected_value = self.creation_str_vars[0].get()
+        print(selected_value)
 
         # Get internal name from name + epithet
         cur_intName = _intName_dict[selected_value]
+
+        print(cur_intName)
 
         # Set who this unit is on the proxy
         self.hero_proxy.full_name = selected_value
@@ -4946,7 +4953,7 @@ class GameplayCanvas(tk.Canvas):
             self.style_name = None
 
         if is_canto_move:
-            sdd['moves'], sdd['paths'], moves_obj_array = feh.get_canto_moves(cur_hero, unit_team, other_team, self.distance, self.spaces_allowed, self.chosen_action, self.turn_info[0], self.starting_tile, self.has_unit_warped)
+            sdd['moves'], sdd['paths'], moves_obj_array = feh.get_canto_moves(cur_hero, unit_team, other_team, self.distance, self.spaces_allowed, self.chosen_action, self.turn_info[0], self.starting_tile, self.has_unit_warped, self.style_name)
 
         else:
             sdd['moves'], sdd['paths'], moves_obj_array = feh.get_regular_moves(cur_hero, unit_team, other_team, style=self.style_name)
@@ -5001,6 +5008,8 @@ class GameplayCanvas(tk.Canvas):
                     atk_arr = self.map.tiles[move.destination].tilesNSpacesAway(2)
                 elif self.style_name == "ECHO":
                     atk_arr = self.map.tiles[move.destination].tilesNSpacesAway(3)
+                elif self.style_name == "SUBLIME-HEAVEN":
+                    atk_arr = self.map.tiles[move.destination].tilesNSpacesAway(3)
                 else:
                     atk_arr = self.map.tiles[move.destination].tilesNSpacesAway(cur_hero.weapon.range)
 
@@ -5053,6 +5062,8 @@ class GameplayCanvas(tk.Canvas):
                 elif self.style_name == "WIND-SWORD":
                     atk_arr = self.map.tiles[m.destination].tilesNSpacesAway(2)
                 elif self.style_name == "ECHO":
+                    atk_arr = self.map.tiles[m.destination].tilesNSpacesAway(3)
+                elif self.style_name == "SUBLIME-HEAVEN":
                     atk_arr = self.map.tiles[m.destination].tilesNSpacesAway(3)
                 else:
                     atk_arr = self.map.tiles[m.destination].tilesNSpacesAway(cur_hero.weapon.range)
@@ -6587,7 +6598,7 @@ class GameplayCanvas(tk.Canvas):
             # Finalized finish time, animation will end here
             finish_time = 500 * (i + 1) + 200 + aoe_present + burn_present + heals_present + 2 * savior_present
 
-            # Move savior unit back
+            # Move savior unit back visually
             if savior_unit:
                 self.after(finish_time - 100, set_unit_show, enemy)
 
@@ -6597,6 +6608,21 @@ class GameplayCanvas(tk.Canvas):
                 self.after(finish_time - 100, self.move_to_tile_sp, enemy_sp_label, initiated_enemy.tile.tileNum)
                 self.after(finish_time - 100, self.move_to_tile_bar, enemy_hp_bar_fg, initiated_enemy.tile.tileNum)
                 self.after(finish_time - 100, self.move_to_tile_bar, enemy_hp_bar_bg, initiated_enemy.tile.tileNum)
+
+            # Break Safety Fence after combat
+            if self.game_mode == hero.GameMode.AetherRaids:
+                break_fence_cond = False
+
+                for x in self.all_units[ENEMY]:
+                    if x.tile:
+                        if "truthKeeper" in x.getSkills() and ANIMA in self.season:
+                            break_fence_cond = True
+                        if "justiceEnforcer" in x.getSkills() and DARK in self.season:
+                            break_fence_cond = True
+
+                if break_fence_cond and self.get_struct_by_name("Safety Fence"):
+                    self.get_struct_by_name("Safety Fence").health = 0
+                    self.after(finish_time, self.refresh_walls)
 
             # Get the post combat effects
             atk_effects = combat_result[12]
@@ -8923,7 +8949,13 @@ class GameplayCanvas(tk.Canvas):
 
             player.moveOrDestroyActions += 1
 
+            # Lone Wolf (Destroying Struct)
             if "lone_wolf" in player.getSkills() and player.assistTargetedOther == 0 and player.assistTargetedSelf == 0 and not player.assist_galeforce_triggered:
+                player.assist_galeforce_triggered = True
+                galeforce_triggered = True
+                felix_galeforce_triggered = True
+
+            if "true_lone_wolf" in player.getSkills() and player.assistTargetOther == 0 and player.assistTargetedSelf == 0 and not player.assist_galeforce_triggered and not trap_triggered:
                 player.assist_galeforce_triggered = True
                 galeforce_triggered = True
                 felix_galeforce_triggered = True
@@ -8950,7 +8982,13 @@ class GameplayCanvas(tk.Canvas):
 
             player.moveOrDestroyActions += 1
 
+            # Lone Wolf (Destroying Ice)
             if "lone_wolf" in player.getSkills() and player.assistTargetedOther == 0 and player.assistTargetedSelf == 0 and not player.assist_galeforce_triggered:
+                player.assist_galeforce_triggered = True
+                galeforce_triggered = True
+                felix_galeforce_triggered = True
+
+            if "true_lone_wolf" in player.getSkills() and player.assistTargetOther == 0 and player.assistTargetedSelf == 0 and not player.assist_galeforce_triggered and not trap_triggered:
                 player.assist_galeforce_triggered = True
                 galeforce_triggered = True
                 felix_galeforce_triggered = True
@@ -8971,6 +9009,11 @@ class GameplayCanvas(tk.Canvas):
                 player.moveOrDestroyActions += 1
 
             if "lone_wolf" in player.getSkills() and player.assistTargetedOther == 0 and player.assistTargetedSelf == 0 and not player.assist_galeforce_triggered:
+                player.assist_galeforce_triggered = True
+                galeforce_triggered = True
+                felix_galeforce_triggered = True
+
+            if "true_lone_wolf" in player.getSkills() and player.assistTargetedOther == 0 and player.assistTargetedSelf == 0 and not player.assist_galeforce_triggered:
                 player.assist_galeforce_triggered = True
                 galeforce_triggered = True
                 felix_galeforce_triggered = True
@@ -9052,7 +9095,7 @@ class GameplayCanvas(tk.Canvas):
                 if move.destination == destination_tile and move.is_warp:
                     self.has_unit_warped = True
 
-            canto_moves = feh.get_canto_moves(cur_unit, current_units[S], current_units[S-1], self.distance, self.spaces_allowed, action, self.turn_info[0], self.starting_tile, self.has_unit_warped)[2]
+            canto_moves = feh.get_canto_moves(cur_unit, current_units[S], current_units[S-1], self.distance, self.spaces_allowed, action, self.turn_info[0], self.starting_tile, self.has_unit_warped, self.style_name)[2]
 
             # If there are any valid tiles to use Canto to, activate canto mode
             if canto_moves:
@@ -9073,7 +9116,7 @@ class GameplayCanvas(tk.Canvas):
                         cur_unit.inflictStatus(Status.CantoControl)
 
                 # Check Canto Moves after Canto Control is given out
-                moves_obj_array = feh.get_canto_moves(cur_unit, current_units[S], current_units[S-1], self.distance, self.spaces_allowed, action, self.turn_info[0], self.starting_tile, self.has_unit_warped)[2]
+                moves_obj_array = feh.get_canto_moves(cur_unit, current_units[S], current_units[S-1], self.distance, self.spaces_allowed, action, self.turn_info[0], self.starting_tile, self.has_unit_warped, self.style_name)[2]
 
                 if moves_obj_array:
 
@@ -10556,6 +10599,10 @@ class GameplayCanvas(tk.Canvas):
             move_range = feh.get_regular_moves(unit, unit_team, other_team, style=self.style_name)[2]
         elif self.style_name == "ECHO":
             move_range = feh.get_regular_moves(unit, unit_team, other_team, style=self.style_name)[2]
+        elif self.style_name == "SUBLIME-HEAVEN":
+            move_range = feh.get_regular_moves(unit, unit_team, other_team, style=self.style_name)[2]
+        elif self.style_name == "GREEN":
+            move_range = feh.get_regular_moves(unit, unit_team, other_team, style=self.style_name)[2]
 
         for m in move_range:
             x_comp = m.destination % 6
@@ -10580,6 +10627,11 @@ class GameplayCanvas(tk.Canvas):
                 attack_range.extend(self.map.tiles[m.destination].tilesNSpacesAway(2))
             elif self.style_name == "ECHO":
                 attack_range.extend(self.map.tiles[m.destination].tilesNSpacesAway(3))
+            elif self.style_name == "SUBLIME-HEAVEN":
+                attack_range.extend(self.map.tiles[m.destination].tilesNSpacesAway(3))
+            elif self.style_name == "GREEN":
+                attack_range.extend(self.map.tiles[m.destination].tilesNSpacesAway(2))
+
 
         attack_range = list(set(attack_range))
 
@@ -11792,6 +11844,7 @@ class UnitInfoDisplay(tk.Frame):
                         15: "Shadows of Valentia",
                         16: "Three Houses",
                         17: "Engage",
+                        18: "Fortune's Weave",
                         69: "Tokyo Mirage Sessions ♯FE"}
 
         advanced_text = "Internal Name: " + unit.intName + "\n"

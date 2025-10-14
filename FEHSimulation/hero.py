@@ -69,8 +69,8 @@ weapons = {
     "CBeast": (23, "Colorless Beast")
 }
 
-MELEE_STYLES = ["WIND-SWORD"]
-RANGED_STYLES = ["ASTRA-STORM", "EMBLEM-LYN", "ECHO"]
+MELEE_STYLES = ["WIND-SWORD", "SUBLIME-HEAVEN"]
+RANGED_STYLES = ["ASTRA-STORM", "EMBLEM-LYN", "ECHO", "GREEN"]
 
 # return stat increase needed for level 1 -> 40 based on growth and rarity
 def growth_to_increase(value, rarity):
@@ -126,6 +126,8 @@ class Hero:
         # 14 - Fates
         # 16 - Three Houses/Three Hopes
         # 17 - Engage
+        # 18 - Fortune's Weave
+        # 50 - Shadows
         # 69 - Tokyo Mirage Sessions ♯FE
         # 99 - Other
         self.primary_game: int = primary_game
@@ -1101,9 +1103,23 @@ class Hero:
 
             styles.append("ECHO")
 
+        # Sublime Heaven Style
+        if "bmBylethBoost" in unitSkills and "disableWeapon" not in self.statusOther:
+            present += 1
+
+            if "disableWeapon" not in self.statusOther:
+                styles.append("SUBLIME-HEAVEN")
+
+        # Green Style
+        if "bBaldrBoost" in unitSkills:
+            present += 1
+            styles.append("GREEN")
+
         if present != 1:
             present = False
             styles = []
+
+
 
         return present, styles
 
@@ -1301,6 +1317,7 @@ blessing_dict = {
     "L!Ayra":         (WATER, 3, SPD),
     "L!Sakura":       (EARTH, 3, RES),
     "L!Black Knight": (FIRE,  3, ATK),
+    "L!Diamant":      (EARTH, 3, DEF),
 
     "Eir":            (LIGHT, 1, RES),
     "Duma":           (ANIMA, 1, ATK),
@@ -1350,7 +1367,10 @@ blessing_dict = {
     "Læraðr":         (DARK,  2, DEF),
     "Rune":           (LIGHT, 3, SPD),
     "Athos":          (ANIMA, 3, DEF),
-    "Elm":            (ASTRA, 3, SPD)
+    "Elm":            (ASTRA, 3, SPD),
+    "Baldr":          (DARK,  3, SPD),
+    "Höðr":           (ANIMA, 3, RES),
+    "UMA!Lyn":        (LIGHT, 3, RES)
 }
 
 def create_specialized_blessing(int_name):
@@ -1385,6 +1405,10 @@ class Status(Enum):
     Exposure = 2  # 🔴 Foe's attacks deal +10 true damage
     Sabotage = 3  # 🔴 Reduces atk/spd/def/res by lowest debuff among unit & allies within 2 spaces during combat
     Discord = 4  # 🔴 Reduces atk/spd/def/res by 2 + number of allies within 2 spaces of unit, max 3 during combat
+    AtkShackle = 4.2
+    SpdShackle = 4.4
+    DefShackle = 4.6
+    ResShackle = 4.8
     HushSpectrum = 5 # 🔴 Atk/Spd/Def/Res-5 and sp halt +1 on self before unit's first attack
     ShareSpoils = 6 # 🔴 Atk/Spd/Def/Res-5, nullify percentage damage reduction of self, and grants another action to foe if this unit is defeated
     ShareSpoilsPlus = 6.5 # 🔴 Atk/Spd/Def/Res-5, nullify percentage damage reduction of self, and grants another action to foe if this unit is defeated (once per turn)
@@ -1412,6 +1436,7 @@ class Status(Enum):
     RallySpectrum = 102  # 🔴 Grants Atk/Spd/Def/Res+5 and grants special -X before unit's first hit (X = 1 if unit has brave or slaying, 2 otherwise)
     Incited = 103  # 🔴 If initiating combat, grants Atk/Spd/Def/Res = num spaces moved, max 3
     BonusDoubler = 104  # 🔴 Gain atk/spd/def/res boost by current bonus on stat, canceled by Panic
+    FringeBonus = 104.5  # 🔴 Gain atk/spd/def/res boost by current bonus on stat of self (canceled by Panic) or allies in 2 spaces
     FoePenaltyDoubler = 105  # 🔴 Inflicts atk/spd/def/res -X on foe equal to current penalty on each stat
     GrandStrategy = 106  # 🔴 If negative penalty is present on self, grants atk/spd/def/res during combat equal to penalty * 2 for each stat
     FutureWitness = 107  # 🔴 Canto 2, Atk/Spd/Def/Res+5, reduce first attacks by 7, and sp halt +1 on foe before foe's first attack
@@ -1423,6 +1448,8 @@ class Status(Enum):
     DraconicHex = 113 # 🔴 Inflicts Atk/Spd/Def/Res-5 on foe, and an additional Atk/Spd/Def/Res-5 minus current debuff of each stat.
     FireEmblem = 113.25  # 🔴 Nulls "Eff against move types", grants Atk/Spd/Def/Res = highest bonus on foes within 2 spaces, and reduces damage from first strikes by 10.
     FellSpirit = 113.5 # 🔴 Inflicts Atk/Spd/Def/Res-4 on foe, disables cannot counter skills, any special DR can be triggered twice, and if any unit in combat is engaged, inflicts additional Atk/Spd/Def/Res-2 on foe
+    ProfsGuidance = 113.75 # 🔴 Grants Atk/Spd/Def/Res+5, any special DR can be triggered twice, sp charge-1 after combat, and 2x SP
+    ChangeOfFate = 113.90 # 🔴 Grants Canto 2, Atk/Spd/Def/Res+5, and true dmg = 3 * num statuses on self, max 15
     Treachery = 114  # 🔴 Deal true damage = number of stat bonuses on unit (not including Panic + Bonus)
     Dominance = 115  # 🔴 Deal true damage = number of stat penalties on foe (including Panic-reversed Bonus)
     AOEReduce80Percent = 116  # 🔴 Reduces non-Røkkr AoE damage taken by 80%
@@ -1455,6 +1482,7 @@ class Status(Enum):
     Hexblade = 141  # 🔴 Damage inflicted using lower of foe's def or res (applies to AoE skills)
     SpecialCharge = 142  # 🔴 Special charge +1 per hit during combat
     PreemptPulse = 143  # 🔴 Grants -1 sp jump before unit's first attack
+    CreationPulse = 143.5 #  Grants -X sp jump before unit's first attack, X = num negative statuses on foe, max 2
     Pursual = 144  # 🔴 Unit makes follow-up attack when initiating combat
     MakeFollowUp = 144.5 # 🔴 Unit makes follow-up attack
     DenyFollowUp = 145  # 🔴 Foe cannot make a follow-up attack
@@ -1464,7 +1492,8 @@ class Status(Enum):
     Vantage = 149  # 🔴 Unit counterattacks before foe's first attack in enemy phase
     Paranoia = 150  # 🔴 If unit's HP >= 99%, grants Atk+5, Desperation, and if either # foe negative statuses >= 3 or foe is of same range, grants Vantage
     Bulwark = 151  # 🔵 Foes cannot move through spaces within X spaces of unit, X = foe's range
-    AssignDecoy = 152  # 🔴 Unit is granted Savior effect for their range, fails if unit currently has savior skill
+    AssignDecoy = 152  # 🔴 Unit is granted Savior effect for their range
+    MagicTwinSave = 152.5 # 🔴 When fighting magic foes, enables Savior, disables their Hexblade, and any special DR can be triggered twice
     CancelAffinity = 153  # 🔴 Cancel Affinity 3, reverses weapon triangle to neutral if Triangle Adept-having unit/foe has advantage
     TriangleAttack = 154  # 🔴 If within 2 spaces of 2 allies with TriAttack and initiating combat, unit attacks twice
     DualStrike = 155  # 🔴 If unit initiates combat and is adjacent to unit with DualStrike, unit attacks twice

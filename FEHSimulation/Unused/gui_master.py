@@ -7,7 +7,7 @@ import ttkbootstrap as ttk
 from PIL import Image, ImageTk
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-megaSpread = pd.read_csv(__location__ + '\\FEHstats.csv')
+megaSpread = pd.read_csv(__location__ + '\\FEHstats.xlsx')
 
 
 def singlePlayerButton():
